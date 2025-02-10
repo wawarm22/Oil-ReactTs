@@ -8,8 +8,8 @@
 }
 
 /* ตั้งค่า root variables */
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+/* :root {
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -21,10 +21,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
+} */
 
 /* ตั้งค่า body ให้ไม่มี margin และ padding */
 body {
+  font-family: 'Sarabun', sans-serif;
   margin: 0;
   padding: 0;
   width: 100%;
