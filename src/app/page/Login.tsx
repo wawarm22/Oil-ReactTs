@@ -1,6 +1,7 @@
 import React from "react";
 import '../../assets/css/underline-hover.css'
 import '../../assets/css/none-border.css'
+import '../../assets/css/input-highlights.css'
 import { MdEmail, MdOutlinePassword } from "react-icons/md";
 import bgImage from "../../assets/img/bg-login.png";
 import sidebar from "../../assets/img/line-sidebar.png";

@@ -1,25 +1,20 @@
-/* เพิ่มเส้นใต้เมื่อ hover ที่ลิงก์ */
-.hover-underline:hover {
-    text-decoration: underline !important;
-    
+.hover-underline {
+    position: relative;
+    text-decoration: none; /* ปิด underline ปกติ */
 }
 
-/* ลบเส้นขอบเมื่อกรอกข้อมูลใน input */
-input:focus {
-    outline: none !important;
-    box-shadow: none !important;
+.hover-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1px; /* ปรับระยะห่างของเส้นใต้จากตัวหนังสือ */
+    width: 100%;
+    height: 2px; /* ความหนาของเส้นใต้ */
+    background-color: currentColor; /* ใช้สีเดียวกับข้อความ */
+    transform: scaleX(0); /* ทำให้เส้นหายไปตอนเริ่มต้น */
+    transition: transform 0.2s ease-in-out;
 }
 
-/* เพิ่ม box-shadow ที่มีความโค้งมนและใช้สี #FFCB02 เมื่อ focus */
-.input-group:focus-within {
-    box-shadow: 0 0 3px 3px #FFCB02;
-    border-radius: 0.6rem;
+.hover-underline:hover::after {
+    transform: scaleX(1); /* แสดงเส้นเมื่อ hover */
 }
-
-/* เพิ่ม box-shadow ที่มีความโค้งมนและใช้สี #FFCB02 เมื่อ focus */
-.input-regis:focus-within {
-    box-shadow: 0 0 3px 3px #FFCB02;
-    border-radius: 0.5rem;
-}
-
-

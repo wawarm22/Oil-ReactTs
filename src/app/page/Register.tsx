@@ -1,5 +1,5 @@
 import React from "react";
-import '../../assets/css/underline-hover.css'
+import '../../assets/css/input-highlights.css'
 import { useNavigate } from "react-router-dom";
 import bgRegister from "../../assets/img/bg-regis.png";
 import lineTop from "../../assets/img/line-top.png"
@@ -24,9 +24,9 @@ const Register: React.FC = () => {
             }}
         >
             <div
-                className="text-white rounded-4 p-5"
+                className="text-white rounded-4 p-5 w-100"
                 style={{
-                    width: "1600px",
+                    maxWidth: "1600px",
                     backgroundColor: "#151513",
                 }}
             >
@@ -38,7 +38,6 @@ const Register: React.FC = () => {
                         <img className="img-fluid ps-3" src={lineTop} alt="Line Top" style={{ width: "60%" }} />
                     </div>
                     <form onSubmit={handleSubmit} style={{ fontFamily: 'Sarabun' }}>
-                        {/* ห่อข้อมูลส่วนที่ 1 ด้วย container ที่มี position: relative */}
                         <div className="position-relative">
                             {/* ข้อมูลส่วนที่ 1 */}
                             <div className="p-3 rounded-0 mb-2 position-relative" style={{ zIndex: 1 }}>
@@ -141,7 +140,7 @@ const Register: React.FC = () => {
                                 }}
                             />
                             <div className="p-3 rounded-0 mb-4 position-relative" style={{ zIndex: 1 }}>
-                                <div className="row g-3">
+                                <div className="row g-3 pe-2">
                                     <div className="col-md-6">
                                         <label className="form-label">สถานที่ตั้ง</label>
                                         <div className="input-regis">
