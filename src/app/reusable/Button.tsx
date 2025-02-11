@@ -37,7 +37,7 @@ const Button: React.FC<ButtonProps> = ({
                 backgroundColor: bgColor,
                 color: color,
                 fontSize: '18px',
-                minHeight: '46px',
+                minHeight: '50px',
                 maxWidth: '180px',
                 border: `2px solid ${borderColor || bgColor}`, // ใช้ borderColor หรือค่าเริ่มต้นเป็น bgColor
             }}

@@ -25,7 +25,7 @@
 
 /* ตั้งค่า body ให้ไม่มี margin และ padding */
 body {
-  font-family: 'Sarabun', sans-serif;
+  font-family: 'Sarabun', sans-serif, 'IBM Plex Sans Thai', sans-serif;
   margin: 0;
   padding: 0;
   width: 100%;

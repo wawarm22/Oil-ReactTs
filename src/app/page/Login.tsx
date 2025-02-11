@@ -18,6 +18,10 @@ const Login: React.FC = () => {
         navigate('/register')
     }
 
+    const handleLogin = () => {
+        navigate('/')
+    }
+
     return (
         <div className="d-flex vh-100 w-100" style={{ fontFamily: 'IBM Plex Sans Thai' }}>
             <div className="d-flex flex-column align-items-center justify-content-center bg-dark vh-100" style={{ width: "60px" }}>
@@ -51,6 +55,7 @@ const Login: React.FC = () => {
                             <p className="fw-bold text-white text-start position-absolute translate-middle"
                                 style={{
                                     fontSize: "2vw",
+                                    fontFamily: 'IBM Plex Sans Thai',
                                     zIndex: "10",
                                     width: "80%",
                                     top: "59%",
@@ -149,7 +154,7 @@ const Login: React.FC = () => {
                                             hoverColor="#FFCB02"
                                             hoverBorderColor="#FFD700"
                                             variant="bg-hide"
-                                            onClick={() => console.log("เข้าสู่ระบบ")}
+                                            onClick={handleLogin}
                                         />
                                     </div>
                                 </form>
