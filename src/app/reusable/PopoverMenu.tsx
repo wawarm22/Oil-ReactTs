@@ -14,7 +14,7 @@ const PopoverMenu: React.FC<PopoverMenuProps> = ({ isOpen, menuRef }) => {
         <CSSTransition
             in={isOpen}
             timeout={300}
-            classNames="fade-scale"
+            classNames="reveal-step"
             unmountOnExit
         >
             <div

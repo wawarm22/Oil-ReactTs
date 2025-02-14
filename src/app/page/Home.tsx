@@ -2,7 +2,14 @@ import React from "react";
 import bgMain from "../../assets/img/img-main.png";
 import Button from "../reusable/Button";
 import sidebar from "../../assets/img/line-sidebar.png";
+import { useNavigate } from "react-router-dom";
 const Home: React.FC = () => {
+    const navigate = useNavigate();
+
+    const handleSubmitForm = () => {
+        navigate("/form-submission");
+    }
+    
     return (
         <div
             className="d-flex align-items-center justify-content-center position-relative"
@@ -61,6 +68,7 @@ const Home: React.FC = () => {
                     hoverBgColor="#FFFF"
                     hoverColor="#DA281C"
                     variant="bg-hide"
+                    onClick={handleSubmitForm}
                 />
             </div>
         </div>

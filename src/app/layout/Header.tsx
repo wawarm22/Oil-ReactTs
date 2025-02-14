@@ -3,6 +3,7 @@ import '../../assets/css/berger-menu.css'
 import logo from "../../assets/img/logo-header.png";
 import borderMenu from "../../assets/img/border-menu.png"
 import PopoverMenu from "../reusable/PopoverMenu";
+import { Link } from "react-router-dom";
 
 const Header: React.FC = () => {
     const [isPopoverOpen, setPopoverOpen] = useState(false);
@@ -15,7 +16,7 @@ const Header: React.FC = () => {
                 menuRef.current && !menuRef.current.contains(event.target as Node) &&
                 iconRef.current && !iconRef.current.contains(event.target as Node)
             ) {
-                setPopoverOpen(false); // ปิดเมนูถ้าคลิกข้างนอก
+                setPopoverOpen(false); 
             }
         };
 
@@ -34,16 +35,22 @@ const Header: React.FC = () => {
         <header className="d-flex justify-content-between align-items-center bg-white shadow-sm">
             {/* โลโก้ด้านซ้าย */}
             <div className="d-flex align-items-center p-3" style={{ fontFamily: 'IBM Plex Sans Thai' }}>
-                <div>
-                    <p className="fw-bold mb-0" style={{ fontSize: '30px' }}>กรมสรรพสามิต</p>
-                    <p className="mb-0" style={{ fontSize: '14px' }}>THE EXCISE DEPARTMENT</p>
-                </div>
-                <img
-                    src={logo}
-                    alt="Excise Logo"
-                    className="mt-3"
-                    style={{ width: '11%' }}
-                />
+                <Link
+                    to="/"
+                    className="text-dark text-decoration-none"
+                    style={{ display: "contents" }}
+                >
+                    <div>
+                        <p className="fw-bold mb-0" style={{ fontSize: '30px' }}>กรมสรรพสามิต</p>
+                        <p className="mb-0" style={{ fontSize: '14px' }}>THE EXCISE DEPARTMENT</p>
+                    </div>
+                    <img
+                        src={logo}
+                        alt="Excise Logo"
+                        className="mt-3"
+                        style={{ width: '11%' }}
+                    />
+                </Link>
             </div>
 
             {/* เมนูและข้อมูลสาขา */}

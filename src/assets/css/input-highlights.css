@@ -1,16 +1,13 @@
-/* ลบเส้นขอบเมื่อกรอกข้อมูลใน input */
 input:focus {
     outline: none !important;
     box-shadow: none !important;
 }
 
-/* เพิ่ม box-shadow ที่มีความโค้งมนและใช้สี #FFCB02 เมื่อ focus */
 .input-group:focus-within {
     box-shadow: 0 0 3px 3px #FFCB02;
     border-radius: 0.6rem;
 }
 
-/* เพิ่ม box-shadow ที่มีความโค้งมนและใช้สี #FFCB02 เมื่อ focus */
 .input-regis:focus-within {
     box-shadow: 0 0 3px 3px #FFCB02;
     border-radius: 0.5rem;

@@ -1,21 +1,21 @@
-.fade-scale-enter {
-    opacity: 0;
-    transform: scale(0.9) translateY(-10px);
-}
-
-.fade-scale-enter-active {
+.reveal-step-enter {
+    clip-path: inset(0 0 99% 0);
     opacity: 1;
-    transform: scale(1) translateY(0);
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
-.fade-scale-exit {
+.reveal-step-enter-active {
+    clip-path: inset(0 0 0% 0);
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transition: clip-path 600ms ease-out, opacity 600ms ease-out;
 }
 
-.fade-scale-exit-active {
-    opacity: 0;
-    transform: scale(0.9) translateY(-10px);
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+.reveal-step-exit {
+    clip-path: inset(0 0 0% 0);
+    opacity: 1;
+}
+
+.reveal-step-exit-active {
+    clip-path: inset(0 0 99% 0);
+    opacity: 1;
+    transition: clip-path 600ms ease-in, opacity 600ms ease-in;
 }

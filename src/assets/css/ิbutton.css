@@ -1,14 +1,7 @@
-/* ปุ่มมาตรฐาน */
 .btn {
     transition: all 0.3s ease-in-out;
 }
 
-/* เมื่อเมาส์ไปชี้ที่ปุ่ม */
-/* .btn:hover {
-    transform: scale(1.05);
-} */
-
-/* bg-hide: สีพื้นหลังจะหายไปเมื่อ hover */
 .bg-hide {
     color: white;
     border-width: 2px;
