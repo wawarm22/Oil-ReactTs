@@ -4,6 +4,7 @@ import Register from "../app/page/Register";
 import Layout from "../app/layout/Layout";
 import Home from "../app/page/Home";
 import FormSubmission from "../app/page/FormSubmission";
+import DocumentList from "../app/page/DocumentList";
 
 const WebRoute = () => {
   return (
@@ -13,6 +14,7 @@ const WebRoute = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<Home />} />
         <Route path="/form-submission" element={<FormSubmission />} />
+        <Route path="/document-list" element={<DocumentList/>}/>
       </Routes>
     </Layout>
   );

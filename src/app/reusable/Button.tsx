@@ -12,7 +12,9 @@ interface ButtonProps {
     borderColor?: string;
     hoverBorderColor?: string; 
     className?: string;
-    variant?: 'bg-hide' | 'bg-show' | 'default'; 
+    variant?: 'bg-hide' | 'bg-show' | 'default';
+    maxWidth?: string; 
+    children?: React.ReactNode;
 }
 
 const Button: React.FC<ButtonProps> = ({ 
@@ -26,7 +28,9 @@ const Button: React.FC<ButtonProps> = ({
     borderColor, 
     hoverBorderColor,
     className, 
-    variant = 'default' 
+    variant = 'default',
+    maxWidth = "180px",
+    children 
 }) => {
     return (
         <button
@@ -38,8 +42,8 @@ const Button: React.FC<ButtonProps> = ({
                 color: color,
                 fontSize: '18px',
                 minHeight: '50px',
-                maxWidth: '180px',
-                border: `2px solid ${borderColor || bgColor}`, // ใช้ borderColor หรือค่าเริ่มต้นเป็น bgColor
+                maxWidth: maxWidth,                
+                border: `2px solid ${borderColor || bgColor}`, 
             }}
             onMouseEnter={(e) => {
                 if (variant === 'bg-hide') {
@@ -57,6 +61,7 @@ const Button: React.FC<ButtonProps> = ({
             }}
             onClick={onClick}
         >
+            {children}
             {label}
         </button>
     );

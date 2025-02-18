@@ -33,7 +33,7 @@ const PopoverMenu: React.FC<PopoverMenuProps> = ({ isOpen, menuRef }) => {
                         <a href="#" className="text-dark text-decoration-none fw-bold hover-underline">ประวัติการทำรายการ</a>
                     </li>
                     <li className="py-2 px-3">
-                        <a href="#" className="text-dark text-decoration-none fw-bold hover-underline">ดาวน์โหลดเอกสาร</a>
+                        <a href="/document-list" className="text-dark text-decoration-none fw-bold hover-underline">ดาวน์โหลดเอกสาร</a>
                     </li>
                     <li className="py-2 px-3">
                         <a href="#" className="text-dark text-decoration-none fw-bold hover-underline">จัดการข้อมูลส่วนตัว</a>

@@ -1,0 +1,10 @@
+.edit-icon {
+    cursor: pointer;
+    transition: color 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    opacity: 0.6;
+}
+
+.edit-icon:hover {
+    color: #4FA9FF;
+    opacity: 1;
+}
