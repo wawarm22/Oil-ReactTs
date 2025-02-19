@@ -18,7 +18,7 @@ const DocumentList: React.FC = () => {
     }
 
     return (
-        <div className="container w-100 mt-3" style={{ maxWidth: "1800px" }}>
+        <div className="container-fluid w-100 mt-3" style={{ maxWidth: "1800px" }}>
             <div className="d-flex justify-content-start align-items-end">
                 <p
                     className="fw-bold mb-0"
@@ -57,7 +57,7 @@ const DocumentList: React.FC = () => {
                                         hoverColor="#3D4957"
                                         variant="bg-hide"
                                     >
-                                        <RiFileDownloadLine className="me-1" size={20} /> {/* ✅ ไอคอนอยู่ขวา */}
+                                        <RiFileDownloadLine className="me-1" size={20} /> 
                                     </Button>
                                 </td>
                             </tr>

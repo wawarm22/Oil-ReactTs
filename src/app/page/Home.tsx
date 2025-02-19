@@ -11,6 +11,10 @@ const Home: React.FC = () => {
         navigate("/form-submission");
     }
 
+    const handleUploadForm = () => {
+        navigate("/upload"); 
+    };
+
     return (
         <>
             <div
@@ -83,6 +87,7 @@ const Home: React.FC = () => {
                         hoverBgColor="#1E2329"
                         hoverColor="#FFCC01"
                         variant="bg-hide"
+                        onClick={handleUploadForm}
                     />
                 </div>
             </div>

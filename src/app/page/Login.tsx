@@ -78,10 +78,10 @@ const Login: React.FC = () => {
                     >
                         <div className="p-4 bg-black text-white d-flex flex-column justify-content-center align-items-center"
                             style={{
-                                width: "90%",
-                                maxWidth: "450px",
+                                width: "100%",
+                                maxWidth: "550px",
                                 height: "650px",
-                                borderRadius: "170px"
+                                borderRadius: "195px"
                             }}
                         >
                             <div className="position-relative" style={{ width: '300px' }}>

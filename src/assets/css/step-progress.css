@@ -1,0 +1,47 @@
+.step-container {
+    width: 100%;
+    max-width: 900px;
+    margin: auto;
+}
+
+.step-line {
+    width: 120px;
+    height: 3px;
+    background-color: #ccc;
+    margin: 0 10px;
+}
+
+.step-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: white;
+}
+
+.step-circle.active {
+    background-color: #FFCA04;
+    color: black;
+}
+
+.step-circle.completed {
+    background-color: #6c757d;
+}
+
+.step-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: #aaa;
+}
+
+.step-text.active-text {
+    color: black;
+}
+
+.step-text.completed-text {
+    color: #6c757d;
+}

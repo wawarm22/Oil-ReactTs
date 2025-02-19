@@ -20,8 +20,12 @@ const FormSubmission: React.FC = () => {
     navigate('/');
   }
 
+  const handleUploadForm = () => {
+    navigate("/upload");
+  };
+
   return (
-    <div className="container w-100 mt-3" style={{ maxWidth: "1800px" }}>
+    <div className="container-fluid w-100 mt-3" style={{ maxWidth: "1800px" }}>
       <div className="d-flex justify-content-between align-items-end">
         <p
           className="fw-bold mb-0"
@@ -43,6 +47,7 @@ const FormSubmission: React.FC = () => {
           hoverBorderColor="#4FA9FF"
           hoverColor="#4FA9FF"
           variant="bg-hide"
+          onClick={handleUploadForm}
         />
       </div>
       <div className="table-responsive bg-white p-4 mt-3 rounded shadow rounded-3" style={{ fontSize: '16spx' }}>
