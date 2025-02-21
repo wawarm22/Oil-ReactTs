@@ -6,6 +6,7 @@ import Home from "../app/page/Home";
 import FormSubmission from "../app/page/FormSubmission";
 import DocumentList from "../app/page/DocumentList";
 import Upload from "../app/page/Upload";
+import UploadMultiple from "../app/page/UploadMultiple";
 
 const WebRoute = () => {
   return (
@@ -17,6 +18,7 @@ const WebRoute = () => {
         <Route path="/form-submission" element={<FormSubmission />} />
         <Route path="/document-list" element={<DocumentList/>}/>
         <Route path="/upload" element={<Upload />} />
+        <Route path="/upload-multiple" element={<UploadMultiple />} />
       </Routes>
     </Layout>
   );

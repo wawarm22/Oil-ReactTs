@@ -3,7 +3,7 @@ import bgMain from "../../assets/img/img-main.png";
 import Button from "../reusable/Button";
 import sidebar from "../../assets/img/line-sidebar.png";
 import { useNavigate } from "react-router-dom";
-import Dashboard from "./Dashboard";
+import Dashboard from "../component/Dashboard";
 const Home: React.FC = () => {
     const navigate = useNavigate();
 

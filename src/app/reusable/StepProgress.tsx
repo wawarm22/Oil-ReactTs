@@ -1,34 +1,31 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
 import "../../assets/css/step-progress.css";
+import { StepStatus } from "../../types/enum/stepStatus";
+import { StepItem, stepList } from "../../types/step";
 
-const steps = [
-    { label: "อัปโหลดเอกสาร", path: "/upload" },
-    { label: "ยืนยันการอัปโหลดเอกสาร", path: "/confirm-upload" },
-    { label: "ตรวจสอบเอกสาร", path: "/review" },
-    { label: "ยื่นแบบคำขอ", path: "/submit" }
-];
+interface StepProgressProps {
+    status: StepStatus;
+}
 
-const StepProgress: React.FC = () => {
-    const location = useLocation();
-    const currentStep = steps.findIndex(step => step.path === location.pathname) + 1;
-
+const StepProgress: React.FC<StepProgressProps> = ({ status }) => {
+    const currentStepIndex = stepList.findIndex(step => step.status === status);
+    
     return (
         <div className="container-fluid d-flex justify-content-center shadow-sm p-4 bg-white rounded-2 w-100" style={{ fontFamily: 'IBM Plex Sans Thai' }}>
             <div className="d-flex align-items-center" style={{ maxWidth: '1400px', fontSize: '22px' }}>
-                {steps.map((step, index) => {
-                    const isActive = index + 1 === currentStep;
-                    const isCompleted = index + 1 < currentStep;
+                {stepList.map((step: StepItem, index: number) => {
+                    const isActive = index === currentStepIndex;
+                    const isCompleted = index < currentStepIndex;
 
                     return (
-                        <div key={index} className="d-flex align-items-center">
+                        <div key={step.id} className="d-flex align-items-center">
                             <div className={`step-circle ${isActive ? "active" : "me-2"} ${isCompleted ? "completed" : "me-2"}`}>
-                                {index + 1}
+                                {step.id}
                             </div>
                             <span className={`step-text ${isActive ? "active-text" : ""} ${isCompleted ? "completed-text" : ""}`}>
                                 {step.label}
                             </span>
-                            {index !== steps.length - 1 && <div className="step-line"></div>}
+                            {index !== stepList.length - 1 && <div className="step-line"></div>}
                         </div>
                     );
                 })}

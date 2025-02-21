@@ -7,22 +7,16 @@ const LoadingPage: React.FC<{ onLoaded: () => void }> = ({ onLoaded }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
-            onLoaded(); 
-        }, 3000); 
+            onLoaded();
+        }, 3000);
 
         return () => clearTimeout(timer);
     }, []);
 
     return (
-        <div className="d-flex flex-column justify-content-center align-items-center vh-100 text-center"
-            style={{
-                backgroundColor: "#f4f4f4",
-                fontFamily: '"IBM Plex Sans Thai", sans-serif',
-            }}
-        >
+        <div className="d-flex flex-column justify-content-center align-items-center vh-100">
             {loading ? (
                 <>
-                    <h2>กำลังโหลด...</h2>
                     <OilDropletLoader />
                 </>
             ) : null}

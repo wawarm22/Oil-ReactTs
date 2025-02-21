@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import Header from './Header';
 import '../../assets/css/background.css';
+import Header from '../component/Header';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -12,7 +12,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const shouldShowHeader = !(['/login', '/register'].includes(location.pathname));
 
     // ✅ ตรวจสอบ pathname เพื่อกำหนด class เฉพาะหน้า (เพิ่ม /upload)
-    const layoutClass = ["/form-submission", "/upload"].includes(location.pathname) ? "bg-light-gray" : "";
+    const layoutClass = ["/form-submission", "/upload", "/upload-multiple"].includes(location.pathname) ? "bg-light-gray" : "";
 
     return (
         <div className="d-flex" style={{ minHeight: '100vh', fontFamily: 'Sarabun' }}>

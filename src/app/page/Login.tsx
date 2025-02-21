@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import '../../assets/css/underline-hover.css'
-import '../../assets/css/none-border.css'
 import '../../assets/css/input-highlights.css'
 import { MdEmail, MdOutlinePassword } from "react-icons/md";
 import bgImage from "../../assets/img/bg-login.png";
@@ -11,7 +10,7 @@ import topCorner from "../../assets/img/top-corner.png"
 import bCorner from "../../assets/img/b-corner.png"
 import Button from "../reusable/Button";
 import { useNavigate } from "react-router-dom";
-import LoadingPage from "./LoadingPage";
+import LoadingPage from "../component/LoadingPage";
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
@@ -23,10 +22,10 @@ const Login: React.FC = () => {
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true); // แสดงหน้า Loading
+        setIsLoading(true);
         setTimeout(() => {
-            navigate('/'); // นำไปยังหน้า Home หลังโหลดเสร็จ
-        }, 3000); // กำหนดเวลารอ 3 วินาที
+            navigate('/'); 
+        }, 3000); 
     };
 
     return (
@@ -47,7 +46,6 @@ const Login: React.FC = () => {
                                     className="w-100 h-100"
                                     style={{
                                         background: `url(${bgImage}) center / cover`,
-                                        // backgroundPosition: "top center",                               
                                     }}
                                 ></div>
                                 <img

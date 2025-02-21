@@ -1,27 +1,46 @@
-import React from "react";
+import React, { useState } from "react";
 import StepProgress from "../reusable/StepProgress";
 import Button from "../reusable/Button";
 import '../../assets/css/table.css'
 import { useNavigate } from "react-router-dom";
 import { documentList } from "../../types/docList";
 import { RiFileDownloadLine } from "react-icons/ri";
+import { StepStatus } from "../../types/enum/stepStatus";
 
 const Upload: React.FC = () => {
     const navigate = useNavigate();
-    // const [currentPage, setCurrentPage] = useState(1);
-    // const itemsPerPage = 5;
-    // const totalPages = Math.ceil(documentList.length / itemsPerPage);
-    // const currentData = documentList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const [currentStatus, _setCurrentStatus] = useState<StepStatus>(StepStatus.UPLOAD);
 
     const handleBack = () => {
         navigate('/');
     }
+
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        console.log('upload');
+
+        if (!event.target.files) {
+            console.log("ไม่มีไฟล์ถูกเลือก");
+            return;
+        }
+
+        if (event.target.files) {
+            const fileArray = Array.from(event.target.files);
+            const filePreviews = fileArray.map(file => ({
+                name: file.name,
+                url: URL.createObjectURL(file)
+            }));
+
+            localStorage.setItem("uploadedFiles", JSON.stringify(filePreviews));
+            navigate("/upload-multiple");
+        }
+    };
+
     return (
         <div className="container-fluid mt-4 w-100" style={{ maxWidth: '1800px' }}>
             <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px", }}>
                 รายการลดหย่อนเเละการคืนภาษี
             </p>
-            <StepProgress />
+            <StepProgress status={currentStatus} />
             {/* เพิ่ม UI สำหรับอัปโหลดเอกสาร */}
             <div className="mt-3 d-flex justify-content-between align-items-end">
                 <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px", }}>
@@ -32,9 +51,17 @@ const Upload: React.FC = () => {
                 <table className="table custom-table table-borderless fw-bold">
                     <thead style={{ borderBottom: "2px solid #0000004B" }}>
                         <tr>
-                            <th className="align-middle" style={{fontSize: '22px'}}>รายการเอกสาร</th>
-                            <th className="align-middle text-center" style={{fontSize: '22px'}}>จำนวนหน้า</th>
+                            <th className="align-middle" style={{ fontSize: '22px' }}>รายการเอกสาร</th>
+                            <th className="align-middle text-center" style={{ fontSize: '22px' }}>จำนวนหน้า</th>
                             <th className="text-end">
+                                <input
+                                    type="file"
+                                    accept="application/pdf"
+                                    multiple
+                                    style={{ display: "none" }}
+                                    id="file-upload"
+                                    onChange={handleFileUpload}
+                                />
                                 <Button
                                     className="w-100"
                                     type="button"
@@ -46,6 +73,7 @@ const Upload: React.FC = () => {
                                     hoverBorderColor="#4FA9FF"
                                     hoverColor="#4FA9FF"
                                     variant="bg-hide"
+                                    onClick={() => document.getElementById("file-upload")?.click()}
                                 >
                                     <RiFileDownloadLine className="me-1" size={25} />
                                 </Button>
@@ -89,10 +117,6 @@ const Upload: React.FC = () => {
                         ))}
                     </tbody>
                 </table>
-                {/* <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage} /> */}
                 <div className="d-flex justify-content-center mt-4">
                     <Button
                         className="me-3"
