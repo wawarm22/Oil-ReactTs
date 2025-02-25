@@ -6,9 +6,17 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  numberColor?: string; 
+  activeNumberColor?: string;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  numberColor = "#BCBCBC", 
+  activeNumberColor = "black" 
+}) => {
   return (
     <nav className="pagination-container">
       {/* ปุ่มย้อนกลับ */}
@@ -23,11 +31,14 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
       {/* แสดงเลขหน้า */}
       {[...Array(totalPages)].map((_, index) => {
         const page = index + 1;
+        const isActive = currentPage === page;
+
         return (
           <button
             key={page}
-            className={`pagination-number ${currentPage === page ? "active" : ""}`}
+            className={`pagination-number ${isActive ? "active" : ""}`}
             onClick={() => onPageChange(page)}
+            style={{ color: isActive ? activeNumberColor : numberColor }}
           >
             {page}
           </button>

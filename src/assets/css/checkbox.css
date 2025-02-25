@@ -1,0 +1,17 @@
+/* ✅ เปลี่ยนสีพื้นหลังของ Checkbox เมื่อถูกเลือก */
+.form-check-input:checked {
+    background-color: #FFCB02 !important; /* เปลี่ยนสีพื้นหลัง */
+    border-color: #FFCB02 !important; /* เปลี่ยนสีขอบ */
+}
+
+/* ✅ เปลี่ยนสีเครื่องหมายติ๊กถูก */
+.form-check-input:checked::before {
+    content: "✔"; /* ใช้ CSS pseudo-element ใส่เครื่องหมาย */
+    color: #1E2329; /* เปลี่ยนสีเครื่องหมายติ๊กถูก */
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 80%;
+}
