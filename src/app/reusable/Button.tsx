@@ -10,11 +10,12 @@ interface ButtonProps {
     hoverBgColor?: string;
     hoverColor?: string;
     borderColor?: string;
-    hoverBorderColor?: string; 
+    hoverBorderColor?: string;
     className?: string;
     variant?: 'bg-hide' | 'bg-show' | 'default';
-    maxWidth?: string; 
+    maxWidth?: string;
     children?: React.ReactNode;
+    disabled?: boolean;  // ✅ เพิ่ม property disabled
 }
 
 const Button: React.FC<ButtonProps> = ({ 
@@ -30,7 +31,8 @@ const Button: React.FC<ButtonProps> = ({
     className, 
     variant = 'default',
     maxWidth = "180px",
-    children 
+    children,
+    disabled = false  // ✅ ค่าเริ่มต้นคือ false (เปิดใช้งานปุ่ม)
 }) => {
     return (
         <button
@@ -43,23 +45,26 @@ const Button: React.FC<ButtonProps> = ({
                 fontSize: '18px',
                 minHeight: '50px',
                 maxWidth: maxWidth,                
-                border: `2px solid ${borderColor || bgColor}`, 
+                border: `2px solid ${borderColor || bgColor}`,
+                cursor: disabled ? "not-allowed" : "pointer",  // ✅ เปลี่ยน cursor เมื่อ disabled
+                opacity: disabled ? 0.5 : 1  // ✅ ลดความเข้มสีปุ่มเมื่อ disabled
             }}
             onMouseEnter={(e) => {
-                if (variant === 'bg-hide') {
+                if (!disabled && variant === 'bg-hide') {
                     e.currentTarget.style.backgroundColor = hoverBgColor || 'transparent';
                     e.currentTarget.style.color = hoverColor || bgColor;
                     e.currentTarget.style.borderColor = hoverBorderColor || hoverBgColor || bgColor;
                 }
             }}
             onMouseLeave={(e) => {
-                if (variant === 'bg-hide') {
+                if (!disabled && variant === 'bg-hide') {
                     e.currentTarget.style.backgroundColor = bgColor;
                     e.currentTarget.style.color = color || '#fff';
                     e.currentTarget.style.borderColor = borderColor || bgColor;
                 }
             }}
-            onClick={onClick}
+            onClick={!disabled ? onClick : undefined}  // ✅ ปิดการใช้งาน onClick หาก disabled
+            disabled={disabled}  // ✅ ใช้ค่า disabled ที่รับมา
         >
             {children}
             {label}

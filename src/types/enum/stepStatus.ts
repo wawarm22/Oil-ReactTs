@@ -2,5 +2,6 @@ export enum StepStatus {
     UPLOAD = "upload",
     CONFIRM = "confirm",
     REVIEW = "review",
-    SUBMIT = "submit"
+    MATCH = "match",
+    SUBMIT = "submit",
 }

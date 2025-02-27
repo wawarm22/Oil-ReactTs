@@ -5,7 +5,7 @@
 }
 
 .step-line {
-    width: 120px;
+    width: 50px;
     height: 3px;
     background-color: #ccc;
     margin: 0 10px;
@@ -29,7 +29,7 @@
 }
 
 .step-circle.completed {
-    background-color: #6c757d;
+    background-color: #22C659;
 }
 
 .step-text {

@@ -1,29 +1,22 @@
 import React from "react";
 import { Modal } from "react-bootstrap";
-import Button from "../reusable/Button"; // ✅ ใช้ Button ที่มีอยู่แล้ว
+import Button from "../reusable/Button"; 
+import { documentList } from "../../types/docList";
 
 interface DocumentClassificationModalProps {
     show: boolean;
     onClose: () => void;
 }
 
-const documentCategories = [
-    "การตรวจตารางเปรียบเทียบอัตราส่วนและสูตรการผลิตน้ำมัน",
-    "การตรวจบัญชีซื้อขายแบบ ภส. 07-01 ภส. 07-02 และ ภส. 03-07",
-    "ตรวจแบบ ภส. 07-01 ภส. 07-02 และ ภส. 07-04",
-    "ตรวจการทำบัญชีสิทธิ",
-    "การตรวจการชำระภาษีของบริษัทว่าชำระภาษีถูกต้องหรือไม่"
-];
-
 const DocumentClassificationModal: React.FC<DocumentClassificationModalProps> = ({ show, onClose }) => {
     return (
         <Modal show={show} onHide={onClose} size="lg" centered>
-            <Modal.Body className="p-5 pb-3">
+            <Modal.Body className="p-5 pb-3" style={{ fontFamily: 'Sarabun' }}>
                 <ul className="list-unstyled">
-                    {documentCategories.map((category, index) => (
-                        <li key={index} className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    {documentList.map((document) => (
+                        <li key={document.id} className="d-flex justify-content-between align-items-center py-2 border-bottom border-3">
                             <span className="fw-bold" style={{ fontSize: "18px" }}>
-                                {index + 1}. {category}
+                                {document.id}. {document.title}
                             </span>
                             <Button
                                 type="button"

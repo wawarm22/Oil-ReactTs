@@ -12,7 +12,7 @@ const StepProgress: React.FC<StepProgressProps> = ({ status }) => {
     
     return (
         <div className="container-fluid d-flex justify-content-center shadow-sm p-4 bg-white rounded-2 w-100" style={{ fontFamily: 'IBM Plex Sans Thai' }}>
-            <div className="d-flex align-items-center" style={{ maxWidth: '1400px', fontSize: '22px' }}>
+            <div className="d-flex align-items-center" style={{ maxWidth: '1600px', fontSize: '22px' }}>
                 {stepList.map((step: StepItem, index: number) => {
                     const isActive = index === currentStepIndex;
                     const isCompleted = index < currentStepIndex;

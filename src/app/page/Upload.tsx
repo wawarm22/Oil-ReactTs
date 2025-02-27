@@ -1,27 +1,49 @@
 import React, { useState } from "react";
 import StepProgress from "../reusable/StepProgress";
 import Button from "../reusable/Button";
-import '../../assets/css/table.css'
+import { CSSTransition } from "react-transition-group";
+import "../../assets/css/dropdown-icon.css";
+import "../../assets/css/dropdown-animation.css";
+import "../../assets/css/table.css";
 import { useNavigate } from "react-router-dom";
 import { documentList } from "../../types/docList";
-import { RiFileDownloadLine } from "react-icons/ri";
+import { RiArrowDropDownLine, RiFileDownloadLine } from "react-icons/ri";
 import { StepStatus } from "../../types/enum/stepStatus";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Upload: React.FC = () => {
     const navigate = useNavigate();
     const [currentStatus, _setCurrentStatus] = useState<StepStatus>(StepStatus.UPLOAD);
+    const [uploadedFiles, setUploadedFiles] = useState<{ [key: number]: string[] }>({});
+    const [openDropdown, setOpenDropdown] = useState<{ [key: number]: boolean }>({});
+    const [isAnimating, setIsAnimating] = useState<{ [key: number]: boolean }>({});
 
     const handleBack = () => {
         navigate('/');
     }
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log('upload');
-
-        if (!event.target.files) {
-            console.log("ไม่มีไฟล์ถูกเลือก");
-            return;
+    const toggleDropdown = (docId: number) => {
+        setOpenDropdown(prev => ({ ...prev, [docId]: !prev[docId] }));
+        if (openDropdown[docId]) {
+            setIsAnimating(prev => ({ ...prev, [docId]: true }));
+            setTimeout(() => setIsAnimating(prev => ({ ...prev, [docId]: false })), 300);
         }
+    };
+
+    const handleDocumentFileUpload = (event: React.ChangeEvent<HTMLInputElement>, docId: number) => {
+        if (!event.target.files) return;
+
+        const fileArray = Array.from(event.target.files).map(file => file.name);
+
+        setUploadedFiles(prevState => ({
+            ...prevState,
+            [docId]: [...(prevState[docId] || []), ...fileArray]
+        }));
+
+    };
+
+    const handleMultiFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (!event.target.files) return;
 
         if (event.target.files) {
             const fileArray = Array.from(event.target.files);
@@ -41,7 +63,6 @@ const Upload: React.FC = () => {
                 รายการลดหย่อนเเละการคืนภาษี
             </p>
             <StepProgress status={currentStatus} />
-            {/* เพิ่ม UI สำหรับอัปโหลดเอกสาร */}
             <div className="mt-3 d-flex justify-content-between align-items-end">
                 <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px", }}>
                     ยื่นแบบเอกสาร
@@ -59,21 +80,17 @@ const Upload: React.FC = () => {
                                     accept="application/pdf"
                                     multiple
                                     style={{ display: "none" }}
-                                    id="file-upload"
-                                    onChange={handleFileUpload}
+                                    id="file-upload-multi"
+                                    onChange={handleMultiFileUpload}
                                 />
                                 <Button
                                     className="w-100"
                                     type="button"
                                     label="อัปโหลดเอกสารหลายชนิด"
                                     bgColor="#4FA9FF"
-                                    color="#FFFF"
                                     maxWidth="260px"
-                                    hoverBgColor="#FFFF"
-                                    hoverBorderColor="#4FA9FF"
-                                    hoverColor="#4FA9FF"
                                     variant="bg-hide"
-                                    onClick={() => document.getElementById("file-upload")?.click()}
+                                    onClick={() => document.getElementById("file-upload-multi")?.click()}
                                 >
                                     <RiFileDownloadLine className="me-1" size={25} />
                                 </Button>
@@ -82,38 +99,120 @@ const Upload: React.FC = () => {
                     </thead>
                     <tbody>
                         {documentList.map((item) => (
-                            <tr key={item.id} style={{ borderBottom: "2px solid #0000004B" }}>
-                                <td className="align-middle">{item.id}. {item.title}</td>
-                                <td className="text-center align-middle">{item.pages} หน้า</td>
-                                <td className="text-end">
-                                    <Button
-                                        className="w-100"
-                                        type="button"
-                                        label="ดูเอกสาร"
-                                        bgColor="#9D9D9D"
-                                        color="#FFFFFF"
-                                        maxWidth="150px"
-                                        hoverBgColor="#FFFFFF"
-                                        hoverBorderColor="#9D9D9D"
-                                        hoverColor="#9D9D9D"
-                                        variant="bg-hide"
-                                    />
-                                    <Button
-                                        className="ms-3 w-100"
-                                        type="button"
-                                        label="อัปโหลดเอกสาร"
-                                        bgColor="#3D4957"
-                                        color="#FFFF"
-                                        maxWidth="260px"
-                                        hoverBgColor="#FFFF"
-                                        hoverBorderColor="#3D4957"
-                                        hoverColor="#3D4957"
-                                        variant="bg-hide"
-                                    >
-                                        <RiFileDownloadLine className="me-1" size={25} />
-                                    </Button>
-                                </td>
-                            </tr>
+                            <React.Fragment key={item.id}>
+                                <tr style={{ borderBottom: openDropdown[item.id] || isAnimating[item.id] ? "none" : "2px solid #0000004B" }}>
+                                    <td className="align-middle">
+                                        <span
+                                            className="fw-bold"
+                                            style={{ cursor: "pointer" }}
+                                            onClick={() => toggleDropdown(item.id)}
+                                        >
+                                            {item.id}. {item.title}
+                                        </span>
+
+                                        {uploadedFiles[item.id] && (
+                                            <CSSTransition
+                                                in={openDropdown[item.id]}
+                                                timeout={300}
+                                                classNames="rotate-icon"
+                                            >
+                                                <RiArrowDropDownLine
+                                                    size={30}
+                                                    className={`dropdown-icon ${openDropdown[item.id] ? "rotated" : ""}`}
+                                                    style={{ cursor: "pointer" }}
+                                                    onClick={() => toggleDropdown(item.id)}
+                                                />
+                                            </CSSTransition>
+                                        )}
+                                        <AnimatePresence>
+                                            {openDropdown[item.id] && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: -5 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -5 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    style={{
+                                                        color: "#3D4957",
+                                                        marginLeft: "18px"
+                                                    }}
+                                                >
+                                                    {item.type}
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </td>
+                                    <td className="text-center align-middle">{item.pages} หน้า</td>
+                                    <td className="text-end">
+                                        {!openDropdown[item.id] && !isAnimating[item.id] && (
+                                            <Button
+                                                className="w-100"
+                                                type="button"
+                                                label="ดูเอกสาร"
+                                                bgColor="#3D4957"
+                                                color="#FFFFFF"
+                                                maxWidth="150px"
+                                                variant="bg-hide"
+                                                disabled={!uploadedFiles[item.id]}
+                                            />
+                                        )}
+                                        <input
+                                            type="file"
+                                            accept="application/pdf"
+                                            multiple
+                                            style={{ display: "none" }}
+                                            id={`file-upload-${item.id}`}
+                                            onChange={(e) => handleDocumentFileUpload(e, item.id)}
+                                        />
+                                        <Button
+                                            className="ms-3 w-100"
+                                            type="button"
+                                            label={!uploadedFiles[item.id] ? "อัปโหลดเอกสาร" : "อัปโหลดเอกสารเพิ่มเติม"}
+                                            bgColor="#3D4957"
+                                            maxWidth="260px"
+                                            variant="bg-hide"
+                                            onClick={() => document.getElementById(`file-upload-${item.id}`)?.click()}
+                                        >
+                                            <RiFileDownloadLine className="me-1" size={25} />
+                                        </Button>
+                                    </td>
+                                </tr>
+
+                                <AnimatePresence>
+                                    {openDropdown[item.id] && uploadedFiles[item.id] && (
+                                        uploadedFiles[item.id].map((fileName, index) => (
+                                            <motion.tr
+                                                key={`${item.id}-file-${index}`}
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                                                className="tr-border"
+                                                style={{
+                                                    borderBottom: index === uploadedFiles[item.id].length - 1 ? "2px solid #0000004B" : "none",
+                                                }}
+                                            >
+                                                <td colSpan={2} className="align-middle td-border">
+                                                    <span className="fw-bold" style={{ marginLeft: "50px" }}>
+                                                        {fileName}
+                                                    </span>
+                                                </td>
+                                                <td className="text-end td-border-r">
+                                                    <Button
+                                                        className="w-100"
+                                                        type="button"
+                                                        label="ดูเอกสาร"
+                                                        bgColor="#3D4957"
+                                                        maxWidth="260px"
+                                                        hoverBorderColor="#3D4957"
+                                                        hoverColor="#3D4957"
+                                                        variant="bg-hide"
+                                                    />
+                                                </td>
+                                            </motion.tr>
+                                        ))
+                                    )}
+                                </AnimatePresence>
+                            </React.Fragment>
                         ))}
                     </tbody>
                 </table>
@@ -124,10 +223,6 @@ const Upload: React.FC = () => {
                         label="ย้อนกลับ"
                         onClick={handleBack}
                         bgColor="#717171"
-                        color="#FFF"
-                        hoverBgColor="#FFFF"
-                        hoverBorderColor="#717171"
-                        hoverColor="#717171"
                         variant="bg-hide"
                     />
                     <Button
@@ -135,9 +230,6 @@ const Upload: React.FC = () => {
                         label="ยืนยันการอัปโหลด"
                         bgColor="#FFCB02"
                         color="#1E2329"
-                        hoverBgColor="#FFFF"
-                        hoverBorderColor="#FFCB02"
-                        hoverColor="#FFCB02"
                         variant="bg-hide"
                     />
                 </div>

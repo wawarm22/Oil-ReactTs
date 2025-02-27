@@ -1,0 +1,29 @@
+.dropdown-icon {
+    transition: transform 0.3s ease-in-out;
+    transform-origin: center;
+}
+
+/* Animation เริ่มต้น */
+.rotate-icon-enter {
+    transform: rotate(0deg);
+}
+
+.rotate-icon-enter-active {
+    transform: rotate(180deg);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Animation ออก */
+.rotate-icon-exit {
+    transform: rotate(180deg);
+}
+
+.rotate-icon-exit-active {
+    transform: rotate(0deg);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* สำหรับ state ที่เปิด dropdown */
+.rotated {
+    transform: rotate(180deg);
+}

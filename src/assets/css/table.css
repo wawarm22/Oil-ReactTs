@@ -1,3 +1,35 @@
 .custom-table td {
     padding: 18px 8px !important;
 }
+
+.td-border {
+    position: relative;
+}
+
+.td-border::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 5%;
+    width: 95%; 
+    height: 2px;
+    background-color: #0000004B;
+}
+
+.td-border-r {
+    position: relative;
+}
+
+.td-border-r::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0%; 
+    width: 100%; 
+    height: 2px;
+    background-color: #0000004B;
+}
+
+
+
+
