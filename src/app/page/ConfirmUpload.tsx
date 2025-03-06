@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import StepProgress from "../reusable/StepProgress";
 import Button from "../reusable/Button";
 import { CSSTransition } from "react-transition-group";
@@ -7,12 +7,12 @@ import "../../assets/css/dropdown-animation.css";
 import "../../assets/css/table.css";
 import { useNavigate } from "react-router-dom";
 import { documentList } from "../../types/docList";
-import { RiArrowDropDownLine, RiFileDownloadLine } from "react-icons/ri";
+import { RiArrowDropDownLine } from "react-icons/ri";
 import { StepStatus } from "../../types/enum/stepStatus";
 import { AnimatePresence, motion } from "framer-motion";
 import { PDFDocument } from "pdf-lib";
 
-const Upload: React.FC = () => {
+const ConfirmUpload: React.FC = () => {
     const navigate = useNavigate();
     const [uploadedFiles, setUploadedFiles] = useState<{
         [key: number]: { name: string; data: string; pageCount: number }[]
@@ -20,13 +20,16 @@ const Upload: React.FC = () => {
     const [openDropdown, setOpenDropdown] = useState<{ [key: number]: boolean }>({});
     const [isAnimating, setIsAnimating] = useState<{ [key: number]: boolean }>({});
 
-    // Load uploaded files from localStorage on component mount
     useEffect(() => {
         const storedFiles = localStorage.getItem("uploadedFiles");
         if (storedFiles) {
             setUploadedFiles(JSON.parse(storedFiles));
         }
     }, []);
+
+    const handleBack = () => {
+        navigate('/upload');
+    }
 
     const toggleDropdown = (docId: number) => {
         setOpenDropdown(prev => ({ ...prev, [docId]: !prev[docId] }));
@@ -37,11 +40,16 @@ const Upload: React.FC = () => {
     };
 
     const mergeAndOpenPdf = async (docId: number) => {
-        const storedFiles = uploadedFiles[docId];
-        if (!storedFiles || storedFiles.length === 0) return alert("ไม่มีไฟล์ที่อัปโหลด");
+        const storedFiles = JSON.parse(localStorage.getItem("uploadedFiles") || "{}");
+
+        if (!storedFiles[docId] || storedFiles[docId].length === 0) {
+            alert("ไม่มีไฟล์ที่อัปโหลด");
+            return;
+        }
 
         const mergedPdf = await PDFDocument.create();
-        for (const file of storedFiles) {
+
+        for (const file of storedFiles[docId]) {
             const existingPdfBytes = await fetch(convertBase64ToBlobUrl(file.data)).then(res => res.arrayBuffer());
             const existingPdf = await PDFDocument.load(existingPdfBytes);
             const copiedPages = await mergedPdf.copyPages(existingPdf, existingPdf.getPageIndices());
@@ -49,76 +57,30 @@ const Upload: React.FC = () => {
         }
 
         const mergedPdfBytes = await mergedPdf.save();
-        const mergedBlobUrl = URL.createObjectURL(new Blob([mergedPdfBytes], { type: "application/pdf" }));
+        const mergedBlob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+        const mergedBlobUrl = URL.createObjectURL(mergedBlob);
+
         window.open(mergedBlobUrl, "_blank");
     };
 
     const convertBase64ToBlobUrl = (base64: string) => {
         const byteCharacters = atob(base64.split(",")[1]);
-        const byteNumbers = byteCharacters.split("").map(char => char.charCodeAt(0));
-        return URL.createObjectURL(new Blob([new Uint8Array(byteNumbers)], { type: "application/pdf" }));
+        const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        return URL.createObjectURL(blob);
     };
 
-    const getPdfPageCount = async (pdfData: string): Promise<number> => {
-        try {
-            const existingPdfBytes = await fetch(convertBase64ToBlobUrl(pdfData)).then(res => res.arrayBuffer());
-            return (await PDFDocument.load(existingPdfBytes)).getPageCount();
-        } catch {
-            return 0;
-        }
-    };
-
-    const handleDocumentFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, docId: number) => {
-        if (!event.target.files) return;
-
-        const files = Array.from(event.target.files);
-
-        for (const file of files) {
-            const reader = new FileReader();
-            reader.onload = async () => {
-                const fileData = reader.result as string;
-                const pageCount = await getPdfPageCount(fileData);
-
-                const newFile = { name: file.name, data: fileData, pageCount };
-
-                setUploadedFiles(prevState => {
-                    const newFiles = { ...prevState, [docId]: [...(prevState[docId] || []), newFile] };
-                    localStorage.setItem("uploadedFiles", JSON.stringify(newFiles));
-                    return newFiles;
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handleMultiFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (!event.target.files) return;
-
-        const fileArray = Array.from(event.target.files);
-        const filePreviews = fileArray.map(file => ({
-            name: file.name,
-            url: URL.createObjectURL(file)
-        }));
-
-        localStorage.setItem("uploadedFiles", JSON.stringify(filePreviews));
-        navigate("/upload-multiple");
-    };
-
-    const handleConfirm = () => {
-        const allFilesUploaded = documentList.every(item => uploadedFiles[item.id]?.length > 0);
-        if (allFilesUploaded) {
-            navigate('/confirm');
-        }
-    };
-
-    const isConfirmDisabled = documentList.some(item => !uploadedFiles[item.id]?.length);
+    const handleReview = () => {
+        navigate('/audit');
+    }
 
     return (
         <div className="container-fluid mt-3 w-100" style={{ maxWidth: '1800px' }}>
             <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px", }}>
                 ขั้นตอนการดำเนินงาน
             </p>
-            <StepProgress status={StepStatus.UPLOAD} />
+            <StepProgress status={StepStatus.CONFIRM} />
             <div className="mt-3 d-flex justify-content-between align-items-end">
                 <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px", }}>
                     เอกสาร
@@ -130,27 +92,6 @@ const Upload: React.FC = () => {
                         <tr>
                             <th className="align-middle" style={{ fontSize: '22px' }}>รายการเอกสาร</th>
                             <th className="align-middle text-center" style={{ fontSize: '22px' }}>จำนวนหน้า</th>
-                            <th className="text-end">
-                                <input
-                                    type="file"
-                                    accept="application/pdf"
-                                    multiple
-                                    style={{ display: "none" }}
-                                    id="file-upload-multi"
-                                    onChange={handleMultiFileUpload}
-                                />
-                                <Button
-                                    className="w-100"
-                                    type="button"
-                                    label="อัปโหลดเอกสารหลายชนิด"
-                                    bgColor="#4FA9FF"
-                                    maxWidth="260px"
-                                    variant="bg-hide"
-                                    onClick={() => document.getElementById("file-upload-multi")?.click()}
-                                >
-                                    <RiFileDownloadLine className="me-1" size={25} />
-                                </Button>
-                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -164,7 +105,7 @@ const Upload: React.FC = () => {
                                             onClick={() => toggleDropdown(item.id)}
                                         >
                                             <span
-                                                className="me-2 m-0"
+                                                className="me-2"
                                                 style={{
                                                     display: "inline-block",
                                                     width: "3px",
@@ -191,7 +132,6 @@ const Upload: React.FC = () => {
                                                 />
                                             </CSSTransition>
                                         )}
-
                                         <div style={{ marginLeft: "30px" }}>
                                             {item.type}
                                         </div>
@@ -213,25 +153,16 @@ const Upload: React.FC = () => {
                                                 onClick={() => mergeAndOpenPdf(item.id)}
                                             />
                                         )}
-                                        <input
-                                            type="file"
-                                            accept="application/pdf"
-                                            multiple
-                                            style={{ display: "none" }}
-                                            id={`file-upload-${item.id}`}
-                                            onChange={(e) => handleDocumentFileUpload(e, item.id)}
-                                        />
                                         <Button
                                             className="ms-3 w-100"
                                             type="button"
-                                            label={!uploadedFiles[item.id] ? "อัปโหลดเอกสาร" : "อัปโหลดเอกสารเพิ่มเติม"}
+                                            label="พร้อมรับการตรวจสอบ"
                                             bgColor="#3D4957"
+                                            color="#FFFFFF"
                                             maxWidth="260px"
                                             variant="bg-hide"
-                                            onClick={() => document.getElementById(`file-upload-${item.id}`)?.click()}
-                                        >
-                                            <RiFileDownloadLine className="me-1" size={25} />
-                                        </Button>
+                                            disabled
+                                        />
                                     </td>
                                 </tr>
 
@@ -250,7 +181,7 @@ const Upload: React.FC = () => {
                                                 }}
                                             >
                                                 <td colSpan={2} className="align-middle td-border">
-                                                    <span className="fw-bold" style={{ marginLeft: "55px" }}>
+                                                    <span className="fw-bold" style={{ marginLeft: "50px" }}>
                                                         {file.name}
                                                     </span>
                                                 </td>
@@ -278,18 +209,17 @@ const Upload: React.FC = () => {
                         className="me-3"
                         type="button"
                         label="ย้อนกลับ"
-                        onClick={() => navigate("/")}
+                        onClick={handleBack}
                         bgColor="#717171"
                         variant="bg-hide"
                     />
                     <Button
                         type="button"
-                        label="ยืนยันการอัปโหลด"
-                        onClick={handleConfirm}
+                        label="ตรวจสอบเอกสาร"
+                        onClick={handleReview}
                         bgColor="#FFCB02"
                         color="#1E2329"
                         variant="bg-hide"
-                        disabled={isConfirmDisabled}
                     />
                 </div>
             </div>
@@ -297,4 +227,4 @@ const Upload: React.FC = () => {
     );
 };
 
-export default Upload;
+export default ConfirmUpload;
