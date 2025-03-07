@@ -28,6 +28,8 @@ const UploadMultiple: React.FC = () => {
                         thumbnail: await getPdfThumbnail(file.url),
                     }))
                 );
+                console.log(filesWithThumbnails);
+                
                 setFiles(filesWithThumbnails);
             }
         };

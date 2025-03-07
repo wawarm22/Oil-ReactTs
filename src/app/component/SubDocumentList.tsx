@@ -21,7 +21,7 @@ const SubDocumentList: React.FC<SubDocumentListProps> = ({ selectedId }) => {
     };
 
     return (
-        <div className="container-fluid d-flex justify-content-start align-items-start shadow-sm bg-white rounded-2 w-100 m-0 mt-3" style={{ padding: "25px 35px", maxWidth: "1020px" }}>
+        <div className="container-fluid d-flex justify-content-start align-items-start shadow-sm bg-white rounded-2 m-0 mt-3" style={{ padding: "25px 35px", maxWidth: "1020px" }}>
             <div className="d-flex flex-column align-items-start w-100">
                 <p className="fw-bold text-start ms-2 mb-0" style={{ fontSize: "26px", fontFamily: "IBM Plex Sans Thai" }}>
                     รายการเอกสารที่ใช้
@@ -34,7 +34,7 @@ const SubDocumentList: React.FC<SubDocumentListProps> = ({ selectedId }) => {
                                 key={index}
                                 className="border border-dark border-2 rounded-2 m-2 py-2 px-3"
                                 style={{
-                                    width: '280px',
+                                    width: '240px',
                                     height: "auto",
                                     backgroundColor: selectedSubId === index ? "#3D4957" : "#ffffff",
                                     color: selectedSubId === index ? "#ffffff" : "#000000",
