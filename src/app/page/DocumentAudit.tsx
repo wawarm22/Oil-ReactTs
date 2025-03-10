@@ -15,7 +15,8 @@ const DocumentAudit: React.FC = () => {
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
-    const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});    
+    const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
+    const [selectedDocIndex, setSelectedDocIndex] = useState<number | null>(null); // ✅ ใช้ index ของ documentList
     const [subDocHeight, setSubDocHeight] = useState<number>(0);
     const subDocRef = useRef<HTMLDivElement | null>(null);
 
@@ -38,6 +39,11 @@ const DocumentAudit: React.FC = () => {
         }
     }, []);
 
+    // ✅ รีเซ็ต `currentPage` เป็น 1 เมื่อ `selectedId` หรือ `selectedDocIndex` เปลี่ยน
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedId, selectedDocIndex]);
+
     useEffect(() => {
         if (selectedId !== null) {
             const selectedFiles = uploadedFiles[selectedId] || [];
@@ -50,7 +56,7 @@ const DocumentAudit: React.FC = () => {
         if (subDocRef.current) {
             setSubDocHeight(subDocRef.current.clientHeight);
         }
-    }, [selectedId]);
+    }, [selectedId, selectedDocIndex]);
 
     return (
         <div className="container-fluid mt-3 w-100" style={{ maxWidth: '1800px' }}>
@@ -63,7 +69,7 @@ const DocumentAudit: React.FC = () => {
 
             <div className="d-flex justify-content-between align-items-center gap-2 w-100">
                 <div ref={subDocRef} className="w-100">
-                    <SubDocumentList selectedId={selectedId} />
+                    <SubDocumentList selectedId={selectedId} setSelectedDocIndex={setSelectedDocIndex} />
                 </div>
                 <AuditPagination totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} customHeight={subDocHeight} />
             </div>

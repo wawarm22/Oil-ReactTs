@@ -100,7 +100,7 @@ const Upload: React.FC = () => {
             url: URL.createObjectURL(file)
         }));
 
-        localStorage.setItem("uploadedFiles", JSON.stringify(filePreviews));
+        localStorage.setItem("uploadedMultiFiles", JSON.stringify(filePreviews));
         navigate("/upload-multiple");
     };
 

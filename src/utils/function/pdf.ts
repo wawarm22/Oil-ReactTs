@@ -8,14 +8,11 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
     import.meta.url
 ).toString();
 
-export const getPdfThumbnail = async (pdfData: string, pageNum: number): Promise<string> => {
+export const getPdfThumbnail = async (pdfUrl: string): Promise<string> => {
     try {
-        const loadingTask = pdfjsLib.getDocument({ data: atob(pdfData.split(",")[1]) });
+        const loadingTask = pdfjsLib.getDocument(pdfUrl);
         const pdf = await loadingTask.promise;
-
-        // ป้องกันการเรียกหน้าที่เกินจากจำนวนหน้าที่มี
-        const validPageNum = Math.max(1, Math.min(pageNum, pdf.numPages));
-        const page = await pdf.getPage(validPageNum);
+        const page = await pdf.getPage(1);
 
         const scale = 1.5;
         const viewport = page.getViewport({ scale });
@@ -34,7 +31,7 @@ export const getPdfThumbnail = async (pdfData: string, pageNum: number): Promise
 
         return canvas.toDataURL("image/png");
     } catch (error) {
-        console.error(`Error generating PDF thumbnail for page ${pageNum}:`, error);
+        console.error("Error generating PDF thumbnail:", error);
         return "/default-pdf-thumbnail.png";
     }
 };

@@ -19,13 +19,13 @@ const UploadMultiple: React.FC = () => {
 
     useEffect(() => {
         const fetchThumbnails = async () => {
-            const storedFiles = localStorage.getItem("uploadedFiles");
+            const storedFiles = localStorage.getItem("uploadedMultiFiles");
             if (storedFiles) {
                 const parsedFiles = JSON.parse(storedFiles);
                 const filesWithThumbnails = await Promise.all(
                     parsedFiles.map(async (file: { name: string; url: string }) => ({
                         ...file,
-                        thumbnail: await getPdfThumbnail(file.url),
+                        thumbnail: await getPdfThumbnail(file.url, 1),
                     }))
                 );
                 console.log(filesWithThumbnails);
@@ -45,13 +45,13 @@ const UploadMultiple: React.FC = () => {
             newFiles.map(async (file) => ({
                 name: file.name,
                 url: URL.createObjectURL(file),
-                thumbnail: await getPdfThumbnail(URL.createObjectURL(file)),
+                thumbnail: await getPdfThumbnail(URL.createObjectURL(file), 1),
             }))
         );
 
         const updatedFiles = [...files, ...newFilesWithThumbnails];
         setFiles(updatedFiles);
-        localStorage.setItem("uploadedFiles", JSON.stringify(updatedFiles));
+        localStorage.setItem("uploadedMultiFiles", JSON.stringify(updatedFiles));
     };
 
     const handleSelectFile = (fileUrl: string) => {

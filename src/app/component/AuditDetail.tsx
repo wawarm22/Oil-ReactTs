@@ -14,8 +14,22 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ selectedId, currentPage, uplo
     useEffect(() => {
         if (selectedId !== null && uploadedFiles[selectedId]) {
             const pdfFiles = uploadedFiles[selectedId];
+
             if (pdfFiles.length > 0) {
-                getPdfThumbnail(pdfFiles[0].data)
+                let totalPageCount = 0;
+                let selectedPdf = pdfFiles[0];
+
+                for (const pdf of pdfFiles) {
+                    totalPageCount += pdf.pageCount;
+                    if (currentPage <= totalPageCount) {
+                        selectedPdf = pdf;
+                        break;
+                    }
+                }
+
+                const pageInSelectedPdf = currentPage - (totalPageCount - selectedPdf.pageCount);
+                
+                getPdfThumbnail(selectedPdf.data, pageInSelectedPdf)
                     .then((thumbnail) => setPdfPageImage(thumbnail))
                     .catch(() => setPdfPageImage(null));
             }
@@ -37,15 +51,15 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ selectedId, currentPage, uplo
                             className="d-flex align-items-center justify-content-between p-2 mb-2 border shadow-sm rounded-2"
                         >
                             <span className="fw-bold" style={{ fontSize: "16px" }}>{item.name}</span>
-                            <input type="checkbox" className="form-check-input" />
+                            <input type="checkbox" />
                         </div>
 
                         {item.subItems && (
-                            <div className="ps-3">
+                            <div className="ps-4">
                                 {item.subItems.map((subItem, subIdx) => (
-                                    <div key={subIdx} className="d-flex align-items-center justify-content-between p-2 mb-1 border shadow-sm rounded-2">
+                                    <div key={subIdx} className="d-flex align-items-center justify-content-between p-2 mb-2 border shadow-sm rounded-2">
                                         <span className="fw-bold" style={{ fontSize: "14px" }}>{subItem}</span>
-                                        <input type="checkbox" className="form-check-input" />
+                                        <input type="checkbox" />
                                     </div>
                                 ))}
                             </div>
