@@ -28,7 +28,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ selectedId, currentPage, uplo
                 }
 
                 const pageInSelectedPdf = currentPage - (totalPageCount - selectedPdf.pageCount);
-                
+
                 getPdfThumbnail(selectedPdf.data, pageInSelectedPdf)
                     .then((thumbnail) => setPdfPageImage(thumbnail))
                     .catch(() => setPdfPageImage(null));
@@ -46,24 +46,52 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ selectedId, currentPage, uplo
 
             <div className="shadow-sm bg-white rounded-2 p-3" style={{ width: "55%", overflowY: "auto", borderRadius: "8px" }}>
                 {checklistData.map((item: ChecklistItem, index) => (
-                    <div key={index} className="mb-3">
+                    <div key={index} className="mb-1 d-flex">
                         <div
-                            className="d-flex align-items-center justify-content-between p-2 mb-2 border shadow-sm rounded-2"
-                        >
-                            <span className="fw-bold" style={{ fontSize: "16px" }}>{item.name}</span>
-                            <input type="checkbox" />
-                        </div>
+                            className="me-2 rounded-2"
+                            style={{
+                                width: "4px",
+                                height: "38px",
+                                backgroundColor: "#BDBDBD",
+                            }}
+                        ></div>
 
-                        {item.subItems && (
-                            <div className="ps-4">
-                                {item.subItems.map((subItem, subIdx) => (
-                                    <div key={subIdx} className="d-flex align-items-center justify-content-between p-2 mb-2 border shadow-sm rounded-2">
-                                        <span className="fw-bold" style={{ fontSize: "14px" }}>{subItem}</span>
-                                        <input type="checkbox" />
-                                    </div>
-                                ))}
+                        <div className="flex-grow-1">
+                            <div
+                                className="d-flex align-items-center justify-content-between p-2 mb-2 border shadow-sm rounded-2"
+                                onClick={() => document.getElementById(`checkbox-${index}`)?.click()}
+                                style={{ cursor: "pointer" }}
+                            >
+                                <span className="fw-bold" style={{ fontSize: "16px" }}>{item.name}</span>
+                                <input type="checkbox" id={`checkbox-${index}`} />
                             </div>
-                        )}
+
+                            {item.subItems && (
+                                <div className="ps-4">
+                                    {item.subItems.map((subItem, subIdx) => (
+                                        <div key={subIdx} className="d-flex">
+                                            <div
+                                                className="me-2 rounded-2"
+                                                style={{
+                                                    width: "4px",
+                                                    height: "38px",
+                                                    backgroundColor: "#BDBDBD",
+                                                }}
+                                            ></div>
+
+                                            <div
+                                                className="flex-grow-1 d-flex align-items-center justify-content-between p-2 mb-2 border shadow-sm rounded-2"
+                                                onClick={() => document.getElementById(`sub-checkbox-${index}-${subIdx}`)?.click()}
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                <span className="fw-bold" style={{ fontSize: "14px" }}>{subItem}</span>
+                                                <input type="checkbox" id={`sub-checkbox-${index}-${subIdx}`} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 ))}
             </div>

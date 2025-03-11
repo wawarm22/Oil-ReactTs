@@ -1,21 +1,21 @@
 .reveal-step-enter {
-    clip-path: inset(0 0 99% 0);
-    opacity: 1;
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
 }
 
 .reveal-step-enter-active {
-    clip-path: inset(0 0 0% 0);
     opacity: 1;
-    transition: clip-path 600ms ease-out, opacity 600ms ease-out;
+    clip-path: inset(0 0 0% 0);
+    transition: clip-path 300ms ease-out, opacity 300ms ease-out;
 }
 
 .reveal-step-exit {
-    clip-path: inset(0 0 0% 0);
     opacity: 1;
+    clip-path: inset(0 0 0% 0);
 }
 
 .reveal-step-exit-active {
-    clip-path: inset(0 0 99% 0);
-    opacity: 1;
-    transition: clip-path 600ms ease-in, opacity 600ms ease-in;
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 300ms ease-in, opacity 300ms ease-in;
 }

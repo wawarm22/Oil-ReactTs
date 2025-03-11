@@ -6,17 +6,20 @@ import SubDocumentList from "../component/SubDocumentList";
 import AuditPagination from "../reusable/AuditPagination";
 import { documentList } from "../../types/docList";
 import AuditDetail from "../component/AuditDetail";
+import AuditButton from "../component/AuditButton";
+import { useNavigate } from "react-router-dom";
 
 type UploadedFilesType = {
     [key: number]: { name: string; data: string; pageCount: number }[];
 };
 
 const DocumentAudit: React.FC = () => {
+    const navigate = useNavigate();
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
-    const [selectedDocIndex, setSelectedDocIndex] = useState<number | null>(null); // ✅ ใช้ index ของ documentList
+    const [selectedDocIndex, setSelectedDocIndex] = useState<number | null>(null); 
     const [subDocHeight, setSubDocHeight] = useState<number>(0);
     const subDocRef = useRef<HTMLDivElement | null>(null);
 
@@ -39,7 +42,6 @@ const DocumentAudit: React.FC = () => {
         }
     }, []);
 
-    // ✅ รีเซ็ต `currentPage` เป็น 1 เมื่อ `selectedId` หรือ `selectedDocIndex` เปลี่ยน
     useEffect(() => {
         setCurrentPage(1);
     }, [selectedId, selectedDocIndex]);
@@ -58,6 +60,22 @@ const DocumentAudit: React.FC = () => {
         }
     }, [selectedId, selectedDocIndex]);
 
+    const handleUploadMore = () => {
+        console.log("อัปโหลดเอกสารเพิ่มเติม");
+    };
+
+    const handleBack = () => {
+        navigate('/confirm')
+    };
+
+    const handleSaveAudit = () => {
+        console.log("บันทึกการตรวจสอบ");
+    };
+
+    const handleNextStep = () => {
+        console.log("ขั้นตอนถัดไป");
+    };
+
     return (
         <div className="container-fluid mt-3 w-100" style={{ maxWidth: '1800px' }}>
             <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px" }}>
@@ -75,6 +93,14 @@ const DocumentAudit: React.FC = () => {
             </div>
             
             <AuditDetail selectedId={selectedId} currentPage={currentPage} uploadedFiles={uploadedFiles} />
+            
+            <AuditButton
+                onUploadMore={handleUploadMore}
+                onBack={handleBack}
+                onSaveAudit={handleSaveAudit}
+                onNextStep={handleNextStep}
+                disableSave={true} 
+            />
         </div>
     );
 };

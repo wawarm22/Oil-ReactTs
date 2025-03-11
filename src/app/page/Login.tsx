@@ -11,27 +11,45 @@ import bCorner from "../../assets/img/b-corner.png"
 import Button from "../reusable/Button";
 import { useNavigate } from "react-router-dom";
 import LoadingPage from "../component/LoadingPage";
+import { apiLogin } from "../../utils/api/apiAuthen";
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState<string | null>(null);
 
     const handleRegister = () => {
         navigate('/register')
     }
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(() => {
-            navigate('/'); 
-        }, 3000); 
-    };
+        setError(null);
+    
+        try {
+            const response = await apiLogin(email, password); 
+            console.log("Login Success:", response);
+    
+            if (response.token) {
+                localStorage.setItem("token", response.token);
+                navigate('/'); 
+            } else {
+                setError("Invalid username or password");
+            }
+        } catch (err) {
+            setError("เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองอีกครั้ง");
+        }
+    
+        setIsLoading(false); 
+    };    
 
     return (
         <>
             {isLoading ? (
-                <LoadingPage onLoaded={() => setIsLoading(false)} />
+                <LoadingPage isLoading={isLoading} />
             ) : (
                 <div className="d-flex vh-100 w-100" style={{ fontFamily: 'IBM Plex Sans Thai' }}>
                     <div className="d-flex flex-column align-items-center justify-content-center bg-dark vh-100" style={{ width: "60px" }}>
@@ -105,14 +123,18 @@ const Login: React.FC = () => {
                                         </div>
 
                                         <form onSubmit={handleLogin}>
+                                            {error && <p style={{ color: "red" }}>{error}</p>}
                                             <div className="mb-3 input-group">
                                                 <span className="input-group-text bg-white border-0 rounded-start-3">
                                                     <MdEmail size={20} />
                                                 </span>
                                                 <input
-                                                    type="email"
+                                                    type="text"
                                                     className="form-control bg-white border-0 ps-0 rounded-end-3"
                                                     placeholder="อีเมล"
+                                                    value={email} 
+                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    required
                                                 />
                                             </div>
 
@@ -124,6 +146,9 @@ const Login: React.FC = () => {
                                                     type="password"
                                                     className="form-control bg-white border-0 ps-0 rounded-end-3"
                                                     placeholder="รหัสผ่าน"
+                                                    value={password} 
+                                                    onChange={(e) => setPassword(e.target.value)}
+                                                    required
                                                 />
                                             </div>
 
@@ -150,7 +175,6 @@ const Login: React.FC = () => {
                                                     bgColor="#404A57"
                                                     color="#FFF"
                                                     hoverBgColor="#FFFF"
-                                                    hoverColor="#404A57"
                                                     variant="bg-hide"
                                                     onClick={handleRegister}
                                                 />
@@ -159,10 +183,8 @@ const Login: React.FC = () => {
                                                     label="เข้าสู่ระบบ"
                                                     bgColor="#FFCB02"
                                                     color="#000"
-                                                    hoverBgColor="transparent"
-                                                    hoverColor="#FFCB02"
-                                                    hoverBorderColor="#FFD700"
                                                     variant="bg-hide"
+                                                    disabled={isLoading}
                                                 />
                                             </div>
                                         </form>

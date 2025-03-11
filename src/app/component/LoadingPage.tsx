@@ -1,26 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import OilDropletLoader from "../reusable/OilDropletLoader";
 
-const LoadingPage: React.FC<{ onLoaded: () => void }> = ({ onLoaded }) => {
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setLoading(false);
-            onLoaded();
-        }, 3000);
-
-        return () => clearTimeout(timer);
-    }, []);
-
+const LoadingPage: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
     return (
-        <div className="d-flex flex-column justify-content-center align-items-center vh-100">
-            {loading ? (
-                <>
+        <>
+            {isLoading && (
+                <div className="d-flex flex-column justify-content-center align-items-center vh-100">
                     <OilDropletLoader />
-                </>
-            ) : null}
-        </div>
+                </div>
+            )}
+        </>
     );
 };
 
