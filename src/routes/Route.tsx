@@ -9,12 +9,14 @@ import Upload from "../app/page/Upload";
 import UploadMultiple from "../app/page/UploadMultiple";
 import ConfirmUpload from "../app/page/ConfirmUpload";
 import DocumentAudit from "../app/page/DocumentAudit";
+import ForgotPassword from "../app/page/ForgotPassword";
 
 const WebRoute = () => {
   return (
     <Layout>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<Home />} />
         <Route path="/form-submission" element={<FormSubmission />} />

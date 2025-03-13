@@ -11,7 +11,7 @@ import bCorner from "../../assets/img/b-corner.png"
 import Button from "../reusable/Button";
 import { useNavigate } from "react-router-dom";
 import LoadingPage from "../component/LoadingPage";
-import { apiLogin } from "../../utils/api/apiAuthen";
+import { apiLogin } from "../../utils/api/authenApi";
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
@@ -21,8 +21,8 @@ const Login: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
 
     const handleRegister = () => {
-        navigate('/register')
-    }
+        navigate('/register');
+    }    
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -165,7 +165,7 @@ const Login: React.FC = () => {
                                                     />
                                                     <label className="form-check-label" htmlFor="rememberMe">จดจำบัญชีผู้ใช้งานนี้</label>
                                                 </div>
-                                                <a href="#" className="text-white text-decoration-none hover-underline">ลืมรหัสผ่าน?</a>
+                                                <a href="/forgot-password" className="text-white text-decoration-none hover-underline">ลืมรหัสผ่าน?</a>
                                             </div>
 
                                             <div className="d-flex gap-3 mt-5">

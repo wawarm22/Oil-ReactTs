@@ -9,7 +9,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
     const location = useLocation();
-    const shouldShowHeader = !(['/login', '/register'].includes(location.pathname));
+    const shouldShowHeader = !(['/login', '/register', '/forgot-password'].includes(location.pathname));
 
     // ✅ ตรวจสอบ pathname เพื่อกำหนด class เฉพาะหน้า (เพิ่ม /upload)
     const layoutClass = ["/form-submission", "/upload", "/upload-multiple", "/confirm", "/audit"].includes(location.pathname) ? "bg-light-gray" : "";
