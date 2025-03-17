@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const apiProvince = async () => {
     try {
-        const response = await axios.get("https://asia-southeast1-tbit-excise.cloudfunctions.net/apiv4-FtLocations/Province", {
+        const response = await axios.get("https://oil-revenue.azurewebsites.net/api/provinces", {
             headers: {
                 "Content-Type": "application/json"
             }
@@ -16,9 +16,9 @@ export const apiProvince = async () => {
     }
 };
 
-export const apiDistrict = async (pvCode: string) => {
+export const apiDistrict = async (provinceId: string) => {
     try {
-        const response = await axios.get(`https://asia-southeast1-tbit-excise.cloudfunctions.net/apiv4-FtLocations/District?PvCode=${pvCode}`, {
+        const response = await axios.get(`https://oil-revenue.azurewebsites.net/api/ampur?provinceId=${provinceId}`, {
             headers: {
                 "Content-Type": "application/json"
             }
@@ -32,9 +32,9 @@ export const apiDistrict = async (pvCode: string) => {
     }
 };
 
-export const apiSubDistrict = async (pvCode: string, distCode: string) => {
+export const apiSubDistrict = async (amphureId: string) => {
     try {
-        const response = await axios.get(`https://asia-southeast1-tbit-excise.cloudfunctions.net/apiv4-FtLocations/SubDistrict?PvCode=${pvCode}&DistCode=${distCode}`, {
+        const response = await axios.get(`https://oil-revenue.azurewebsites.net/api/tambon?amphureId=${amphureId}`, {
             headers: {
                 "Content-Type": "application/json"
             }

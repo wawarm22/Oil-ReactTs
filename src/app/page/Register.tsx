@@ -10,8 +10,8 @@ import Button from "../reusable/Button";
 import frameImage from "../../assets/img/boeder-right.png";
 import borderLeft from "../../assets/img/border-left.png";
 import { RegisterFormValues, registerSchema } from "../schemas/registerSchema";
-import { useLocationStore } from "../../store/locationStore";
 import { selectLocation } from "../../assets/style/selectLocation";
+import { useLocationStore } from "../../store/locationStore";
 
 const Register: React.FC = () => {
     const navigate = useNavigate();
@@ -26,7 +26,7 @@ const Register: React.FC = () => {
 
     const { provinces, districts, subDistricts, fetchProvinces, fetchDistricts, fetchSubDistricts } = useLocationStore();
 
-    useEffect(() => {
+    useEffect(() => {        
         fetchProvinces();
     }, [fetchProvinces]);
 
@@ -39,20 +39,24 @@ const Register: React.FC = () => {
 
     const handleDistrictChange = (selectedDistrict: any) => {
         if (selectedDistrict?.value) {
-            setValue("district", selectedDistrict.value);
+            setValue("district", selectedDistrict.value.toString());
             fetchSubDistricts(selectedDistrict.value, selectedDistrict.value);
         }
     };
 
     const handleSubDistrictChange = (selectedSubDistrict: any) => {
         if (selectedSubDistrict?.value) {
-            setValue("subdsitrict", selectedSubDistrict.value);
-            const selected = subDistricts.find(subdistrict => subdistrict.SubdistCode === selectedSubDistrict.value);
+            setValue("subdsitrict", selectedSubDistrict.value.toString());
+            
+            // แปลง selectedSubDistrict.value เป็น number
+            const selected = subDistricts.find(subdistrict => subdistrict.amphure_id === Number(selectedSubDistrict.value));
+            
             if (selected) {
-                setValue("postcode", selected.PostCode);
+                setValue("postcode", selected.zip_code.toString());
             }
         }
     };
+    
 
     const onSubmit = (data: RegisterFormValues) => {
         console.log("สมัครสมาชิกสำเร็จ", data);
@@ -142,7 +146,13 @@ const Register: React.FC = () => {
                                             <span className="text-danger ms-3 fw-bold">* {errors.email?.message}</span>
                                         )}
                                         <div className="input-regis">
-                                            <input type="email" className="form-control" {...register("email")} />
+                                            <input
+                                                type="email"
+                                                className="form-control" {...register("email")}
+                                                onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                    e.target.value = e.target.value.replace(/[^a-zA-Z0-9@.]/g, "");
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-md-6">
@@ -151,7 +161,14 @@ const Register: React.FC = () => {
                                             <span className="text-danger ms-3 fw-bold">* {errors.phone?.message}</span>
                                         )}
                                         <div className="input-regis">
-                                            <input className="form-control" {...register("phone")} />
+                                            <input
+                                                type="tel"
+                                                className="form-control"
+                                                {...register("phone")}
+                                                onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                                                }}
+                                            />
                                         </div>
                                     </div>
 
@@ -244,8 +261,8 @@ const Register: React.FC = () => {
                                         <Select
 
                                             options={provinces.map(province => ({
-                                                value: province.PvCode,
-                                                label: province.NameTh
+                                                value: province.id,
+                                                label: province.name_th
                                             }))}
                                             onChange={handleProvinceChange}
                                             placeholder="เลือกจังหวัด"
@@ -259,8 +276,8 @@ const Register: React.FC = () => {
                                         )}
                                         <Select
                                             options={districts.map(district => ({
-                                                value: district.DistCode,
-                                                label: district.NameTh
+                                                value: district.id,
+                                                label: district.name_th
                                             }))}
                                             onChange={handleDistrictChange}
                                             placeholder="เลือกอำเภอ/เขต"
@@ -274,8 +291,8 @@ const Register: React.FC = () => {
                                         )}
                                         <Select
                                             options={subDistricts.map(subdistrict => ({
-                                                value: subdistrict.SubdistCode,
-                                                label: subdistrict.NameTh
+                                                value: subdistrict.amphure_id,
+                                                label: subdistrict.name_th
                                             }))}
                                             onChange={handleSubDistrictChange}
                                             placeholder="เลือกตำบล/แขวง"
@@ -288,7 +305,7 @@ const Register: React.FC = () => {
                                             <span className="text-danger ms-3 fw-bold">* {errors.postcode?.message}</span>
                                         )}
                                         <div className="input-regis">
-                                            <input className="form-control" {...register("postcode")} />
+                                            <input className="form-control" {...register("postcode")} readOnly/>
                                         </div>
                                     </div>
                                 </div>

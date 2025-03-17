@@ -1,27 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import "../../assets/css/line-dashboard.css"
 import { FaFileAlt, FaFileInvoiceDollar, FaSearchDollar, FaCheck } from "react-icons/fa";
+import { pieData, pieOptions } from "../../utils/chartData";
+import DateFilter from "../reusable/DateFilter";
 
 const Dashboard: React.FC = () => {
-    const pieData = {
-        labels: ["คืนภาษีสำเร็จ", "ต้องชำระเพิ่ม", "กำลังตรวจสอบ"],
-        datasets: [
-            {
-                data: [20, 10, 10],
-                backgroundColor: ["#5AD87F", "#FF7952", "#4D97FD"],
-            },
-        ],
-    };
-
-    const pieOptions = {
-        plugins: {
-            legend: {
-                display: false,
-            },
-        },
-    };
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
 
     return (
         <div className="container-fluid w-100 d-flex justify-content-center">
@@ -34,27 +21,28 @@ const Dashboard: React.FC = () => {
                     fontFamily: "IBM Plex Sans Thai",
                 }}
             >
-                {/* 🔹 Wrapper สำหรับกำหนดขนาดภายใน */}
                 <div className="container-fluid" style={{ maxWidth: "1400px" }}>
 
-                    {/* 🔹 หัวข้อให้อยู่แยกบรรทัด */}
-                    <div className="text-start fw-bold mb-3">
-                        <p style={{ fontSize: "32px" }}>รายการขอลดหย่อนและการคืนภาษีน้ำมันทั้งหมด</p>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <p className="fw-bold" style={{ fontSize: "32px" }}>รายการขอลดหย่อนและการคืนภาษีน้ำมันทั้งหมด</p>
+
+                        <DateFilter
+                            startDate={startDate}
+                            endDate={endDate}
+                            setStartDate={setStartDate}
+                            setEndDate={setEndDate}
+                        />
                     </div>
 
-                    {/* 🔹 คอนเทนต์ (แบ่งเป็น 2 คอลัมน์) */}
                     <div className="row">
-                        {/* กราฟ Pie Chart */}
-                        <div className="col-md-6 d-flex justify-content-start p-0">
+                        <div className="col-md-6 d-flex justify-content-center align-items-center p-0">
                             <div style={{ width: "300px", height: "300px" }}>
                                 <Pie data={pieData} options={pieOptions} />
                             </div>
                         </div>
 
-                        {/* 🔹 รายการข้อมูล จัดเป็น Grid 2x2 */}
                         <div className="col-md-6 p-0">
                             <div className="row">
-                                {/* Card 1 */}
                                 <div className="col-md-6 mb-4 d-flex align-items-center">
                                     <div className="custom-line" style={{ "--line-color": "#FFD85C" } as React.CSSProperties}></div>  {/* ✅ เส้นอยู่ด้านซ้าย */}
                                     <div className="card border-0 d-flex flex-column align-items-start ms-3" style={{ maxWidth: '140px' }}>
@@ -71,7 +59,6 @@ const Dashboard: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Card 2 */}
                                 <div className="col-md-6 mb-4 d-flex align-items-center">
                                     <div className="custom-line" ></div>
                                     <div className="card border-0 d-flex flex-column align-items-start ms-3" style={{ maxWidth: '120px' }}>
@@ -88,7 +75,6 @@ const Dashboard: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Card 3 */}
                                 <div className="col-md-6 d-flex align-items-center">
                                     <div className="custom-line" style={{ "--line-color": "#FF7952" } as React.CSSProperties}></div>
                                     <div className="card border-0 d-flex flex-column align-items-start ms-3" style={{ maxWidth: '130px' }}>
@@ -105,7 +91,6 @@ const Dashboard: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Card 4 */}
                                 <div className="col-md-6 d-flex align-items-center">
                                     <div className="custom-line" style={{ "--line-color": "#5AD87F" } as React.CSSProperties}></div>
                                     <div className="card border-0 d-flex flex-column align-items-start ms-3" style={{ maxWidth: '100px' }}>
