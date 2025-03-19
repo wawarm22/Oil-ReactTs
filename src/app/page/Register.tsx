@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import '../../assets/css/input-highlights.css'
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -12,6 +12,10 @@ import borderLeft from "../../assets/img/border-left.png";
 import { RegisterFormValues, registerSchema } from "../schemas/registerSchema";
 import { selectLocation } from "../../assets/style/selectLocation";
 import { useLocationStore } from "../../store/locationStore";
+import { apiRegister } from "../../utils/api/authenApi";
+import { UserData } from "../../types/userTypes";
+import { OverlayTrigger, Popover } from "react-bootstrap";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 const Register: React.FC = () => {
     const navigate = useNavigate();
@@ -20,13 +24,21 @@ const Register: React.FC = () => {
         defaultValues: {
             province: "",
             district: "",
-            subdsitrict: "",
+            subdistrict: "",
         }
     });
 
     const { provinces, districts, subDistricts, fetchProvinces, fetchDistricts, fetchSubDistricts } = useLocationStore();
+    const [passwordFocused, setPasswordFocused] = useState(false);
+    const [password, setPassword] = useState("");
+    const [passwordValidation, setPasswordValidation] = useState({
+        hasUpperCase: false,
+        hasLowerCase: false,
+        hasNumber: false,
+        isValidLength: false
+    });
 
-    useEffect(() => {        
+    useEffect(() => {
         fetchProvinces();
     }, [fetchProvinces]);
 
@@ -46,21 +58,78 @@ const Register: React.FC = () => {
 
     const handleSubDistrictChange = (selectedSubDistrict: any) => {
         if (selectedSubDistrict?.value) {
-            setValue("subdsitrict", selectedSubDistrict.value.toString());
-            
-            // แปลง selectedSubDistrict.value เป็น number
+            setValue("subdistrict", selectedSubDistrict.value.toString());
+
             const selected = subDistricts.find(subdistrict => subdistrict.amphure_id === Number(selectedSubDistrict.value));
-            
+
             if (selected) {
-                setValue("postcode", selected.zip_code.toString());
+                setValue("zip_code", selected.zip_code.toString());
             }
         }
     };
-    
 
-    const onSubmit = (data: RegisterFormValues) => {
-        console.log("สมัครสมาชิกสำเร็จ", data);
+    const handlePasswordFocus = () => setPasswordFocused(true);
+    const handlePasswordBlur = () => setPasswordFocused(false);
+
+    const onSubmit = async (data: RegisterFormValues) => {
+        const userData: UserData = {
+            tax_registration: data.tax_registration,
+            company_name: data.company_name,
+            factory_name: data.factory_name || "",
+            email: data.email,
+            phone: data.phone,
+            password: data.password,
+            confirm_password: data.confirmPassword,
+            address: data.address,
+            road: data.road || "",
+            alley: data.alley || "",
+            village: data.village || "",
+            province: data.province || "",
+            district: data.district || "",
+            subdistrict: data.subdistrict || "",
+            zip_code: data.zip_code,
+        };
+
+        console.log(userData);
+
+        try {
+            const response = await apiRegister(userData);
+            if (response) {
+                console.log("Register Success:", response);
+                navigate('/login');
+            }
+        } catch (error) {
+            console.error("Register Failed:", error);
+        }
     };
+
+    const validatePassword = (password: string) => {
+        setPassword(password);
+        setPasswordValidation({
+            hasUpperCase: /[A-Z]/.test(password),
+            hasLowerCase: /[a-z]/.test(password),
+            hasNumber: /[0-9]/.test(password),
+            isValidLength: password.length >= 8 && password.length <= 16
+        });
+    };
+
+    const renderValidationIcon = (condition: boolean) => {
+        return condition ? <FaCheckCircle color="green" /> : <FaTimesCircle color="red" />;
+    };
+
+    const passwordPopover = (
+        <Popover id="popover-password">
+            <Popover.Header as="h3">เงื่อนไขการตั้งรหัสผ่าน</Popover.Header>
+            <Popover.Body>
+                <ul className="list-unstyled">
+                    <li>{renderValidationIcon(passwordValidation.hasUpperCase)} ต้องมีตัวอักษร **พิมพ์ใหญ่** อย่างน้อย 1 ตัว</li>
+                    <li>{renderValidationIcon(passwordValidation.hasLowerCase)} ต้องมีตัวอักษร **พิมพ์เล็ก** อย่างน้อย 1 ตัว</li>
+                    <li>{renderValidationIcon(passwordValidation.hasNumber)} ต้องมีตัวเลขอย่างน้อย 1 ตัว</li>
+                    <li>{renderValidationIcon(passwordValidation.isValidLength)} ความยาวไม่น้อยกว่า **8** ตัว และไม่มากกว่า **16** ตัว</li>
+                </ul>
+            </Popover.Body>
+        </Popover>
+    );
 
     return (
         <div
@@ -91,53 +160,33 @@ const Register: React.FC = () => {
                                 <div className="row g-3 pe-2 pb-3">
                                     <div className="col-md-12">
                                         <label className="form-label">เลขทะเบียนสรรพสามิต</label>
-                                        {errors.taxId && (
-                                            <span className="text-danger ms-3 fw-bold">* {errors.taxId?.message}</span>
+                                        {errors.tax_registration && (
+                                            <span className="text-danger ms-3 fw-bold">* {errors.tax_registration?.message}</span>
                                         )}
                                         <div className="input-regis">
-                                            <input className="form-control" {...register("taxId")} />
+                                            <input
+                                                className="form-control"
+                                                {...register("tax_registration")}
+                                                maxLength={17}
+                                                onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-md-6">
                                         <label className="form-label">ชื่อบริษัท</label>
-                                        {errors.companyName && (
-                                            <span className="text-danger ms-3 fw-bold">* {errors.companyName?.message}</span>
+                                        {errors.company_name && (
+                                            <span className="text-danger ms-3 fw-bold">* {errors.company_name?.message}</span>
                                         )}
                                         <div className="input-regis">
-                                            <input className="form-control" {...register("companyName")} />
+                                            <input className="form-control" {...register("company_name")} />
                                         </div>
                                     </div>
-                                    {/* <div className="col-md-6">
-                                        <label className="form-label">คำนำหน้าชื่อ</label>
-                                        <select className="form-select input-group">
-                                            <option>เลือก...</option>
-                                            <option>นาย</option>
-                                            <option>นาง</option>
-                                            <option>นางสาว</option>
-                                        </select>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="form-label">ชื่อ</label>
-                                        {errors.firstName && (
-                                            <span className="text-danger ms-3 fw-bold">* {errors.firstName?.message}</span>
-                                        )}
-                                        <div className="input-regis">
-                                            <input className="form-control" {...register("firstName")} />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="form-label">นามสกุล</label>
-                                        {errors.lastName && (
-                                            <span className="text-danger ms-3 fw-bold">* {errors.lastName?.message}</span>
-                                        )}
-                                        <div className="input-regis">
-                                            <input className="form-control" {...register("lastName")} />
-                                        </div>
-                                    </div> */}
                                     <div className="col-md-6">
                                         <label className="form-label">ชื่อโรงงานอุตสาหกรรม</label>
                                         <div className="input-regis">
-                                            <input type="text" className="form-control" />
+                                            <input className="form-control" {...register("factory_name")} />
                                         </div>
                                     </div>
                                     <div className="col-md-6">
@@ -165,6 +214,7 @@ const Register: React.FC = () => {
                                                 type="tel"
                                                 className="form-control"
                                                 {...register("phone")}
+                                                maxLength={10}
                                                 onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                                                     e.target.value = e.target.value.replace(/[^0-9]/g, "");
                                                 }}
@@ -178,7 +228,22 @@ const Register: React.FC = () => {
                                             <span className="text-danger ms-3 fw-bold">* {errors.password?.message}</span>
                                         )}
                                         <div className="input-regis">
-                                            <input type="password" className="form-control" {...register("password")} />
+                                            <OverlayTrigger
+                                                trigger="focus"
+                                                placement="left"
+                                                overlay={passwordPopover}
+                                                show={passwordFocused}
+                                            >
+                                                <input
+                                                    type="password"
+                                                    className="form-control"
+                                                    {...register("password")}
+                                                    value={password}
+                                                    onChange={(e) => validatePassword(e.target.value)}
+                                                    onFocus={handlePasswordFocus}
+                                                    onBlur={handlePasswordBlur}
+                                                />
+                                            </OverlayTrigger>
                                         </div>
                                     </div>
                                     <div className="col-md-6">
@@ -228,29 +293,29 @@ const Register: React.FC = () => {
                                 <div className="row g-3 pe-2">
                                     <div className="col-md-6">
                                         <label className="form-label">สถานที่ตั้ง</label>
-                                        {errors.location && (
-                                            <span className="text-danger ms-3 fw-bold">* {errors.location?.message}</span>
+                                        {errors.address && (
+                                            <span className="text-danger ms-3 fw-bold">* {errors.address?.message}</span>
                                         )}
                                         <div className="input-regis">
-                                            <input className="form-control" {...register("location")} />
+                                            <input className="form-control" {...register("address")} />
                                         </div>
                                     </div>
                                     <div className="col-md-6">
                                         <label className="form-label">ถนน</label>
                                         <div className="input-regis">
-                                            <input type="text" className="form-control" />
+                                            <input type="text" className="form-control" {...register("road")} />
                                         </div>
                                     </div>
                                     <div className="col-md-6">
                                         <label className="form-label">ตรอก/ซอย</label>
                                         <div className="input-regis">
-                                            <input type="text" className="form-control" />
+                                            <input type="text" className="form-control" {...register("alley")} />
                                         </div>
                                     </div>
                                     <div className="col-md-6">
                                         <label className="form-label">หมู่ที่</label>
                                         <div className="input-regis">
-                                            <input type="text" className="form-control" />
+                                            <input type="text" className="form-control" {...register("village")} />
                                         </div>
                                     </div>
                                     <div className="col-md-6">
@@ -286,8 +351,8 @@ const Register: React.FC = () => {
                                     </div>
                                     <div className="col-md-6">
                                         <label className="form-label">ตำบล/แขวง</label>
-                                        {errors.subdsitrict && (
-                                            <span className="text-danger ms-3 fw-bold">* {errors.subdsitrict?.message}</span>
+                                        {errors.subdistrict && (
+                                            <span className="text-danger ms-3 fw-bold">* {errors.subdistrict?.message}</span>
                                         )}
                                         <Select
                                             options={subDistricts.map(subdistrict => ({
@@ -301,11 +366,11 @@ const Register: React.FC = () => {
                                     </div>
                                     <div className="col-md-6">
                                         <label className="form-label">รหัสไปรษณีย์</label>
-                                        {errors.postcode && (
-                                            <span className="text-danger ms-3 fw-bold">* {errors.postcode?.message}</span>
+                                        {errors.zip_code && (
+                                            <span className="text-danger ms-3 fw-bold">* {errors.zip_code?.message}</span>
                                         )}
                                         <div className="input-regis">
-                                            <input className="form-control" {...register("postcode")} readOnly/>
+                                            <input className="form-control" {...register("zip_code")} readOnly />
                                         </div>
                                     </div>
                                 </div>

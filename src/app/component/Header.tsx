@@ -66,6 +66,7 @@ const Header: React.FC = () => {
                     >
                         <span></span>
                         <span></span>
+                        <span></span>
                     </div>
 
                     <PopoverMenu isOpen={isPopoverOpen} onClose={() => setPopoverOpen(false)} menuRef={menuRef} />

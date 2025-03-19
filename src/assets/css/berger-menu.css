@@ -23,5 +23,10 @@
 }
 
 .menu-icon.open span:nth-child(2) {
+  opacity: 0;
+  transition: 0.2s;
+}
+
+.menu-icon.open span:nth-child(3) {
   transform: translateY(-5px) rotate(-45deg);
 }

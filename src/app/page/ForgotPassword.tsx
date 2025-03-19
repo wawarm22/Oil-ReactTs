@@ -104,7 +104,7 @@ const ForgotPassword: React.FC = () => {
                                             maxWidth="300px"
                                             bgColor="#FFCB02"
                                             color="#131516"
-                                            variant="bg-hide"
+                                            variant="bg-hide"                                            
                                         />
                                         <Button
                                             className="mt-3 w-100"

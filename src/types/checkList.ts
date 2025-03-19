@@ -6,24 +6,23 @@ export interface ChecklistItem {
 
 export const checklistData: ChecklistItem[] = [
     {
+        name: "เอกสารแบบ",
+        status: "green",
+        subItems: ["ภส. 07-01"],
+    },
+    {
         name: "ประเภทวัตถุดิบ",
         status: "green",
-        subItems: ["ตรวจสอบประเภทสินค้า", "ตรวจสอบหมวดหมู่สินค้า"],
+        subItems: ["Ethanol"],
     },
     {
         name: "หน่วย",
-        status: "green",
-        subItems: ["ตรวจสอบหน่วยนับ"],
-    },
-    {
-        name: "วันเดือนปีเกิด",
         status: "red",
-        subItems: ["ตรวจสอบรูปแบบวันที่", "ตรวจสอบข้อมูลในระบบ"],
+        subItems: ["ลิตร"],
     },
     {
         name: "รายการ",
         status: "green",
-        subItems: ["ตรวจสอบรายละเอียดสินค้า"],
     },
     {
         name: "ยอดยกมา",

@@ -73,7 +73,7 @@ const DocumentAudit: React.FC = () => {
     };
 
     const handleNextStep = () => {
-        console.log("ขั้นตอนถัดไป");
+        navigate('/match-list')
     };
 
     return (
@@ -99,7 +99,7 @@ const DocumentAudit: React.FC = () => {
                 onBack={handleBack}
                 onSaveAudit={handleSaveAudit}
                 onNextStep={handleNextStep}
-                disableSave={true} 
+                disableSave={false} 
             />
         </div>
     );

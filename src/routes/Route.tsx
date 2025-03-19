@@ -10,6 +10,8 @@ import UploadMultiple from "../app/page/UploadMultiple";
 import ConfirmUpload from "../app/page/ConfirmUpload";
 import DocumentAudit from "../app/page/DocumentAudit";
 import ForgotPassword from "../app/page/ForgotPassword";
+import ResetPassword from "../app/page/ResetPassword";
+import MatchList from "../app/page/MatchList";
 
 const WebRoute = () => {
   return (
@@ -17,6 +19,7 @@ const WebRoute = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<Home />} />
         <Route path="/form-submission" element={<FormSubmission />} />
@@ -25,6 +28,7 @@ const WebRoute = () => {
         <Route path="/upload-multiple" element={<UploadMultiple />} />
         <Route path="/confirm" element={<ConfirmUpload />} />
         <Route path="/audit" element={<DocumentAudit />} />
+        <Route path="/match-list" element={<MatchList />} />
       </Routes>
     </Layout>
   );

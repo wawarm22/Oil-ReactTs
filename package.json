@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.26.0",
     "@fontsource/ibm-plex-sans-thai": "^5.1.1",
     "@fontsource/sarabun": "^5.1.1",
     "@hookform/resolvers": "^4.1.3",

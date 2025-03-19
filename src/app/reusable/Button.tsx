@@ -15,7 +15,7 @@ interface ButtonProps {
     variant?: 'bg-hide' | 'bg-show' | 'default';
     maxWidth?: string;
     children?: React.ReactNode;
-    disabled?: boolean;  // ✅ เพิ่ม property disabled
+    disabled?: boolean;  
 }
 
 const Button: React.FC<ButtonProps> = ({ 
@@ -32,7 +32,7 @@ const Button: React.FC<ButtonProps> = ({
     variant = 'default',
     maxWidth = "180px",
     children,
-    disabled = false  // ✅ ค่าเริ่มต้นคือ false (เปิดใช้งานปุ่ม)
+    disabled = false 
 }) => {
     return (
         <button
@@ -46,8 +46,8 @@ const Button: React.FC<ButtonProps> = ({
                 minHeight: '50px',
                 maxWidth: maxWidth,                
                 border: `2px solid ${borderColor || bgColor}`,
-                cursor: disabled ? "not-allowed" : "pointer",  // ✅ เปลี่ยน cursor เมื่อ disabled
-                opacity: disabled ? 0.5 : 1  // ✅ ลดความเข้มสีปุ่มเมื่อ disabled
+                cursor: disabled ? "not-allowed" : "pointer",  
+                opacity: disabled ? 0.5 : 1  
             }}
             onMouseEnter={(e) => {
                 if (!disabled && variant === 'bg-hide') {
@@ -63,8 +63,8 @@ const Button: React.FC<ButtonProps> = ({
                     e.currentTarget.style.borderColor = borderColor || bgColor;
                 }
             }}
-            onClick={!disabled ? onClick : undefined}  // ✅ ปิดการใช้งาน onClick หาก disabled
-            disabled={disabled}  // ✅ ใช้ค่า disabled ที่รับมา
+            onClick={!disabled ? onClick : undefined}  
+            disabled={disabled}  
         >
             {children}
             {label}
