@@ -1,8 +1,7 @@
 import axios from "axios";
 import { authSchema } from "../../app/schemas/authneSchema";
 import { UserData } from "../../types/userTypes";
-
-const BASE_URL = "https://oil-revenue.azurewebsites.net/api/";
+import { BASE_URL } from "./apiConfig";
 
 export const apiLogin = async (email: string, password: string) => {
     try {

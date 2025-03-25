@@ -10,3 +10,14 @@ export const getStatusColor = (status: string): string => {
             return "gray";
     }
 };
+
+export const getStatusTaxRefund = (status: string): string => {
+    switch (status) {
+        case "ตรวจสอบเอกสารเรียบร้อย":
+            return "#22C659";
+        case "รอดำเนินการคืนภาษี":
+            return "#FFCB02";       
+        default:
+            return "gray";
+    }
+};

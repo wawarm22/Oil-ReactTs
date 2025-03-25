@@ -4,7 +4,9 @@ import Button from "../reusable/Button";
 import sidebar from "../../assets/img/line-sidebar.png";
 import { useNavigate } from "react-router-dom";
 import DashboardPie from "../component/DashboardPie";
-import DashboardChart from "../component/DashboardChart";
+import DashboardHorChart from "../component/DashboardHorChart";
+import VerBarChart from "../component/VerBarChart";
+import TaxRefundTable from "../component/TaxRefundTable";
 const Home: React.FC = () => {
     const navigate = useNavigate();
 
@@ -13,7 +15,7 @@ const Home: React.FC = () => {
     }
 
     const handleUploadForm = () => {
-        navigate("/upload"); 
+        navigate("/upload");
     };
 
     return (
@@ -23,7 +25,6 @@ const Home: React.FC = () => {
                 style={{
                     height: "100vh",
                     maxHeight: "260px",
-                    position: "relative",
                     overflow: "hidden",
                 }}
             >
@@ -95,8 +96,11 @@ const Home: React.FC = () => {
 
             <div className="bg-light-gray py-3">
                 <DashboardPie />
-                <DashboardChart />
+                <DashboardHorChart />
+                <VerBarChart />
+                <TaxRefundTable/>
             </div>
+            
         </>
     );
 };

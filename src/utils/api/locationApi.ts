@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { BASE_URL } from './apiConfig';
 
 export const apiProvince = async () => {
     try {
-        const response = await axios.get("https://oil-revenue.azurewebsites.net/api/provinces", {
+        const response = await axios.get(`${BASE_URL}/provinces`, {
             headers: {
                 "Content-Type": "application/json"
             }
@@ -18,7 +19,7 @@ export const apiProvince = async () => {
 
 export const apiDistrict = async (provinceId: string) => {
     try {
-        const response = await axios.get(`https://oil-revenue.azurewebsites.net/api/ampur?provinceId=${provinceId}`, {
+        const response = await axios.get(`${BASE_URL}/ampur?provinceId=${provinceId}`, {
             headers: {
                 "Content-Type": "application/json"
             }
@@ -34,7 +35,7 @@ export const apiDistrict = async (provinceId: string) => {
 
 export const apiSubDistrict = async (amphureId: string) => {
     try {
-        const response = await axios.get(`https://oil-revenue.azurewebsites.net/api/tambon?amphureId=${amphureId}`, {
+        const response = await axios.get(`${BASE_URL}/tambon?amphureId=${amphureId}`, {
             headers: {
                 "Content-Type": "application/json"
             }
