@@ -6,14 +6,14 @@ import { FaFileAlt, FaFileInvoiceDollar, FaSearchDollar, FaCheck } from "react-i
 import { pieData, pieOptions } from "../../utils/chartData";
 import DateFilter from "../reusable/DateFilter";
 
-const Dashboard: React.FC = () => {
+const DashboardPie: React.FC = () => {
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
 
     return (
         <div className="container-fluid w-100 d-flex justify-content-center">
             <div
-                className="card p-4 shadow"
+                className="card p-4 shadow-sm"
                 style={{
                     maxWidth: "1800px",
                     width: "100%",
@@ -115,4 +115,4 @@ const Dashboard: React.FC = () => {
     );
 };
 
-export default Dashboard;
+export default DashboardPie;

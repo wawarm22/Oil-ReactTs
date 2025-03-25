@@ -3,7 +3,8 @@ import bgMain from "../../assets/img/img-main.png";
 import Button from "../reusable/Button";
 import sidebar from "../../assets/img/line-sidebar.png";
 import { useNavigate } from "react-router-dom";
-import Dashboard from "../component/Dashboard";
+import DashboardPie from "../component/DashboardPie";
+import DashboardChart from "../component/DashboardChart";
 const Home: React.FC = () => {
     const navigate = useNavigate();
 
@@ -93,7 +94,8 @@ const Home: React.FC = () => {
             </div>
 
             <div className="bg-light-gray py-3">
-                <Dashboard />
+                <DashboardPie />
+                <DashboardChart />
             </div>
         </>
     );

@@ -1,7 +1,9 @@
 import React from "react";
 import Button from "../reusable/Button";
+import { StepStatus } from "../../types/enum/stepStatus";
 
 interface AuditButtonContainerProps {
+    stepStatus?: StepStatus;
     onUploadMore?: () => void;
     onBack?: () => void;
     onSaveAudit?: () => void;
@@ -10,6 +12,7 @@ interface AuditButtonContainerProps {
 }
 
 const AuditButtonContainer: React.FC<AuditButtonContainerProps> = ({
+    stepStatus,
     onUploadMore,
     onBack,
     onSaveAudit,
@@ -18,7 +21,10 @@ const AuditButtonContainer: React.FC<AuditButtonContainerProps> = ({
 }) => {
     return (
         <div className="d-flex justify-content-between align-items-center shadow-sm bg-white rounded-2 p-4 mt-3 w-100">
-            <div className="flex-grow-1 d-flex justify-content-start w-100">
+            <div
+                className="flex-grow-1 d-flex justify-content-start w-100"
+                style={{ visibility: stepStatus === StepStatus.MATCH ? "hidden" : "visible" }}
+            >
                 <Button
                     type="button"
                     label="อัปโหลดเอกสารเพิ่มเติม"

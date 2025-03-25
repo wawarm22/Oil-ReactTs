@@ -12,6 +12,7 @@ import DocumentAudit from "../app/page/DocumentAudit";
 import ForgotPassword from "../app/page/ForgotPassword";
 import ResetPassword from "../app/page/ResetPassword";
 import MatchList from "../app/page/MatchList";
+import MatchDocument from "../app/page/MatchDocument";
 
 const WebRoute = () => {
   return (
@@ -29,6 +30,7 @@ const WebRoute = () => {
         <Route path="/confirm" element={<ConfirmUpload />} />
         <Route path="/audit" element={<DocumentAudit />} />
         <Route path="/match-list" element={<MatchList />} />
+        <Route path="/match-document" element={<MatchDocument />} />
       </Routes>
     </Layout>
   );

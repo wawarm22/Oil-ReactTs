@@ -216,6 +216,7 @@ const MatchList: React.FC = () => {
                         bgColor="#FFCB02"
                         color="#1E2329"
                         variant="bg-hide"
+                        onClick={()=> navigate("/match-document")}
                     />
                 </div>
             </div>

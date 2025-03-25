@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import StepProgress from "../reusable/StepProgress";
 import Button from "../reusable/Button";
 import { CSSTransition } from "react-transition-group";
@@ -11,6 +11,7 @@ import { RiArrowDropDownLine, RiFileDownloadLine } from "react-icons/ri";
 import { StepStatus } from "../../types/enum/stepStatus";
 import { AnimatePresence, motion } from "framer-motion";
 import { PDFDocument } from "pdf-lib";
+import { uploadFile } from "../../utils/upload";
 
 const Upload: React.FC = () => {
     const navigate = useNavigate();
@@ -20,13 +21,12 @@ const Upload: React.FC = () => {
     const [openDropdown, setOpenDropdown] = useState<{ [key: number]: boolean }>({});
     const [isAnimating, setIsAnimating] = useState<{ [key: number]: boolean }>({});
 
-    // Load uploaded files from localStorage on component mount
-    useEffect(() => {
-        const storedFiles = localStorage.getItem("uploadedFiles");
-        if (storedFiles) {
-            setUploadedFiles(JSON.parse(storedFiles));
-        }
-    }, []);
+    // useEffect(() => {
+    //     const storedFiles = localStorage.getItem("uploadedFiles");
+    //     if (storedFiles) {
+    //         setUploadedFiles(JSON.parse(storedFiles));
+    //     }
+    // }, []);
 
     const toggleDropdown = (docId: number) => {
         setOpenDropdown(prev => ({ ...prev, [docId]: !prev[docId] }));
@@ -42,7 +42,7 @@ const Upload: React.FC = () => {
 
         const mergedPdf = await PDFDocument.create();
         for (const file of storedFiles) {
-            const existingPdfBytes = await fetch(convertBase64ToBlobUrl(file.data)).then(res => res.arrayBuffer());
+            const existingPdfBytes = await fetch(file.data).then(res => res.arrayBuffer());
             const existingPdf = await PDFDocument.load(existingPdfBytes);
             const copiedPages = await mergedPdf.copyPages(existingPdf, existingPdf.getPageIndices());
             copiedPages.forEach(page => mergedPdf.addPage(page));
@@ -53,15 +53,23 @@ const Upload: React.FC = () => {
         window.open(mergedBlobUrl, "_blank");
     };
 
-    const convertBase64ToBlobUrl = (base64: string) => {
-        const byteCharacters = atob(base64.split(",")[1]);
-        const byteNumbers = byteCharacters.split("").map(char => char.charCodeAt(0));
-        return URL.createObjectURL(new Blob([new Uint8Array(byteNumbers)], { type: "application/pdf" }));
+    const openBlobSecurely = async (fileUrlWithToken: string) => {
+        try {
+            const response = await fetch(fileUrlWithToken);
+            const blob = await response.blob();
+
+            // แปลง blob เป็น URL แบบไม่เปิดเผย token
+            const blobUrl = URL.createObjectURL(blob);
+            window.open(blobUrl, "_blank");
+        } catch (error) {
+            console.error("ไม่สามารถเปิดไฟล์ได้:", error);
+            alert("ไม่สามารถเปิดดูเอกสารได้");
+        }
     };
 
-    const getPdfPageCount = async (pdfData: string): Promise<number> => {
+    const getPdfPageCount = async (url: string): Promise<number> => {
         try {
-            const existingPdfBytes = await fetch(convertBase64ToBlobUrl(pdfData)).then(res => res.arrayBuffer());
+            const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
             return (await PDFDocument.load(existingPdfBytes)).getPageCount();
         } catch {
             return 0;
@@ -74,20 +82,18 @@ const Upload: React.FC = () => {
         const files = Array.from(event.target.files);
 
         for (const file of files) {
-            const reader = new FileReader();
-            reader.onload = async () => {
-                const fileData = reader.result as string;
-                const pageCount = await getPdfPageCount(fileData);
+            const fileUrl = await uploadFile(file);
+            if (!fileUrl) return;
 
-                const newFile = { name: file.name, data: fileData, pageCount };
+            const pageCount = await getPdfPageCount(fileUrl);
 
-                setUploadedFiles(prevState => {
-                    const newFiles = { ...prevState, [docId]: [...(prevState[docId] || []), newFile] };
-                    localStorage.setItem("uploadedFiles", JSON.stringify(newFiles));
-                    return newFiles;
-                });
-            };
-            reader.readAsDataURL(file);
+            const newFile = { name: file.name, data: fileUrl, pageCount };
+
+            setUploadedFiles(prevState => {
+                const newFiles = { ...prevState, [docId]: [...(prevState[docId] || []), newFile] };
+                // localStorage.setItem("uploadedFiles", JSON.stringify(newFiles));
+                return newFiles;
+            });
         }
     };
 
@@ -262,7 +268,7 @@ const Upload: React.FC = () => {
                                                         bgColor="#3D4957"
                                                         maxWidth="260px"
                                                         variant="bg-hide"
-                                                        onClick={() => window.open(convertBase64ToBlobUrl(file.data), "_blank")}
+                                                        onClick={() => openBlobSecurely(file.data)}
                                                     />
                                                 </td>
                                             </motion.tr>
