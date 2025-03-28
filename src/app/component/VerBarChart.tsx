@@ -10,7 +10,7 @@ import {
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Bar } from "react-chartjs-2";
-import { verBarData, verBarOptions } from "../../utils/chartData";
+import { verBarData, verBarDataMonthly, verBarOptions, verBarOptionsMonthly } from "../../utils/chartData";
 import DashboardTabSelector from "../reusable/DashboardTabSelector";
 import DateFilter from "../reusable/DateFilter";
 
@@ -20,6 +20,9 @@ const VerBarChart: React.FC = () => {
     const [activeTab, setActiveTab] = useState<"yearly" | "monthly">("yearly");
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
+    const isYearly = activeTab === "yearly";
+    const chartData = isYearly ? verBarData : verBarDataMonthly;
+    const chartOptions = isYearly ? verBarOptions : verBarOptionsMonthly;
 
     return (
         <div className="container-fluid w-100 d-flex justify-content-center mt-3">
@@ -34,7 +37,7 @@ const VerBarChart: React.FC = () => {
             >
                 <div className="container-fluid" style={{ maxWidth: "1400px" }}>
                     <p className="fw-bold mb-3" style={{ fontSize: "32px" }}>จำนวนเงินขอลดหย่อนเเละการคืนภาษี</p>
-                    <div className="d-flex flex-wrap gap-5" style={{ fontSize: "22px"}}>
+                    <div className="d-flex flex-wrap gap-5" style={{ fontSize: "22px" }}>
                         <div className="d-flex align-items-center gap-3">
                             <div style={{ width: "4px", height: "55px", backgroundColor: "#51A9FF" }} />
                             <div>
@@ -76,7 +79,7 @@ const VerBarChart: React.FC = () => {
                             style={{
                                 position: "absolute",
                                 right: 0,
-                                top: -13,
+                                top: 5,
                             }}
                         >
                             <DateFilter
@@ -87,7 +90,7 @@ const VerBarChart: React.FC = () => {
                             />
                         </div>
                     </div>
-                    <Bar data={verBarData} options={verBarOptions} />
+                    <Bar data={chartData} options={chartOptions} />
                 </div>
             </div>
         </div>

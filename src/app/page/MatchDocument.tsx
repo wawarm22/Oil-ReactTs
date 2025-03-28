@@ -10,6 +10,8 @@ import AuditButton from "../component/AuditButton";
 import { useNavigate } from "react-router-dom";
 import MatchTable from "../component/MatchTable";
 import { sampleTableData } from "../../types/tableTypes";
+import VolumeCompareTable from "../component/VolumeCompareTable";
+import { volumeCompareData } from "../../types/volumeTableTypes";
 
 type UploadedFilesType = {
     [key: number]: { name: string; data: string; pageCount: number }[];
@@ -60,7 +62,7 @@ const MatchDocument: React.FC = () => {
         if (subDocRef.current) {
             setSubDocHeight(subDocRef.current.clientHeight);
         }
-    }, [selectedId, selectedDocIndex]);   
+    }, [selectedId, selectedDocIndex]);
 
     const handleBack = () => {
         navigate('/match-list')
@@ -89,11 +91,12 @@ const MatchDocument: React.FC = () => {
                 </div>
                 <AuditPagination totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} customHeight={subDocHeight} />
             </div>
-            
+
             <AuditDetail selectedId={selectedId} currentPage={currentPage} uploadedFiles={uploadedFiles} />
-            
-            <MatchTable data={sampleTableData} />
-            
+
+            {selectedId === 1 && <MatchTable data={sampleTableData} />}
+            {selectedId === 2 && <VolumeCompareTable data={volumeCompareData} />}
+
             <AuditButton
                 stepStatus={StepStatus.MATCH}
                 onBack={handleBack}

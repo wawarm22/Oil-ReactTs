@@ -13,6 +13,7 @@ import ForgotPassword from "../app/page/ForgotPassword";
 import ResetPassword from "../app/page/ResetPassword";
 import MatchList from "../app/page/MatchList";
 import MatchDocument from "../app/page/MatchDocument";
+import TaxSubmission from "../app/page/TaxSubmission";
 
 const WebRoute = () => {
   return (
@@ -31,6 +32,7 @@ const WebRoute = () => {
         <Route path="/audit" element={<DocumentAudit />} />
         <Route path="/match-list" element={<MatchList />} />
         <Route path="/match-document" element={<MatchDocument />} />
+        <Route path="/submit" element={<TaxSubmission />} />
       </Routes>
     </Layout>
   );

@@ -8,11 +8,12 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
-import { Bar } from "react-chartjs-2";
-import { horBarData, horBarOptions } from "../../utils/chartData";
+import { Bar, Line } from "react-chartjs-2";
+import { horBarData, horBarOptions, lineChartData, lineChartOptions, lineMonthlyData, lineMonthlyOptions, monthlyBarData, monthlyBarOptions } from "../../utils/chartData";
 import { DATASET_LABELS } from "../../types/enum/chartData";
 import DashboardTabSelector from "../reusable/DashboardTabSelector";
 import DateFilter from "../reusable/DateFilter";
+import GraphTypeToggle from "./GraphTypeToggle";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -20,14 +21,36 @@ const DashboardHorChart: React.FC = () => {
     const [activeTab, setActiveTab] = useState<"yearly" | "monthly">("yearly");
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
+    const [graphType, setGraphType] = useState<"line" | "bar">("bar");
+    const isYearly = activeTab === "yearly";
+    const chartData = isYearly ? horBarData : monthlyBarData;
+    const chartOptions = isYearly ? horBarOptions : monthlyBarOptions;
+    const lineData = isYearly ? lineChartData : lineMonthlyData;
+    const lineOptions = isYearly ? lineChartOptions : lineMonthlyOptions;
 
-    const requestedDataset = horBarData.datasets.find(
+    const requestedLineDataset = lineData.datasets.find(
         (d) => d.label === DATASET_LABELS.REQUESTED
     );
 
-    const refundedDataset = horBarData.datasets.find(
+    const refundedLineDataset = lineData.datasets.find(
         (d) => d.label === DATASET_LABELS.REFUNDED
     );
+
+    const requestedDataset = chartData.datasets.find(
+        (d) => d.label === DATASET_LABELS.REQUESTED
+    );
+
+    const refundedDataset = chartData.datasets.find(
+        (d) => d.label === DATASET_LABELS.REFUNDED
+    );
+
+    const totalRequestedLine = requestedLineDataset
+        ? requestedLineDataset.data.reduce((sum, val) => sum + val, 0)
+        : 0;
+
+    const totalRefundedLine = refundedLineDataset
+        ? refundedLineDataset.data.reduce((sum, val) => sum + val, 0)
+        : 0;
 
     const totalRequested = requestedDataset
         ? requestedDataset.data.reduce((sum, val) => sum + val, 0)
@@ -50,15 +73,15 @@ const DashboardHorChart: React.FC = () => {
             >
                 <div className="container-fluid" style={{ maxWidth: "1400px" }}>
                     <p className="fw-bold mb-3" style={{ fontSize: "32px" }}>จำนวนเงินขอลดหย่อนเเละการคืนภาษี</p>
-                    <div className="d-flex flex-wrap gap-5" style={{ fontSize: '24px'}}>
+                    <div className="d-flex flex-wrap gap-5" style={{ fontSize: '24px' }}>
                         <div className="d-flex align-items-center gap-3">
                             <div style={{ width: "4px", height: "65px", backgroundColor: "#FFCC01" }} />
                             <div>
                                 <p className="m-0 fw-bold">
                                     จำนวนเงินขอลดหย่อนภาษีทั้งหมด
                                 </p>
-                                <p className="m-0 fw-bold" style={{ fontSize: "38px"}}>
-                                    {totalRequested.toLocaleString()} บาท
+                                <p className="m-0 fw-bold" style={{ fontSize: "38px" }}>
+                                    {(graphType === "bar" ? totalRequested : totalRequestedLine).toLocaleString()} บาท
                                 </p>
                             </div>
                         </div>
@@ -68,8 +91,8 @@ const DashboardHorChart: React.FC = () => {
                                 <p className="m-0 fw-bold">
                                     จำนวนภาษีที่ได้รับการลดหย่อนและได้คืน
                                 </p>
-                                <p className="m-0 fw-bold" style={{ fontSize: "38px"}}>
-                                    {totalRefunded.toLocaleString()} บาท
+                                <p className="m-0 fw-bold" style={{ fontSize: "38px" }}>
+                                    {(graphType === "bar" ? totalRefunded : totalRefundedLine).toLocaleString()} บาท
                                 </p>
                             </div>
                         </div>
@@ -78,10 +101,10 @@ const DashboardHorChart: React.FC = () => {
                         <DashboardTabSelector activeTab={activeTab} onTabChange={setActiveTab} />
 
                         <div
-                            style={{ 
-                                position: "absolute",
+                            className="d-flex align-items-center gap-3 position-absolute"
+                            style={{
                                 right: 0,
-                                top: -13, 
+                                top: 5,
                             }}
                         >
                             <DateFilter
@@ -90,9 +113,15 @@ const DashboardHorChart: React.FC = () => {
                                 setStartDate={setStartDate}
                                 setEndDate={setEndDate}
                             />
+                            <GraphTypeToggle type={graphType} onChange={setGraphType} />
                         </div>
+
                     </div>
-                    <Bar data={horBarData} options={horBarOptions} />
+                    {graphType === "bar" ? (
+                        <Bar data={chartData} options={chartOptions} />
+                    ) : (
+                        <Line data={lineData} options={lineOptions} />
+                    )}
                 </div>
             </div>
         </div>

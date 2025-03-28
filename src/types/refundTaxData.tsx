@@ -28,4 +28,11 @@ export const taxRefundHistory: TaxRefundRecord[] = [
     amount: 10000000,
     status: "รอดำเนินการคืนภาษี",
   },
+  {
+    id: 4,
+    factoryName: "คลังบ้านดอน",
+    submittedDate: "01/12/67",
+    amount: 10000000,
+    status: "ตรวจสอบเอกสารเรียบร้อย",
+  },
 ];

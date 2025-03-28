@@ -12,9 +12,9 @@ const DashboardTabSelector: React.FC<DashboardTabSelectorProps> = ({
     onTabChange,
 }) => {
     return (
-        <div className="d-flex align-items-center border-bottom mb-3">
+        <div className="d-flex align-items-center border-bottom mb-3" style={{ fontSize: '30px' }}>
             <div
-                className="me-4 pb-2 cursor-pointer"
+                className="me-4 pb-2"
                 style={{
                     fontWeight: activeTab === "yearly" ? "bold" : "normal",
                     color: activeTab === "yearly" ? "#000" : "#ccc",
@@ -27,7 +27,7 @@ const DashboardTabSelector: React.FC<DashboardTabSelectorProps> = ({
                 รายปี
             </div>
             <div
-                className="pb-2 cursor-pointer"
+                className="pb-2"
                 style={{
                     fontWeight: activeTab === "monthly" ? "bold" : "normal",
                     color: activeTab === "monthly" ? "#000" : "#ccc",
