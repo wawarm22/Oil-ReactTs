@@ -21,7 +21,7 @@ const FormSubmission: React.FC = () => {
   }
 
   const handleUploadForm = () => {
-    navigate("/upload");
+    navigate("/pre-upload");
   };
 
   return (

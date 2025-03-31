@@ -14,6 +14,7 @@ import ResetPassword from "../app/page/ResetPassword";
 import MatchList from "../app/page/MatchList";
 import MatchDocument from "../app/page/MatchDocument";
 import TaxSubmission from "../app/page/TaxSubmission";
+import UploadPreparation from "../app/page/UploadPreparation";
 
 const WebRoute = () => {
   return (
@@ -26,6 +27,7 @@ const WebRoute = () => {
         <Route path="/" element={<Home />} />
         <Route path="/form-submission" element={<FormSubmission />} />
         <Route path="/document-list" element={<DocumentList/>}/>
+        <Route path="/pre-upload" element={<UploadPreparation />} />
         <Route path="/upload" element={<Upload />} />
         <Route path="/upload-multiple" element={<UploadMultiple />} />
         <Route path="/confirm" element={<ConfirmUpload />} />
