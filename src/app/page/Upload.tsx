@@ -12,21 +12,44 @@ import { StepStatus } from "../../types/enum/stepStatus";
 import { AnimatePresence, motion } from "framer-motion";
 import { PDFDocument } from "pdf-lib";
 import { uploadFile } from "../../utils/upload";
+import CustomSelect from "../reusable/CustomSelect";
+import { OptionType } from "../../types/selectTypes";
+
+type UploadedFileMap = {
+    [docId: number]: {
+        [subtitleIndex: number]: { name: string; data: string; pageCount: number };
+    };
+};
 
 const Upload: React.FC = () => {
     const navigate = useNavigate();
-    const [uploadedFiles, setUploadedFiles] = useState<{
-        [key: number]: { name: string; data: string; pageCount: number }[]
-    }>({});
+    const [uploadedFiles, setUploadedFiles] = useState<UploadedFileMap>({});
     const [openDropdown, setOpenDropdown] = useState<{ [key: number]: boolean }>({});
     const [isAnimating, setIsAnimating] = useState<{ [key: number]: boolean }>({});
+    const [selectedYear, setSelectedYear] = useState<OptionType | null>(null);
+    const [selectedMonth, setSelectedMonth] = useState<OptionType | null>(null);
+    const [selectedWarehouse, setSelectedWarehouse] = useState<OptionType | null>(null);
+    const [selectedTransport, setSelectedTransport] = useState<OptionType | null>(null);
 
-    // useEffect(() => {
-    //     const storedFiles = localStorage.getItem("uploadedFiles");
-    //     if (storedFiles) {
-    //         setUploadedFiles(JSON.parse(storedFiles));
-    //     }
-    // }, []);
+    const yearOptions: OptionType[] = [
+        { value: "2567", label: "2567" },
+        { value: "2566", label: "2566" },
+    ];
+
+    const monthOptions: OptionType[] = [
+        { value: "01", label: "ม.ค." },
+        { value: "02", label: "ก.พ." },
+    ];
+
+    const warehouseOptions: OptionType[] = [
+        { value: "K148", label: "คลังที่ 1" },
+        { value: "K149", label: "คลังที่ 2" },
+    ];
+
+    const transportOptions: OptionType[] = [
+        { value: "00", label: "ทางเรือ" },
+        { value: "01", label: "ทางท่อ" },
+    ];
 
     const toggleDropdown = (docId: number) => {
         setOpenDropdown(prev => ({ ...prev, [docId]: !prev[docId] }));
@@ -37,11 +60,16 @@ const Upload: React.FC = () => {
     };
 
     const mergeAndOpenPdf = async (docId: number) => {
-        const storedFiles = uploadedFiles[docId];
-        if (!storedFiles || storedFiles.length === 0) return alert("ไม่มีไฟล์ที่อัปโหลด");
+        const storedFilesMap = uploadedFiles[docId];
+
+        if (!storedFilesMap || Object.keys(storedFilesMap).length === 0) {
+            return alert("ไม่มีไฟล์ที่อัปโหลด");
+        }
 
         const mergedPdf = await PDFDocument.create();
-        for (const file of storedFiles) {
+
+        for (const index of Object.keys(storedFilesMap)) {
+            const file = storedFilesMap[+index]; // +index แปลง string เป็น number
             const existingPdfBytes = await fetch(file.data).then(res => res.arrayBuffer());
             const existingPdf = await PDFDocument.load(existingPdfBytes);
             const copiedPages = await mergedPdf.copyPages(existingPdf, existingPdf.getPageIndices());
@@ -53,12 +81,11 @@ const Upload: React.FC = () => {
         window.open(mergedBlobUrl, "_blank");
     };
 
+
     const openBlobSecurely = async (fileUrlWithToken: string) => {
         try {
             const response = await fetch(fileUrlWithToken);
             const blob = await response.blob();
-
-            // แปลง blob เป็น URL แบบไม่เปิดเผย token
             const blobUrl = URL.createObjectURL(blob);
             window.open(blobUrl, "_blank");
         } catch (error) {
@@ -76,25 +103,42 @@ const Upload: React.FC = () => {
         }
     };
 
-    const handleDocumentFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, docId: number) => {
+    const handleDocumentFileUpload = async (
+        event: React.ChangeEvent<HTMLInputElement>,
+        docId: number,
+        subtitleIndex?: number
+    ) => {
         if (!event.target.files) return;
+        const file = event.target.files[0];
 
-        const files = Array.from(event.target.files);
+        const fileUrl = await uploadFile(file);
+        if (!fileUrl) return;
 
-        for (const file of files) {
-            const fileUrl = await uploadFile(file);
-            if (!fileUrl) return;
+        const pageCount = await getPdfPageCount(fileUrl);
 
-            const pageCount = await getPdfPageCount(fileUrl);
+        const newFile = { name: file.name, data: fileUrl, pageCount };
 
-            const newFile = { name: file.name, data: fileUrl, pageCount };
+        setUploadedFiles(prevState => {
+            const existingDoc = prevState[docId] || {};
 
-            setUploadedFiles(prevState => {
-                const newFiles = { ...prevState, [docId]: [...(prevState[docId] || []), newFile] };
-                // localStorage.setItem("uploadedFiles", JSON.stringify(newFiles));
-                return newFiles;
-            });
-        }
+            if (subtitleIndex !== undefined) {
+                return {
+                    ...prevState,
+                    [docId]: {
+                        ...existingDoc,
+                        [subtitleIndex]: newFile,
+                    },
+                };
+            } else {
+                return {
+                    ...prevState,
+                    [docId]: {
+                        ...existingDoc,
+                        0: newFile,
+                    },
+                };
+            }
+        });
     };
 
     const handleMultiFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,13 +155,23 @@ const Upload: React.FC = () => {
     };
 
     const handleConfirm = () => {
-        const allFilesUploaded = documentList.every(item => uploadedFiles[item.id]?.length > 0);
+        const allFilesUploaded = documentList.every((item) =>
+            item.subtitle?.every((_, index) => uploadedFiles[item.id]?.[index])
+        );
+
         if (allFilesUploaded) {
             navigate('/confirm');
         }
     };
 
-    const isConfirmDisabled = documentList.some(item => !uploadedFiles[item.id]?.length);
+    const isConfirmDisabled = documentList.some(item => {
+        const files = uploadedFiles[item.id];
+        return !files || Object.keys(files).length === 0;
+    });
+
+    const filteredDocuments = documentList.filter(
+        (item) => !selectedTransport || item.transport === selectedTransport.value
+    );
 
     return (
         <div className="container-fluid mt-3 w-100" style={{ maxWidth: '1800px' }}>
@@ -125,10 +179,24 @@ const Upload: React.FC = () => {
                 ขั้นตอนการดำเนินงาน
             </p>
             <StepProgress status={StepStatus.UPLOAD} />
-            <div className="mt-3 d-flex justify-content-between align-items-end">
+            <div className="mt-3 d-flex justify-content-start align-items-start">
                 <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px", }}>
                     เอกสาร
                 </p>
+                <div className="d-flex flex-wrap gap-3 mt-1 px-4" >
+                    <CustomSelect label="เลือกคลัง" value={selectedWarehouse} onChange={setSelectedWarehouse} options={warehouseOptions} />
+                    <CustomSelect label="ทาง" value={selectedTransport} onChange={setSelectedTransport} options={transportOptions} />
+                    <CustomSelect label="เลือกปี" value={selectedYear} onChange={setSelectedYear} options={yearOptions} />
+                    <CustomSelect label="เลือกเดือน" value={selectedMonth} onChange={setSelectedMonth} options={monthOptions} />
+                </div>
+                <Button
+                    type="button"
+                    label="จัดทำ"
+                    bgColor="#2C3E50"
+                    color="#fff"
+                    maxWidth="110px"
+                    variant="bg-hide"
+                />
             </div>
             <div className="table-responsive bg-white p-4 rounded shadow-sm rounded-3" style={{ fontSize: '16spx' }}>
                 <table className="table custom-table table-borderless fw-bold">
@@ -160,10 +228,10 @@ const Upload: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {documentList.map((item) => (
+                        {filteredDocuments.map((item) => (
                             <React.Fragment key={item.id}>
                                 <tr style={{ borderBottom: openDropdown[item.id] || isAnimating[item.id] ? "none" : "2px solid #0000004B" }}>
-                                    <td className="align-middle">
+                                    <td className="align-middle" style={{ maxWidth: '600px' }}>
                                         <span
                                             className="fw-bold"
                                             style={{ cursor: "pointer", verticalAlign: "middle" }}
@@ -180,17 +248,17 @@ const Upload: React.FC = () => {
                                                     verticalAlign: "middle"
                                                 }}></span>
 
-                                            {item.id}. {item.title}
+                                            {item.title}
                                         </span>
 
-                                        {uploadedFiles[item.id] && (
+                                        {item.subtitle && (
                                             <CSSTransition
                                                 in={openDropdown[item.id]}
                                                 timeout={300}
                                                 classNames="rotate-icon"
                                             >
                                                 <RiArrowDropDownLine
-                                                    size={30}
+                                                    size={25}
                                                     className={`dropdown-icon ${openDropdown[item.id] ? "rotated" : ""}`}
                                                     style={{ cursor: "pointer" }}
                                                     onClick={() => toggleDropdown(item.id)}
@@ -198,27 +266,29 @@ const Upload: React.FC = () => {
                                             </CSSTransition>
                                         )}
 
-                                        <div style={{ marginLeft: "30px" }}>
+                                        {/* <div style={{ marginLeft: "30px" }}>
                                             {item.type}
-                                        </div>
+                                        </div> */}
                                     </td>
                                     <td className="text-center align-middle">
-                                        {uploadedFiles[item.id]?.reduce((sum, file) => sum + file.pageCount, 0) || 0} หน้า
+                                        {uploadedFiles[item.id]
+                                            ? Object.values(uploadedFiles[item.id]).reduce((sum, file) => sum + file.pageCount, 0)
+                                            : 0} หน้า
                                     </td>
                                     <td className="text-end">
-                                        {!openDropdown[item.id] && !isAnimating[item.id] && (
-                                            <Button
-                                                className="w-100"
-                                                type="button"
-                                                label="ดูเอกสาร"
-                                                bgColor="#3D4957"
-                                                color="#FFFFFF"
-                                                maxWidth="150px"
-                                                variant="bg-hide"
-                                                disabled={!uploadedFiles[item.id]}
-                                                onClick={() => mergeAndOpenPdf(item.id)}
-                                            />
-                                        )}
+                                        {/* {!openDropdown[item.id] && !isAnimating[item.id] && ( */}
+                                        <Button
+                                            className="w-100"
+                                            type="button"
+                                            label="ดูเอกสาร"
+                                            bgColor="#3D4957"
+                                            color="#FFFFFF"
+                                            maxWidth="150px"
+                                            variant="bg-hide"
+                                            disabled={openDropdown[item.id] || !uploadedFiles[item.id]}
+                                            onClick={() => mergeAndOpenPdf(item.id)}
+                                        />
+                                        {/* )} */}
                                         <input
                                             type="file"
                                             accept="application/pdf"
@@ -230,11 +300,13 @@ const Upload: React.FC = () => {
                                         <Button
                                             className="ms-3 w-100"
                                             type="button"
-                                            label={!uploadedFiles[item.id] ? "อัปโหลดเอกสาร" : "อัปโหลดเอกสารเพิ่มเติม"}
+                                            label="อัปโหลดเอกสาร"
                                             bgColor="#3D4957"
+                                            color="#FFFFFF"
                                             maxWidth="260px"
                                             variant="bg-hide"
                                             onClick={() => document.getElementById(`file-upload-${item.id}`)?.click()}
+                                            disabled={!!item.subtitle}
                                         >
                                             <RiFileDownloadLine className="me-1" size={25} />
                                         </Button>
@@ -242,37 +314,63 @@ const Upload: React.FC = () => {
                                 </tr>
 
                                 <AnimatePresence>
-                                    {openDropdown[item.id] && uploadedFiles[item.id] && (
-                                        uploadedFiles[item.id].map((file, index) => (
-                                            <motion.tr
-                                                key={`${item.id}-file-${index}`}
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -10 }}
-                                                transition={{ duration: 0.3, ease: "easeInOut" }}
-                                                className="tr-border"
-                                                style={{
-                                                    borderBottom: index === uploadedFiles[item.id].length - 1 ? "2px solid #0000004B" : "none",
-                                                }}
-                                            >
-                                                <td colSpan={2} className="align-middle td-border">
-                                                    <span className="fw-bold" style={{ marginLeft: "55px" }}>
-                                                        {file.name}
-                                                    </span>
-                                                </td>
-                                                <td className="text-end td-border-r">
-                                                    <Button
-                                                        className="w-100"
-                                                        type="button"
-                                                        label="ดูเอกสาร"
-                                                        bgColor="#3D4957"
-                                                        maxWidth="260px"
-                                                        variant="bg-hide"
-                                                        onClick={() => openBlobSecurely(file.data)}
-                                                    />
-                                                </td>
-                                            </motion.tr>
-                                        ))
+                                    {openDropdown[item.id] && (
+                                        item.subtitle?.map((subtitleText, index) => {
+                                            const uploaded = uploadedFiles[item.id]?.[index];
+                                            return (
+                                                <motion.tr
+                                                    key={`${item.id}-subtitle-${index}`}
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -10 }}
+                                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                                    style={{
+                                                        borderBottom:
+                                                            index === (item.subtitle?.length ?? 0) - 1 ? "2px solid #0000004B" : "none",
+                                                    }}
+                                                >
+                                                    <td colSpan={2} className="align-middle td-border">
+                                                        <span className="fw-bold" style={{ marginLeft: "55px" }}>
+                                                            {subtitleText}
+                                                        </span>
+                                                        {uploaded && (
+                                                            <span className="text-primary ms-3" style={{ cursor: "pointer" }} onClick={() => openBlobSecurely(uploaded.data)}>
+                                                                {uploaded.name}
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td className="text-end td-border-r">
+                                                        <Button
+                                                            className="w-100 me-2"
+                                                            type="button"
+                                                            label="ดูเอกสาร"
+                                                            bgColor="#3D4957"
+                                                            color="#FFFFFF"
+                                                            maxWidth="150px"
+                                                            variant="bg-hide"
+                                                            onClick={() => openBlobSecurely(uploaded.data)}
+                                                            disabled={!uploaded}
+                                                        />
+                                                        <input
+                                                            type="file"
+                                                            accept="application/pdf"
+                                                            style={{ display: "none" }}
+                                                            id={`file-upload-${item.id}-${index}`}
+                                                            onChange={(e) => handleDocumentFileUpload(e, item.id, index)}
+                                                        />
+                                                        <Button
+                                                            className="w-100"
+                                                            type="button"
+                                                            label="อัปโหลดเอกสาร"
+                                                            bgColor="#3D4957"
+                                                            maxWidth="200px"
+                                                            variant="bg-hide"
+                                                            onClick={() => document.getElementById(`file-upload-${item.id}-${index}`)?.click()}
+                                                        />
+                                                    </td>
+                                                </motion.tr>
+                                            );
+                                        })
                                     )}
                                 </AnimatePresence>
                             </React.Fragment>

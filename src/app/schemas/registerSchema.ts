@@ -17,7 +17,10 @@ export const registerSchema = z.object({
     .regex(/\d/, "รหัสผ่านต้องมีตัวเลข"),
   confirmPassword: z.string().min(1, "กรุณายืนยันรหัสผ่าน"),
   company_name: z.string().min(1, "กรุณากรอกชื่อบริษัท").trim(),
-  factory_name: z.string().optional(),
+  factory_name: z.union([
+    z.string().min(1, "กรุณาเลือกโรงงาน"),
+    z.array(z.string().min(1)).min(1, "กรุณาเลือกโรงงานอย่างน้อย 1 รายการ")
+  ]),  
   address: z.string().min(1, "กรุณากรอกสถานที่ตั้ง").trim(),
   road: z.string().optional(),
   alley: z.string().optional(),

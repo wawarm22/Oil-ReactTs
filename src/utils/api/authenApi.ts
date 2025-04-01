@@ -1,7 +1,7 @@
 import axios from "axios";
 import { authSchema } from "../../app/schemas/authneSchema";
 import { UserData } from "../../types/userTypes";
-import { BASE_URL } from "./apiConfig";
+import { BASE_URL, BASE_URL_AWS } from "./apiConfig";
 
 export const apiLogin = async (email: string, password: string) => {
     try {
@@ -19,7 +19,7 @@ export const apiLogin = async (email: string, password: string) => {
 
 export const apiRegister = async (userData: UserData) => {
     try {
-        const response = await axios.post(`${BASE_URL}/register`, userData, {
+        const response = await axios.post(`${BASE_URL_AWS}/auth/register`, userData, {
             headers: { "Content-Type": "application/json" },
         });
 

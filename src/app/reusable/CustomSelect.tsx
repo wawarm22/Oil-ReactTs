@@ -1,10 +1,6 @@
 import React from "react";
 import Select, { SingleValue, StylesConfig } from "react-select";
-
-export interface OptionType {
-    value: string;
-    label: string;
-}
+import { OptionType } from "../../types/selectTypes";
 
 interface CustomSelectProps {
     label: string;

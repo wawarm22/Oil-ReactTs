@@ -1,72 +1,45 @@
+// store/locationStore.ts
 import { create } from 'zustand';
-import { District, Province, SubDistrict } from '../types/locationTypes';
-import { apiDistrict, apiProvince, apiSubDistrict } from '../utils/api/locationApi';
+import { apiLocation } from '../utils/api/locationApi';
+import { DistrictNew, ProvinceNew, SubDistrictNew } from '../types/locationTypes';
 
 interface LocationState {
-  provinces: Province[];
-  districts: District[];
-  subDistricts: SubDistrict[];
+  provinces: ProvinceNew[];
+  selectedDistricts: DistrictNew[];
+  selectedSubDistricts: SubDistrictNew[];
   loading: boolean;
-  fetchProvinces: () => void;
-  fetchDistricts: (provinceCode: string) => void;
-  fetchSubDistricts: (provinceCode: string, districtCode: string) => void;
+  fetchLocations: () => Promise<void>;
+  filterDistricts: (provinceId: number) => void;
+  filterSubDistricts: (districtId: number) => void;
 }
 
-export const useLocationStore = create<LocationState>((set) => ({
+export const useLocationStore = create<LocationState>((set, get) => ({
   provinces: [],
-  districts: [],
-  subDistricts: [],
-  loading: true,
+  selectedDistricts: [],
+  selectedSubDistricts: [],
+  loading: false,
 
-  fetchProvinces: async () => {
+  fetchLocations: async () => {
     set({ loading: true });
     try {
-      const data = await apiProvince();
-      const provinceOptions: Province[] = data.map((province: Province) => ({
-        id: province.id,
-        name_en: province.name_en,
-        name_th: province.name_th,
-        geography_id: province.geography_id,
-        
-      }));
-      set({ provinces: provinceOptions });
+      const res = await apiLocation();
+      if (res.status) {
+        set({ provinces: res.data });
+      }
     } catch (error) {
-      console.error("Failed to fetch provinces:", error);
+      console.error("Failed to fetch locations:", error);
     } finally {
       set({ loading: false });
     }
   },
 
-  fetchDistricts: async (province_id: string) => {
-    set({ districts: [], subDistricts: [] });
-    try {
-      const data = await apiDistrict(province_id);
-      const districtOptions: District[] = data.map((district: District) => ({
-        id: district.id,        
-        name_en: district.name_en,
-        name_th: district.name_th,
-        province_id: district.province_id,
-      }));
-      set({ districts: districtOptions });
-    } catch (error) {
-      console.error("Failed to fetch districts:", error);
-    }
+  filterDistricts: (provinceId: number) => {
+    const province = get().provinces.find(p => p.id === provinceId);
+    set({ selectedDistricts: province?.districts || [], selectedSubDistricts: [] });
   },
 
-  fetchSubDistricts: async (amphure_id: string) => {
-    set({ subDistricts: [] });
-    try {
-      const data = await apiSubDistrict(amphure_id);
-      const subDistrictOptions: SubDistrict[] = data.map((subdistrict: SubDistrict) => ({
-        id: subdistrict.id,
-        amphure_id: subdistrict.amphure_id,
-        name_en: subdistrict.name_en,
-        name_th: subdistrict.name_th,
-        zip_code: subdistrict.zip_code,           
-      }));
-      set({ subDistricts: subDistrictOptions });
-    } catch (error) {
-      console.error("Failed to fetch subdistricts:", error);
-    }
-  },
+  filterSubDistricts: (districtId: number) => {
+    const district = get().selectedDistricts.find(d => d.id === districtId);
+    set({ selectedSubDistricts: district?.sub_districts || [] });
+  }
 }));

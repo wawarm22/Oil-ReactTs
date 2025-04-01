@@ -3,19 +3,23 @@ import '../../assets/css/input-highlights.css'
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Select from "react-select";
+import Select, { MultiValue } from "react-select";
 import bgRegister from "../../assets/img/bg-regis.png";
 import lineTop from "../../assets/img/line-top.png";
 import Button from "../reusable/Button";
 import frameImage from "../../assets/img/boeder-right.png";
 import borderLeft from "../../assets/img/border-left.png";
 import { RegisterFormValues, registerSchema } from "../schemas/registerSchema";
-import { selectLocation } from "../../assets/style/selectLocation";
+import { selectFactory, selectLocation } from "../../assets/style/selectLocation";
 import { useLocationStore } from "../../store/locationStore";
 import { apiRegister } from "../../utils/api/authenApi";
 import { UserData } from "../../types/userTypes";
 import { OverlayTrigger, Popover } from "react-bootstrap";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { useCompanyStore } from "../../store/companyStore";
+import { apiCompanyById } from "../../utils/api/CompanyDataApi";
+import { FactoryOption } from "../../types/selectTypes";
+import { IoEyeSharp, IoEyeOffSharp } from "react-icons/io5";
 
 const Register: React.FC = () => {
     const navigate = useNavigate();
@@ -24,13 +28,17 @@ const Register: React.FC = () => {
         defaultValues: {
             province: "",
             district: "",
-            subdistrict: "",
+            subdistrict: ""
         }
     });
-
-    const { provinces, districts, subDistricts, fetchProvinces, fetchDistricts, fetchSubDistricts } = useLocationStore();
+    const { provinces, selectedDistricts: districts, selectedSubDistricts: subDistricts, fetchLocations, filterDistricts, filterSubDistricts } = useLocationStore();
+    const { companies, fetchCompanies } = useCompanyStore();
     const [passwordFocused, setPasswordFocused] = useState(false);
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [factoryOptions, setFactoryOptions] = useState<{ value: number; label: string }[]>([]);
+    const [selectedFactoryId, setSelectedFactoryId] = useState<FactoryOption[]>([]);
     const [passwordValidation, setPasswordValidation] = useState({
         hasUpperCase: false,
         hasLowerCase: false,
@@ -39,32 +47,55 @@ const Register: React.FC = () => {
     });
 
     useEffect(() => {
-        fetchProvinces();
-    }, [fetchProvinces]);
+        fetchCompanies();
+        fetchLocations();
+    }, [fetchLocations, fetchCompanies]);
+
+    const handleTaxChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const input = e.target.value;
+        setValue("tax_registration", input);
+
+        const matchedCompany = companies.find(company => company.excise_id === input);
+        if (matchedCompany) {
+            setValue("company_name", matchedCompany.name);
+
+            try {
+                const companyDetail = await apiCompanyById(matchedCompany.id);
+                const options = companyDetail.factories.map(factory => ({
+                    value: factory.id,
+                    label: factory.name
+                }));
+                setFactoryOptions(options);
+                setSelectedFactoryId([]);
+            } catch (err) {
+                console.error("Error loading company detail:", err);
+            }
+        } else {
+            setValue("company_name", "");
+            setFactoryOptions([]);
+            setSelectedFactoryId([]);
+        }
+    };
 
     const handleProvinceChange = (selectedProvince: any) => {
         if (selectedProvince?.value) {
-            setValue("province", selectedProvince.value);
-            fetchDistricts(selectedProvince.value);
+            setValue("province", selectedProvince.value.toString());
+            filterDistricts(selectedProvince.value);
         }
     };
 
     const handleDistrictChange = (selectedDistrict: any) => {
         if (selectedDistrict?.value) {
             setValue("district", selectedDistrict.value.toString());
-            fetchSubDistricts(selectedDistrict.value, selectedDistrict.value);
+            filterSubDistricts(selectedDistrict.value);
         }
     };
 
     const handleSubDistrictChange = (selectedSubDistrict: any) => {
         if (selectedSubDistrict?.value) {
             setValue("subdistrict", selectedSubDistrict.value.toString());
-
-            const selected = subDistricts.find(subdistrict => subdistrict.amphure_id === Number(selectedSubDistrict.value));
-
-            if (selected) {
-                setValue("zip_code", selected.zip_code.toString());
-            }
+            const sub = subDistricts.find(s => s.id === selectedSubDistrict.value);
+            if (sub) setValue("zip_code", sub.zip_code);
         }
     };
 
@@ -72,25 +103,30 @@ const Register: React.FC = () => {
     const handlePasswordBlur = () => setPasswordFocused(false);
 
     const onSubmit = async (data: RegisterFormValues) => {
+        const matchedCompany = companies.find(company => company.excise_id === data.tax_registration);
+
+        if (!matchedCompany) {
+            console.error("ไม่พบบริษัท");
+            return;
+        }
+
+        const factoryIds = selectedFactoryId.map(f => f.value);
+
         const userData: UserData = {
-            tax_registration: data.tax_registration,
-            company_name: data.company_name,
-            factory_name: data.factory_name || "",
+            company_id: matchedCompany.id,
+            factory_id: factoryIds,
             email: data.email,
             phone: data.phone,
             password: data.password,
             confirm_password: data.confirmPassword,
-            address: data.address,
-            road: data.road || "",
-            alley: data.alley || "",
-            village: data.village || "",
-            province: data.province || "",
-            district: data.district || "",
-            subdistrict: data.subdistrict || "",
-            zip_code: data.zip_code,
+            address_line_1: data.address,
+            address_line_2: [data.road, data.alley, data.village].filter(Boolean).join(" "),
+            province_id: Number(data.province),
+            district_id: Number(data.district),
+            sub_district_id: Number(data.subdistrict),
         };
 
-        console.log(userData);
+        console.log("ส่งข้อมูล:", userData);
 
         try {
             const response = await apiRegister(userData);
@@ -167,6 +203,7 @@ const Register: React.FC = () => {
                                             <input
                                                 className="form-control"
                                                 {...register("tax_registration")}
+                                                onChange={handleTaxChange}
                                                 maxLength={17}
                                                 onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                                                     e.target.value = e.target.value.replace(/[^0-9]/g, "");
@@ -180,13 +217,26 @@ const Register: React.FC = () => {
                                             <span className="text-danger ms-3 fw-bold">* {errors.company_name?.message}</span>
                                         )}
                                         <div className="input-regis">
-                                            <input className="form-control" {...register("company_name")} />
+                                            <input className="form-control" {...register("company_name")} readOnly />
                                         </div>
                                     </div>
                                     <div className="col-md-6">
                                         <label className="form-label">ชื่อโรงงานอุตสาหกรรม</label>
-                                        <div className="input-regis">
-                                            <input className="form-control" {...register("factory_name")} />
+                                        <div className="">
+                                            <Select<FactoryOption, true>
+                                                isMulti
+                                                options={factoryOptions}
+                                                value={selectedFactoryId}
+                                                onChange={(selected: MultiValue<FactoryOption>) => {
+                                                    const mutableSelected = [...selected];
+                                                    setSelectedFactoryId(mutableSelected);
+                                                    const factoryNames = mutableSelected.map((s) => s.label).join(", ");
+                                                    setValue("factory_name", factoryNames);
+                                                }}
+                                                placeholder="เลือกโรงงาน"
+                                                styles={selectFactory<FactoryOption, true>()}
+                                                isDisabled={factoryOptions.length === 0}
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-md-6">
@@ -227,7 +277,7 @@ const Register: React.FC = () => {
                                         {errors.password && (
                                             <span className="text-danger ms-3 fw-bold">* {errors.password?.message}</span>
                                         )}
-                                        <div className="input-regis">
+                                        <div className="input-regis position-relative">
                                             <OverlayTrigger
                                                 trigger="focus"
                                                 placement="left"
@@ -244,6 +294,17 @@ const Register: React.FC = () => {
                                                     onBlur={handlePasswordBlur}
                                                 />
                                             </OverlayTrigger>
+                                            <span
+                                                onClick={() => setShowPassword(prev => !prev)}
+                                                className="position-absolute top-50 end-0 translate-middle-y me-3"
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                                {showPassword ? (
+                                                    <IoEyeOffSharp size={20} color="black" />
+                                                ) : (
+                                                    <IoEyeSharp size={20} color="black" />
+                                                )}
+                                            </span>
                                         </div>
                                     </div>
                                     <div className="col-md-6">
@@ -324,11 +385,7 @@ const Register: React.FC = () => {
                                             <span className="text-danger ms-3 fw-bold">* {errors.province?.message}</span>
                                         )}
                                         <Select
-
-                                            options={provinces.map(province => ({
-                                                value: province.id,
-                                                label: province.name_th
-                                            }))}
+                                            options={provinces.map(p => ({ value: p.id, label: p.name }))}
                                             onChange={handleProvinceChange}
                                             placeholder="เลือกจังหวัด"
                                             styles={selectLocation}
@@ -340,10 +397,7 @@ const Register: React.FC = () => {
                                             <span className="text-danger ms-3 fw-bold">* {errors.district?.message}</span>
                                         )}
                                         <Select
-                                            options={districts.map(district => ({
-                                                value: district.id,
-                                                label: district.name_th
-                                            }))}
+                                            options={districts.map(d => ({ value: d.id, label: d.name }))}
                                             onChange={handleDistrictChange}
                                             placeholder="เลือกอำเภอ/เขต"
                                             styles={selectLocation}
@@ -355,10 +409,7 @@ const Register: React.FC = () => {
                                             <span className="text-danger ms-3 fw-bold">* {errors.subdistrict?.message}</span>
                                         )}
                                         <Select
-                                            options={subDistricts.map(subdistrict => ({
-                                                value: subdistrict.amphure_id,
-                                                label: subdistrict.name_th
-                                            }))}
+                                            options={subDistricts.map(s => ({ value: s.id, label: s.name }))}
                                             onChange={handleSubDistrictChange}
                                             placeholder="เลือกตำบล/แขวง"
                                             styles={selectLocation}

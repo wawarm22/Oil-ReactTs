@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import StepProgress from "../reusable/StepProgress";
 import Button from "../reusable/Button";
-import "../../assets/css/dropdown-icon.css";
-import "../../assets/css/dropdown-animation.css";
-import "../../assets/css/table.css";
 import { useNavigate } from "react-router-dom";
 import { StepStatus } from "../../types/enum/stepStatus";
-import CustomSelect, { OptionType } from "../reusable/CustomSelect";
+import CustomSelect from "../reusable/CustomSelect";
+import { OptionType } from "../../types/selectTypes";
 
 const UploadPreparation: React.FC = () => {
     const navigate = useNavigate();
@@ -22,6 +20,7 @@ const UploadPreparation: React.FC = () => {
     const monthOptions: OptionType[] = [
         { value: "01", label: "ม.ค." },
         { value: "02", label: "ก.พ." },
+        { value: "03", label: "มี.ค." }
     ];
 
     const warehouseOptions: OptionType[] = [
@@ -42,9 +41,9 @@ const UploadPreparation: React.FC = () => {
                         เอกสาร
                     </p>
                     <div className="d-flex flex-wrap gap-3 mt-1" >
+                        <CustomSelect label="เลือกคลัง" value={selectedWarehouse} onChange={setSelectedWarehouse} options={warehouseOptions} />
                         <CustomSelect label="เลือกปี" value={selectedYear} onChange={setSelectedYear} options={yearOptions} />
                         <CustomSelect label="เลือกเดือน" value={selectedMonth} onChange={setSelectedMonth} options={monthOptions} />
-                        <CustomSelect label="เลือกคลัง" value={selectedWarehouse} onChange={setSelectedWarehouse} options={warehouseOptions} />
                     </div>
                 </div>
 
@@ -62,9 +61,7 @@ const UploadPreparation: React.FC = () => {
                         label="จัดทำ"
                         bgColor="#2C3E50"
                         color="#fff"
-                        onClick={() => {
-                            // handle create action
-                        }}
+                        onClick={() => navigate("/upload")}
                         variant="bg-hide"
                     />
                 </div>

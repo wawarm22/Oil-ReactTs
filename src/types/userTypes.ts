@@ -1,17 +1,13 @@
 export type UserData = {
-    tax_registration: string;
-    company_name: string;
-    factory_name: string;
+    company_id: number;
+    factory_id: number[]; 
     email: string;
     phone: string;
     password: string;
     confirm_password: string;
-    address: string;
-    road?: string;
-    alley?: string;  
-    village?: string;  
-    province: string;
-    district: string;
-    subdistrict: string;
-    zip_code: string;
+    address_line_1: string;
+    address_line_2: string;
+    province_id: number;
+    district_id: number;
+    sub_district_id: number;
 };

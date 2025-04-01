@@ -1,5 +1,16 @@
 import axios from 'axios';
-import { BASE_URL } from './apiConfig';
+import { BASE_URL, BASE_URL_AWS } from './apiConfig';
+import { LocationResponse } from '../../types/locationTypes';
+
+export const apiLocation = async (): Promise<LocationResponse> => {
+    try {
+        const response = await axios.get<LocationResponse>(`${BASE_URL_AWS}/provinces`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching locations:', error);
+        throw error;
+    }
+};
 
 export const apiProvince = async () => {
     try {
