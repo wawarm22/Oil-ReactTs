@@ -10,12 +10,11 @@ import { RiArrowDropDownLine, RiFileDownloadLine } from "react-icons/ri";
 import { StepStatus } from "../../types/enum/stepStatus";
 import { AnimatePresence, motion } from "framer-motion";
 import { PDFDocument } from "pdf-lib";
-import { uploadFile } from "../../utils/upload";
 import { documentListFT } from "../../types/docListFristTypes";
 
 const Upload: React.FC = () => {
     const navigate = useNavigate();
-    const [uploadedFiles, setUploadedFiles] = useState<{
+    const [uploadedFiles, _setUploadedFiles] = useState<{
         [key: number]: { name: string; data: string; pageCount: number }[]
     }>({});
     const [openDropdown, setOpenDropdown] = useState<{ [key: number]: boolean }>({});
@@ -67,19 +66,19 @@ const Upload: React.FC = () => {
         }
     };
 
-    const getPdfPageCount = async (url: string): Promise<number> => {
-        try {
-            const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
-            return (await PDFDocument.load(existingPdfBytes)).getPageCount();
-        } catch {
-            return 0;
-        }
-    };
+    // const getPdfPageCount = async (url: string): Promise<number> => {
+    //     try {
+    //         const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
+    //         return (await PDFDocument.load(existingPdfBytes)).getPageCount();
+    //     } catch {
+    //         return 0;
+    //     }
+    // };
 
-    const handleDocumentFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, docId: number) => {
+    const handleDocumentFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, _docId: number) => {
         if (!event.target.files) return;
 
-        const files = Array.from(event.target.files);
+        // const files = Array.from(event.target.files);
 
         // for (const file of files) {
         //     const fileUrl = await uploadFile(file);
@@ -199,7 +198,7 @@ const Upload: React.FC = () => {
                                         )}
 
                                         <div style={{ marginLeft: "30px" }}>
-                                            {item.type}
+                                            {/* {item.type} */}
                                         </div>
                                     </td>
                                     <td className="text-center align-middle">

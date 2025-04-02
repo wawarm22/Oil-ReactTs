@@ -129,7 +129,7 @@ const MatchList: React.FC = () => {
                                             </CSSTransition>
                                         )}
                                         <div style={{ marginLeft: "30px" }}>
-                                            {item.type}
+                                            {/* {item.type} */}
                                         </div>
                                     </td>
                                     <td className="text-center align-middle">

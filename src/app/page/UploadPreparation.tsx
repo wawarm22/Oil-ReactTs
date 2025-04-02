@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { documentList } from "../../types/docList";
 import { RiArrowDropDownLine, RiFileDownloadLine } from "react-icons/ri";
 import { AnimatePresence, motion } from "framer-motion";
-import { PDFDocument } from "pdf-lib";
 import { uploadFile } from "../../utils/upload";
 import { OptionType } from "../../types/selectTypes";
 import UploadFilterPanel from "../reusable/UploadFilterPanel";
