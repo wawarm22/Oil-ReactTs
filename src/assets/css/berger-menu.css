@@ -20,6 +20,7 @@
 
 .menu-icon.open span:nth-child(1) {
   transform: translateY(10px) rotate(45deg);
+  animation: menu-icon-open-1 ease-in-out .8s; /* เอาออกได้นะ */
 }
 
 .menu-icon.open span:nth-child(2) {
@@ -28,5 +29,36 @@
 }
 
 .menu-icon.open span:nth-child(3) {
-  transform: translateY(-5px) rotate(-45deg);
+  animation: menu-icon-open-2 ease-in-out .8s;
+  transform: translateY(-5px) rotate(-45deg); /* เอาออกได้นะ */
+}
+
+@keyframes menu-icon-open-1 {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  10% {
+    transform: translateY(-5px) rotate(0deg);
+  }
+  20% {
+    transform: translateY(10px) rotate(0deg);
+  }
+  100% {
+    transform: translateY(10px) rotate(405deg);
+  }
+}
+
+@keyframes menu-icon-open-2 {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  10% {
+    transform: translateY(2.5px) rotate(0deg);
+  }
+  20% {
+    transform: translateY(-5px) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-5px) rotate(320deg);
+  }
 }
