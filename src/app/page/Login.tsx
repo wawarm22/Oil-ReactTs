@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import LoadingPage from "../component/LoadingPage";
 import { apiLogin } from "../../utils/api/authenApi";
 import { ApiLoginResponseSchema } from "../../types/schema/auth";
-import { cipherDecrypt, cipherEncrypt } from "../../utils/encoding/cipher";
+import { cipherEncrypt } from "../../utils/encoding/cipher";
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
