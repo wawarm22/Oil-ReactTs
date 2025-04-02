@@ -1,40 +1,86 @@
-import { BlobServiceClient } from "@azure/storage-blob";
+import { documentList } from "../types/docList";
+import { GenerateUploadUrlResponse } from "../types/uploadTypes";
+import { apiUpload, generateUploadUrl } from "./api/uploadApi";
+import dayjs from "dayjs";
+import buddhistEra from "dayjs/plugin/buddhistEra";
+dayjs.extend(buddhistEra);
 
-const accountName = import.meta.env.VITE_AZURE_STORAGE_ACCOUNT!;
-const containerName = import.meta.env.VITE_AZURE_STORAGE_CONTAINER!;
-const sasToken = import.meta.env.VITE_AZURE_STORAGE_SAS!;
+let lastParamsKey = "";
+let currentRunning = 0;
 
-if (!accountName || !containerName || !sasToken) {
-    console.error("Missing Azure Storage configuration. Check your .env file.");
-}
+const pad = (val: number, len: number) => String(val).padStart(len, "0");
 
-export const uploadFile = async (file: File): Promise<string | null> => {
+const getDocSequenceNumber = (docId: number, subtitleIndex?: number): string => {
+    let sequence = 0;
+    let start = 1;
+    const target = documentList.find((d) => d.id === docId);
+    const transport = target?.transport ?? "00";
+
+    for (const doc of documentList) {
+        if (doc.transport !== transport) continue;
+
+        if (doc.id === docId) {
+            sequence += subtitleIndex !== undefined ? subtitleIndex + 1 : 1;
+            break;
+        }
+
+        if (doc.subtitle?.length) {
+            sequence += doc.subtitle.length;
+        } else {
+            sequence += 1;
+        }
+    }
+
+    const offset = transport === "01" ? 100 : 0;
+    return `DOC${String(start + sequence + offset - 1).padStart(4, "0")}`;
+};
+
+export const uploadFile = async (
+    file: File,
+    documentGroup: string,
+    warehouseCode: string,
+    transportCode: string,
+    periodDateStr: string,
+    docId: number,
+    subtitleIndex?: number
+): Promise<string | null> => {
     if (!file) {
         alert("กรุณาเลือกไฟล์ก่อน!");
         return null;
     }
-    
+
     try {
-        const blobServiceClient = new BlobServiceClient(`https://${accountName}.blob.core.windows.net?${sasToken}`);
-        const containerClient = blobServiceClient.getContainerClient(containerName);
+        const now = dayjs();
+        const uploadDateStr = `${pad(now.date(), 2)}${pad(now.month() + 1, 2)}${String(now.year() + 543).slice(-2)}`;
+        const currentKey = `${warehouseCode}-${transportCode}-${periodDateStr}`;
 
-        const blobName = `${new Date().getTime()}-${file.name}`;
-        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-
-        await blockBlobClient.uploadData(file, {
-            blobHTTPHeaders: {
-                blobContentType: file.type || "application/pdf"
-            }
-        });
-        const fileUrl = `https://${accountName}.blob.core.windows.net/${containerName}/${blobName}?${sasToken}`;
-        return fileUrl;
-    } catch (error: any) {
-        if (error.statusCode === 403) {
-            alert("SAS Token อาจหมดอายุแล้ว กรุณาขอ Token ใหม่");
-        } else {
-            console.error("เกิดข้อผิดพลาดในการอัปโหลดไฟล์", error);
-            alert("อัปโหลดไฟล์ล้มเหลว");
+        if (currentKey !== lastParamsKey) {
+            currentRunning++;
+            lastParamsKey = currentKey;
         }
+
+        const runningStr = pad(currentRunning - 1, 12);
+        const docSequence = getDocSequenceNumber(docId, subtitleIndex);
+        const finalFileName = `${uploadDateStr}-${runningStr}-${warehouseCode}-${transportCode}-${periodDateStr}-${docSequence}.pdf`;
+        const uploadMeta: GenerateUploadUrlResponse | undefined = await generateUploadUrl({
+            fileName: finalFileName, 
+            documentGroup,
+        });
+
+        if (!uploadMeta?.uploadUrl) {
+            throw new Error("ไม่สามารถสร้าง URL สำหรับอัปโหลดได้");
+        }
+
+        const success = await apiUpload(file, uploadMeta.uploadUrl, documentGroup);
+        if (!success) {
+            throw new Error("อัปโหลดไฟล์ล้มเหลว");
+        }
+
+        return uploadMeta.uploadUrl;
+    } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการอัปโหลดไฟล์", error);
+        alert("อัปโหลดไฟล์ล้มเหลว");
         return null;
     }
 };
+

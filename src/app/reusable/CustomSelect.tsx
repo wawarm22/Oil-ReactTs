@@ -49,9 +49,9 @@ const customStyles: StylesConfig<OptionType, false> = {
 
 const CustomSelect: React.FC<CustomSelectProps> = ({ label, value, onChange, options }) => {
     return (
-        <div className="d-flex align-items-center mb-3" style={{ minWidth: "300px", fontFamily: "Sarabun" }}>
-            <label className="fw-bold pe-2 mb-0" style={{ minWidth: "60px", fontSize: "16px" }}>{label}</label>
-            <div style={{ flex: 1 }}>
+        <div className="d-flex align-items-center" style={{ fontFamily: "Sarabun" }}>
+            <label className="fw-bold pe-2 mb-0" style={{ fontSize: "16px" }}>{label}</label>
+            <div style={{ flex: 1, minWidth: "150px" }}>
                 <Select<OptionType>
                     value={value}
                     onChange={onChange}

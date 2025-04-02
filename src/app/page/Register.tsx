@@ -17,9 +17,9 @@ import { UserData } from "../../types/userTypes";
 import { OverlayTrigger, Popover } from "react-bootstrap";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { useCompanyStore } from "../../store/companyStore";
-import { apiCompanyById } from "../../utils/api/CompanyDataApi";
 import { FactoryOption } from "../../types/selectTypes";
 import { IoEyeSharp, IoEyeOffSharp } from "react-icons/io5";
+import { apiCompanyById } from "../../utils/api/companyDataApi";
 
 const Register: React.FC = () => {
     const navigate = useNavigate();
@@ -36,7 +36,7 @@ const Register: React.FC = () => {
     const [passwordFocused, setPasswordFocused] = useState(false);
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    // const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [factoryOptions, setFactoryOptions] = useState<{ value: number; label: string }[]>([]);
     const [selectedFactoryId, setSelectedFactoryId] = useState<FactoryOption[]>([]);
     const [passwordValidation, setPasswordValidation] = useState({

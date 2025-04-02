@@ -1,0 +1,338 @@
+[
+    {
+        "no": "1",
+        "company_name": "OR",
+        "factories_id": "K148",
+        "factories_name": "คลังน้ำมัน PTTOR พระประแดง",
+        "excise_id": "01075610000131001"
+    },
+    {
+        "no": "2",
+        "company_name": "OR",
+        "factories_id": "H104",
+        "factories_name": "คลังน้ำมันลำลูกกา PTTOR",
+        "excise_id": "01075610000131002"
+    },
+    {
+        "no": "3",
+        "company_name": "OR",
+        "factories_id": "H105",
+        "factories_name": "คลังน้ำมันสระบุรี PTTOR",
+        "excise_id": "01075610000131003"
+    },
+    {
+        "no": "4",
+        "company_name": "OR",
+        "factories_id": "K141",
+        "factories_name": "คลังน้ำมันสระบุรี PTTRM",
+        "excise_id": "01075610000131004"
+    },
+    {
+        "no": "5",
+        "company_name": "OR",
+        "factories_id": "K105",
+        "factories_name": "คลังน้ำมันสระบุรี THAPPLINE",
+        "excise_id": "01075610000131005"
+    },
+    {
+        "no": "6",
+        "company_name": "OR",
+        "factories_id": "K101",
+        "factories_name": "คลังน้ำมันสมุทรสาคร",
+        "excise_id": "01075610000131006"
+    },
+    {
+        "no": "7",
+        "company_name": "OR",
+        "factories_id": "K104",
+        "factories_name": "คลังน้ำมันลำลูกกา THAPPLINE",
+        "excise_id": "01075610000131007"
+    },
+    {
+        "no": "8",
+        "company_name": "OR",
+        "factories_id": "K304",
+        "factories_name": "คลังน้ำมัน PTTOR-มิตรผล ชัยภูมิ",
+        "excise_id": "01075610000131008"
+    },
+    {
+        "no": "9",
+        "company_name": "OR",
+        "factories_id": "K109",
+        "factories_name": "คลังน้ำมันบางปะอิน",
+        "excise_id": "01075610000131009"
+    },
+    {
+        "no": "10",
+        "company_name": "OR",
+        "factories_id": "H504",
+        "factories_name": "คลังปิโตรเลียมสงขลา",
+        "excise_id": "01075610000131010"
+    },
+    {
+        "no": "11",
+        "company_name": "OR",
+        "factories_id": "H505",
+        "factories_name": "คลังน้ำมันสุราษฎร์ธานี 2",
+        "excise_id": "01075610000131011"
+    },
+    {
+        "no": "12",
+        "company_name": "OR",
+        "factories_id": "K205",
+        "factories_name": "คลังน้ำมันพิจิตร",
+        "excise_id": "01075610000131012"
+    },
+    {
+        "no": "13",
+        "company_name": "OR",
+        "factories_id": "K306",
+        "factories_name": "คลังน้ำมัน PTC ศรีสะเกษ",
+        "excise_id": "01075610000131013"
+    },
+    {
+        "no": "14",
+        "company_name": "OR",
+        "factories_id": "H501",
+        "factories_name": "คลังน้ำมันสุราษฎร์ธานี",
+        "excise_id": "01075610000131014"
+    },
+    {
+        "no": "15",
+        "company_name": "OR",
+        "factories_id": "H103",
+        "factories_name": "คลังปิโตรเลียมบางจาก (คลังน้ำมัน)",
+        "excise_id": "01075610000131015"
+    },
+    {
+        "no": "16",
+        "company_name": "OR",
+        "factories_id": "H102",
+        "factories_name": "คลังน้ำมันพระโขนง",
+        "excise_id": "01075610000131016"
+    },
+    {
+        "no": "17",
+        "company_name": "OR",
+        "factories_id": "K206",
+        "factories_name": "คลังน้ำมัน FPT ลำปาง",
+        "excise_id": "01075610000131017"
+    },
+    {
+        "no": "18",
+        "company_name": "OR",
+        "factories_id": "K308",
+        "factories_name": "คลังน้ำมัน TPN ขอนแก่น",
+        "excise_id": "01075610000131019"
+    },
+    {
+        "no": "19",
+        "company_name": "SHELL",
+        "factories_id": "S101",
+        "factories_name": "คลังน้ำมันกรุงเทพฯ",
+        "excise_id": "01005150424621009"
+    },
+    {
+        "no": "20",
+        "company_name": "SHELL",
+        "factories_id": "S102",
+        "factories_name": "ลำลูกกา",
+        "excise_id": "01005150424621003"
+    },
+    {
+        "no": "21",
+        "company_name": "SHELL",
+        "factories_id": "S103",
+        "factories_name": "คลังสระบุรี (หนองแค)",
+        "excise_id": "01005150424621001"
+    },
+    {
+        "no": "22",
+        "company_name": "SHELL",
+        "factories_id": "S104",
+        "factories_name": "คลังบางปะอิน",
+        "excise_id": "01005150424621006"
+    },
+    {
+        "no": "23",
+        "company_name": "SHELL",
+        "factories_id": "S105",
+        "factories_name": "สาขาขอนแก่น",
+        "excise_id": "01005150424621002"
+    },
+    {
+        "no": "24",
+        "company_name": "SHELL",
+        "factories_id": "S106",
+        "factories_name": "คลังน้ำมันนครลำปาง",
+        "excise_id": "01005150424621011"
+    },
+    {
+        "no": "25",
+        "company_name": "SHELL",
+        "factories_id": "S107",
+        "factories_name": "คลังน้ำมันพิจิตร",
+        "excise_id": "01005150424621010"
+    },
+    {
+        "no": "26",
+        "company_name": "SHELL",
+        "factories_id": "S108",
+        "factories_name": "คลังสมุทรสงคราม",
+        "excise_id": "01005150424621004"
+    },
+    {
+        "no": "27",
+        "company_name": "SHELL",
+        "factories_id": "S109",
+        "factories_name": "คลังบ้านดอน",
+        "excise_id": "01005150424621008"
+    },
+    {
+        "no": "28",
+        "company_name": "SHELL",
+        "factories_id": "S110",
+        "factories_name": "คลังสงขลา",
+        "excise_id": "01005150424621005"
+    },
+    {
+        "no": "29",
+        "company_name": "BSRC",
+        "factories_id": "BS01",
+        "factories_name": "คลังน้ำมันพิจิตร",
+        "excise_id": "01075390000731009"
+    },
+    {
+        "no": "30",
+        "company_name": "BSRC",
+        "factories_id": "BS02",
+        "factories_name": "คลังสระบุรี (ท่อส่งปิโตรเลียม)",
+        "excise_id": "01075390000731006"
+    },
+    {
+        "no": "31",
+        "company_name": "BSRC",
+        "factories_id": "BS03",
+        "factories_name": "คลังน้ำมันร่วมสุราษฎร์ธานี",
+        "excise_id": "01075390000731008"
+    },
+    {
+        "no": "32",
+        "company_name": "BSRC",
+        "factories_id": "BS04",
+        "factories_name": "คลังน้ำมันสมุทรสาคร (พีเอสพี)",
+        "excise_id": "01075390000731007"
+    },
+    {
+        "no": "33",
+        "company_name": "BSRC",
+        "factories_id": "BS05",
+        "factories_name": "คลังน้ำมันร่วมสงขลา",
+        "excise_id": "01075390000731005"
+    },
+    {
+        "no": "34",
+        "company_name": "BSRC",
+        "factories_id": "BS06",
+        "factories_name": "โรงกลั่นน้ำมันปิโตรเลียมบางจาก ศรีราชา",
+        "excise_id": "01075390000731001"
+    },
+    {
+        "no": "35",
+        "company_name": "BSRC",
+        "factories_id": "BS07",
+        "factories_name": "คลังน้ำมันซัสโก้สุราษฎร์ธานี",
+        "excise_id": "01075390000731010"
+    },
+    {
+        "no": "36",
+        "company_name": "BSRC",
+        "factories_id": "BS08",
+        "factories_name": "คลังน้ำมันนครลำปาง",
+        "excise_id": "01075390000731011"
+    },
+    {
+        "no": "37",
+        "company_name": "BSRC",
+        "factories_id": "BS09",
+        "factories_name": "ลำลูกกา (ท่อส่งปิโตรเลียม)",
+        "excise_id": "01075390000731003"
+    },
+    {
+        "no": "38",
+        "company_name": "BSRC",
+        "factories_id": "BS10",
+        "factories_name": "คลังน้ำมันพระโขนง",
+        "excise_id": "01075390000731013"
+    },
+    {
+        "no": "39",
+        "company_name": "BSRC",
+        "factories_id": "BS11",
+        "factories_name": "คลังลำลูกกา ",
+        "excise_id": "01075390000731002"
+    },
+    {
+        "no": "40",
+        "company_name": "BANGCHAK",
+        "factories_id": "B101",
+        "factories_name": "โรงกลั่นบางจาก",
+        "excise_id": "01075360002691002"
+    },
+    {
+        "no": "41",
+        "company_name": "BANGCHAK",
+        "factories_id": "B102",
+        "factories_name": "คลังบางปะอิน BPI",
+        "excise_id": "01075360002691003"
+    },
+    {
+        "no": "42",
+        "company_name": "BANGCHAK",
+        "factories_id": "B103",
+        "factories_name": "คลังน้ำมันสมุทรสาคร",
+        "excise_id": "01075360002691005"
+    },
+    {
+        "no": "43",
+        "company_name": "BANGCHAK",
+        "factories_id": "B104",
+        "factories_name": "คลังน้ำมันสุราษฎร์ธานี",
+        "excise_id": "01075360002691001"
+    },
+    {
+        "no": "44",
+        "company_name": "BANGCHAK",
+        "factories_id": "B105",
+        "factories_name": "คลังบางปะอิน สาขา 2",
+        "excise_id": "01075360002691004"
+    },
+    {
+        "no": "45",
+        "company_name": "BANGCHAK",
+        "factories_id": "B106",
+        "factories_name": "คลังน้ำมันพิจิตร",
+        "excise_id": "01075360002691006"
+    },
+    {
+        "no": "46",
+        "company_name": "BANGCHAK",
+        "factories_id": "B107",
+        "factories_name": "คลังน้ำลำปาง",
+        "excise_id": "01075360002691007"
+    },
+    {
+        "no": "47",
+        "company_name": "BANGCHAK",
+        "factories_id": "B108",
+        "factories_name": "คลังร่วมบางจาก พีซี.สยาม",
+        "excise_id": "01075360002691008"
+    },
+    {
+        "no": "48",
+        "company_name": "BANGCHAK",
+        "factories_id": "B109",
+        "factories_name": "สาขาคลังน้ำมันขอนแก่น",
+        "excise_id": "01075360002691009"
+    }
+]

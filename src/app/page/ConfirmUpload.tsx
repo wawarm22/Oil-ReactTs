@@ -132,9 +132,9 @@ const ConfirmUpload: React.FC = () => {
                                                 />
                                             </CSSTransition>
                                         )}
-                                        <div style={{ marginLeft: "30px" }}>
+                                        {/* <div style={{ marginLeft: "30px" }}>
                                             {item.type}
-                                        </div>
+                                        </div> */}
                                     </td>
                                     <td className="text-center align-middle">
                                         {uploadedFiles[item.id]?.reduce((sum, file) => sum + file.pageCount, 0) || 0} หน้า

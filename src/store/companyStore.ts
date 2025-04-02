@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Company } from '../types/companyTypes';
-import { apiCompanyAll } from '../utils/api/CompanyDataApi';
+import { apiCompanyAll } from '../utils/api/companyDataApi';
 
 interface CompanyState {
   companies: Company[];
