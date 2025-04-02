@@ -12,6 +12,8 @@ import Button from "../reusable/Button";
 import { useNavigate } from "react-router-dom";
 import LoadingPage from "../component/LoadingPage";
 import { apiLogin } from "../../utils/api/authenApi";
+import { ApiLoginResponseSchema } from "../../types/schema/auth";
+import { cipherDecrypt, cipherEncrypt } from "../../utils/encoding/cipher";
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
@@ -22,29 +24,36 @@ const Login: React.FC = () => {
 
     const handleRegister = () => {
         navigate('/register');
-    }    
+    }
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError(null);
-    
+
         try {
-            const response = await apiLogin(email, password); 
+            const response = await apiLogin(email, password);
             console.log("Login Success:", response);
-    
-            if (response.token) {
-                localStorage.setItem("token", response.token);
-                navigate('/'); 
+
+            const parsed = ApiLoginResponseSchema.parse(response);
+
+            if (parsed.data.accessToken) {
+                const { accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn } = parsed.data
+                const json_str = JSON.stringify({accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn})
+
+                const token = cipherEncrypt(json_str)
+                
+                localStorage.setItem("token", token);
+                navigate('/');
             } else {
                 setError("Invalid username or password");
             }
         } catch (err) {
             setError("เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองอีกครั้ง");
         }
-    
-        setIsLoading(false); 
-    };    
+
+        setIsLoading(false);
+    };
 
     return (
         <>
@@ -132,7 +141,7 @@ const Login: React.FC = () => {
                                                     type="text"
                                                     className="form-control bg-white border-0 ps-0 rounded-end-3"
                                                     placeholder="อีเมล"
-                                                    value={email} 
+                                                    value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
                                                     required
                                                 />
@@ -146,7 +155,7 @@ const Login: React.FC = () => {
                                                     type="password"
                                                     className="form-control bg-white border-0 ps-0 rounded-end-3"
                                                     placeholder="รหัสผ่าน"
-                                                    value={password} 
+                                                    value={password}
                                                     onChange={(e) => setPassword(e.target.value)}
                                                     required
                                                 />

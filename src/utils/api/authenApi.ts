@@ -1,11 +1,11 @@
 import axios from "axios";
 import { authSchema } from "../../app/schemas/authneSchema";
 import { UserData } from "../../types/userTypes";
-import { BASE_URL, BASE_URL_AWS } from "./apiConfig";
+import { BASE_URL_AWS } from "./apiConfig";
 
 export const apiLogin = async (email: string, password: string) => {
     try {
-        const response = await axios.post(`${BASE_URL}/login`, {
+        const response = await axios.post(`${BASE_URL_AWS}/auth/login`, {
             email: email,
             password: password,
         });
