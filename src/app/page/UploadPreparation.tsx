@@ -123,10 +123,13 @@ const UploadPreparation: React.FC = () => {
     // };
 
     const openBlobSecurely = async (fileUrlWithToken: string) => {
-        try {
+        console.log("fileUrlWithToken",fileUrlWithToken);        
+        try {            
             const response = await fetch(fileUrlWithToken);
             const blob = await response.blob();
             const blobUrl = URL.createObjectURL(blob);
+            console.log("blobUrl",blobUrl);
+            
             window.open(blobUrl, "_blank");
         } catch (error) {
             console.error("ไม่สามารถเปิดไฟล์ได้:", error);
@@ -281,8 +284,8 @@ const UploadPreparation: React.FC = () => {
 
                                             {item.title}
 
-                                            {uploadedFiles[item.id]?.[0]?.name && (
-                                                <span className="text-primary ms-2" style={{ fontWeight: "normal" }} onClick={() => openBlobSecurely(uploadedFiles[item.id][0].data)}>
+                                            {!item.subtitle && uploadedFiles[item.id]?.[0]?.name && (
+                                                <span className="text-primary ms-2 fw-bold" onClick={() => openBlobSecurely(uploadedFiles[item.id][0].data)}>
                                                     {uploadedFiles[item.id][0].name}
                                                 </span>
                                             )}
@@ -317,8 +320,9 @@ const UploadPreparation: React.FC = () => {
                                             color="#FFFFFF"
                                             maxWidth="150px"
                                             variant="bg-hide"
+                                            onClick={() => openBlobSecurely(uploadedFiles[item.id][0].data)}
                                             disabled={openDropdown[item.id] || !uploadedFiles[item.id]}
-                                            // onClick={() => mergeAndOpenPdf(item.id)}
+                                        // onClick={() => mergeAndOpenPdf(item.id)}
                                         />
                                         <input
                                             type="file"
