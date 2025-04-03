@@ -1,6 +1,6 @@
 import { documentList } from "../types/docList";
 import { GenerateUploadUrlResponse } from "../types/uploadTypes";
-import { apiUpload, generateUploadUrl } from "./api/uploadApi";
+import { apiDeleteBlob, apiUpload, generateUploadUrl } from "./api/uploadApi";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 dayjs.extend(buddhistEra);
@@ -61,9 +61,26 @@ export const uploadFile = async (
 
         const runningStr = pad(currentRunning - 1, 12);
         const docSequence = getDocSequenceNumber(docId, subtitleIndex);
-        const finalFileName = `${uploadDateStr}-${runningStr}-${warehouseCode}-${transportCode}-${periodDateStr}-${docSequence}.pdf`;
+        const fileNameWithoutExt = `${uploadDateStr}-${runningStr}-${warehouseCode}-${transportCode}-${periodDateStr}-${docSequence}`;
+        const finalFileName = `${fileNameWithoutExt}.pdf`;
+
+        const prefixToDelete = `${documentGroup}/${fileNameWithoutExt}/`;
+
+        try {
+            await apiDeleteBlob(prefixToDelete);
+        } catch (deleteError: any) {
+            const message = deleteError?.response?.data?.error || deleteError.message;
+
+            if (message && message.includes("No blobs found to delete")) {
+                console.warn("ไม่มี blob เดิมให้ลบ ถือว่าไม่เป็นปัญหา");
+            } else {
+                console.error("เกิดข้อผิดพลาดระหว่างลบ blob:", message);
+                throw new Error("การลบ blob เก่าไม่สำเร็จ");
+            }
+        }
+
         const uploadMeta: GenerateUploadUrlResponse | undefined = await generateUploadUrl({
-            fileName: finalFileName, 
+            fileName: finalFileName,
             documentGroup,
         });
 
@@ -83,4 +100,5 @@ export const uploadFile = async (
         return null;
     }
 };
+
 

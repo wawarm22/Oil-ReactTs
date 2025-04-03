@@ -123,13 +123,15 @@ const UploadPreparation: React.FC = () => {
     // };
 
     const openBlobSecurely = async (fileUrlWithToken: string) => {
-        console.log("fileUrlWithToken",fileUrlWithToken);        
-        try {            
+        console.log("fileUrlWithToken", fileUrlWithToken);
+        try {
             const response = await fetch(fileUrlWithToken);
+            console.log("response", response);            
             const blob = await response.blob();
+            console.log("blob", blob);            
             const blobUrl = URL.createObjectURL(blob);
-            console.log("blobUrl",blobUrl);
-            
+            console.log("blobUrl", blobUrl);
+
             window.open(blobUrl, "_blank");
         } catch (error) {
             console.error("ไม่สามารถเปิดไฟล์ได้:", error);
