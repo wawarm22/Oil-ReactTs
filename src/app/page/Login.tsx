@@ -33,7 +33,7 @@ const Login: React.FC = () => {
 
         try {
             const response = await apiLogin(email, password);
-            console.log("Login Success:", response);
+            // console.log("Login Success:", response);
 
             const parsed = ApiLoginResponseSchema.parse(response);
 
