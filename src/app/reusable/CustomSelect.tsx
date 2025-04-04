@@ -51,7 +51,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ label, value, onChange, opt
     return (
         <div className="d-flex align-items-center" style={{ fontFamily: "Sarabun" }}>
             <label className="fw-bold pe-2 mb-0" style={{ fontSize: "16px" }}>{label}</label>
-            <div style={{ flex: 1, maxWidth: "300px" }}>
+            <div style={{ flex: 1, minWidth: "300px" }}>
                 <Select<OptionType>
                     value={value}
                     onChange={onChange}

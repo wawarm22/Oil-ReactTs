@@ -115,7 +115,7 @@ const UploadPreparation: React.FC = () => {
             alert("ไม่สามารถเปิดเอกสารได้");
             console.error(err);
         }
-    };    
+    };
 
     const handleDocumentFileUpload = async (
         event: React.ChangeEvent<HTMLInputElement>,
@@ -149,12 +149,6 @@ const UploadPreparation: React.FC = () => {
 
         if (!result) return;
         const { url, blobPath } = result;
-
-        // await new Promise(resolve => setTimeout(resolve, 5000));
-
-        // const pdfList = await apiPreviewPdf(blobPath);
-        // const previewUrls = [pdfList];
-
         const newFile = { name: file.name, data: url, blobPath: blobPath };
         setUploadedFiles(prevState => {
             const existingDoc = prevState[docId] || {};
@@ -204,16 +198,11 @@ const UploadPreparation: React.FC = () => {
 
     const isUploadedComplete = (item: DocumentItem): boolean => {
         const uploaded = uploadedFiles[item.id];
-
         if (!uploaded) return false;
-
+        
         if (item.subtitle?.length) {
-            if (item.title.includes("เอกสารสูตรน้ำมัน")) {
-                return Object.values(uploaded).some(file => !!file);
-            }
-            return item.subtitle.every((_, index) => !!uploaded[index]);
+            return Object.values(uploaded).some(file => !!file);
         }
-
         return !!uploaded[0];
     };
 
@@ -227,7 +216,7 @@ const UploadPreparation: React.FC = () => {
 
     const incompleteDocs = currentDocuments.filter(item => !isUploadedComplete(item));
     console.log("ยังไม่อัปโหลด:", incompleteDocs.map(doc => doc.title));
-    
+
     const filteredDocuments = documentList.filter(
         (item) => !filters.transport || item.transport === filters.transport.value
     );
