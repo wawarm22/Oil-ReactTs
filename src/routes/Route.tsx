@@ -15,12 +15,14 @@ import MatchList from "../app/page/MatchList";
 import MatchDocument from "../app/page/MatchDocument";
 import TaxSubmission from "../app/page/TaxSubmission";
 import UploadPreparation from "../app/page/UploadPreparation";
+import TestPage from "../app/page/test/testPage";
 
 const WebRoute = () => {
   return (
     <Layout>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/test" element={<TestPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
