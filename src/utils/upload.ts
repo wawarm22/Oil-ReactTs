@@ -37,13 +37,13 @@ const getDocSequenceNumber = (docId: number, subtitleIndex?: number): string => 
 
 export const uploadFile = async (
     file: File,
-    documentGroup: string,
+    targetPath: string,
     warehouseCode: string,
     transportCode: string,
     periodDateStr: string,
     docId: number,
     subtitleIndex?: number
-): Promise<string | null> => {
+): Promise<{ url: string; blobPath: string } | null> => {
     if (!file) {
         alert("กรุณาเลือกไฟล์ก่อน!");
         return null;
@@ -64,12 +64,13 @@ export const uploadFile = async (
         const fileNameWithoutExt = `${uploadDateStr}-${runningStr}-${warehouseCode}-${transportCode}-${periodDateStr}-${docSequence}`;
         const finalFileName = `${fileNameWithoutExt}.pdf`;
 
-        const prefixToDelete = `${documentGroup}/${fileNameWithoutExt}/`;
+        const prefixToDelete = `${targetPath}/${fileNameWithoutExt}/`;
 
         try {
             await apiDeleteBlob(prefixToDelete);
         } catch (deleteError: any) {
             const message = deleteError?.response?.data?.error || deleteError.message;
+            console.log(message);
 
             if (message && message.includes("No blobs found to delete")) {
                 console.warn("ไม่มี blob เดิมให้ลบ ถือว่าไม่เป็นปัญหา");
@@ -81,24 +82,22 @@ export const uploadFile = async (
 
         const uploadMeta: GenerateUploadUrlResponse | undefined = await generateUploadUrl({
             fileName: finalFileName,
-            documentGroup,
+            targetPath,
         });
 
         if (!uploadMeta?.uploadUrl) {
             throw new Error("ไม่สามารถสร้าง URL สำหรับอัปโหลดได้");
         }
 
-        const success = await apiUpload(file, uploadMeta.uploadUrl, documentGroup);
+        const success = await apiUpload(file, uploadMeta.uploadUrl, targetPath);
         if (!success) {
             throw new Error("อัปโหลดไฟล์ล้มเหลว");
         }
 
-        return uploadMeta.uploadUrl;
+        return { url: uploadMeta.uploadUrl, blobPath: uploadMeta.blobPath };
     } catch (error) {
         console.error("เกิดข้อผิดพลาดในการอัปโหลดไฟล์", error);
         alert("อัปโหลดไฟล์ล้มเหลว");
         return null;
     }
 };
-
-

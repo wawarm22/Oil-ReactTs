@@ -5,7 +5,7 @@ import "../../assets/css/dropdown-icon.css";
 import "../../assets/css/dropdown-animation.css";
 import "../../assets/css/table.css";
 import { useNavigate } from "react-router-dom";
-import { documentList } from "../../types/docList";
+import { DocumentItem, documentList } from "../../types/docList";
 import { RiArrowDropDownLine, RiFileDownloadLine } from "react-icons/ri";
 import { AnimatePresence, motion } from "framer-motion";
 import { uploadFile } from "../../utils/upload";
@@ -14,11 +14,17 @@ import UploadFilterPanel from "../reusable/UploadFilterPanel";
 import oilFactories from "../../assets/json/oil-factory.json";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
+import { apiPreviewPdf } from "../../utils/api/uploadApi";
 dayjs.extend(buddhistEra);
 
 type UploadedFileMap = {
     [docId: number]: {
-        [subtitleIndex: number]: { name: string; data: string; };
+        [subtitleIndex: number]: {
+            name: string;
+            data: string;
+            blobPath: string;
+            previewUrls?: string[];
+        };
     };
 };
 
@@ -80,8 +86,6 @@ const UploadPreparation: React.FC = () => {
 
     const handleFilterChange = (field: keyof typeof filters, value: any) => {
         const resetMap: { [key in keyof typeof filters]?: (keyof typeof filters)[] } = {
-            // warehouse: ["transport", "periodType", "dateStart", "dateEnd", "month"],
-            // transport: ["periodType", "dateStart", "dateEnd", "month"],
             periodType: ["dateStart", "dateEnd", "month"],
         };
 
@@ -100,44 +104,18 @@ const UploadPreparation: React.FC = () => {
         }
     };
 
-    // const mergeAndOpenPdf = async (docId: number) => {
-    //     const storedFilesMap = uploadedFiles[docId];
-
-    //     if (!storedFilesMap || Object.keys(storedFilesMap).length === 0) {
-    //         return alert("ไม่มีไฟล์ที่อัปโหลด");
-    //     }
-
-    //     const mergedPdf = await PDFDocument.create();
-
-    //     for (const index of Object.keys(storedFilesMap)) {
-    //         const file = storedFilesMap[+index];
-    //         const existingPdfBytes = await fetch(file.data).then(res => res.arrayBuffer());
-    //         const existingPdf = await PDFDocument.load(existingPdfBytes);
-    //         const copiedPages = await mergedPdf.copyPages(existingPdf, existingPdf.getPageIndices());
-    //         copiedPages.forEach(page => mergedPdf.addPage(page));
-    //     }
-
-    //     const mergedPdfBytes = await mergedPdf.save();
-    //     const mergedBlobUrl = URL.createObjectURL(new Blob([mergedPdfBytes], { type: "application/pdf" }));
-    //     window.open(mergedBlobUrl, "_blank");
-    // };
-
-    const openBlobSecurely = async (fileUrlWithToken: string) => {
-        console.log("fileUrlWithToken", fileUrlWithToken);
+    const openBlobSecurely = async (blobPath: string) => {
         try {
-            const response = await fetch(fileUrlWithToken);
-            console.log("response", response);            
+            const previewUrl = await apiPreviewPdf(blobPath);
+            const response = await fetch(previewUrl);
             const blob = await response.blob();
-            console.log("blob", blob);            
-            const blobUrl = URL.createObjectURL(blob);
-            console.log("blobUrl", blobUrl);
-
-            window.open(blobUrl, "_blank");
-        } catch (error) {
-            console.error("ไม่สามารถเปิดไฟล์ได้:", error);
-            alert("ไม่สามารถเปิดดูเอกสารได้");
+            const url = URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
+            window.open(url, "_blank");
+        } catch (err) {
+            alert("ไม่สามารถเปิดเอกสารได้");
+            console.error(err);
         }
-    };
+    };    
 
     const handleDocumentFileUpload = async (
         event: React.ChangeEvent<HTMLInputElement>,
@@ -158,10 +136,10 @@ const UploadPreparation: React.FC = () => {
 
         const file = event.target.files[0];
         const periodDateStr = getFormattedPeriodDateStr();
-        const documentGroup = currentCompany.toLowerCase();
-        const fileUrl = await uploadFile(
+        const targetPath = currentCompany
+        const result = await uploadFile(
             file,
-            documentGroup,
+            targetPath,
             filters.warehouse.value,
             filters.transport.value,
             periodDateStr,
@@ -169,9 +147,15 @@ const UploadPreparation: React.FC = () => {
             subtitleIndex
         );
 
-        if (!fileUrl) return;
+        if (!result) return;
+        const { url, blobPath } = result;
 
-        const newFile = { name: file.name, data: fileUrl };
+        // await new Promise(resolve => setTimeout(resolve, 5000));
+
+        // const pdfList = await apiPreviewPdf(blobPath);
+        // const previewUrls = [pdfList];
+
+        const newFile = { name: file.name, data: url, blobPath: blobPath };
         setUploadedFiles(prevState => {
             const existingDoc = prevState[docId] || {};
 
@@ -218,11 +202,32 @@ const UploadPreparation: React.FC = () => {
         }
     };
 
-    const isConfirmDisabled = documentList.some(item => {
-        const files = uploadedFiles[item.id];
-        return !files || Object.keys(files).length === 0;
-    });
+    const isUploadedComplete = (item: DocumentItem): boolean => {
+        const uploaded = uploadedFiles[item.id];
 
+        if (!uploaded) return false;
+
+        if (item.subtitle?.length) {
+            if (item.title.includes("เอกสารสูตรน้ำมัน")) {
+                return Object.values(uploaded).some(file => !!file);
+            }
+            return item.subtitle.every((_, index) => !!uploaded[index]);
+        }
+
+        return !!uploaded[0];
+    };
+
+    const currentDocuments = documentList.filter(
+        (item) =>
+            !item.title.includes("ถ้ามี") &&
+            (!filters.transport || item.transport === filters.transport.value)
+    );
+
+    const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
+
+    const incompleteDocs = currentDocuments.filter(item => !isUploadedComplete(item));
+    console.log("ยังไม่อัปโหลด:", incompleteDocs.map(doc => doc.title));
+    
     const filteredDocuments = documentList.filter(
         (item) => !filters.transport || item.transport === filters.transport.value
     );
@@ -249,7 +254,6 @@ const UploadPreparation: React.FC = () => {
                         <tr>
                             <th className="align-middle" style={{ fontSize: '22px' }}>รายการเอกสาร</th>
                             <th className="align-middle text-center" style={{ fontSize: '22px' }}>
-                                {/* จำนวนหน้า */}
                             </th>
                             <th className="text-end">
                                 <input
@@ -287,7 +291,10 @@ const UploadPreparation: React.FC = () => {
                                             {item.title}
 
                                             {!item.subtitle && uploadedFiles[item.id]?.[0]?.name && (
-                                                <span className="text-primary ms-2 fw-bold" onClick={() => openBlobSecurely(uploadedFiles[item.id][0].data)}>
+                                                <span
+                                                    className="text-primary ms-2 fw-bold"
+                                                    onClick={() => openBlobSecurely(uploadedFiles[item.id]?.[0]?.blobPath ?? '')}
+                                                >
                                                     {uploadedFiles[item.id][0].name}
                                                 </span>
                                             )}
@@ -309,9 +316,6 @@ const UploadPreparation: React.FC = () => {
                                         )}
                                     </td>
                                     <td className="text-center align-middle">
-                                        {/* {uploadedFiles[item.id]
-                                            ? Object.values(uploadedFiles[item.id]).reduce((sum, file) => sum + file.pageCount, 0)
-                                            : 0} หน้า */}
                                     </td>
                                     <td className="text-end">
                                         <Button
@@ -322,7 +326,7 @@ const UploadPreparation: React.FC = () => {
                                             color="#FFFFFF"
                                             maxWidth="150px"
                                             variant="bg-hide"
-                                            onClick={() => openBlobSecurely(uploadedFiles[item.id][0].data)}
+                                            onClick={() => openBlobSecurely(uploadedFiles[item.id]?.[0]?.blobPath ?? [])}
                                             disabled={openDropdown[item.id] || !uploadedFiles[item.id]}
                                         // onClick={() => mergeAndOpenPdf(item.id)}
                                         />
@@ -371,7 +375,7 @@ const UploadPreparation: React.FC = () => {
                                                             {subtitleText}
                                                         </span>
                                                         {uploaded && (
-                                                            <span className="text-primary ms-3" style={{ cursor: "pointer" }} onClick={() => openBlobSecurely(uploaded.data)}>
+                                                            <span className="text-primary ms-3" style={{ cursor: "pointer" }} onClick={() => openBlobSecurely(uploaded.blobPath)}>
                                                                 {uploaded.name}
                                                             </span>
                                                         )}
@@ -385,7 +389,7 @@ const UploadPreparation: React.FC = () => {
                                                             color="#FFFFFF"
                                                             maxWidth="150px"
                                                             variant="bg-hide"
-                                                            onClick={() => openBlobSecurely(uploaded.data)}
+                                                            onClick={() => openBlobSecurely(uploaded.blobPath)}
                                                             disabled={!uploaded}
                                                         />
                                                         <input

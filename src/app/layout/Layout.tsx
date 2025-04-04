@@ -9,7 +9,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
     const location = useLocation();
-    const shouldShowHeader = !(['/login', '/register', '/forgot-password', '/reset-password'].includes(location.pathname));
+    const shouldShowHeader = !(['/login', '/register', '/forgot-password', '/reset-password', '/pdf-preview'].includes(location.pathname));
     const layoutClass = !['/','/login', '/register', '/forgot-password', '/reset-password'].includes(location.pathname) ? "bg-light-gray" : "";
     const configHeight = ['/'].includes(location.pathname) ? "h-auto" : "h-100";
 

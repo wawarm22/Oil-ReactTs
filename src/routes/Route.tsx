@@ -20,13 +20,13 @@ const WebRoute = () => {
   return (
     <Layout>
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/" element={<Home />} />
         <Route path="/form-submission" element={<FormSubmission />} />
-        <Route path="/document-list" element={<DocumentList/>}/>
+        <Route path="/document-list" element={<DocumentList />} />
         <Route path="/pre-upload" element={<UploadPreparation />} />
         <Route path="/upload" element={<Upload />} />
         <Route path="/upload-multiple" element={<UploadMultiple />} />
