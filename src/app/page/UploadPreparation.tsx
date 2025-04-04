@@ -17,7 +17,7 @@ import buddhistEra from "dayjs/plugin/buddhistEra";
 import { apiDeleteBlob, apiPreviewPdf, comfirmUpload } from "../../utils/api/uploadApi";
 import { useUser } from "../../hook/useUser";
 import { useCompanyStore } from "../../store/companyStore";
-import { GiCancel } from "react-icons/gi";
+import { MdCancel } from "react-icons/md";
 dayjs.extend(buddhistEra);
 
 type UploadedFileMap = {
@@ -163,6 +163,7 @@ const UploadPreparation: React.FC = () => {
         }[] = [];
 
         for (const file of files) {
+            console.log('file', file);            
             const result = await uploadFile(
                 file,
                 targetPath,
@@ -341,7 +342,7 @@ const UploadPreparation: React.FC = () => {
                                                             }}>
                                                                 {file.name}
                                                             </span>
-                                                            <GiCancel
+                                                            <MdCancel
                                                                 size={16}
                                                                 className="ms-1 text-danger"
                                                                 style={{ cursor: "pointer" }}
@@ -356,7 +357,6 @@ const UploadPreparation: React.FC = () => {
                                                 </span>
                                             )}
                                         </span>
-
 
                                         {item.subtitle && (
                                             <CSSTransition
@@ -446,7 +446,7 @@ const UploadPreparation: React.FC = () => {
                                                                 >
                                                                     {file.name}
                                                                 </span>
-                                                                <GiCancel
+                                                                <MdCancel
                                                                     size={16}
                                                                     className="ms-1 text-danger"
                                                                     style={{ cursor: "pointer" }}
