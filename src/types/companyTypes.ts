@@ -24,7 +24,7 @@ export interface CompanyById {
     factories: Factory[];
 }
 
-export type ApiResponse<T> = {
+export type ApiResponse<T = unknown> = {
     message: string;
     status: boolean;
     data: T;

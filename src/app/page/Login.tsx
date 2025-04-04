@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import useSignIn from 'react-auth-kit/hooks/useSignIn';
+import useIsAuthenticated from 'react-auth-kit/hooks/useIsAuthenticated';
 import '../../assets/css/underline-hover.css'
 import '../../assets/css/input-highlights.css'
 import { MdEmail, MdOutlinePassword } from "react-icons/md";
@@ -12,13 +14,12 @@ import Button from "../reusable/Button";
 import { useNavigate } from "react-router-dom";
 import LoadingPage from "../component/LoadingPage";
 import { apiLogin } from "../../utils/api/authenApi";
-import { ApiLoginResponseSchema } from "../../types/schema/auth";
-import { cipherEncrypt } from "../../utils/encoding/cipher";
-import { useUser } from "../../hook/useUser";
+import { ApiLoginResponseSchema } from "../../types/schema/api";
 
 const Login: React.FC = () => {
+    const signIn = useSignIn();
     const navigate = useNavigate();
-    const { setUser } = useUser();
+    const isAuthenticated = useIsAuthenticated();
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -28,6 +29,10 @@ const Login: React.FC = () => {
         navigate('/register');
     }
 
+    useEffect(() => {
+        if (isAuthenticated) navigate('/');
+    }, [isAuthenticated])
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
@@ -35,25 +40,29 @@ const Login: React.FC = () => {
 
         try {
             const response = await apiLogin(email, password);
-            // console.log("Login Success:", response);
 
             const parsed = ApiLoginResponseSchema.parse(response);
 
             if (parsed.data.accessToken) {
-                const { accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn, user } = parsed.data
-                const json_str = JSON.stringify({ accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn })
+                const isSignedIn = signIn({
+                    auth: {
+                        token: parsed.data.accessToken,
+                        type: "Bearer",
+                    },
+                    userState: parsed.data,
+                    refresh: parsed.data.refreshToken
+                })
+                if (!isSignedIn) {
+                    throw new Error("Failed to sign in");
+                }
 
-                const token = cipherEncrypt(json_str)
-                const encryptedUser = cipherEncrypt(JSON.stringify(user));
-
-                localStorage.setItem("token", token);
-                localStorage.setItem("user", encryptedUser);
-                setUser(user);
-                navigate('/');
+                navigate('/', { replace: true });
             } else {
+
                 setError("Invalid username or password");
             }
         } catch (err) {
+            console.log(err);
             setError("เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองอีกครั้ง");
         }
 
