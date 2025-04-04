@@ -14,7 +14,7 @@ import UploadFilterPanel from "../reusable/UploadFilterPanel";
 import oilFactories from "../../assets/json/oil-factory.json";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-import { apiPreviewPdf } from "../../utils/api/uploadApi";
+import { apiPreviewPdf, comfirmUpload } from "../../utils/api/uploadApi";
 dayjs.extend(buddhistEra);
 
 type UploadedFileMap = {
@@ -186,20 +186,10 @@ const UploadPreparation: React.FC = () => {
         navigate("/upload-multiple");
     };
 
-    const handleConfirm = () => {
-        const allFilesUploaded = documentList.every((item) =>
-            item.subtitle?.every((_, index) => uploadedFiles[item.id]?.[index])
-        );
-
-        if (allFilesUploaded) {
-            navigate('/confirm');
-        }
-    };
-
     const isUploadedComplete = (item: DocumentItem): boolean => {
         const uploaded = uploadedFiles[item.id];
         if (!uploaded) return false;
-        
+
         if (item.subtitle?.length) {
             return Object.values(uploaded).some(file => !!file);
         }
@@ -216,6 +206,24 @@ const UploadPreparation: React.FC = () => {
 
     const incompleteDocs = currentDocuments.filter(item => !isUploadedComplete(item));
     console.log("ยังไม่อัปโหลด:", incompleteDocs.map(doc => doc.title));
+
+    const handleConfirm = async () => {
+        try {
+            if (isConfirmDisabled) {
+                alert("กรุณาอัปโหลดเอกสารให้ครบก่อนยืนยัน");
+                return;
+            }
+
+            const blobPath = `${currentCompany}/`;
+            const result = await comfirmUpload(blobPath);
+            console.log("อัปโหลดเสร็จแล้ว:", result);
+
+            navigate("/confirm");
+        } catch (error) {
+            alert("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
+            console.error(error);
+        }
+    };
 
     const filteredDocuments = documentList.filter(
         (item) => !filters.transport || item.transport === filters.transport.value

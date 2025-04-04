@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BASE_URL } from "./apiConfig";
-import { DeleteUploadResponse, GenerateUploadUrlPayload, GenerateUploadUrlResponse, PdfListResponse } from "../../types/uploadTypes";
+import { ComfirmUploadResponse, DeleteUploadResponse, GenerateUploadUrlPayload, GenerateUploadUrlResponse, PdfListResponse } from "../../types/uploadTypes";
 
 export const generateUploadUrl = async (
     payload: GenerateUploadUrlPayload
@@ -86,6 +86,23 @@ export const apiUpload = async (
     } catch (error) {
         console.error("Upload Error:", error instanceof Error ? error.message : error);
         return false;
+    }
+};
+
+export const comfirmUpload = async (blobPath: string): Promise<ComfirmUploadResponse> => {
+    try {
+        const response = await axios.post(
+            `${BASE_URL}/confirm-upload`,
+            { blobPath }, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting blob:", error instanceof Error ? error.message : error);
+        throw error;
     }
 };
 

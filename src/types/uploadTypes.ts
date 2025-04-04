@@ -23,3 +23,8 @@ export type PdfListResponse = {
     count: number;
     files: PdfFileItem[];
 }
+
+export type ComfirmUploadResponse = {
+    message: string;
+    files: string[];
+}
