@@ -18,7 +18,7 @@ const Header: React.FC = () => {
         if (user?.company_id) {
             fetchCompanyById(user.company_id);
         }
-    }, [user?.company_id]);    
+    }, [user?.company_id]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

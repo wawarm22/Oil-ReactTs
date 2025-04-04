@@ -11,13 +11,17 @@ import { AnimatePresence, motion } from "framer-motion";
 import { uploadFile } from "../../utils/upload";
 import { OptionType } from "../../types/selectTypes";
 import UploadFilterPanel from "../reusable/UploadFilterPanel";
-import oilFactories from "../../assets/json/oil-factory.json";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser"
+// import oilFactories from "../../assets/json/oil-factory.json";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import { apiDeleteBlob, apiPreviewPdf, comfirmUpload } from "../../utils/api/uploadApi";
 import { useUser } from "../../hook/useUser";
 import { useCompanyStore } from "../../store/companyStore";
 import { MdCancel } from "react-icons/md";
+import { AuthSchema } from "../../types/schema/auth";
+import { ApiMyFactorySchema } from "../../types/schema/api";
+import apiMyFactory from "../../utils/api/apiMyFactory";
 dayjs.extend(buddhistEra);
 
 type UploadedFileMap = {
@@ -43,14 +47,29 @@ type FilterState = {
 
 const UploadPreparation: React.FC = () => {
     const navigate = useNavigate();
+    const auth = useAuthUser<AuthSchema>();
     const { user } = useUser();
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFileMap>({});
     const [openDropdown, setOpenDropdown] = useState<{ [key: number]: boolean }>({});
     const [isAnimating, setIsAnimating] = useState<{ [key: number]: boolean }>({});
     const { selectedCompany, fetchCompanyById } = useCompanyStore();
+    const [warehouseOptions, setWarehouseOptions] = useState<OptionType[]>([]);
     const [filters, setFilters] = useState<FilterState>({
         warehouse: null, transport: null, periodType: null, dateStart: null, dateEnd: null, month: null,
     });
+
+    useEffect(() => {
+        apiMyFactory(auth!)
+            .then(ApiMyFactorySchema.parse)
+            .then(({ data }) => data.map((i) => ({
+                value: i.factory.slug,
+                label: `[${i.factory.slug}] ${i.factory.name}`,
+            })))
+            .then(setWarehouseOptions)
+            .catch(error => {
+                alert(error.message)
+            })
+    }, [])
 
     useEffect(() => {
         if (user?.company_id) {
@@ -79,12 +98,12 @@ const UploadPreparation: React.FC = () => {
     };
 
     const currentCompany = selectedCompany?.name;
-    const warehouseOptions: OptionType[] = oilFactories
-        .filter(fac => fac.company_name === currentCompany)
-        .map(fac => ({
-            value: fac.factories_id,
-            label: fac.factories_name
-        }));
+    // const warehouseOptions: OptionType[] = oilFactories
+    //     .filter(fac => fac.company_name === currentCompany)
+    //     .map(fac => ({
+    //         value: fac.factories_id,
+    //         label: fac.factories_name
+    //     }));
 
     const transportOptions: OptionType[] = [
         { value: "00", label: "ทางเรือ" },
@@ -127,7 +146,7 @@ const UploadPreparation: React.FC = () => {
             alert("ไม่สามารถเปิดเอกสารได้");
             console.error(err);
         }
-    };    
+    };
 
     const handleDocumentFileUpload = async (
         event: React.ChangeEvent<HTMLInputElement>,

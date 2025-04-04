@@ -3,7 +3,8 @@ import { CSSTransition } from "react-transition-group";
 import "../../assets/css/underline-hover.css"
 import "../../assets/css/popover.css"
 import { useNavigate } from "react-router-dom";
-import { useCompanyStore } from "../../store/companyStore";
+import useSignOut from 'react-auth-kit/hooks/useSignOut';
+// import { useCompanyStore } from "../../store/companyStore";
 
 interface PopoverMenuProps {
     isOpen: boolean;
@@ -13,13 +14,14 @@ interface PopoverMenuProps {
 
 const PopoverMenu: React.FC<PopoverMenuProps> = ({ isOpen, menuRef }) => {
     const navigate = useNavigate();
-    const resetCompanyStore = useCompanyStore((state) => state.reset);
+    const signOut = useSignOut()
+
+    // const resetCompanyStore = useCompanyStore((state) => state.reset);
     
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        resetCompanyStore();
-        navigate("/login");
+        console.log("click");
+        signOut();
+        navigate("/login")
     };
 
     return (
