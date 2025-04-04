@@ -1,5 +1,5 @@
 import { documentList } from "../types/docList";
-import { apiUpload, generateUploadUrl } from "./api/uploadApi";
+import { apiListPdfFiles, apiUpload, generateUploadUrl } from "./api/uploadApi";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 dayjs.extend(buddhistEra);
@@ -36,7 +36,7 @@ const getDocSequenceNumber = (docId: number, subtitleIndex?: number): string => 
 
 export const uploadFile = async (
     files: File[],
-    targetPath: string,
+    companyName: string,
     warehouseCode: string,
     transportCode: string,
     periodDateStr: string,
@@ -62,10 +62,16 @@ export const uploadFile = async (
         const docSequence = getDocSequenceNumber(docId, subtitleIndex);
         const baseName = `${uploadDateStr}-${runningStr}-${warehouseCode}-${transportCode}-${periodDateStr}-${docSequence}`;
 
+        const targetPath = `${companyName}/${baseName}`;
+        let listCount = 0;
+
+        const checkList = await apiListPdfFiles(targetPath);
+        listCount = checkList.count || 0;
+
         const fileNames = files.map((_, i) => {
-            const suffix = files.length > 1 ? `-${i + 1}` : "";
+            const suffix = `-${listCount + i + 1}`;
             return `${baseName}${suffix}.pdf`;
-        });        
+        });
 
         const uploadMeta = await generateUploadUrl({ fileNames, targetPath });
 

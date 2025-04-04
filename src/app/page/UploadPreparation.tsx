@@ -18,6 +18,7 @@ import { apiDeleteBlob, apiPreviewPdf, comfirmUpload } from "../../utils/api/upl
 import { useUser } from "../../hook/useUser";
 import { useCompanyStore } from "../../store/companyStore";
 import { MdCancel } from "react-icons/md";
+import { PDFDocument } from "pdf-lib";
 dayjs.extend(buddhistEra);
 
 type UploadedFileMap = {
@@ -116,6 +117,31 @@ const UploadPreparation: React.FC = () => {
         }
     };
 
+    const mergeAndOpenPdf = async (docId: number, subtitleIndex: number = 0) => {
+        const storedFiles = uploadedFiles[docId]?.[subtitleIndex]?.files;
+        if (!storedFiles || storedFiles.length === 0) {
+            alert("ไม่มีไฟล์ที่อัปโหลด");
+            return;
+        }
+    
+        const mergedPdf = await PDFDocument.create();
+        for (const file of storedFiles) {
+            try {
+                const previewUrl = await apiPreviewPdf(file.blobPath);
+                const pdfBytes = await fetch(previewUrl).then(res => res.arrayBuffer());
+                const pdfDoc = await PDFDocument.load(pdfBytes);
+                const pages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+                pages.forEach(page => mergedPdf.addPage(page));
+            } catch (error) {
+                console.error("รวมไฟล์ไม่ได้:", error);
+            }
+        }
+    
+        const mergedPdfBytes = await mergedPdf.save();
+        const mergedBlobUrl = URL.createObjectURL(new Blob([mergedPdfBytes], { type: "application/pdf" }));
+        window.open(mergedBlobUrl, "_blank");
+    };    
+
     const openBlobSecurely = async (blobPath: string) => {
         try {
             const previewUrl = await apiPreviewPdf(blobPath);
@@ -127,7 +153,7 @@ const UploadPreparation: React.FC = () => {
             alert("ไม่สามารถเปิดเอกสารได้");
             console.error(err);
         }
-    };    
+    };
 
     const handleDocumentFileUpload = async (
         event: React.ChangeEvent<HTMLInputElement>,
@@ -153,11 +179,11 @@ const UploadPreparation: React.FC = () => {
             return;
         }
 
-        const targetPath = selectedCompany.name;
+        const companyName = selectedCompany.name;
 
         const uploadedResults = await uploadFile(
             files,
-            targetPath,
+            companyName,
             filters.warehouse.value,
             filters.transport.value,
             periodDateStr,
@@ -367,12 +393,7 @@ const UploadPreparation: React.FC = () => {
                                                     color="#FFFFFF"
                                                     maxWidth="150px"
                                                     variant="bg-hide"
-                                                    onClick={() => {
-                                                        const files = uploadedFiles[item.id]?.[0]?.files ?? [];
-                                                        files.forEach((file) => {
-                                                            openBlobSecurely(file.blobPath);
-                                                        });
-                                                    }}
+                                                    onClick={() => mergeAndOpenPdf(item.id)}
                                                     disabled={openDropdown[item.id] || !uploadedFiles[item.id]?.[0]?.files?.length}
                                                 />
                                                 <input
@@ -425,7 +446,7 @@ const UploadPreparation: React.FC = () => {
                                                             <>
                                                                 <span
                                                                     key={idx}
-                                                                    className="text-primary ms-3"
+                                                                    className="text-primary fw-bold ms-3"
                                                                     style={{ cursor: "pointer", display: "inline-block" }}
                                                                     onClick={() => openBlobSecurely(file.blobPath)}
                                                                 >
@@ -454,9 +475,7 @@ const UploadPreparation: React.FC = () => {
                                                             color="#FFFFFF"
                                                             maxWidth="150px"
                                                             variant="bg-hide"
-                                                            onClick={() => {
-                                                                uploaded?.files?.forEach(file => openBlobSecurely(file.blobPath));
-                                                            }}
+                                                            onClick={() => mergeAndOpenPdf(item.id, index)}
                                                             disabled={!uploaded?.files?.length}
                                                         />
                                                         <input

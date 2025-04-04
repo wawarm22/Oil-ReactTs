@@ -91,7 +91,7 @@ const UploadFilterPanel: React.FC<UploadFilterPanelProps> = ({ filters, onChange
                                 dateFormat="dd/MM/yyyy"
                                 className="form-control"
                                 maxDate={filters.dateEnd ?? undefined}
-                                renderCustomHeader={renderHeaderWithThaiYear}                                
+                                renderCustomHeader={renderHeaderWithThaiYear}
                             />
                         </div>
                     </div>
@@ -125,7 +125,7 @@ const UploadFilterPanel: React.FC<UploadFilterPanelProps> = ({ filters, onChange
                             showMonthYearPicker
                             showFullMonthYearPicker
                             className="form-control"
-                            renderCustomHeader={renderHeaderWithThaiYear}                            
+                            renderCustomHeader={renderHeaderWithThaiYear}
                         />
                     </div>
                 </div>
