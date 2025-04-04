@@ -2,6 +2,8 @@ import React from "react";
 import { CSSTransition } from "react-transition-group";
 import "../../assets/css/underline-hover.css"
 import "../../assets/css/popover.css"
+import { useNavigate } from "react-router-dom";
+import { useCompanyStore } from "../../store/companyStore";
 
 interface PopoverMenuProps {
     isOpen: boolean;
@@ -10,6 +12,16 @@ interface PopoverMenuProps {
 }
 
 const PopoverMenu: React.FC<PopoverMenuProps> = ({ isOpen, menuRef }) => {
+    const navigate = useNavigate();
+    const resetCompanyStore = useCompanyStore((state) => state.reset);
+    
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        resetCompanyStore();
+        navigate("/login");
+    };
+
     return (
         <CSSTransition
             in={isOpen}
@@ -39,7 +51,12 @@ const PopoverMenu: React.FC<PopoverMenuProps> = ({ isOpen, menuRef }) => {
                         <a href="#" className="text-dark text-decoration-none fw-bold hover-underline">จัดการข้อมูลส่วนตัว</a>
                     </li>
                     <li className="py-2 px-3">
-                        <a href="/login" className="text-danger text-decoration-none fw-bold hover-underline">ออกจากระบบ</a>
+                        <button
+                            onClick={handleLogout}
+                            className="text-danger text-decoration-none fw-bold hover-underline bg-transparent border-0 w-100 text-start"
+                        >
+                            ออกจากระบบ
+                        </button>
                     </li>
                 </ul>
             </div>

@@ -14,9 +14,11 @@ import LoadingPage from "../component/LoadingPage";
 import { apiLogin } from "../../utils/api/authenApi";
 import { ApiLoginResponseSchema } from "../../types/schema/auth";
 import { cipherEncrypt } from "../../utils/encoding/cipher";
+import { useUser } from "../../hook/useUser";
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
+    const { setUser } = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -38,12 +40,15 @@ const Login: React.FC = () => {
             const parsed = ApiLoginResponseSchema.parse(response);
 
             if (parsed.data.accessToken) {
-                const { accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn } = parsed.data
-                const json_str = JSON.stringify({accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn})
+                const { accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn, user } = parsed.data
+                const json_str = JSON.stringify({ accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn })
 
                 const token = cipherEncrypt(json_str)
-                
+                const encryptedUser = cipherEncrypt(JSON.stringify(user));
+
                 localStorage.setItem("token", token);
+                localStorage.setItem("user", encryptedUser);
+                setUser(user);
                 navigate('/');
             } else {
                 setError("Invalid username or password");

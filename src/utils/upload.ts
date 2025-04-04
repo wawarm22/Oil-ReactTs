@@ -70,10 +70,9 @@ export const uploadFile = async (
             await apiDeleteBlob(prefixToDelete);
         } catch (deleteError: any) {
             const message = deleteError?.response?.data?.error || deleteError.message;
-            console.log(message);
 
             if (message && message.includes("No blobs found to delete")) {
-                console.warn("ไม่มี blob เดิมให้ลบ ถือว่าไม่เป็นปัญหา");
+                console.warn("ไม่มี blob เดิมให้ลบ");
             } else {
                 console.error("เกิดข้อผิดพลาดระหว่างลบ blob:", message);
                 throw new Error("การลบ blob เก่าไม่สำเร็จ");

@@ -4,11 +4,21 @@ import logo from "../../assets/img/logo-header.png";
 import borderMenu from "../../assets/img/border-menu.png"
 import PopoverMenu from "../reusable/PopoverMenu";
 import { Link } from "react-router-dom";
+import { useUser } from "../../hook/useUser";
+import { useCompanyStore } from "../../store/companyStore";
 
 const Header: React.FC = () => {
+    const { user } = useUser();
     const [isPopoverOpen, setPopoverOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const iconRef = useRef<HTMLDivElement>(null);
+    const { selectedCompany, fetchCompanyById } = useCompanyStore();
+
+    useEffect(() => {
+        if (user?.company_id) {
+            fetchCompanyById(user.company_id);
+        }
+    }, [user?.company_id]);    
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -16,7 +26,7 @@ const Header: React.FC = () => {
                 menuRef.current && !menuRef.current.contains(event.target as Node) &&
                 iconRef.current && !iconRef.current.contains(event.target as Node)
             ) {
-                setPopoverOpen(false); 
+                setPopoverOpen(false);
             }
         };
 
@@ -33,7 +43,6 @@ const Header: React.FC = () => {
 
     return (
         <header className="d-flex justify-content-between align-items-center bg-white shadow-sm">
-            {/* โลโก้ด้านซ้าย */}
             <div className="d-flex align-items-center p-3" style={{ fontFamily: 'IBM Plex Sans Thai' }}>
                 <Link
                     to="/"
@@ -53,9 +62,7 @@ const Header: React.FC = () => {
                 </Link>
             </div>
 
-            {/* เมนูและข้อมูลสาขา */}
             <div className="d-flex align-items-stretch" style={{ minWidth: "330px", height: "98px" }}>
-                {/* ส่วนที่ 1: ไอคอนเมนู */}
                 <div
                     ref={iconRef}
                     className="px-3 py-2 d-flex align-items-center position-relative"
@@ -72,10 +79,9 @@ const Header: React.FC = () => {
                     <PopoverMenu isOpen={isPopoverOpen} onClose={() => setPopoverOpen(false)} menuRef={menuRef} />
                 </div>
 
-                {/* ส่วนที่ 2: ข้อมูลสาขา (เต็มพื้นที่) */}
                 <div className="flex-grow-1 bg-dark text-end text-white d-flex align-items-center justify-content-center position-relative">
                     <div>
-                        <span className="d-block fw-bold">สาขา : ถนนพระราม 3</span>
+                        บริษัท: {selectedCompany?.name}
                         <span className="d-block fw-bold">วันที่ 10/01/2025</span>
                     </div>
                     <img
@@ -86,7 +92,6 @@ const Header: React.FC = () => {
                     />
                 </div>
 
-                {/* ส่วนที่ 3: กรอบเส้นขอบขวา (แดง-เหลือง) */}
                 <div className="d-flex flex-column align-self-stretch" style={{ width: "15%" }}>
                     <div className="bg-danger flex-grow-1"></div>
                     <div className="bg-warning flex-grow-1"></div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../reusable/Button";
 import { CSSTransition } from "react-transition-group";
 import "../../assets/css/dropdown-icon.css";
@@ -14,19 +14,24 @@ import UploadFilterPanel from "../reusable/UploadFilterPanel";
 import oilFactories from "../../assets/json/oil-factory.json";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-import { apiPreviewPdf, comfirmUpload } from "../../utils/api/uploadApi";
+import { apiDeleteBlob, apiPreviewPdf, comfirmUpload } from "../../utils/api/uploadApi";
+import { useUser } from "../../hook/useUser";
+import { useCompanyStore } from "../../store/companyStore";
+import { GiCancel } from "react-icons/gi";
 dayjs.extend(buddhistEra);
 
 type UploadedFileMap = {
     [docId: number]: {
         [subtitleIndex: number]: {
-            name: string;
-            data: string;
-            blobPath: string;
-            previewUrls?: string[];
+            files: {
+                name: string;
+                data: string;
+                blobPath: string;
+            }[];
         };
     };
 };
+
 
 type FilterState = {
     warehouse: OptionType | null;
@@ -39,12 +44,20 @@ type FilterState = {
 
 const UploadPreparation: React.FC = () => {
     const navigate = useNavigate();
+    const { user } = useUser();
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFileMap>({});
     const [openDropdown, setOpenDropdown] = useState<{ [key: number]: boolean }>({});
     const [isAnimating, setIsAnimating] = useState<{ [key: number]: boolean }>({});
+    const { selectedCompany, fetchCompanyById } = useCompanyStore();
     const [filters, setFilters] = useState<FilterState>({
         warehouse: null, transport: null, periodType: null, dateStart: null, dateEnd: null, month: null,
     });
+
+    useEffect(() => {
+        if (user?.company_id) {
+            fetchCompanyById(user.company_id);
+        }
+    }, [user?.company_id, fetchCompanyById]);
 
     const getFormattedPeriodDateStr = () => {
         if (!filters.periodType) return "";
@@ -66,7 +79,7 @@ const UploadPreparation: React.FC = () => {
         return "";
     };
 
-    const currentCompany = "OR";
+    const currentCompany = selectedCompany?.name;
     const warehouseOptions: OptionType[] = oilFactories
         .filter(fac => fac.company_name === currentCompany)
         .map(fac => ({
@@ -105,6 +118,8 @@ const UploadPreparation: React.FC = () => {
     };
 
     const openBlobSecurely = async (blobPath: string) => {
+        console.log(blobPath);
+
         try {
             const previewUrl = await apiPreviewPdf(blobPath);
             const response = await fetch(previewUrl);
@@ -134,56 +149,87 @@ const UploadPreparation: React.FC = () => {
             return;
         }
 
-        const file = event.target.files[0];
+        const files = Array.from(event.target.files);
         const periodDateStr = getFormattedPeriodDateStr();
-        const targetPath = currentCompany
-        const result = await uploadFile(
-            file,
-            targetPath,
-            filters.warehouse.value,
-            filters.transport.value,
-            periodDateStr,
-            docId,
-            subtitleIndex
-        );
+        if (!selectedCompany?.name) {
+            alert("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
+            return;
+        }
+        const targetPath = selectedCompany.name;
+        const uploadedFileData: {
+            name: string;
+            data: string;
+            blobPath: string;
+        }[] = [];
 
-        if (!result) return;
-        const { url, blobPath } = result;
-        const newFile = { name: file.name, data: url, blobPath: blobPath };
-        setUploadedFiles(prevState => {
-            const existingDoc = prevState[docId] || {};
+        for (const file of files) {
+            const result = await uploadFile(
+                file,
+                targetPath,
+                filters.warehouse.value,
+                filters.transport.value,
+                periodDateStr,
+                docId,
+                subtitleIndex
+            );
 
-            if (subtitleIndex !== undefined) {
-                return {
-                    ...prevState,
-                    [docId]: {
-                        ...existingDoc,
-                        [subtitleIndex]: newFile,
-                    },
-                };
-            } else {
-                return {
-                    ...prevState,
-                    [docId]: {
-                        ...existingDoc,
-                        0: newFile,
-                    },
-                };
+            if (result) {
+                const { url, blobPath } = result;
+                uploadedFileData.push({
+                    name: file.name,
+                    data: url,
+                    blobPath: blobPath
+                });
             }
+        }
+        setUploadedFiles((prev) => {
+            const existingDoc = prev[docId] || {};
+            const existingFiles = existingDoc[subtitleIndex ?? 0]?.files || [];
+
+            return {
+                ...prev,
+                [docId]: {
+                    ...existingDoc,
+                    [subtitleIndex ?? 0]: {
+                        files: [...existingFiles, ...uploadedFileData],
+                    },
+                },
+            };
         });
     };
 
-    const handleMultiFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (!event.target.files) return;
+    const handleRemoveFile = async (
+        docId: number,
+        subtitleIndex: number = 0, 
+        fileIndex: number
+    ) => {
+        const fileToDelete = uploadedFiles[docId]?.[subtitleIndex]?.files?.[fileIndex];
+        if (!fileToDelete) return;
 
-        const fileArray = Array.from(event.target.files);
-        const filePreviews = fileArray.map(file => ({
-            name: file.name,
-            url: URL.createObjectURL(file)
-        }));
+        try {
+            await apiDeleteBlob(fileToDelete.blobPath);
+            console.log("ลบ blob สำเร็จ:");
+        } catch (err) {
+            console.error("ลบ blob ไม่สำเร็จ:", err);
+            alert("เกิดข้อผิดพลาดระหว่างลบไฟล์ออกจากระบบ");
+            return;
+        }
 
-        localStorage.setItem("uploadedMultiFiles", JSON.stringify(filePreviews));
-        navigate("/upload-multiple");
+        setUploadedFiles((prevState) => {
+            const files = prevState[docId]?.[subtitleIndex]?.files ?? [];
+            const updatedFiles = files.filter((_, idx) => idx !== fileIndex);
+
+            return {
+                ...prevState,
+                [docId]: {
+                    ...prevState[docId],
+                    [subtitleIndex]: {
+                        ...prevState[docId]?.[subtitleIndex],
+                        files: updatedFiles,
+                    },
+                },
+            };
+        });
     };
 
     const isUploadedComplete = (item: DocumentItem): boolean => {
@@ -191,9 +237,10 @@ const UploadPreparation: React.FC = () => {
         if (!uploaded) return false;
 
         if (item.subtitle?.length) {
-            return Object.values(uploaded).some(file => !!file);
+            return Object.values(uploaded).some(u => u.files.length > 0);
         }
-        return !!uploaded[0];
+
+        return uploaded[0]?.files.length > 0;
     };
 
     const currentDocuments = documentList.filter(
@@ -253,14 +300,6 @@ const UploadPreparation: React.FC = () => {
                             <th className="align-middle text-center" style={{ fontSize: '22px' }}>
                             </th>
                             <th className="text-end">
-                                <input
-                                    type="file"
-                                    accept="application/pdf"
-                                    multiple
-                                    style={{ display: "none" }}
-                                    id="file-upload-multi"
-                                    onChange={handleMultiFileUpload}
-                                />
                             </th>
                         </tr>
                     </thead>
@@ -283,19 +322,41 @@ const UploadPreparation: React.FC = () => {
                                                     backgroundColor: "#9D9D9D",
                                                     borderRadius: "2px",
                                                     verticalAlign: "middle"
-                                                }}></span>
+                                                }}
+                                            ></span>
 
                                             {item.title}
 
-                                            {!item.subtitle && uploadedFiles[item.id]?.[0]?.name && (
-                                                <span
-                                                    className="text-primary ms-2 fw-bold"
-                                                    onClick={() => openBlobSecurely(uploadedFiles[item.id]?.[0]?.blobPath ?? '')}
-                                                >
-                                                    {uploadedFiles[item.id][0].name}
+                                            {!item.subtitle && uploadedFiles[item.id]?.[0]?.files?.length > 0 && (
+                                                <span className="ms-2">
+                                                    {uploadedFiles[item.id][0].files.map((file, idx) => (
+                                                        <span
+                                                            key={idx}
+                                                            className="text-primary fw-bold ms-2 me-2 d-inline-flex align-items-center"
+                                                            style={{ cursor: "pointer" }}
+                                                        >
+                                                            <span onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                openBlobSecurely(file.blobPath);
+                                                            }}>
+                                                                {file.name}
+                                                            </span>
+                                                            <GiCancel
+                                                                size={16}
+                                                                className="ms-1 text-danger"
+                                                                style={{ cursor: "pointer" }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleRemoveFile(item.id, 0, idx);
+                                                                }}
+                                                                title="ลบไฟล์"
+                                                            />
+                                                        </span>
+                                                    ))}
                                                 </span>
                                             )}
                                         </span>
+
 
                                         {item.subtitle && (
                                             <CSSTransition
@@ -323,9 +384,13 @@ const UploadPreparation: React.FC = () => {
                                             color="#FFFFFF"
                                             maxWidth="150px"
                                             variant="bg-hide"
-                                            onClick={() => openBlobSecurely(uploadedFiles[item.id]?.[0]?.blobPath ?? [])}
-                                            disabled={openDropdown[item.id] || !uploadedFiles[item.id]}
-                                        // onClick={() => mergeAndOpenPdf(item.id)}
+                                            onClick={() => {
+                                                const files = uploadedFiles[item.id]?.[0]?.files ?? [];
+                                                files.forEach((file) => {
+                                                    openBlobSecurely(file.blobPath);
+                                                });
+                                            }}
+                                            disabled={openDropdown[item.id] || !uploadedFiles[item.id]?.[0]?.files?.length}
                                         />
                                         <input
                                             type="file"
@@ -371,12 +436,30 @@ const UploadPreparation: React.FC = () => {
                                                         <span className="fw-bold" style={{ marginLeft: "55px" }}>
                                                             {subtitleText}
                                                         </span>
-                                                        {uploaded && (
-                                                            <span className="text-primary ms-3" style={{ cursor: "pointer" }} onClick={() => openBlobSecurely(uploaded.blobPath)}>
-                                                                {uploaded.name}
-                                                            </span>
-                                                        )}
+                                                        {uploaded?.files?.map((file, idx) => (
+                                                            <>
+                                                                <span
+                                                                    key={idx}
+                                                                    className="text-primary ms-3"
+                                                                    style={{ cursor: "pointer", display: "inline-block" }}
+                                                                    onClick={() => openBlobSecurely(file.blobPath)}
+                                                                >
+                                                                    {file.name}
+                                                                </span>
+                                                                <GiCancel
+                                                                    size={16}
+                                                                    className="ms-1 text-danger"
+                                                                    style={{ cursor: "pointer" }}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleRemoveFile(item.id, index, idx);
+                                                                    }}
+                                                                    title="ลบไฟล์"
+                                                                />
+                                                            </>
+                                                        ))}
                                                     </td>
+
                                                     <td className="text-end td-border-r">
                                                         <Button
                                                             className="w-100 me-2"
@@ -386,12 +469,15 @@ const UploadPreparation: React.FC = () => {
                                                             color="#FFFFFF"
                                                             maxWidth="150px"
                                                             variant="bg-hide"
-                                                            onClick={() => openBlobSecurely(uploaded.blobPath)}
-                                                            disabled={!uploaded}
+                                                            onClick={() => {
+                                                                uploaded?.files?.forEach(file => openBlobSecurely(file.blobPath));
+                                                            }}
+                                                            disabled={!uploaded?.files?.length}
                                                         />
                                                         <input
                                                             type="file"
                                                             accept="application/pdf"
+                                                            multiple
                                                             style={{ display: "none" }}
                                                             id={`file-upload-${item.id}-${index}`}
                                                             onChange={(e) => handleDocumentFileUpload(e, item.id, index)}
