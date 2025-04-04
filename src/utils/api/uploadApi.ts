@@ -7,16 +7,19 @@ export const generateUploadUrl = async (
 ): Promise<GenerateUploadUrlResponse> => {
     try {
         const response = await axios.post<GenerateUploadUrlResponse>(
-            `${BASE_URL}/generate-upload-url`, payload, {
+            `${BASE_URL}/generate-upload-url`,
+            payload, {
             headers: {
                 "Content-Type": "application/json",
             },
         });
-        console.log("response", response);
 
         return response.data;
     } catch (error) {
-        console.error("Error generating upload URL:", error instanceof Error ? error.message : error);
+        console.error(
+            "Error generating upload URL:",
+            error instanceof Error ? error.message : error
+        );
         throw error;
     }
 };

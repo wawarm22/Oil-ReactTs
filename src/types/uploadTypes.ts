@@ -1,12 +1,18 @@
 export type GenerateUploadUrlPayload = {
-    fileName: string;
+    fileNames: string[];
     targetPath: string;
-}
+};
 
-export type GenerateUploadUrlResponse = {
+export type SingleUploadMeta = {
+    fileName: string;
     uploadUrl: string;
     blobPath: string;
-}
+};
+
+export type GenerateUploadUrlResponse = {
+    count: number;
+    uploads: SingleUploadMeta[];
+};
 
 export type DeleteUploadResponse = {
     success: boolean;
@@ -14,7 +20,7 @@ export type DeleteUploadResponse = {
     deleted: string[];
 }
 
-export type PdfFileItem ={
+export type PdfFileItem = {
     fileName: string;
     previewUrl: string;
 }

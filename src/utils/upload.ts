@@ -1,5 +1,4 @@
 import { documentList } from "../types/docList";
-import { GenerateUploadUrlResponse } from "../types/uploadTypes";
 import { apiUpload, generateUploadUrl } from "./api/uploadApi";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
@@ -36,17 +35,17 @@ const getDocSequenceNumber = (docId: number, subtitleIndex?: number): string => 
 };
 
 export const uploadFile = async (
-    file: File,
+    files: File[],
     targetPath: string,
     warehouseCode: string,
     transportCode: string,
     periodDateStr: string,
     docId: number,
     subtitleIndex?: number
-): Promise<{ url: string; blobPath: string } | null> => {
-    if (!file) {
+): Promise<{ name: string; data: string; blobPath: string }[]> => {
+    if (!files.length) {
         alert("กรุณาเลือกไฟล์ก่อน!");
-        return null;
+        return [];
     }
 
     try {
@@ -61,42 +60,43 @@ export const uploadFile = async (
 
         const runningStr = pad(currentRunning - 1, 12);
         const docSequence = getDocSequenceNumber(docId, subtitleIndex);
-        const fileNameWithoutExt = `${uploadDateStr}-${runningStr}-${warehouseCode}-${transportCode}-${periodDateStr}-${docSequence}`;
-        const finalFileName = `${fileNameWithoutExt}.pdf`;
+        const baseName = `${uploadDateStr}-${runningStr}-${warehouseCode}-${transportCode}-${periodDateStr}-${docSequence}`;
 
-        // const prefixToDelete = `${targetPath}/${fileNameWithoutExt}/`;
+        const fileNames = files.map((_, i) => {
+            const suffix = files.length > 1 ? `-${i + 1}` : "";
+            return `${baseName}${suffix}.pdf`;
+        });        
 
-        // try {
-        //     await apiDeleteBlob(prefixToDelete);
-        // } catch (deleteError: any) {
-        //     const message = deleteError?.response?.data?.error || deleteError.message;
+        const uploadMeta = await generateUploadUrl({ fileNames, targetPath });
 
-        //     if (message && message.includes("No blobs found to delete")) {
-        //         console.warn("ไม่มี blob เดิมให้ลบ");
-        //     } else {
-        //         console.error("เกิดข้อผิดพลาดระหว่างลบ blob:", message);
-        //         throw new Error("การลบ blob เก่าไม่สำเร็จ");
-        //     }
-        // }
-
-        const uploadMeta: GenerateUploadUrlResponse | undefined = await generateUploadUrl({
-            fileName: finalFileName,
-            targetPath,
-        });
-
-        if (!uploadMeta?.uploadUrl) {
-            throw new Error("ไม่สามารถสร้าง URL สำหรับอัปโหลดได้");
+        if (!uploadMeta?.uploads?.length || uploadMeta.uploads.length !== files.length) {
+            throw new Error("จำนวน URL ที่ได้ไม่ตรงกับไฟล์ที่เลือก");
         }
 
-        const success = await apiUpload(file, uploadMeta.uploadUrl, targetPath);
-        if (!success) {
-            throw new Error("อัปโหลดไฟล์ล้มเหลว");
+        const uploadedResults: { name: string; data: string; blobPath: string }[] = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const uploadInfo = uploadMeta.uploads[i];
+            const file = files[i];
+
+            const success = await apiUpload(file, uploadInfo.uploadUrl, targetPath);
+            if (!success) {
+                console.warn(`อัปโหลดไฟล์ล้มเหลว: ${file.name}`);
+                continue;
+            }
+
+            uploadedResults.push({
+                name: file.name,
+                data: uploadInfo.uploadUrl,
+                blobPath: uploadInfo.blobPath,
+            });
         }
 
-        return { url: uploadMeta.uploadUrl, blobPath: uploadMeta.blobPath };
+        return uploadedResults;
     } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการอัปโหลดไฟล์", error);
+        console.error("เกิดข้อผิดพลาดในการอัปโหลดหลายไฟล์", error);
         alert("อัปโหลดไฟล์ล้มเหลว");
-        return null;
+        return [];
     }
 };
+

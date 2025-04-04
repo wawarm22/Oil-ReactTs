@@ -32,7 +32,6 @@ type UploadedFileMap = {
     };
 };
 
-
 type FilterState = {
     warehouse: OptionType | null;
     transport: OptionType | null;
@@ -118,8 +117,6 @@ const UploadPreparation: React.FC = () => {
     };
 
     const openBlobSecurely = async (blobPath: string) => {
-        console.log(blobPath);
-
         try {
             const previewUrl = await apiPreviewPdf(blobPath);
             const response = await fetch(previewUrl);
@@ -130,7 +127,7 @@ const UploadPreparation: React.FC = () => {
             alert("ไม่สามารถเปิดเอกสารได้");
             console.error(err);
         }
-    };
+    };    
 
     const handleDocumentFileUpload = async (
         event: React.ChangeEvent<HTMLInputElement>,
@@ -155,34 +152,21 @@ const UploadPreparation: React.FC = () => {
             alert("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
             return;
         }
+
         const targetPath = selectedCompany.name;
-        const uploadedFileData: {
-            name: string;
-            data: string;
-            blobPath: string;
-        }[] = [];
 
-        for (const file of files) {
-            console.log('file', file);            
-            const result = await uploadFile(
-                file,
-                targetPath,
-                filters.warehouse.value,
-                filters.transport.value,
-                periodDateStr,
-                docId,
-                subtitleIndex
-            );
+        const uploadedResults = await uploadFile(
+            files,
+            targetPath,
+            filters.warehouse.value,
+            filters.transport.value,
+            periodDateStr,
+            docId,
+            subtitleIndex
+        );
 
-            if (result) {
-                const { url, blobPath } = result;
-                uploadedFileData.push({
-                    name: file.name,
-                    data: url,
-                    blobPath: blobPath
-                });
-            }
-        }
+        if (!uploadedResults.length) return;
+
         setUploadedFiles((prev) => {
             const existingDoc = prev[docId] || {};
             const existingFiles = existingDoc[subtitleIndex ?? 0]?.files || [];
@@ -192,7 +176,7 @@ const UploadPreparation: React.FC = () => {
                 [docId]: {
                     ...existingDoc,
                     [subtitleIndex ?? 0]: {
-                        files: [...existingFiles, ...uploadedFileData],
+                        files: [...existingFiles, ...uploadedResults],
                     },
                 },
             };
@@ -201,7 +185,7 @@ const UploadPreparation: React.FC = () => {
 
     const handleRemoveFile = async (
         docId: number,
-        subtitleIndex: number = 0, 
+        subtitleIndex: number = 0,
         fileIndex: number
     ) => {
         const fileToDelete = uploadedFiles[docId]?.[subtitleIndex]?.files?.[fileIndex];
@@ -251,9 +235,6 @@ const UploadPreparation: React.FC = () => {
     );
 
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
-
-    const incompleteDocs = currentDocuments.filter(item => !isUploadedComplete(item));
-    console.log("ยังไม่อัปโหลด:", incompleteDocs.map(doc => doc.title));
 
     const handleConfirm = async () => {
         try {
@@ -376,43 +357,47 @@ const UploadPreparation: React.FC = () => {
                                     <td className="text-center align-middle">
                                     </td>
                                     <td className="text-end">
-                                        <Button
-                                            className="w-100"
-                                            type="button"
-                                            label="ดูเอกสาร"
-                                            bgColor="#3D4957"
-                                            color="#FFFFFF"
-                                            maxWidth="150px"
-                                            variant="bg-hide"
-                                            onClick={() => {
-                                                const files = uploadedFiles[item.id]?.[0]?.files ?? [];
-                                                files.forEach((file) => {
-                                                    openBlobSecurely(file.blobPath);
-                                                });
-                                            }}
-                                            disabled={openDropdown[item.id] || !uploadedFiles[item.id]?.[0]?.files?.length}
-                                        />
-                                        <input
-                                            type="file"
-                                            accept="application/pdf"
-                                            multiple
-                                            style={{ display: "none" }}
-                                            id={`file-upload-${item.id}`}
-                                            onChange={(e) => handleDocumentFileUpload(e, item.id)}
-                                        />
-                                        <Button
-                                            className="ms-3 w-100"
-                                            type="button"
-                                            label="อัปโหลดเอกสาร"
-                                            bgColor="#3D4957"
-                                            color="#FFFFFF"
-                                            maxWidth="260px"
-                                            variant="bg-hide"
-                                            onClick={() => document.getElementById(`file-upload-${item.id}`)?.click()}
-                                            disabled={!!item.subtitle}
-                                        >
-                                            <RiFileDownloadLine className="me-1" size={25} />
-                                        </Button>
+                                        {!item.subtitle && (
+                                            <>
+                                                <Button
+                                                    className="w-100"
+                                                    type="button"
+                                                    label="ดูเอกสาร"
+                                                    bgColor="#3D4957"
+                                                    color="#FFFFFF"
+                                                    maxWidth="150px"
+                                                    variant="bg-hide"
+                                                    onClick={() => {
+                                                        const files = uploadedFiles[item.id]?.[0]?.files ?? [];
+                                                        files.forEach((file) => {
+                                                            openBlobSecurely(file.blobPath);
+                                                        });
+                                                    }}
+                                                    disabled={openDropdown[item.id] || !uploadedFiles[item.id]?.[0]?.files?.length}
+                                                />
+                                                <input
+                                                    type="file"
+                                                    accept="application/pdf"
+                                                    multiple
+                                                    style={{ display: "none" }}
+                                                    id={`file-upload-${item.id}`}
+                                                    onChange={(e) => handleDocumentFileUpload(e, item.id)}
+                                                />
+                                                <Button
+                                                    className="ms-3 w-100"
+                                                    type="button"
+                                                    label="อัปโหลดเอกสาร"
+                                                    bgColor="#3D4957"
+                                                    color="#FFFFFF"
+                                                    maxWidth="260px"
+                                                    variant="bg-hide"
+                                                    onClick={() => document.getElementById(`file-upload-${item.id}`)?.click()}
+                                                    disabled={!!item.subtitle}
+                                                >
+                                                    <RiFileDownloadLine className="me-1" size={25} />
+                                                </Button>
+                                            </>
+                                        )}
                                     </td>
                                 </tr>
 
