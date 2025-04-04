@@ -15,14 +15,11 @@ import { useNavigate } from "react-router-dom";
 import LoadingPage from "../component/LoadingPage";
 import { apiLogin } from "../../utils/api/authenApi";
 import { ApiLoginResponseSchema } from "../../types/schema/api";
-// import { cipherEncrypt } from "../../utils/encoding/cipher";
-// import { useUser } from "../../hook/useUser";
 
 const Login: React.FC = () => {
     const signIn = useSignIn();
     const navigate = useNavigate();
     const isAuthenticated = useIsAuthenticated();
-    // const { setUser } = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -33,7 +30,7 @@ const Login: React.FC = () => {
     }
 
     useEffect(() => {
-        if (isAuthenticated) navigate('/test');
+        if (isAuthenticated) navigate('/');
     }, [isAuthenticated])
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -43,7 +40,6 @@ const Login: React.FC = () => {
 
         try {
             const response = await apiLogin(email, password);
-            // console.log("Login Success:", response);
 
             const parsed = ApiLoginResponseSchema.parse(response);
 
@@ -53,25 +49,14 @@ const Login: React.FC = () => {
                         token: parsed.data.accessToken,
                         type: "Bearer",
                     },
-                    userState: parsed,
+                    userState: parsed.data,
                     refresh: parsed.data.refreshToken
                 })
                 if (!isSignedIn) {
                     throw new Error("Failed to sign in");
                 }
 
-                navigate('/test');
-
-                // const { accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn, user } = parsed.data
-                // const json_str = JSON.stringify({ accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn })
-
-                // const token = cipherEncrypt(json_str)
-                // const encryptedUser = cipherEncrypt(JSON.stringify(user));
-
-                // localStorage.setItem("token", token);
-                // localStorage.setItem("user", encryptedUser);
-                // setUser(user);
-                // navigate('/');
+                navigate('/', { replace: true });
             } else {
 
                 setError("Invalid username or password");

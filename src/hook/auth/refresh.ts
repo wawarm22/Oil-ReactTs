@@ -3,7 +3,7 @@ import { apiRefreshToken } from "../../utils/api/authenApi";
 import { AuthSchema } from "../../types/schema/auth";
 
 export const refresh = createRefresh<AuthSchema>({
-  interval: 1,
+  interval: 2.5,
   refreshApiCallback: async (params) => {
     const refreshToken = params.refreshToken;
     if (!refreshToken) {
