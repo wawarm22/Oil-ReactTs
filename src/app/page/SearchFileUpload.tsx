@@ -8,14 +8,13 @@ import { useNavigate } from "react-router-dom";
 import { DocumentItem, documentList } from "../../types/docList";
 import { RiArrowDropDownLine, RiFileDownloadLine } from "react-icons/ri";
 import { AnimatePresence, motion } from "framer-motion";
-import { uploadFile } from "../../utils/upload";
+import { getDocSequenceNumber, uploadFile } from "../../utils/upload";
 import { OptionType } from "../../types/selectTypes";
 import UploadFilterPanel from "../reusable/UploadFilterPanel";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser"
-// import oilFactories from "../../assets/json/oil-factory.json";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-import { apiDeleteBlob, apiPreviewPdf, comfirmUpload } from "../../utils/api/uploadApi";
+import { apiDeleteBlob, apiPreviewPdf, apiSearchFiles, comfirmUpload } from "../../utils/api/uploadApi";
 import { useUser } from "../../hook/useUser";
 import { useCompanyStore } from "../../store/companyStore";
 import { MdCancel } from "react-icons/md";
@@ -47,7 +46,17 @@ type FilterState = {
     month: Date | null;
 };
 
-const UploadPreparation: React.FC = () => {
+type ParsedFileInfo = {
+    mainCode: string;
+    docCode: string;
+    fullFileName: string;
+    docId: number;
+    subtitleIndex: number;
+    previewUrl: string;
+    blobPath: string;
+};
+
+const SearchFileUpload: React.FC = () => {
     const navigate = useNavigate();
     const auth = useAuthUser<AuthSchema>();
     const { user } = useUser();
@@ -56,6 +65,8 @@ const UploadPreparation: React.FC = () => {
     const [isAnimating, setIsAnimating] = useState<{ [key: number]: boolean }>({});
     const { selectedCompany, fetchCompanyById } = useCompanyStore();
     const [warehouseOptions, setWarehouseOptions] = useState<OptionType[]>([]);
+    const [parsedFiles, setParsedFiles] = useState<ParsedFileInfo[]>([]);
+    const [mainCode, setMainCode] = useState<string | null>(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isConfirming, setIsConfirming] = useState(false);
     const [filters, setFilters] = useState<FilterState>({
@@ -102,12 +113,6 @@ const UploadPreparation: React.FC = () => {
     };
 
     const currentCompany = selectedCompany?.name;
-    // const warehouseOptions: OptionType[] = oilFactories
-    //     .filter(fac => fac.company_name === currentCompany)
-    //     .map(fac => ({
-    //         value: fac.factories_id,
-    //         label: fac.factories_name
-    //     }));
 
     const transportOptions: OptionType[] = [
         { value: "00", label: "ทางเรือ" },
@@ -140,8 +145,8 @@ const UploadPreparation: React.FC = () => {
     };
 
     const mergeAndOpenPdf = async (docId: number, subtitleIndex: number = 0) => {
-        const storedFiles = uploadedFiles[docId]?.[subtitleIndex]?.files;
-        if (!storedFiles || storedFiles.length === 0) {
+        const storedFiles = parsedFiles.filter(f => f.docId === docId && f.subtitleIndex === subtitleIndex);
+        if (!storedFiles.length) {
             alert("ไม่มีไฟล์ที่อัปโหลด");
             return;
         }
@@ -174,6 +179,96 @@ const UploadPreparation: React.FC = () => {
         } catch (err) {
             alert("ไม่สามารถเปิดเอกสารได้");
             console.error(err);
+        }
+    };
+
+    const buildBaseName = (
+        warehouseCode: string,
+        transportCode: string,
+        periodDateStr: string
+    ): string => {
+        return `${warehouseCode}-${transportCode}-${periodDateStr}`;
+    };
+
+    const handleSearchClick = async () => {
+        if (!filters.warehouse || !filters.transport || !filters.periodType) {
+            alert("กรุณาเลือกคลัง, ทาง, และช่วงยื่นก่อนค้นหา");
+            return;
+        }
+
+        const periodDateStr = getFormattedPeriodDateStr();
+        const baseName = buildBaseName(
+            filters.warehouse.value,
+            filters.transport.value,
+            periodDateStr
+        );
+
+        const startsWith = selectedCompany?.name ?? "";
+
+        try {
+            const result = await apiSearchFiles(startsWith, baseName);
+            const parsed: ParsedFileInfo[] = [];
+            let mainCode: string | null = null;
+
+            result.files.forEach((file) => {
+                const parts = file.fileName.split("/");
+                if (parts.length < 4) return;
+
+                const fileNameOnly = parts[parts.length - 1];
+
+                const mainCodeMatch = fileNameOnly.match(/^(\d{6}-\d{12})/);
+                if (!mainCodeMatch) return;
+
+                if (!mainCode) {
+                    mainCode = mainCodeMatch[1];
+                    setMainCode(mainCode);
+                }
+
+                const docCodeMatch = parts[1].match(/DOC\d{4}/);
+                if (!docCodeMatch) return;
+                const docCode = docCodeMatch[0];
+
+                const fullFileName = fileNameOnly;
+
+                const docIdStr = parts[2];
+                const docId = parseInt(docIdStr);
+                if (isNaN(docId)) return;
+
+                let subtitleIndex = 0;
+                if (parts.length === 5) {
+                    subtitleIndex = parseInt(parts[3]) - 1;
+                }
+
+                parsed.push({
+                    mainCode,
+                    docCode,
+                    fullFileName,
+                    docId,
+                    subtitleIndex,
+                    previewUrl: file.previewUrl,
+                    blobPath: file.fileName,
+                });
+            });
+
+            setParsedFiles(parsed);
+
+            const tempUploaded: UploadedFileMap = {};
+            parsed.forEach((file) => {
+                const { docId, subtitleIndex, fullFileName, previewUrl, blobPath } = file;
+                if (!tempUploaded[docId]) tempUploaded[docId] = {};
+                if (!tempUploaded[docId][subtitleIndex]) tempUploaded[docId][subtitleIndex] = { files: [] };
+
+                tempUploaded[docId][subtitleIndex].files.push({
+                    name: fullFileName,
+                    data: previewUrl,
+                    blobPath,
+                });
+            });
+            setUploadedFiles(tempUploaded);
+
+        } catch (err) {
+            console.error("ค้นหาไฟล์ไม่สำเร็จ:", err);
+            alert("ค้นหาไม่สำเร็จ");
         }
     };
 
@@ -210,11 +305,13 @@ const UploadPreparation: React.FC = () => {
             filters.transport.value,
             periodDateStr,
             docId,
-            subtitleIndex
+            subtitleIndex,
+            mainCode || undefined
         );
 
         if (!uploadedResults.length) return;
 
+        // ✅ 1. เพิ่มลงใน uploadedFiles (ไฟล์ใช้จริง)
         setUploadedFiles((prev) => {
             const existingDoc = prev[docId] || {};
             const existingFiles = existingDoc[subtitleIndex ?? 0]?.files || [];
@@ -229,6 +326,21 @@ const UploadPreparation: React.FC = () => {
                 },
             };
         });
+
+        const newParsed = uploadedResults.map((file, _i) => {
+            const docCode = getDocSequenceNumber(docId, subtitleIndex);
+            return {
+                mainCode: mainCode || "",
+                docCode,
+                fullFileName: file.name,
+                docId,
+                subtitleIndex: subtitleIndex ?? 0,
+                previewUrl: file.data,
+                blobPath: file.blobPath,
+            };
+        });
+
+        setParsedFiles(prev => [...prev, ...newParsed]);
     };
 
     const handleRemoveFile = async (
@@ -236,12 +348,14 @@ const UploadPreparation: React.FC = () => {
         subtitleIndex: number = 0,
         fileIndex: number
     ) => {
-        const fileToDelete = uploadedFiles[docId]?.[subtitleIndex]?.files?.[fileIndex];
+        const fileToDelete = uploadedFiles[docId]?.[subtitleIndex]?.files?.[fileIndex]
+            ?? parsedFiles.filter(f => f.docId === docId && f.subtitleIndex === subtitleIndex)[fileIndex];
+
         if (!fileToDelete) return;
 
         try {
             await apiDeleteBlob(fileToDelete.blobPath);
-            console.log("ลบ blob สำเร็จ:");
+            console.log("ลบ blob สำเร็จ:", fileToDelete.blobPath);
         } catch (err) {
             console.error("ลบ blob ไม่สำเร็จ:", err);
             alert("เกิดข้อผิดพลาดระหว่างลบไฟล์ออกจากระบบ");
@@ -263,6 +377,18 @@ const UploadPreparation: React.FC = () => {
                 },
             };
         });
+
+        setParsedFiles((prev) =>
+            prev.filter((_, idx, arr) =>
+                !(arr[idx].docId === docId && arr[idx].subtitleIndex === subtitleIndex &&
+                    arr.filter(f => f.docId === docId && f.subtitleIndex === subtitleIndex).indexOf(arr[idx]) === fileIndex)
+            )
+        );
+    };
+
+
+    const hasParsedFiles = (docId: number, subtitleIndex: number = 0): boolean => {
+        return parsedFiles.some(f => f.docId === docId && f.subtitleIndex === subtitleIndex);
     };
 
     const isUploadedComplete = (item: DocumentItem): boolean => {
@@ -270,10 +396,10 @@ const UploadPreparation: React.FC = () => {
         if (!uploaded) return false;
 
         if (item.subtitle?.length) {
-            return Object.values(uploaded).some(u => u.files.length > 0);
+            return item.subtitle.some((_, idx) => uploaded[idx]?.files?.length > 0);
         }
 
-        return uploaded[0]?.files.length > 0;
+        return uploaded[0]?.files?.length > 0;
     };
 
     const currentDocuments = documentList.filter(
@@ -304,6 +430,19 @@ const UploadPreparation: React.FC = () => {
         }
     };
 
+    const getFilesWithDisplayName = (docId: number, subtitleIndex: number = 0): { displayName: string, file: ParsedFileInfo }[] => {
+        const group = parsedFiles.filter(f => f.docId === docId && f.subtitleIndex === subtitleIndex);
+        return group.map((file, idx) => {
+            const baseName = subtitleIndex === 0
+                ? documentList.find(d => d.id === docId)?.title ?? "ชื่อเอกสาร"
+                : documentList.find(d => d.id === docId)?.subtitle?.[subtitleIndex] ?? "หัวข้อย่อย";
+            return {
+                displayName: `${baseName}-${idx + 1}`,
+                file
+            };
+        });
+    };
+
     const filteredDocuments = documentList.filter(
         (item) => !filters.transport || item.transport === filters.transport.value
     );
@@ -316,7 +455,7 @@ const UploadPreparation: React.FC = () => {
                 onConfirm={handleConfirmUpload}
                 isLoading={isConfirming}
             />
-            
+
             <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px", }}>
                 อัปโหลดเอกสาร
             </p>
@@ -329,6 +468,16 @@ const UploadPreparation: React.FC = () => {
                         transport: transportOptions,
                         period: periodOptions,
                     }}
+                />
+                <Button
+                    className="w-100"
+                    type="button"
+                    label="ค้นหา"
+                    bgColor="#3D4957"
+                    color="#FFFFFF"
+                    maxWidth="150px"
+                    variant="bg-hide"
+                    onClick={handleSearchClick}
                 />
             </div>
             <div className="table-responsive bg-white p-4 rounded shadow-sm rounded-3" style={{ fontSize: '16spx' }}>
@@ -347,70 +496,74 @@ const UploadPreparation: React.FC = () => {
                             <React.Fragment key={item.id}>
                                 <tr style={{ borderBottom: openDropdown[item.id] || isAnimating[item.id] ? "none" : "2px solid #0000004B" }}>
                                     <td className="align-middle" style={{ maxWidth: '600px' }}>
-                                        <span
-                                            className="fw-bold"
-                                            style={{ cursor: "pointer", verticalAlign: "middle" }}
-                                            onClick={() => item.subtitle && toggleDropdown(item.id)}
-                                        >
+                                        <div className="d-flex align-items-center">
                                             <span
-                                                className="me-2 m-0"
-                                                style={{
-                                                    display: "inline-block",
-                                                    width: "3px",
-                                                    height: "28px",
-                                                    backgroundColor: "#9D9D9D",
-                                                    borderRadius: "2px",
-                                                    verticalAlign: "middle"
-                                                }}
-                                            ></span>
-
-                                            {item.title}
-
-                                            {!item.subtitle && uploadedFiles[item.id]?.[0]?.files?.length > 0 && (
-                                                <span className="ms-2">
-                                                    {uploadedFiles[item.id][0].files.map((file, idx) => (
-                                                        <span
-                                                            key={idx}
-                                                            className="text-primary fw-bold ms-2 me-2 d-inline-flex align-items-center"
-                                                            style={{ cursor: "pointer" }}
-                                                        >
-                                                            <span onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                openBlobSecurely(file.blobPath);
-                                                            }}>
-                                                                {file.name}
-                                                            </span>
-                                                            <MdCancel
-                                                                size={16}
-                                                                className="ms-1 text-danger"
-                                                                style={{ cursor: "pointer" }}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleRemoveFile(item.id, 0, idx);
-                                                                }}
-                                                                title="ลบไฟล์"
-                                                            />
-                                                        </span>
-                                                    ))}
-                                                </span>
-                                            )}
-                                        </span>
-
-                                        {item.subtitle && (
-                                            <CSSTransition
-                                                in={openDropdown[item.id]}
-                                                timeout={300}
-                                                classNames="rotate-icon"
+                                                className="fw-bold"
+                                                style={{ cursor: "pointer", verticalAlign: "middle" }}
+                                                onClick={() => item.subtitle && toggleDropdown(item.id)}
                                             >
-                                                <RiArrowDropDownLine
-                                                    size={25}
-                                                    className={`dropdown-icon ${openDropdown[item.id] ? "rotated" : ""}`}
-                                                    style={{ cursor: "pointer" }}
-                                                    onClick={() => toggleDropdown(item.id)}
-                                                />
-                                            </CSSTransition>
+                                                <span
+                                                    className="me-2 m-0"
+                                                    style={{
+                                                        display: "inline-block",
+                                                        width: "3px",
+                                                        height: "28px",
+                                                        backgroundColor: "#9D9D9D",
+                                                        borderRadius: "2px",
+                                                        verticalAlign: "middle"
+                                                    }}
+                                                ></span>
+
+                                                {item.title}
+                                            </span>
+
+                                            {item.subtitle && (
+                                                <CSSTransition
+                                                    in={openDropdown[item.id]}
+                                                    timeout={300}
+                                                    classNames="rotate-icon"
+                                                >
+                                                    <RiArrowDropDownLine
+                                                        size={25}
+                                                        className={`dropdown-icon ${openDropdown[item.id] ? "rotated" : ""}`}
+                                                        style={{ cursor: "pointer" }}
+                                                        onClick={() => toggleDropdown(item.id)}
+                                                    />
+                                                </CSSTransition>
+                                            )}
+                                        </div>
+
+                                        {/* แสดงไฟล์ในบรรทัดใหม่ */}
+                                        {!item.subtitle && (
+                                            <div className="mt-2" style={{ marginLeft: '12px' }}>
+                                                {getFilesWithDisplayName(item.id, 0).map(({ displayName, file }, idx) => (
+                                                    <span
+                                                        key={idx}
+                                                        className="text-primary fw-bold d-inline-flex align-items-center me-3"
+                                                        style={{ cursor: "pointer" }}
+                                                    >
+                                                        <span onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            openBlobSecurely(file.blobPath);
+                                                        }}>
+                                                            {displayName}
+                                                        </span>
+                                                        <MdCancel
+                                                            size={16}
+                                                            className="ms-1 text-danger"
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleRemoveFile(item.id, 0, idx);
+                                                            }}
+                                                            title="ลบไฟล์"
+                                                        />
+                                                    </span>
+                                                ))}
+                                            </div>
                                         )}
                                     </td>
+
                                     <td className="text-center align-middle">
                                     </td>
                                     <td className="text-end">
@@ -425,7 +578,7 @@ const UploadPreparation: React.FC = () => {
                                                     maxWidth="150px"
                                                     variant="bg-hide"
                                                     onClick={() => mergeAndOpenPdf(item.id)}
-                                                    disabled={openDropdown[item.id] || !uploadedFiles[item.id]?.[0]?.files?.length}
+                                                    disabled={openDropdown[item.id] || !hasParsedFiles(item.id, 0)}
                                                 />
                                                 <input
                                                     type="file"
@@ -456,7 +609,6 @@ const UploadPreparation: React.FC = () => {
                                 <AnimatePresence>
                                     {openDropdown[item.id] && (
                                         item.subtitle?.map((subtitleText, index) => {
-                                            const uploaded = uploadedFiles[item.id]?.[index];
                                             return (
                                                 <motion.tr
                                                     key={`${item.id}-subtitle-${index}`}
@@ -470,31 +622,36 @@ const UploadPreparation: React.FC = () => {
                                                     }}
                                                 >
                                                     <td colSpan={2} className="align-middle td-border">
-                                                        <span className="fw-bold" style={{ marginLeft: "55px" }}>
+                                                        <div className="fw-bold" style={{ marginLeft: "55px" }}>
                                                             {subtitleText}
-                                                        </span>
-                                                        {uploaded?.files?.map((file, idx) => (
-                                                            <>
+                                                        </div>
+
+                                                        <div className="mt-2 ms-5">
+                                                            {getFilesWithDisplayName(item.id, index).map(({ displayName, file }, idx) => (
                                                                 <span
                                                                     key={idx}
-                                                                    className="text-primary fw-bold ms-3"
-                                                                    style={{ cursor: "pointer", display: "inline-block" }}
-                                                                    onClick={() => openBlobSecurely(file.blobPath)}
-                                                                >
-                                                                    {file.name}
-                                                                </span>
-                                                                <MdCancel
-                                                                    size={16}
-                                                                    className="ms-1 text-danger"
+                                                                    className="text-primary fw-bold d-inline-flex align-items-center mx-2"
                                                                     style={{ cursor: "pointer" }}
-                                                                    onClick={(e) => {
+                                                                >
+                                                                    <span onClick={(e) => {
                                                                         e.stopPropagation();
-                                                                        handleRemoveFile(item.id, index, idx);
-                                                                    }}
-                                                                    title="ลบไฟล์"
-                                                                />
-                                                            </>
-                                                        ))}
+                                                                        openBlobSecurely(file.blobPath);
+                                                                    }}>
+                                                                        {displayName}
+                                                                    </span>
+                                                                    <MdCancel
+                                                                        size={16}
+                                                                        className="ms-1 text-danger"
+                                                                        style={{ cursor: "pointer" }}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleRemoveFile(item.id, index, idx);
+                                                                        }}
+                                                                        title="ลบไฟล์"
+                                                                    />
+                                                                </span>
+                                                            ))}
+                                                        </div>
                                                     </td>
 
                                                     <td className="text-end td-border-r">
@@ -507,7 +664,7 @@ const UploadPreparation: React.FC = () => {
                                                             maxWidth="150px"
                                                             variant="bg-hide"
                                                             onClick={() => mergeAndOpenPdf(item.id, index)}
-                                                            disabled={!uploaded?.files?.length}
+                                                            disabled={!hasParsedFiles(item.id, index)}
                                                         />
                                                         <input
                                                             type="file"
@@ -560,4 +717,4 @@ const UploadPreparation: React.FC = () => {
     );
 };
 
-export default UploadPreparation;
+export default SearchFileUpload;

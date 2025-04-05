@@ -63,7 +63,7 @@ const Home: React.FC = () => {
                 ></div>
 
                 {/* ข้อความ & ปุ่ม */}
-                <div className="text-center text-white position-relative">
+                <div className="text-center text-white position-relative w-100">
                     <p className="fw-bold" style={{ fontSize: "40px", fontFamily: 'IBM Plex Sans Thai' }}>
                         ระบบขอลดหย่อนและการคืนภาษีน้ำมัน
                     </p>
@@ -91,6 +91,17 @@ const Home: React.FC = () => {
                         variant="bg-hide"
                         onClick={handleUploadForm}
                     />
+                    <Button
+                        className="w-100 ms-3"
+                        type="button"
+                        label="รายการอัปโหลดเอกสาร"
+                        bgColor="#1E2329"
+                        color="#FFFFFF"
+                        hoverBgColor="#FFFFFF"
+                        maxWidth="220px"
+                        variant="bg-hide"
+                        onClick={handleUploadForm}
+                    />
                 </div>
             </div>
 
@@ -98,9 +109,9 @@ const Home: React.FC = () => {
                 <DashboardPie />
                 <DashboardHorChart />
                 <VerBarChart />
-                <TaxRefundTable/>
+                <TaxRefundTable />
             </div>
-            
+
         </>
     );
 };

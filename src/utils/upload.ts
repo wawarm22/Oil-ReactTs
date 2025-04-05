@@ -9,7 +9,7 @@ let currentRunning = 0;
 
 const pad = (val: number, len: number) => String(val).padStart(len, "0");
 
-const getDocSequenceNumber = (docId: number, subtitleIndex?: number): string => {
+export const getDocSequenceNumber = (docId: number, subtitleIndex?: number): string => {
     let sequence = 0;
     let start = 1;
     const target = documentList.find((d) => d.id === docId);
@@ -41,7 +41,8 @@ export const uploadFile = async (
     transportCode: string,
     periodDateStr: string,
     docId: number,
-    subtitleIndex?: number
+    subtitleIndex?: number,
+    mainCode?: string,
 ): Promise<{ name: string; data: string; blobPath: string }[]> => {
     if (!files.length) {
         alert("กรุณาเลือกไฟล์ก่อน!");
@@ -60,9 +61,13 @@ export const uploadFile = async (
 
         const runningStr = pad(currentRunning - 1, 12);
         const docSequence = getDocSequenceNumber(docId, subtitleIndex);
-        const baseName = `${uploadDateStr}-${runningStr}-${warehouseCode}-${transportCode}-${periodDateStr}-${docSequence}`;
+        const prefix = mainCode ?? `${uploadDateStr}-${runningStr}`;
+        const baseName = `${prefix}-${warehouseCode}-${transportCode}-${periodDateStr}-${docSequence}`;
 
-        const targetPath = `${companyName}/${baseName}`;
+        const targetPath = subtitleIndex !== undefined
+            ? `${companyName}/${baseName}/${docId}/${subtitleIndex + 1}`
+            : `${companyName}/${baseName}/${docId}`;
+
         let listCount = 0;
 
         const checkList = await apiListPdfFiles(targetPath);

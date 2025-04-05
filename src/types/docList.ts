@@ -4,6 +4,7 @@ export interface DocumentItem {
     documents: string[];
     subtitle?: string[];
     transport?: "00" | "01";
+    docCode?: string;
 }
 
 export const documentList: DocumentItem[] = [
@@ -29,13 +30,13 @@ export const documentList: DocumentItem[] = [
             "เอกสาร ภส.05-02",
             "เอกสาร ภส. 05-02/1"
         ],
-        transport: "00"
+        transport: "00",
     },
     {
         id: 4,
         title: "เอกสาร การเปลี่ยนเเปลงสารเติมเเต่ง (ถ้ามี)",
         documents: ["บัญชีรับ-จ่ายน้ำมันที่นำมาใช้เป็นวัตถุดิบในการผลิต", "ใบกำกับภาษี", "เอกสาร Outturn", "เอกสารใบเสร็จ", "เอกสารประกอบต่างๆ ที่เกี่ยวข้อง"],
-        transport: "00"
+        transport: "00",
     },
     {
         id: 5,

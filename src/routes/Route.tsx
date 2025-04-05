@@ -16,6 +16,7 @@ import MatchDocument from "../app/page/MatchDocument";
 import TaxSubmission from "../app/page/TaxSubmission";
 import UploadPreparation from "../app/page/UploadPreparation";
 import AuthRoute from "./middleware/AuthRoute";
+import SearchFileUpload from "../app/page/SearchFileUpload";
 
 const WebRoute = () => {
   return (
@@ -29,6 +30,7 @@ const WebRoute = () => {
 
         {/* AUTH ROUTES */}
         <Route path="/" element={<AuthRoute children={(<Home />)} />} />
+        <Route path="/search-file" element={<AuthRoute children={(<SearchFileUpload />)} />} />
         <Route path="/form-submission" element={<AuthRoute children={(<FormSubmission />)} />} />
         <Route path="/document-list" element={<AuthRoute children={(<DocumentList />)} />} />
         <Route path="/pre-upload" element={<AuthRoute children={(<UploadPreparation />)} />} />
