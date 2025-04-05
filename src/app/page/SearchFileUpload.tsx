@@ -10,6 +10,7 @@ import { RiArrowDropDownLine, RiFileDownloadLine } from "react-icons/ri";
 import { AnimatePresence, motion } from "framer-motion";
 import { getDocSequenceNumber, uploadFile } from "../../utils/upload";
 import { OptionType } from "../../types/selectTypes";
+import { toast } from 'react-toastify';
 import UploadFilterPanel from "../reusable/UploadFilterPanel";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser"
 import dayjs from "dayjs";
@@ -82,7 +83,7 @@ const SearchFileUpload: React.FC = () => {
             })))
             .then(setWarehouseOptions)
             .catch(error => {
-                alert(error.message)
+                toast.error(error.message)
             })
     }, [])
 
@@ -147,7 +148,7 @@ const SearchFileUpload: React.FC = () => {
     const mergeAndOpenPdf = async (docId: number, subtitleIndex: number = 0) => {
         const storedFiles = parsedFiles.filter(f => f.docId === docId && f.subtitleIndex === subtitleIndex);
         if (!storedFiles.length) {
-            alert("ไม่มีไฟล์ที่อัปโหลด");
+            toast.warning("ไม่มีไฟล์ที่อัปโหลด");
             return;
         }
 
@@ -177,7 +178,7 @@ const SearchFileUpload: React.FC = () => {
             const url = URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
             window.open(url, "_blank");
         } catch (err) {
-            alert("ไม่สามารถเปิดเอกสารได้");
+            toast.error("ไม่สามารถเปิดเอกสารได้");
             console.error(err);
         }
     };
@@ -192,7 +193,7 @@ const SearchFileUpload: React.FC = () => {
 
     const handleSearchClick = async () => {
         if (!filters.warehouse || !filters.transport || !filters.periodType) {
-            alert("กรุณาเลือกคลัง, ทาง, และช่วงยื่นก่อนค้นหา");
+            toast.warning("กรุณาเลือกคลัง, ทาง, และช่วงยื่นก่อน");
             return;
         }
 
@@ -268,7 +269,7 @@ const SearchFileUpload: React.FC = () => {
 
         } catch (err) {
             console.error("ค้นหาไฟล์ไม่สำเร็จ:", err);
-            alert("ค้นหาไม่สำเร็จ");
+            toast.error("ค้นหาไม่สำเร็จ");
         }
     };
 
@@ -285,14 +286,14 @@ const SearchFileUpload: React.FC = () => {
             (filters.periodType.value === "range" && (!filters.dateStart || !filters.dateEnd)) ||
             (filters.periodType.value === "month" && !filters.month)
         ) {
-            alert("กรุณาเลือกคลัง, ทาง, และช่วงยื่นก่อนอัปโหลด");
+            toast.warning("กรุณาเลือกคลัง, ทาง, และช่วงยื่นก่อนอัปโหลด");
             return;
         }
 
         const files = Array.from(event.target.files);
         const periodDateStr = getFormattedPeriodDateStr();
         if (!selectedCompany?.name) {
-            alert("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
+            toast.warning("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
             return;
         }
 
@@ -358,7 +359,7 @@ const SearchFileUpload: React.FC = () => {
             console.log("ลบ blob สำเร็จ:", fileToDelete.blobPath);
         } catch (err) {
             console.error("ลบ blob ไม่สำเร็จ:", err);
-            alert("เกิดข้อผิดพลาดระหว่างลบไฟล์ออกจากระบบ");
+            toast.error("เกิดข้อผิดพลาดระหว่างลบไฟล์ออกจากระบบ");
             return;
         }
 
@@ -420,10 +421,12 @@ const SearchFileUpload: React.FC = () => {
             const blobPath = `${currentCompany}/`;
             const result = await comfirmUpload(blobPath);
             console.log("อัปโหลดเสร็จแล้ว:", result);
+            toast.success("อัปโหลดเสร็จแล้ว");
+
             setShowConfirmModal(false);
             navigate("/");
         } catch (error) {
-            alert("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
+            toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
             console.error(error);
         } finally {
             setIsConfirming(false);

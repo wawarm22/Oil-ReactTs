@@ -5,6 +5,7 @@ import "../../assets/css/dropdown-icon.css";
 import "../../assets/css/dropdown-animation.css";
 import "../../assets/css/table.css";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 import { DocumentItem, documentList } from "../../types/docList";
 import { RiArrowDropDownLine, RiFileDownloadLine } from "react-icons/ri";
 import { AnimatePresence, motion } from "framer-motion";
@@ -12,7 +13,6 @@ import { uploadFile } from "../../utils/upload";
 import { OptionType } from "../../types/selectTypes";
 import UploadFilterPanel from "../reusable/UploadFilterPanel";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser"
-// import oilFactories from "../../assets/json/oil-factory.json";
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
 import { apiDeleteBlob, apiPreviewPdf, comfirmUpload } from "../../utils/api/uploadApi";
@@ -24,6 +24,7 @@ import { ApiMyFactorySchema } from "../../types/schema/api";
 import apiMyFactory from "../../utils/api/apiMyFactory";
 import { PDFDocument } from "pdf-lib";
 import ConfirmUploadModal from "../modal/ConfirmUploadModal";
+import { Spinner } from "react-bootstrap";
 dayjs.extend(buddhistEra);
 
 type UploadedFileMap = {
@@ -58,9 +59,13 @@ const UploadPreparation: React.FC = () => {
     const [warehouseOptions, setWarehouseOptions] = useState<OptionType[]>([]);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isConfirming, setIsConfirming] = useState(false);
+    const [uploadingMap, setUploadingMap] = useState<Record<string, boolean>>({});
     const [filters, setFilters] = useState<FilterState>({
         warehouse: null, transport: null, periodType: null, dateStart: null, dateEnd: null, month: null,
     });
+
+    const getUploadKey = (docId: number, subtitleIndex?: number) =>
+        `${docId}-${subtitleIndex ?? 0}`;
 
     useEffect(() => {
         apiMyFactory(auth!)
@@ -71,7 +76,7 @@ const UploadPreparation: React.FC = () => {
             })))
             .then(setWarehouseOptions)
             .catch(error => {
-                alert(error.message)
+                toast.error(error.message)
             })
     }, [])
 
@@ -102,12 +107,6 @@ const UploadPreparation: React.FC = () => {
     };
 
     const currentCompany = selectedCompany?.name;
-    // const warehouseOptions: OptionType[] = oilFactories
-    //     .filter(fac => fac.company_name === currentCompany)
-    //     .map(fac => ({
-    //         value: fac.factories_id,
-    //         label: fac.factories_name
-    //     }));
 
     const transportOptions: OptionType[] = [
         { value: "00", label: "ทางเรือ" },
@@ -142,7 +141,7 @@ const UploadPreparation: React.FC = () => {
     const mergeAndOpenPdf = async (docId: number, subtitleIndex: number = 0) => {
         const storedFiles = uploadedFiles[docId]?.[subtitleIndex]?.files;
         if (!storedFiles || storedFiles.length === 0) {
-            alert("ไม่มีไฟล์ที่อัปโหลด");
+            toast.warning("ไม่มีไฟล์ที่อัปโหลด");
             return;
         }
 
@@ -172,7 +171,7 @@ const UploadPreparation: React.FC = () => {
             const url = URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
             window.open(url, "_blank");
         } catch (err) {
-            alert("ไม่สามารถเปิดเอกสารได้");
+            toast.error("ไม่สามารถเปิดเอกสารได้");
             console.error(err);
         }
     };
@@ -182,6 +181,8 @@ const UploadPreparation: React.FC = () => {
         docId: number,
         subtitleIndex?: number
     ) => {
+        const key = getUploadKey(docId, subtitleIndex);
+
         if (
             !event.target.files ||
             !filters.warehouse ||
@@ -190,16 +191,19 @@ const UploadPreparation: React.FC = () => {
             (filters.periodType.value === "range" && (!filters.dateStart || !filters.dateEnd)) ||
             (filters.periodType.value === "month" && !filters.month)
         ) {
-            alert("กรุณาเลือกคลัง, ทาง, และช่วงยื่นก่อนอัปโหลด");
+            toast.warning("กรุณาเลือกคลัง, ทาง, และช่วงยื่นก่อน");
             return;
         }
 
         const files = Array.from(event.target.files);
         const periodDateStr = getFormattedPeriodDateStr();
+
         if (!selectedCompany?.name) {
-            alert("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
+            toast.warning("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
             return;
         }
+
+        setUploadingMap(prev => ({ ...prev, [key]: true }));
 
         const companyName = selectedCompany.name;
 
@@ -213,7 +217,10 @@ const UploadPreparation: React.FC = () => {
             subtitleIndex
         );
 
-        if (!uploadedResults.length) return;
+        if (!uploadedResults.length) {
+            setUploadingMap(prev => ({ ...prev, [key]: false }));
+            return;
+        }
 
         setUploadedFiles((prev) => {
             const existingDoc = prev[docId] || {};
@@ -229,7 +236,10 @@ const UploadPreparation: React.FC = () => {
                 },
             };
         });
+
+        setUploadingMap(prev => ({ ...prev, [key]: false }));
     };
+
 
     const handleRemoveFile = async (
         docId: number,
@@ -241,10 +251,9 @@ const UploadPreparation: React.FC = () => {
 
         try {
             await apiDeleteBlob(fileToDelete.blobPath);
-            console.log("ลบ blob สำเร็จ:");
         } catch (err) {
             console.error("ลบ blob ไม่สำเร็จ:", err);
-            alert("เกิดข้อผิดพลาดระหว่างลบไฟล์ออกจากระบบ");
+            toast.error("เกิดข้อผิดพลาดระหว่างลบไฟล์ออกจากระบบ");
             return;
         }
 
@@ -294,10 +303,12 @@ const UploadPreparation: React.FC = () => {
             const blobPath = `${currentCompany}/`;
             const result = await comfirmUpload(blobPath);
             console.log("อัปโหลดเสร็จแล้ว:", result);
+            toast.success("อัปโหลดสำเร็จ");
+
             setShowConfirmModal(false);
             navigate("/");
         } catch (error) {
-            alert("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
+            toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
             console.error(error);
         } finally {
             setIsConfirming(false);
@@ -316,7 +327,7 @@ const UploadPreparation: React.FC = () => {
                 onConfirm={handleConfirmUpload}
                 isLoading={isConfirming}
             />
-            
+
             <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px", }}>
                 อัปโหลดเอกสาร
             </p>
@@ -346,7 +357,7 @@ const UploadPreparation: React.FC = () => {
                         {filteredDocuments.map((item) => (
                             <React.Fragment key={item.id}>
                                 <tr style={{ borderBottom: openDropdown[item.id] || isAnimating[item.id] ? "none" : "2px solid #0000004B" }}>
-                                    <td className="align-middle" style={{ maxWidth: '600px' }}>
+                                    <td className="align-middle" style={{ maxWidth: '550px' }}>
                                         <span
                                             className="fw-bold"
                                             style={{ cursor: "pointer", verticalAlign: "middle" }}
@@ -444,9 +455,13 @@ const UploadPreparation: React.FC = () => {
                                                     maxWidth="260px"
                                                     variant="bg-hide"
                                                     onClick={() => document.getElementById(`file-upload-${item.id}`)?.click()}
-                                                    disabled={!!item.subtitle}
+                                                    disabled={!!item.subtitle || uploadingMap[getUploadKey(item.id)]}
                                                 >
-                                                    <RiFileDownloadLine className="me-1" size={25} />
+                                                    {uploadingMap[getUploadKey(item.id)] ? (
+                                                        <Spinner animation="border" size="sm" className="me-1" />
+                                                    ) : (
+                                                        <RiFileDownloadLine className="me-1" size={20} />
+                                                    )}
                                                 </Button>
                                             </>
                                         )}
@@ -522,10 +537,18 @@ const UploadPreparation: React.FC = () => {
                                                             type="button"
                                                             label="อัปโหลดเอกสาร"
                                                             bgColor="#3D4957"
+                                                            color="#FFFFFF"
                                                             maxWidth="200px"
                                                             variant="bg-hide"
-                                                            onClick={() => document.getElementById(`file-upload-${item.id}-${index}`)?.click()}
-                                                        />
+                                                            onClick={() =>
+                                                                document.getElementById(`file-upload-${item.id}-${index}`)?.click()
+                                                            }
+                                                            disabled={uploadingMap[getUploadKey(item.id, index)]}
+                                                        >
+                                                            {uploadingMap[getUploadKey(item.id, index)] && (
+                                                                <Spinner animation="border" size="sm" className="me-2" />
+                                                            )}
+                                                        </Button>
                                                     </td>
                                                 </motion.tr>
                                             );
