@@ -24,6 +24,7 @@ import { ApiMyFactorySchema } from "../../types/schema/api";
 import apiMyFactory from "../../utils/api/apiMyFactory";
 import { PDFDocument } from "pdf-lib";
 import ConfirmUploadModal from "../modal/ConfirmUploadModal";
+import { Spinner } from "react-bootstrap";
 dayjs.extend(buddhistEra);
 
 type UploadedFileMap = {
@@ -70,9 +71,13 @@ const SearchFileUpload: React.FC = () => {
     const [mainCode, setMainCode] = useState<string | null>(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isConfirming, setIsConfirming] = useState(false);
+    const [uploadingMap, setUploadingMap] = useState<Record<string, boolean>>({});
     const [filters, setFilters] = useState<FilterState>({
         warehouse: null, transport: null, periodType: null, dateStart: null, dateEnd: null, month: null,
     });
+
+    const getUploadKey = (docId: number, subtitleIndex?: number) =>
+        `${docId}-${subtitleIndex ?? 0}`;
 
     useEffect(() => {
         apiMyFactory(auth!)
@@ -278,6 +283,8 @@ const SearchFileUpload: React.FC = () => {
         docId: number,
         subtitleIndex?: number
     ) => {
+        const key = getUploadKey(docId, subtitleIndex);
+
         if (
             !event.target.files ||
             !filters.warehouse ||
@@ -297,6 +304,7 @@ const SearchFileUpload: React.FC = () => {
             return;
         }
 
+        setUploadingMap((prev) => ({ ...prev, [key]: true }));
         const companyName = selectedCompany.name;
 
         const uploadedResults = await uploadFile(
@@ -310,7 +318,10 @@ const SearchFileUpload: React.FC = () => {
             mainCode || undefined
         );
 
-        if (!uploadedResults.length) return;
+        if (!uploadedResults.length) {
+            setUploadingMap((prev) => ({ ...prev, [key]: false }));
+            return;
+        }
 
         // ✅ 1. เพิ่มลงใน uploadedFiles (ไฟล์ใช้จริง)
         setUploadedFiles((prev) => {
@@ -342,6 +353,7 @@ const SearchFileUpload: React.FC = () => {
         });
 
         setParsedFiles(prev => [...prev, ...newParsed]);
+        setUploadingMap((prev) => ({ ...prev, [key]: false }));
     };
 
     const handleRemoveFile = async (
@@ -600,9 +612,13 @@ const SearchFileUpload: React.FC = () => {
                                                     maxWidth="260px"
                                                     variant="bg-hide"
                                                     onClick={() => document.getElementById(`file-upload-${item.id}`)?.click()}
-                                                    disabled={!!item.subtitle}
+                                                    disabled={!!item.subtitle || uploadingMap[getUploadKey(item.id)]}
                                                 >
-                                                    <RiFileDownloadLine className="me-1" size={25} />
+                                                    {uploadingMap[getUploadKey(item.id)] ? (
+                                                        <Spinner animation="border" size="sm" className="me-1" />
+                                                    ) : (
+                                                        <RiFileDownloadLine className="me-1" size={25} />
+                                                    )}
                                                 </Button>
                                             </>
                                         )}
@@ -685,7 +701,12 @@ const SearchFileUpload: React.FC = () => {
                                                             maxWidth="200px"
                                                             variant="bg-hide"
                                                             onClick={() => document.getElementById(`file-upload-${item.id}-${index}`)?.click()}
-                                                        />
+                                                            disabled={uploadingMap[getUploadKey(item.id, index)]}
+                                                        >
+                                                            {uploadingMap[getUploadKey(item.id, index)] && (
+                                                                <Spinner animation="border" size="sm" className="me-1" />
+                                                            )}
+                                                        </Button>
                                                     </td>
                                                 </motion.tr>
                                             );

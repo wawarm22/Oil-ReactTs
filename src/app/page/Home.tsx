@@ -18,6 +18,10 @@ const Home: React.FC = () => {
         navigate("/pre-upload");
     };
 
+    const handleSearchFile = () => {
+        navigate("/search-file");
+    }
+
     return (
         <>
             <div
@@ -40,7 +44,6 @@ const Home: React.FC = () => {
                     />
                 </div>
 
-                {/* พื้นหลังเบลอ & เพิ่มความทึบ */}
                 <div
                     className="position-absolute w-100 h-100"
                     style={{
@@ -53,7 +56,6 @@ const Home: React.FC = () => {
                     }}
                 ></div>
 
-                {/* เพิ่ม Layer ความทึบ */}
                 <div
                     className="position-absolute w-100 h-100"
                     style={{
@@ -62,7 +64,6 @@ const Home: React.FC = () => {
                     }}
                 ></div>
 
-                {/* ข้อความ & ปุ่ม */}
                 <div className="text-center text-white position-relative w-100">
                     <p className="fw-bold" style={{ fontSize: "40px", fontFamily: 'IBM Plex Sans Thai' }}>
                         ระบบขอลดหย่อนและการคืนภาษีน้ำมัน
@@ -100,7 +101,7 @@ const Home: React.FC = () => {
                         hoverBgColor="#FFFFFF"
                         maxWidth="220px"
                         variant="bg-hide"
-                        onClick={handleUploadForm}
+                        onClick={handleSearchFile}
                     />
                 </div>
             </div>
