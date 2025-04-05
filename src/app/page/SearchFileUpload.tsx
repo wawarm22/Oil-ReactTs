@@ -512,25 +512,22 @@ const SearchFileUpload: React.FC = () => {
                                 <tr style={{ borderBottom: openDropdown[item.id] || isAnimating[item.id] ? "none" : "2px solid #0000004B" }}>
                                     <td className="align-middle" style={{ maxWidth: '600px' }}>
                                         <div className="d-flex align-items-center">
-                                            <span
-                                                className="fw-bold"
-                                                style={{ cursor: "pointer", verticalAlign: "middle" }}
-                                                onClick={() => item.subtitle && toggleDropdown(item.id)}
-                                            >
-                                                <span
-                                                    className="me-2 m-0"
+                                            <div className="d-flex align-items-start" style={{ gap: '8px' }}>
+                                                <div
                                                     style={{
-                                                        display: "inline-block",
                                                         width: "3px",
-                                                        height: "28px",
                                                         backgroundColor: "#9D9D9D",
                                                         borderRadius: "2px",
-                                                        verticalAlign: "middle"
+                                                        minHeight: "28px",
+                                                        marginTop: "2px" // ปรับตำแหน่งให้สูงขึ้น
                                                     }}
-                                                ></span>
-
-                                                {item.title}
-                                            </span>
+                                                />
+                                                <div style={{ whiteSpace: "normal", wordBreak: "break-word", paddingTop: "1px" }}>
+                                                    <span className="fw-bold" style={{ cursor: "pointer" }}>
+                                                        {item.title}
+                                                    </span>
+                                                </div>
+                                            </div>
 
                                             {item.subtitle && (
                                                 <CSSTransition
@@ -550,29 +547,41 @@ const SearchFileUpload: React.FC = () => {
 
                                         {/* แสดงไฟล์ในบรรทัดใหม่ */}
                                         {!item.subtitle && (
-                                            <div className="mt-2" style={{ marginLeft: '12px' }}>
+                                            <div style={{ marginLeft: '11px' }}>
                                                 {getFilesWithDisplayName(item.id, 0).map(({ displayName, file }, idx) => (
                                                     <span
                                                         key={idx}
                                                         className="text-primary fw-bold d-inline-flex align-items-center me-3"
                                                         style={{ cursor: "pointer" }}
                                                     >
-                                                        <span onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            openBlobSecurely(file.blobPath);
-                                                        }}>
-                                                            {displayName}
-                                                        </span>
-                                                        <MdCancel
-                                                            size={16}
-                                                            className="ms-1 text-danger"
-                                                            style={{ cursor: "pointer" }}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleRemoveFile(item.id, 0, idx);
+                                                        <div
+                                                            className="text-primary fw-bold mt-1"
+                                                            style={{
+                                                                display: "inline",
+                                                                wordBreak: "break-word",
+                                                                whiteSpace: "normal"
                                                             }}
-                                                            title="ลบไฟล์"
-                                                        />
+                                                        >
+                                                            <span
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    openBlobSecurely(file.blobPath);
+                                                                }}
+                                                                style={{ display: "inline" }}
+                                                            >
+                                                                {displayName}
+                                                            </span>
+                                                            <MdCancel
+                                                                size={16}
+                                                                className="text-danger ms-1"
+                                                                style={{ cursor: "pointer", verticalAlign: "middle", display: "inline" }}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleRemoveFile(item.id, 0, idx);
+                                                                }}
+                                                                title="ลบไฟล์"
+                                                            />
+                                                        </div>
                                                     </span>
                                                 ))}
                                             </div>
