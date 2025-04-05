@@ -91,7 +91,8 @@ const UploadFilterPanel: React.FC<UploadFilterPanelProps> = ({ filters, onChange
                                 dateFormat="dd/MM/yyyy"
                                 className="form-control"
                                 maxDate={filters.dateEnd ?? undefined}
-                                renderCustomHeader={renderHeaderWithThaiYear}
+                                renderCustomHeader={renderHeaderWithThaiYear}                                
+                                value={filters.dateStart ? dayjs(filters.dateStart).add(543, 'year').format("DD/MM/YYYY") : ""}
                             />
                         </div>
                     </div>
@@ -106,7 +107,8 @@ const UploadFilterPanel: React.FC<UploadFilterPanelProps> = ({ filters, onChange
                                 dateFormat="dd/MM/yyyy"
                                 className="form-control"
                                 minDate={filters.dateStart ?? undefined}
-                                renderCustomHeader={renderHeaderWithThaiYear}
+                                renderCustomHeader={renderHeaderWithThaiYear}                                
+                                value={filters.dateEnd ? dayjs(filters.dateEnd).add(543, 'year').format("DD/MM/YYYY") : ""}
                             />
                         </div>
                     </div>
@@ -125,7 +127,8 @@ const UploadFilterPanel: React.FC<UploadFilterPanelProps> = ({ filters, onChange
                             showMonthYearPicker
                             showFullMonthYearPicker
                             className="form-control"
-                            renderCustomHeader={renderHeaderWithThaiYear}
+                            renderCustomHeader={renderHeaderWithThaiYear}                            
+                            value={filters.month ? dayjs(filters.month).add(543, 'year').format("MM/YYYY") : ""}
                         />
                     </div>
                 </div>
