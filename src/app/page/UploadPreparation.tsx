@@ -484,7 +484,7 @@ const UploadPreparation: React.FC = () => {
                                                             index === (item.subtitle?.length ?? 0) - 1 ? "2px solid #0000004B" : "none",
                                                     }}
                                                 >
-                                                    <td colSpan={2} className="align-middle td-border">
+                                                    <td colSpan={2} className="align-middle td-border" style={{ maxWidth: "280px" }}>
                                                         <span className="fw-bold" style={{ marginLeft: "55px" }}>
                                                             {subtitleText}
                                                         </span>

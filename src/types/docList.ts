@@ -64,7 +64,7 @@ export const documentList: DocumentItem[] = [
     },
     {
         id: 9,
-        title: "เอกสารเเนบ 03-07",
+        title: "เอกสารเเนบแบบ ภส. 03-07 แบบชำระภาษีในแบบรายการภาษีสรรพสามิต",
         documents: ["เอกสารแบบ ภส. 03-07", "เอกสารแบบ ภส. 05-03"],        
         transport: "00"
     },
@@ -106,7 +106,7 @@ export const documentList: DocumentItem[] = [
     },
     {
         id: 16,
-        title: "0409 ใบขนขาเข้า",
+        title: "0409 ใบขนขาเข้า (ถ้ามี)",
         documents: ["เอกสารแบบ ภส. 03-07", "เอกสารแบบ ภส. 05-03"],    
         transport: "00"    
     },
@@ -118,7 +118,7 @@ export const documentList: DocumentItem[] = [
     },
     {
         id: 18,
-        title: "แบบ ภส 05-03",
+        title: "แบบ ภส 05-03 แบบคำขอหักลดหย่อนภาษีสรรพสามิต",
         documents: ["เอกสารแบบ ภส. 03-07", "เอกสารแบบ ภส. 05-03"],       
         transport: "00" 
     },
@@ -215,7 +215,7 @@ export const documentList: DocumentItem[] = [
     },
     {
         id: 33,
-        title: "เอกสารเเนบ 03-07",
+        title: "เอกสารเเนบแบบ ภส. 03-07 เเบบชำระภาษีในเเบบรายการภาษีสรรพสามิต",
         documents: ["เอกสารแบบ ภส. 05-02 ภส. 05-02/1", "เอกสารแบบ ภส. 07-01"],
         transport: "01"
     },
@@ -251,7 +251,7 @@ export const documentList: DocumentItem[] = [
     },
     {
         id: 39,
-        title: "0409 ใบขนขาเข้า",
+        title: "0409 ใบขนขาเข้า (ถ้ามี)",
         documents: ["เอกสารแบบ ภส. 05-02 ภส. 05-02/1", "เอกสารแบบ ภส. 07-01"],
         transport: "01"
     },
@@ -269,7 +269,7 @@ export const documentList: DocumentItem[] = [
     },
     {
         id: 42,
-        title: "แบบ ภส 05-03",
+        title: "แบบ ภส 05-03 แบบคำขอหักลดหย่อนภาษีสรรพสามิต",
         documents: ["เอกสารแบบ ภส. 05-02 ภส. 05-02/1", "เอกสารแบบ ภส. 07-01"],
         transport: "01"
     },

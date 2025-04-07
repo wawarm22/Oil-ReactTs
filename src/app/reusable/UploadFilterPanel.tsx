@@ -66,13 +66,13 @@ const UploadFilterPanel: React.FC<UploadFilterPanelProps> = ({ filters, onChange
                                 }
 
                                 onChange={(date) => onChange("dateStart", date)}
-                                // onChangeRaw={(e) => {
-                                //     const input = (e?.target as HTMLInputElement)?.value;
-                                //     const parsed = dayjs(input, "DD/MM/YYYY", true).subtract(543, 'year');
-                                //     if (parsed.isValid()) {
-                                //         onChange("dateStart", parsed.toDate());
-                                //     }
-                                // }}
+                                onChangeRaw={(e) => {
+                                    const input = (e?.target as HTMLInputElement)?.value;
+                                    const parsed = dayjs(input, "DD/MM/YYYY", true).subtract(543, 'year');
+                                    if (parsed.isValid()) {
+                                        onChange("dateStart", parsed.toDate());
+                                    }
+                                }}
 
                                 customInput={
                                     <BuddhistInput
