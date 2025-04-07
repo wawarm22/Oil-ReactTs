@@ -25,6 +25,7 @@ import apiMyFactory from "../../utils/api/apiMyFactory";
 import { PDFDocument } from "pdf-lib";
 import ConfirmUploadModal from "../modal/ConfirmUploadModal";
 import { Spinner } from "react-bootstrap";
+import CancelUploadModal from "../modal/CancelUploadModal";
 dayjs.extend(buddhistEra);
 
 type UploadedFileMap = {
@@ -58,7 +59,15 @@ const UploadPreparation: React.FC = () => {
     const { selectedCompany, fetchCompanyById } = useCompanyStore();
     const [warehouseOptions, setWarehouseOptions] = useState<OptionType[]>([]);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showCancelModal, setShowCancelModal] = useState(false);
     const [isConfirming, setIsConfirming] = useState(false);
+    const [fileToRemove, setFileToRemove] = useState<{
+        docId: number;
+        subtitleIndex: number;
+        fileIndex: number;
+    } | null>(null);
+
+    const [isCancel, setIsCancel] = useState(false);
     const [uploadingMap, setUploadingMap] = useState<Record<string, boolean>>({});
     const [filters, setFilters] = useState<FilterState>({
         warehouse: null, transport: null, periodType: null, dateStart: null, dateEnd: null, month: null,
@@ -240,8 +249,23 @@ const UploadPreparation: React.FC = () => {
         setUploadingMap(prev => ({ ...prev, [key]: false }));
     };
 
+    const handleRemoveFile = (docId: number, subtitleIndex: number = 0, fileIndex: number) => {
+        setFileToRemove({ docId, subtitleIndex, fileIndex });
+        setShowCancelModal(true);
+    };
 
-    const handleRemoveFile = async (
+    const handleConfirmRemoveFile = async () => {
+        if (!fileToRemove) return;
+
+        const { docId, subtitleIndex, fileIndex } = fileToRemove;
+        setIsCancel(true); // ถ้ามีโหลด
+        await handleRemoveFileUpload(docId, subtitleIndex, fileIndex);
+        setIsCancel(false);
+        setShowCancelModal(false);
+        setFileToRemove(null);
+    };
+
+    const handleRemoveFileUpload = async (
         docId: number,
         subtitleIndex: number = 0,
         fileIndex: number
@@ -326,6 +350,15 @@ const UploadPreparation: React.FC = () => {
                 onClose={() => setShowConfirmModal(false)}
                 onConfirm={handleConfirmUpload}
                 isLoading={isConfirming}
+            />
+            <CancelUploadModal
+                show={showCancelModal}
+                onClose={() => {
+                    setShowCancelModal(false);
+                    setFileToRemove(null);
+                }}
+                onConfirm={handleConfirmRemoveFile}
+                isLoading={isCancel}
             />
 
             <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px", }}>
