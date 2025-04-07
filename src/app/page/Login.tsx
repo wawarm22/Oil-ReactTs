@@ -15,10 +15,13 @@ import { useNavigate } from "react-router-dom";
 import LoadingPage from "../component/LoadingPage";
 import { apiLogin } from "../../utils/api/authenApi";
 import { ApiLoginResponseSchema } from "../../types/schema/api";
+import { useUser } from "../../hook/useUser";
+import { cipherEncrypt } from "../../utils/encoding/cipher";
 
 const Login: React.FC = () => {
     const signIn = useSignIn();
     const navigate = useNavigate();
+    const { setUser } = useUser();
     const isAuthenticated = useIsAuthenticated();
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("");
@@ -42,6 +45,7 @@ const Login: React.FC = () => {
             const response = await apiLogin(email, password);
 
             const parsed = ApiLoginResponseSchema.parse(response);
+            console.log("parsed", parsed);
 
             if (parsed.data.accessToken) {
                 const isSignedIn = signIn({
@@ -54,6 +58,19 @@ const Login: React.FC = () => {
                 })
                 if (!isSignedIn) {
                     throw new Error("Failed to sign in");
+                }
+                const { accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn, user } = parsed.data
+                const json_str = JSON.stringify({ accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn })
+
+                const token = cipherEncrypt(json_str)
+                const encryptedUser = cipherEncrypt(JSON.stringify(user));
+
+                localStorage.setItem("token", token);
+                localStorage.setItem("user", encryptedUser);
+                if (user) {
+                    setUser(user);
+                } else {
+                    setUser(null);
                 }
 
                 navigate('/', { replace: true });
