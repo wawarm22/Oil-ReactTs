@@ -59,14 +59,13 @@ const UploadPreparation: React.FC = () => {
     const { selectedCompany, fetchCompanyById } = useCompanyStore();
     const [warehouseOptions, setWarehouseOptions] = useState<OptionType[]>([]);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [showCancelModal, setShowCancelModal] = useState(false);
     const [isConfirming, setIsConfirming] = useState(false);
+    const [showCancelModal, setShowCancelModal] = useState(false);    
     const [fileToRemove, setFileToRemove] = useState<{
         docId: number;
         subtitleIndex: number;
         fileIndex: number;
     } | null>(null);
-
     const [isCancel, setIsCancel] = useState(false);
     const [uploadingMap, setUploadingMap] = useState<Record<string, boolean>>({});
     const [filters, setFilters] = useState<FilterState>({
