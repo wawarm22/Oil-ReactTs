@@ -52,7 +52,7 @@ const DashboardPie: React.FC = () => {
                                             <span
                                                 className="underline-custom"
                                                 style={{ fontSize: '36px' }}>
-                                                45
+                                                0
                                             </span>
                                             <span style={{ fontSize: '20px' }}> ชุด</span>
                                         </p>
@@ -68,7 +68,7 @@ const DashboardPie: React.FC = () => {
                                             <span
                                                 className="underline-custom"
                                                 style={{ fontSize: '36px', "--underline-color": "#4D97FE" } as React.CSSProperties}>
-                                                10
+                                                0
                                             </span>
                                             <span style={{ fontSize: '20px' }}> ชุด</span>
                                         </p>
@@ -84,7 +84,7 @@ const DashboardPie: React.FC = () => {
                                             <span
                                                 className="underline-custom"
                                                 style={{ fontSize: '36px', "--underline-color": "#FF7952" } as React.CSSProperties}>
-                                                10
+                                                0
                                             </span>
                                             <span style={{ fontSize: '20px' }}> ชุด</span>
                                         </p>
@@ -100,7 +100,7 @@ const DashboardPie: React.FC = () => {
                                             <span
                                                 className="underline-custom"
                                                 style={{ fontSize: '36px', "--underline-color": "#5AD87F" } as React.CSSProperties}>
-                                                25
+                                                0
                                             </span>
                                             <span style={{ fontSize: '20px' }}> ชุด</span>
                                         </p>

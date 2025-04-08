@@ -27,14 +27,16 @@ export const horBarData = {
     datasets: [
         {
             label: "จำนวนเงินขอลดหย่อนภาษีทั้งหมด",
-            data: [13273275, 16270223, 12649785, 14575755, 16365308],
+            // data: [13273275, 16270223, 12649785, 14575755, 16365308],
+            data: [0, 0, 0, 0, 0],
             backgroundColor: "#FFCC01",
             borderRadius: 8,
             barThickness: 30,
         },
         {
             label: "จำนวนภาษีที่ได้รับการลดหย่อนและได้คืน",
-            data: [7842498, 9885522, 5989066, 8710884, 10928771],
+            // data: [7842498, 9885522, 5989066, 8710884, 10928771],
+            data: [0, 0, 0, 0, 0],
             backgroundColor: "#55D88C",
             borderRadius: 8,
             barThickness: 30,
@@ -53,21 +55,24 @@ export const horBarOptions = {
             callbacks: {
                 label: (context: any) => {
                     const value = context.raw.toLocaleString();
-                    return `${context.dataset.label}: ${value} บาท`;
+                    return `${context.dataset.label}: ${value}`;
                 },
             },
         },
         datalabels: {
-            anchor: 'end' as const,
-            align: 'start' as const,
-            clamp: true,
-            color: '#151513',
-            font: {
-                size: 22,
-                family: "IBM Plex Sans Thai",
-            },
-            formatter: (value: number) => `${value.toLocaleString()} บาท`,
-        }
+            display: false,
+        },
+        // datalabels: {
+        //     anchor: 'end' as const,
+        //     align: 'start' as const,
+        //     clamp: true,
+        //     color: '#151513',
+        //     font: {
+        //         size: 22,
+        //         family: "IBM Plex Sans Thai",
+        //     },
+        //     formatter: (value: number) => `${value.toLocaleString()}`,
+        // }
     },
     scales: {
         x: {
@@ -86,14 +91,16 @@ export const monthlyBarData = {
     datasets: [
         {
             label: "จำนวนเงินขอลดหย่อนภาษีทั้งหมด",
-            data: [1000000, 1200000, 1100000, 1300000, 900000, 1150000, 950000, 1400000, 1250000, 1350000, 1280000, 1500000],
+            // data: [1000000, 1200000, 1100000, 1300000, 900000, 1150000, 950000, 1400000, 1250000, 1350000, 1280000, 1500000],
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             backgroundColor: "#FFCC01",
             borderRadius: 8,
             barThickness: 30,
         },
         {
             label: "จำนวนภาษีที่ได้รับการลดหย่อนและได้คืน",
-            data: [700000, 800000, 750000, 900000, 600000, 850000, 700000, 950000, 870000, 910000, 890000, 980000],
+            // data: [700000, 800000, 750000, 900000, 600000, 850000, 700000, 950000, 870000, 910000, 890000, 980000],
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             backgroundColor: "#55D88C",
             borderRadius: 8,
             barThickness: 30,
@@ -117,16 +124,19 @@ export const monthlyBarOptions = {
             },
         },
         datalabels: {
-            anchor: 'end' as const,
-            align: 'start' as const,
-            clamp: true,
-            color: '#151513',
-            font: {
-                size: 22,
-                family: "IBM Plex Sans Thai",
-            },
-            formatter: (value: number) => `${value.toLocaleString()} บาท`,
-        }
+            display: false,
+        },
+        // datalabels: {
+        //     anchor: 'end' as const,
+        //     align: 'start' as const,
+        //     clamp: true,
+        //     color: '#151513',
+        //     font: {
+        //         size: 22,
+        //         family: "IBM Plex Sans Thai",
+        //     },
+        //     formatter: (value: number) => `${value.toLocaleString()}`,
+        // }
     },
     scales: {
         x: {
@@ -142,7 +152,8 @@ export const verBarData = {
     datasets: [
         {
             label: "จำนวนเรื่อง",
-            data: [900, 800, 600, 750, 700, 500],
+            // data: [900, 800, 600, 750, 700, 500],
+            data: [0, 0, 0, 0, 0, 0],
             backgroundColor: "#FF3130",
             borderRadius: 6,
             barThickness: 65,
@@ -214,7 +225,8 @@ export const verBarDataMonthly = {
     datasets: [
         {
             label: "จำนวนเรื่อง",
-            data: [75, 82, 91, 68, 70, 95, 88, 60, 77, 85, 79, 90],
+            // data: [75, 82, 91, 68, 70, 95, 88, 60, 77, 85, 79, 90],
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             backgroundColor: "#FF3130",
             borderRadius: 6,
             barThickness: 65,
@@ -280,7 +292,8 @@ export const lineChartData = {
     datasets: [
         {
             label: "จำนวนเงินขอลดหย่อนภาษีทั้งหมด",
-            data: [11363411, 16365308, 14575755, 12649785, 16270223, 13273275],
+            // data: [11363411, 16365308, 14575755, 12649785, 16270223, 13273275],
+            data: [0, 0, 0, 0, 0, 0],
             borderColor: "#FFCC01",
             backgroundColor: "#FFCC01",
             tension: 0,
@@ -292,7 +305,8 @@ export const lineChartData = {
         },
         {
             label: "จำนวนภาษีที่ได้รับการลดหย่อนและได้คืน",
-            data: [6632098, 10928771, 8710884, 5989066, 9885522, 7842498],
+            // data: [6632098, 10928771, 8710884, 5989066, 9885522, 7842498],
+            data: [0, 0, 0, 0, 0, 0],
             borderColor: "#5AD87F",
             backgroundColor: "#5AD87F",
             tension: 0,
@@ -358,7 +372,8 @@ export const lineMonthlyData = {
     datasets: [
         {
             label: "จำนวนเงินขอลดหย่อนภาษีทั้งหมด",
-            data: [827048, 1023490, 979131, 844451, 1256870, 980983, 851549, 989990, 937952],
+            // data: [827048, 1023490, 979131, 844451, 1256870, 980983, 851549, 989990, 937952],
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0],
             borderColor: "#FFCC01",
             backgroundColor: "#FFCC01",
             tension: 0,
@@ -370,7 +385,8 @@ export const lineMonthlyData = {
         },
         {
             label: "จำนวนภาษีที่ได้รับการลดหย่อนและได้คืน",
-            data: [632098, 885694, 710884, 499066, 885522, 742498, 664884, 898917, 709644],
+            // data: [632098, 885694, 710884, 499066, 885522, 742498, 664884, 898917, 709644],
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0],
             borderColor: "#5AD87F",
             backgroundColor: "#5AD87F",
             tension: 0,

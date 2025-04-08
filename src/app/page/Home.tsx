@@ -5,14 +5,12 @@ import sidebar from "../../assets/img/line-sidebar.png";
 import { useNavigate } from "react-router-dom";
 import DashboardPie from "../component/DashboardPie";
 import DashboardHorChart from "../component/DashboardHorChart";
-import VerBarChart from "../component/VerBarChart";
-import TaxRefundTable from "../component/TaxRefundTable";
 const Home: React.FC = () => {
     const navigate = useNavigate();
 
-    const handleSubmitForm = () => {
-        navigate("/form-submission");
-    }
+    // const handleSubmitForm = () => {
+    //     navigate("/form-submission");
+    // }
 
     const handleUploadForm = () => {
         navigate("/pre-upload");
@@ -68,7 +66,7 @@ const Home: React.FC = () => {
                     <p className="fw-bold" style={{ fontSize: "40px", fontFamily: 'IBM Plex Sans Thai' }}>
                         ระบบขอลดหย่อนและการคืนภาษีน้ำมัน
                     </p>
-                    <Button
+                    {/* <Button
                         className="w-100"
                         type="button"
                         label="ภาพรวมการยื่นแบบ"
@@ -79,7 +77,7 @@ const Home: React.FC = () => {
                         hoverColor="#DA281C"
                         variant="bg-hide"
                         onClick={handleSubmitForm}
-                    />
+                    /> */}
                     <Button
                         className="w-100 ms-3"
                         type="button"
@@ -92,13 +90,25 @@ const Home: React.FC = () => {
                         variant="bg-hide"
                         onClick={handleUploadForm}
                     />
-                    <Button
+                    {/* <Button
                         className="w-100 ms-3"
                         type="button"
                         label="รายการอัปโหลดเอกสาร"
                         bgColor="#1E2329"
                         color="#FFFFFF"
                         hoverBgColor="#FFFFFF"
+                        maxWidth="220px"
+                        variant="bg-hide"
+                        onClick={handleSearchFile}
+                    /> */}
+                    <Button
+                        className="w-100 ms-3"
+                        type="button"
+                        label="รายการอัปโหลดเอกสาร"
+                        bgColor="#DA281C"
+                        color="#FFF"
+                        hoverBgColor="#FFFF"
+                        hoverColor="#DA281C"
                         maxWidth="220px"
                         variant="bg-hide"
                         onClick={handleSearchFile}
@@ -109,10 +119,9 @@ const Home: React.FC = () => {
             <div className="bg-light-gray py-3">
                 <DashboardPie />
                 <DashboardHorChart />
-                <VerBarChart />
-                <TaxRefundTable />
+                {/* <VerBarChart /> */}
+                {/* <TaxRefundTable /> */}
             </div>
-
         </>
     );
 };

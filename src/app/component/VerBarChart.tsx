@@ -67,7 +67,7 @@ const VerBarChart: React.FC = () => {
                                     จำนวนเงินที่ขอลดหย่อนเเละขอคืนภาษีทั้งหมด
                                 </p>
                                 <p className="m-0 fw-bold" style={{ fontSize: "32px" }}>
-                                    29,000,000 บาท
+                                    0 บาท
                                 </p>
                             </div>
                         </div>
