@@ -216,9 +216,8 @@ const UploadPreparation: React.FC = () => {
         const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com';
 
         const companyName = isTestEmail
-            ? `${selectedCompany.name}/test`
+            ? `${selectedCompany.name}-test`
             : selectedCompany.name;
-
 
         const uploadedResults = await uploadFile(
             files,
