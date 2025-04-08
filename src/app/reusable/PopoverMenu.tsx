@@ -17,10 +17,12 @@ const PopoverMenu: React.FC<PopoverMenuProps> = ({ isOpen, menuRef }) => {
     const signOut = useSignOut()
 
     // const resetCompanyStore = useCompanyStore((state) => state.reset);
-    
+
     const handleLogout = () => {
         console.log("click");
         signOut();
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         navigate("/login")
     };
 

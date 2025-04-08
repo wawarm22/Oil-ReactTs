@@ -59,13 +59,14 @@ const Login: React.FC = () => {
                 if (!isSignedIn) {
                     throw new Error("Failed to sign in");
                 }
-                const { accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn, user } = parsed.data
-                const json_str = JSON.stringify({ accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn })
+                // const { accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn, user } = parsed.data
+                const { user } = parsed.data
+                // const json_str = JSON.stringify({ accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn })
 
-                const token = cipherEncrypt(json_str)
+                // const token = cipherEncrypt(json_str)
                 const encryptedUser = cipherEncrypt(JSON.stringify(user));
 
-                localStorage.setItem("token", token);
+                // localStorage.setItem("token", token);
                 localStorage.setItem("user", encryptedUser);
                 if (user) {
                     setUser(user);
