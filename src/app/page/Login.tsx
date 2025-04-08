@@ -131,7 +131,7 @@ const Login: React.FC = () => {
                                         }}
                                     >
                                         <span className="d-block">ระบบขอลดหย่อน</span>
-                                        <span className="d-block">เเละการคืนภาษีน้ำมัน</span>
+                                        <span className="d-block">และการคืนภาษีน้ำมัน</span>
                                     </p>
                                 </div>
                             </div>

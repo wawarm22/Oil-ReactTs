@@ -73,7 +73,7 @@ const DashboardHorChart: React.FC = () => {
                 }}
             >
                 <div className="container-fluid" style={{ maxWidth: "1400px" }}>
-                    <p className="fw-bold mb-3" style={{ fontSize: "32px" }}>จำนวนเงินขอลดหย่อนเเละการคืนภาษี</p>
+                    <p className="fw-bold mb-3" style={{ fontSize: "32px" }}>จำนวนเงินขอลดหย่อนและการคืนภาษี</p>
                     <div className="d-flex flex-wrap gap-5" style={{ fontSize: '24px' }}>
                         <div className="d-flex align-items-center gap-3">
                             <div style={{ width: "4px", height: "65px", backgroundColor: "#FFCC01" }} />

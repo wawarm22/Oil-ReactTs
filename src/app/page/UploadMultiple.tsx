@@ -71,7 +71,7 @@ const UploadMultiple: React.FC = () => {
     return (
         <div className="container-fluid mt-4 w-100" style={{ maxWidth: "1800px" }}>
             <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px" }}>
-                รายการลดหย่อนเเละการคืนภาษี
+                รายการลดหย่อนและการคืนภาษี
             </p>
             <StepProgress status={currentStatus} />
 
