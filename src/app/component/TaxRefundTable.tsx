@@ -31,7 +31,7 @@ const TaxRefundTable: React.FC = () => {
                                 <th></th>
                                 <th className="text-center pe-3">ลำดับ</th>
                                 <th>ชื่อโรงงานอุตสาหกรรม</th>
-                                <th>วันที่ยื่นเเบบ</th>
+                                <th>วันที่ยื่นแบบ</th>
                                 <th>จำนวนเงินที่ขอคืนภาษี</th>
                                 <th>สถานะ</th>
                             </tr>

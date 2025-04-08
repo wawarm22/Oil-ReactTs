@@ -36,7 +36,7 @@ const VerBarChart: React.FC = () => {
                 }}
             >
                 <div className="container-fluid" style={{ maxWidth: "1400px" }}>
-                    <p className="fw-bold mb-3" style={{ fontSize: "32px" }}>จำนวนเงินขอลดหย่อนเเละการคืนภาษี</p>
+                    <p className="fw-bold mb-3" style={{ fontSize: "32px" }}>จำนวนเงินขอลดหย่อนและการคืนภาษี</p>
                     <div className="d-flex flex-wrap gap-5" style={{ fontSize: "22px" }}>
                         <div className="d-flex align-items-center gap-3">
                             <div style={{ width: "4px", height: "55px", backgroundColor: "#51A9FF" }} />
@@ -64,7 +64,7 @@ const VerBarChart: React.FC = () => {
                             <div style={{ width: "4px", height: "65px", backgroundColor: "#FFCC01" }} />
                             <div>
                                 <p className="m-0 fw-bold">
-                                    จำนวนเงินที่ขอลดหย่อนเเละขอคืนภาษีทั้งหมด
+                                    จำนวนเงินที่ขอลดหย่อนและขอคืนภาษีทั้งหมด
                                 </p>
                                 <p className="m-0 fw-bold" style={{ fontSize: "32px" }}>
                                     29,000,000 บาท
