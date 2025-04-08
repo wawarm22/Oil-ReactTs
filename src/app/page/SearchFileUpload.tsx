@@ -221,6 +221,8 @@ const SearchFileUpload: React.FC = () => {
 
         try {
             const result = await apiSearchFiles(startsWith, baseName);
+            console.log("apiSearchFiles result:", result.files);
+
             const parsed: ParsedFileInfo[] = [];
             let mainCode: string | null = null;
 
@@ -278,6 +280,10 @@ const SearchFileUpload: React.FC = () => {
                     blobPath,
                 });
             });
+            console.log("parsed files:", parsed);
+            console.log("documentList:", documentList);
+            console.log("filteredDocuments:", filteredDocuments);
+
             setUploadedFiles(tempUploaded);
 
         } catch (err) {
@@ -331,7 +337,6 @@ const SearchFileUpload: React.FC = () => {
             return;
         }
 
-        // ✅ 1. เพิ่มลงใน uploadedFiles (ไฟล์ใช้จริง)
         setUploadedFiles((prev) => {
             const existingDoc = prev[docId] || {};
             const existingFiles = existingDoc[subtitleIndex ?? 0]?.files || [];
@@ -373,7 +378,7 @@ const SearchFileUpload: React.FC = () => {
         if (!fileToRemove) return;
 
         const { docId, subtitleIndex, fileIndex } = fileToRemove;
-        setIsCancel(true); // ถ้ามีโหลด
+        setIsCancel(true);
         await handleRemoveFileUpload(docId, subtitleIndex, fileIndex);
         setIsCancel(false);
         setShowCancelModal(false);

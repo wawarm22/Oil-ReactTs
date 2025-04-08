@@ -14,8 +14,9 @@ import { DATASET_LABELS } from "../../types/enum/chartData";
 import DashboardTabSelector from "../reusable/DashboardTabSelector";
 import DateFilter from "../reusable/DateFilter";
 import GraphTypeToggle from "./GraphTypeToggle";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
 
 const DashboardHorChart: React.FC = () => {
     const [activeTab, setActiveTab] = useState<"yearly" | "monthly">("yearly");

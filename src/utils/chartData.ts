@@ -15,8 +15,12 @@ export const pieOptions = {
         legend: {
             display: false,
         },
+        datalabels: {
+            display: false,
+        },
     },
 };
+
 
 export const horBarData = {
     labels: ["2563", "2564", "2565", "2566", "2567"],
@@ -53,6 +57,17 @@ export const horBarOptions = {
                 },
             },
         },
+        datalabels: {
+            anchor: 'end' as const,
+            align: 'start' as const,
+            clamp: true,
+            color: '#151513',
+            font: {
+                size: 22,
+                family: "IBM Plex Sans Thai",
+            },
+            formatter: (value: number) => `${value.toLocaleString()} บาท`,
+        }
     },
     scales: {
         x: {
@@ -101,6 +116,17 @@ export const monthlyBarOptions = {
                 },
             },
         },
+        datalabels: {
+            anchor: 'end' as const,
+            align: 'start' as const,
+            clamp: true,
+            color: '#151513',
+            font: {
+                size: 22,
+                family: "IBM Plex Sans Thai",
+            },
+            formatter: (value: number) => `${value.toLocaleString()} บาท`,
+        }
     },
     scales: {
         x: {
@@ -300,7 +326,7 @@ export const lineChartOptions = {
                 size: 14,
             },
             formatter: function (value: number, ctx: any) {
-                if (ctx.dataIndex === 0) return ""; 
+                if (ctx.dataIndex === 0) return "";
                 return `${value.toLocaleString()} บาท`;
             },
         },
@@ -378,7 +404,7 @@ export const lineMonthlyOptions = {
                 size: 14,
             },
             formatter: function (value: number, ctx: any) {
-                if (ctx.dataIndex === 0) return ""; 
+                if (ctx.dataIndex === 0) return "";
                 return `${value.toLocaleString()} บาท`;
             },
         },
