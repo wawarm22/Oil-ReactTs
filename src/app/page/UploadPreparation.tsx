@@ -60,7 +60,7 @@ const UploadPreparation: React.FC = () => {
     const [warehouseOptions, setWarehouseOptions] = useState<OptionType[]>([]);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isConfirming, setIsConfirming] = useState(false);
-    const [showCancelModal, setShowCancelModal] = useState(false);    
+    const [showCancelModal, setShowCancelModal] = useState(false);
     const [fileToRemove, setFileToRemove] = useState<{
         docId: number;
         subtitleIndex: number;
@@ -213,7 +213,12 @@ const UploadPreparation: React.FC = () => {
 
         setUploadingMap(prev => ({ ...prev, [key]: true }));
 
-        const companyName = selectedCompany.name;
+        const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com';
+
+        const companyName = isTestEmail
+            ? `${selectedCompany.name}/test`
+            : selectedCompany.name;
+
 
         const uploadedResults = await uploadFile(
             files,
@@ -257,7 +262,7 @@ const UploadPreparation: React.FC = () => {
         if (!fileToRemove) return;
 
         const { docId, subtitleIndex, fileIndex } = fileToRemove;
-        setIsCancel(true); // ถ้ามีโหลด
+        setIsCancel(true);
         await handleRemoveFileUpload(docId, subtitleIndex, fileIndex);
         setIsCancel(false);
         setShowCancelModal(false);
