@@ -66,7 +66,7 @@ const Home: React.FC = () => {
                     <p className="fw-bold" style={{ fontSize: "40px", fontFamily: 'IBM Plex Sans Thai' }}>
                         ระบบขอลดหย่อนและการคืนภาษีน้ำมัน
                     </p>
-                    {/* <Button
+                    <Button
                         className="w-100"
                         type="button"
                         label="ภาพรวมการยื่นแบบ"
@@ -76,8 +76,8 @@ const Home: React.FC = () => {
                         hoverBgColor="#FFFF"
                         hoverColor="#DA281C"
                         variant="bg-hide"
-                        onClick={handleSubmitForm}
-                    /> */}
+                        // onClick={handleSubmitForm}
+                    />
                     <Button
                         className="w-100 ms-3"
                         type="button"
@@ -90,7 +90,7 @@ const Home: React.FC = () => {
                         variant="bg-hide"
                         onClick={handleUploadForm}
                     />
-                    {/* <Button
+                    <Button
                         className="w-100 ms-3"
                         type="button"
                         label="รายการอัปโหลดเอกสาร"
@@ -100,8 +100,8 @@ const Home: React.FC = () => {
                         maxWidth="220px"
                         variant="bg-hide"
                         onClick={handleSearchFile}
-                    /> */}
-                    <Button
+                    />
+                    {/* <Button
                         className="w-100 ms-3"
                         type="button"
                         label="รายการอัปโหลดเอกสาร"
@@ -112,7 +112,7 @@ const Home: React.FC = () => {
                         maxWidth="220px"
                         variant="bg-hide"
                         onClick={handleSearchFile}
-                    />
+                    /> */}
                 </div>
             </div>
 
