@@ -5,7 +5,6 @@ import AuditList from "../component/AuditList";
 import SubDocumentList from "../component/SubDocumentList";
 import AuditPagination from "../reusable/AuditPagination";
 import { documentList } from "../../types/docList";
-import AuditDetail from "../component/AuditDetail";
 import AuditButton from "../component/AuditButton";
 import { useNavigate } from "react-router-dom";
 import MatchTable from "../component/MatchTable";
@@ -92,7 +91,7 @@ const MatchDocument: React.FC = () => {
                 <AuditPagination totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} customHeight={subDocHeight} />
             </div>
 
-            <AuditDetail selectedId={selectedId} currentPage={currentPage} uploadedFiles={uploadedFiles} />
+            {/* <AuditDetail selectedId={selectedId} currentPage={currentPage} uploadedFiles={uploadedFiles} /> */}
 
             {selectedId === 1 && <MatchTable data={sampleTableData} />}
             {selectedId === 2 && <VolumeCompareTable data={volumeCompareData} />}
