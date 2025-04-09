@@ -15,7 +15,7 @@ import UploadFilterPanel from "../reusable/UploadFilterPanel";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser"
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-import { apiDeleteBlob, apiPreviewPdf, comfirmUpload } from "../../utils/api/uploadApi";
+import { apiDeleteBlob, apiPreviewPdf, apiSearchFiles, comfirmUpload } from "../../utils/api/uploadApi";
 import { useUser } from "../../hook/useUser";
 import { useCompanyStore } from "../../store/companyStore";
 import { MdCancel } from "react-icons/md";
@@ -67,6 +67,7 @@ const UploadPreparation: React.FC = () => {
         fileIndex: number;
     } | null>(null);
     const [isCancel, setIsCancel] = useState(false);
+    const [baseName, setBaseName] = useState<string | null>(null);
     const [uploadingMap, setUploadingMap] = useState<Record<string, boolean>>({});
     const [filters, setFilters] = useState<FilterState>({
         warehouse: null, transport: null, periodType: null, dateStart: null, dateEnd: null, month: null,
@@ -113,8 +114,6 @@ const UploadPreparation: React.FC = () => {
 
         return "";
     };
-
-    const currentCompany = selectedCompany?.name;
 
     const transportOptions: OptionType[] = [
         { value: "00", label: "ทางเรือ" },
@@ -219,7 +218,7 @@ const UploadPreparation: React.FC = () => {
             ? `${selectedCompany.name}-test`
             : selectedCompany.name;
 
-        const uploadedResults = await uploadFile(
+        const { uploadedResults, baseNameWithoutDocSeq } = await uploadFile(
             files,
             companyName,
             filters.warehouse.value,
@@ -233,6 +232,8 @@ const UploadPreparation: React.FC = () => {
             setUploadingMap(prev => ({ ...prev, [key]: false }));
             return;
         }
+
+        setBaseName(baseNameWithoutDocSeq);
 
         setUploadedFiles((prev) => {
             const existingDoc = prev[docId] || {};
@@ -321,24 +322,49 @@ const UploadPreparation: React.FC = () => {
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
 
     const handleConfirm = () => {
+        console.log(baseName);
         setShowConfirmModal(true);
     };
 
     const handleConfirmUpload = async () => {
         try {
             setIsConfirming(true);
-            const blobPath = `${currentCompany}/`;
-            const result = await comfirmUpload(blobPath);
-            console.log("อัปโหลดเสร็จแล้ว:", result);
+
+            if (!selectedCompany?.name) {
+                toast.warning("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
+                return;
+            }
+
+            const isTestEmail =
+                user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com';
+
+            const companyName = isTestEmail
+                ? `${selectedCompany.name}-test`
+                : selectedCompany.name;
+
+            const blobPath = `${companyName}/`;
+
+            await comfirmUpload(blobPath);
             toast.success("อัปโหลดสำเร็จ");
 
-            setShowConfirmModal(false);
+            const response = await apiSearchFiles(companyName, baseName!);
+
+            const folders = response.files.map((file: any) => {
+                const parts = file.fileName.split('/');
+                parts.pop();
+                return parts.join('/');
+            });
+
+            localStorage.setItem("folders", JSON.stringify(folders));
+            // navigate("/audit");
             navigate("/");
+
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
             console.error(error);
         } finally {
             setIsConfirming(false);
+            setShowConfirmModal(false);
         }
     };
 

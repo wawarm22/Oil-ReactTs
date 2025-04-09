@@ -1,6 +1,4 @@
-export enum StepStatus {
-    UPLOAD = "upload",
-    CONFIRM = "confirm",
+export enum StepStatus {    
     AUDIT = "audit",
     MATCH = "match",
     SUBMIT = "submit",

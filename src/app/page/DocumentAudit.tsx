@@ -1,9 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import StepProgress from "../reusable/StepProgress";
 import { StepStatus } from "../../types/enum/stepStatus";
-import AuditList from "../component/AuditList";
-import SubDocumentList from "../component/SubDocumentList";
-import AuditPagination from "../reusable/AuditPagination";
 import { documentList } from "../../types/docList";
 import AuditDetail from "../component/AuditDetail";
 import AuditButton from "../component/AuditButton";
@@ -16,12 +13,20 @@ type UploadedFilesType = {
 const DocumentAudit: React.FC = () => {
     const navigate = useNavigate();
     const [selectedId, setSelectedId] = useState<number | null>(null);
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [totalPages, setTotalPages] = useState<number>(1);
+    const [currentPage, _setCurrentPage] = useState<number>(1);
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
-    const [selectedDocIndex, setSelectedDocIndex] = useState<number | null>(null); 
-    const [subDocHeight, setSubDocHeight] = useState<number>(0);
-    const subDocRef = useRef<HTMLDivElement | null>(null);
+    const [folders, setFolders] = useState<string[]>([]);
+
+    useEffect(() => {
+        const localFolders = localStorage.getItem("folders");
+        if (localFolders) {
+            try {
+                setFolders(JSON.parse(localFolders));
+            } catch {
+                setFolders([]);
+            }
+        }
+    }, []);
 
     useEffect(() => {
         try {
@@ -42,30 +47,13 @@ const DocumentAudit: React.FC = () => {
         }
     }, []);
 
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [selectedId, selectedDocIndex]);
-
-    useEffect(() => {
-        if (selectedId !== null) {
-            const selectedFiles = uploadedFiles[selectedId] || [];
-            const total = selectedFiles.reduce((sum, file) => sum + (file.pageCount || 1), 0);
-            setTotalPages(total || 1);
-        }
-    }, [selectedId, uploadedFiles]);
-
-    useEffect(() => {
-        if (subDocRef.current) {
-            setSubDocHeight(subDocRef.current.clientHeight);
-        }
-    }, [selectedId, selectedDocIndex]);
-
     const handleUploadMore = () => {
         console.log("อัปโหลดเอกสารเพิ่มเติม");
     };
 
     const handleBack = () => {
-        navigate('/confirm')
+        localStorage.removeItem("folders");
+        navigate('/pre-upload')
     };
 
     const handleSaveAudit = () => {
@@ -73,7 +61,7 @@ const DocumentAudit: React.FC = () => {
     };
 
     const handleNextStep = () => {
-        navigate('/match-list')
+        // navigate('/match-list')
     };
 
     return (
@@ -83,23 +71,19 @@ const DocumentAudit: React.FC = () => {
             </p>
             <StepProgress status={StepStatus.AUDIT} />
 
-            <AuditList selectedId={selectedId} setSelectedId={setSelectedId} />
+            <AuditDetail
+                selectedId={selectedId}
+                currentPage={currentPage}
+                uploadedFiles={uploadedFiles}
+                folders={folders}
+            />
 
-            <div className="d-flex justify-content-between align-items-center gap-2 w-100">
-                <div ref={subDocRef} className="w-100">
-                    <SubDocumentList selectedId={selectedId} setSelectedDocIndex={setSelectedDocIndex} />
-                </div>
-                <AuditPagination totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} customHeight={subDocHeight} />
-            </div>
-            
-            <AuditDetail selectedId={selectedId} currentPage={currentPage} uploadedFiles={uploadedFiles} />
-            
             <AuditButton
                 onUploadMore={handleUploadMore}
                 onBack={handleBack}
                 onSaveAudit={handleSaveAudit}
                 onNextStep={handleNextStep}
-                disableSave={false} 
+                disableSave={false}
             />
         </div>
     );

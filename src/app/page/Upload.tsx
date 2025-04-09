@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import StepProgress from "../reusable/StepProgress";
 import Button from "../reusable/Button";
 import { CSSTransition } from "react-transition-group";
 import "../../assets/css/dropdown-icon.css";
@@ -7,7 +6,6 @@ import "../../assets/css/dropdown-animation.css";
 import "../../assets/css/table.css";
 import { useNavigate } from "react-router-dom";
 import { RiArrowDropDownLine, RiFileDownloadLine } from "react-icons/ri";
-import { StepStatus } from "../../types/enum/stepStatus";
 import { AnimatePresence, motion } from "framer-motion";
 import { PDFDocument } from "pdf-lib";
 import { documentListFT } from "../../types/docListFristTypes";
@@ -123,7 +121,6 @@ const Upload: React.FC = () => {
             <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px", }}>
                 ขั้นตอนการดำเนินงาน
             </p>
-            <StepProgress status={StepStatus.UPLOAD} />
             <div className="mt-3 d-flex justify-content-between align-items-end">
                 <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px", }}>
                     เอกสาร

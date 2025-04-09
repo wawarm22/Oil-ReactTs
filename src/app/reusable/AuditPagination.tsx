@@ -11,10 +11,10 @@ interface PaginationProps {
 const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, setCurrentPage, customHeight }) => {
     return (
         <div
-            className="d-flex align-items-center justify-content-center shadow-sm bg-white rounded-2 mt-3 w-100"
+            className="d-flex align-items-center justify-content-start shadow-sm bg-white ps-4 rounded-2 w-100"
             style={{
                 maxWidth: '730px',
-                height: customHeight ? `${customHeight - 16}px` : '178px',
+                height: customHeight ? `${customHeight - 16}px` : '90px',
                 fontFamily: "Sarabun"
             }}
         >

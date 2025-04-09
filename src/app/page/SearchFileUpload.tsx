@@ -70,6 +70,7 @@ const SearchFileUpload: React.FC = () => {
     const [warehouseOptions, setWarehouseOptions] = useState<OptionType[]>([]);
     const [parsedFiles, setParsedFiles] = useState<ParsedFileInfo[]>([]);
     const [mainCode, setMainCode] = useState<string | null>(null);
+    const [_baseName, setBaseName] = useState<string | null>(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isConfirming, setIsConfirming] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
@@ -125,8 +126,6 @@ const SearchFileUpload: React.FC = () => {
 
         return "";
     };
-
-    const currentCompany = selectedCompany?.name;
 
     const transportOptions: OptionType[] = [
         { value: "00", label: "ทางเรือ" },
@@ -217,7 +216,18 @@ const SearchFileUpload: React.FC = () => {
             periodDateStr
         );
 
-        const startsWith = selectedCompany?.name ?? "";
+        if (!selectedCompany?.name) {
+            toast.warning("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
+            return;
+        }
+
+        const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com';
+
+        const companyName = isTestEmail
+            ? `${selectedCompany.name}-test`
+            : selectedCompany.name;
+
+        const startsWith = companyName ?? "";
 
         try {
             const result = await apiSearchFiles(startsWith, baseName);
@@ -319,9 +329,14 @@ const SearchFileUpload: React.FC = () => {
         }
 
         setUploadingMap((prev) => ({ ...prev, [key]: true }));
-        const companyName = selectedCompany.name;
+        const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com';
 
-        const uploadedResults = await uploadFile(
+        const companyName = isTestEmail
+            ? `${selectedCompany.name}-test`
+            : selectedCompany.name;
+
+        // const companyName = selectedCompany.name;
+        const {uploadedResults, baseNameWithoutDocSeq} = await uploadFile(
             files,
             companyName,
             filters.warehouse.value,
@@ -336,6 +351,8 @@ const SearchFileUpload: React.FC = () => {
             setUploadingMap((prev) => ({ ...prev, [key]: false }));
             return;
         }
+
+        setBaseName(baseNameWithoutDocSeq);
 
         setUploadedFiles((prev) => {
             const existingDoc = prev[docId] || {};
@@ -364,6 +381,8 @@ const SearchFileUpload: React.FC = () => {
                 blobPath: file.blobPath,
             };
         });
+
+        console.log("newParsed", newParsed);        
 
         setParsedFiles(prev => [...prev, ...newParsed]);
         setUploadingMap((prev) => ({ ...prev, [key]: false }));
@@ -459,7 +478,19 @@ const SearchFileUpload: React.FC = () => {
     const handleConfirmUpload = async () => {
         try {
             setIsConfirming(true);
-            const blobPath = `${currentCompany}/`;
+            if (!selectedCompany?.name) {
+                toast.warning("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
+                return;
+            }
+            const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com';
+
+            const companyName = isTestEmail
+                ? `${selectedCompany.name}-test`
+                : selectedCompany.name;
+
+            const blobPath = `${companyName}/`;
+            console.log("blobPath", blobPath);
+            
             const result = await comfirmUpload(blobPath);
             console.log("อัปโหลดเสร็จแล้ว:", result);
             toast.success("อัปโหลดเสร็จแล้ว");

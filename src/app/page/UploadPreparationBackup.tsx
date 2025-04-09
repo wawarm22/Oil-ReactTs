@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import StepProgress from "../reusable/StepProgress";
 import Button from "../reusable/Button";
 import { useNavigate } from "react-router-dom";
-import { StepStatus } from "../../types/enum/stepStatus";
 import CustomSelect from "../reusable/CustomSelect";
 import { OptionType } from "../../types/selectTypes";
 
@@ -33,7 +31,6 @@ const UploadPreparationBackup: React.FC = () => {
             <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px" }}>
                 ขั้นตอนการดำเนินงาน
             </p>
-            <StepProgress status={StepStatus.UPLOAD} />
 
             <div className="bg-white p-5 rounded shadow-sm rounded-3 mt-3">
                 <div className="d-flex justify-content-center gap-4 flex-wrap" style={{ fontSize: '18px' }}>

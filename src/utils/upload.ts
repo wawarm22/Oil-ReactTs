@@ -43,10 +43,17 @@ export const uploadFile = async (
     docId: number,
     subtitleIndex?: number,
     mainCode?: string,
-): Promise<{ name: string; data: string; blobPath: string }[]> => {
+): Promise<{
+    uploadedResults: { name: string; data: string; blobPath: string }[];
+    baseNameWithoutDocSeq: string;
+}> => {
+
     if (!files.length) {
         alert("กรุณาเลือกไฟล์ก่อน!");
-        return [];
+        return {
+            uploadedResults: [],
+            baseNameWithoutDocSeq: "",
+        };
     }
 
     try {
@@ -62,7 +69,8 @@ export const uploadFile = async (
         const runningStr = pad(currentRunning - 1, 12);
         const docSequence = getDocSequenceNumber(docId, subtitleIndex);
         const prefix = mainCode ?? `${uploadDateStr}-${runningStr}`;
-        const baseName = `${prefix}-${warehouseCode}-${transportCode}-${periodDateStr}-${docSequence}`;
+        const baseNameWithoutDocSeq = `${prefix}-${warehouseCode}-${transportCode}-${periodDateStr}`;
+        const baseName = `${baseNameWithoutDocSeq}-${docSequence}`;
 
         const targetPath = subtitleIndex !== undefined
             ? `${companyName}/${baseName}/${docId}/${subtitleIndex + 1}`
@@ -103,11 +111,18 @@ export const uploadFile = async (
             });
         }
 
-        return uploadedResults;
+        return {
+            uploadedResults,
+            baseNameWithoutDocSeq
+        };
+
     } catch (error) {
         console.error("เกิดข้อผิดพลาดในการอัปโหลดหลายไฟล์", error);
         alert("อัปโหลดไฟล์ล้มเหลว");
-        return [];
+        return {
+            uploadedResults: [],
+            baseNameWithoutDocSeq: "",
+        };
     }
 };
 

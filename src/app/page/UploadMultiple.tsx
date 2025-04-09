@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { getPdfThumbnail } from "../../utils/function/pdfUtils";
-import StepProgress from "../reusable/StepProgress";
-import { StepStatus } from "../../types/enum/stepStatus";
 import Button from "../reusable/Button";
 import { RiFileDownloadLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +11,6 @@ const UploadMultiple: React.FC = () => {
     const navigate = useNavigate();
     const [files, setFiles] = useState<{ name: string; url: string; thumbnail: string }[]>([]);
     const [selectedFiles, setSelectedFiles] = useState<{ url: string; index: number }[]>([]);
-    const [currentStatus, _setCurrentStatus] = useState<StepStatus>(StepStatus.UPLOAD);
     const [currentPage, setCurrentPage] = useState(1);
     const [showModal, setShowModal] = useState(false);
 
@@ -73,8 +70,6 @@ const UploadMultiple: React.FC = () => {
             <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px" }}>
                 รายการลดหย่อนและการคืนภาษี
             </p>
-            <StepProgress status={currentStatus} />
-
             <div className="row mt-3">
                 <DocumentClassificationModal show={showModal} onClose={() => setShowModal(false)} />
                 <div className="col-md-7">

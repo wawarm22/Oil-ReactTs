@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { getPdfThumbnail } from "../../utils/function/pdfUtils";
-import { checklistData, ChecklistItem } from "../../types/checkList";
+import { documentList } from "../../types/docList";
+import PdfPreview from "./PdfPreview";
+import DocumentChecklist from "./DocumentChecklist";
+import ChecklistPanel from "./ChecklistPanel";
 
 interface AuditDetailProps {
     selectedId: number | null;
     currentPage: number;
     uploadedFiles: { [key: number]: { name: string; data: string; pageCount: number }[] };
+    folders: string[];
 }
 
-const AuditDetail: React.FC<AuditDetailProps> = ({ selectedId, currentPage, uploadedFiles }) => {
+const AuditDetail: React.FC<AuditDetailProps> = ({ selectedId, currentPage, uploadedFiles, folders }) => {
     const [pdfPageImage, setPdfPageImage] = useState<string | null>(null);
+    const [selectedOcrFields, setSelectedOcrFields] = useState<Record<string, any> | null>(null);
 
     useEffect(() => {
         if (selectedId !== null && uploadedFiles[selectedId]) {
@@ -38,63 +43,13 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ selectedId, currentPage, uplo
 
     return (
         <div className="d-flex w-100 gap-3 mt-3" style={{ maxHeight: "750px" }}>
-            <div className="shadow-sm rounded-2 p-3 d-flex justify-content-center align-items-center" style={{ width: "45%", background: "#E0E0E0", borderRadius: "8px" }}>
-                {pdfPageImage && (
-                    <img src={pdfPageImage} alt={`PDF Page ${currentPage}`} className="w-100 h-100" style={{ objectFit: "contain", borderRadius: "6px" }} />
-                )}
-            </div>
-
-            <div className="shadow-sm bg-white rounded-2 p-3" style={{ width: "55%", overflowY: "auto", borderRadius: "8px" }}>
-                {checklistData.map((item: ChecklistItem, index) => (
-                    <div key={index} className="mb-1 d-flex">
-                        <div
-                            className="me-2 rounded-2"
-                            style={{
-                                width: "4px",
-                                height: "38px",
-                                backgroundColor: "#BDBDBD",
-                            }}
-                        ></div>
-
-                        <div className="flex-grow-1">
-                            <div
-                                className="d-flex align-items-center justify-content-between p-2 mb-2 border shadow-sm rounded-2"
-                                onClick={() => document.getElementById(`checkbox-${index}`)?.click()}
-                                style={{ cursor: "pointer" }}
-                            >
-                                <span className="fw-bold" style={{ fontSize: "16px" }}>{item.name}</span>
-                                <input type="checkbox" id={`checkbox-${index}`} />
-                            </div>
-
-                            {item.subItems && (
-                                <div className="ps-4">
-                                    {item.subItems.map((subItem, subIdx) => (
-                                        <div key={subIdx} className="d-flex">
-                                            <div
-                                                className="me-2 rounded-2"
-                                                style={{
-                                                    width: "4px",
-                                                    height: "38px",
-                                                    backgroundColor: "#BDBDBD",
-                                                }}
-                                            ></div>
-
-                                            <div
-                                                className="flex-grow-1 d-flex align-items-center justify-content-between p-2 mb-2 border shadow-sm rounded-2"
-                                                onClick={() => document.getElementById(`sub-checkbox-${index}-${subIdx}`)?.click()}
-                                                style={{ cursor: "pointer" }}
-                                            >
-                                                <span className="fw-bold" style={{ fontSize: "14px" }}>{subItem}</span>
-                                                <input type="checkbox" id={`sub-checkbox-${index}-${subIdx}`} />
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
+            <DocumentChecklist
+                documentList={documentList}
+                folders={folders}
+                onSelectDocument={setSelectedOcrFields}
+            />
+            <PdfPreview imageSrc={pdfPageImage} currentPage={currentPage} />
+            <ChecklistPanel ocrFields={selectedOcrFields} />
         </div>
     );
 };
