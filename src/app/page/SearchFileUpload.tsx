@@ -575,7 +575,7 @@ const SearchFileUpload: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredDocuments.map((item) => (
+                        {filteredDocuments.map((item, index) => (
                             <React.Fragment key={item.id}>
                                 <tr style={{ borderBottom: openDropdown[item.id] || isAnimating[item.id] ? "none" : "2px solid #0000004B" }}>
                                     <td className="align-middle" style={{ maxWidth: '600px' }}>
@@ -592,7 +592,7 @@ const SearchFileUpload: React.FC = () => {
                                                 />
                                                 <div style={{ whiteSpace: "normal", wordBreak: "break-word", paddingTop: "1px" }}>
                                                     <span className="fw-bold" style={{ cursor: "pointer" }}>
-                                                        {item.title}
+                                                       {index + 1}. {item.title}
                                                     </span>
                                                 </div>
                                             </div>
@@ -704,26 +704,26 @@ const SearchFileUpload: React.FC = () => {
 
                                 <AnimatePresence>
                                     {openDropdown[item.id] && (
-                                        item.subtitle?.map((subtitleText, index) => {
+                                        item.subtitle?.map((subtitleText, subIndex) => {
                                             return (
                                                 <motion.tr
-                                                    key={`${item.id}-subtitle-${index}`}
+                                                    key={`${item.id}-subtitle-${subIndex}`}
                                                     initial={{ opacity: 0, y: -10 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     exit={{ opacity: 0, y: -10 }}
                                                     transition={{ duration: 0.3, ease: "easeInOut" }}
                                                     style={{
                                                         borderBottom:
-                                                            index === (item.subtitle?.length ?? 0) - 1 ? "2px solid #0000004B" : "none",
+                                                            subIndex === (item.subtitle?.length ?? 0) - 1 ? "2px solid #0000004B" : "none",
                                                     }}
                                                 >
                                                     <td colSpan={2} className="align-middle td-border">
                                                         <div className="fw-bold" style={{ marginLeft: "55px" }}>
-                                                            {subtitleText}
+                                                            {index + 1}.{subIndex + 1} {subtitleText}
                                                         </div>
 
                                                         <div className="mt-2 ms-5">
-                                                            {getFilesWithDisplayName(item.id, index).map(({ displayName, file }, idx) => (
+                                                            {getFilesWithDisplayName(item.id, subIndex).map(({ displayName, file }, idx) => (
                                                                 <span
                                                                     key={idx}
                                                                     className="text-primary fw-bold d-inline-flex align-items-center mx-2"
@@ -741,7 +741,7 @@ const SearchFileUpload: React.FC = () => {
                                                                         style={{ cursor: "pointer" }}
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
-                                                                            handleRemoveFile(item.id, index, idx);
+                                                                            handleRemoveFile(item.id, subIndex, idx);
                                                                         }}
                                                                         title="ลบไฟล์"
                                                                     />
@@ -759,16 +759,16 @@ const SearchFileUpload: React.FC = () => {
                                                             color="#FFFFFF"
                                                             maxWidth="150px"
                                                             variant="bg-hide"
-                                                            onClick={() => mergeAndOpenPdf(item.id, index)}
-                                                            disabled={!hasParsedFiles(item.id, index)}
+                                                            onClick={() => mergeAndOpenPdf(item.id, subIndex)}
+                                                            disabled={!hasParsedFiles(item.id, subIndex)}
                                                         />
                                                         <input
                                                             type="file"
                                                             accept="application/pdf"
                                                             multiple
                                                             style={{ display: "none" }}
-                                                            id={`file-upload-${item.id}-${index}`}
-                                                            onChange={(e) => handleDocumentFileUpload(e, item.id, index)}
+                                                            id={`file-upload-${item.id}-${subIndex}`}
+                                                            onChange={(e) => handleDocumentFileUpload(e, item.id, subIndex)}
                                                         />
                                                         <Button
                                                             className="w-100"
@@ -777,10 +777,10 @@ const SearchFileUpload: React.FC = () => {
                                                             bgColor="#3D4957"
                                                             maxWidth="200px"
                                                             variant="bg-hide"
-                                                            onClick={() => document.getElementById(`file-upload-${item.id}-${index}`)?.click()}
-                                                            disabled={uploadingMap[getUploadKey(item.id, index)]}
+                                                            onClick={() => document.getElementById(`file-upload-${item.id}-${subIndex}`)?.click()}
+                                                            disabled={uploadingMap[getUploadKey(item.id, subIndex)]}
                                                         >
-                                                            {uploadingMap[getUploadKey(item.id, index)] && (
+                                                            {uploadingMap[getUploadKey(item.id, subIndex)] && (
                                                                 <Spinner animation="border" size="sm" className="me-1" />
                                                             )}
                                                         </Button>

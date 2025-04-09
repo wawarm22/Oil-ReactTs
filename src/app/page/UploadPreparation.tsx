@@ -356,8 +356,7 @@ const UploadPreparation: React.FC = () => {
             });
 
             localStorage.setItem("folders", JSON.stringify(folders));
-            // navigate("/audit");
-            navigate("/");
+            navigate("/audit");
 
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
@@ -416,7 +415,7 @@ const UploadPreparation: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredDocuments.map((item) => (
+                        {filteredDocuments.map((item, index) => (
                             <React.Fragment key={item.id}>
                                 <tr style={{ borderBottom: openDropdown[item.id] || isAnimating[item.id] ? "none" : "2px solid #0000004B" }}>
                                     <td className="align-middle" style={{ maxWidth: '550px' }}>
@@ -437,7 +436,7 @@ const UploadPreparation: React.FC = () => {
                                                 }}
                                             ></span>
 
-                                            {item.title}
+                                            {index + 1}. {item.title}
 
                                             {!item.subtitle && uploadedFiles[item.id]?.[0]?.files?.length > 0 && (
                                                 <span className="ms-2">
@@ -532,23 +531,23 @@ const UploadPreparation: React.FC = () => {
 
                                 <AnimatePresence>
                                     {openDropdown[item.id] && (
-                                        item.subtitle?.map((subtitleText, index) => {
-                                            const uploaded = uploadedFiles[item.id]?.[index];
+                                        item.subtitle?.map((subtitleText, subIndex) => {
+                                            const uploaded = uploadedFiles[item.id]?.[subIndex];
                                             return (
                                                 <motion.tr
-                                                    key={`${item.id}-subtitle-${index}`}
+                                                    key={`${item.id}-subtitle-${subIndex}`}
                                                     initial={{ opacity: 0, y: -10 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     exit={{ opacity: 0, y: -10 }}
                                                     transition={{ duration: 0.3, ease: "easeInOut" }}
                                                     style={{
                                                         borderBottom:
-                                                            index === (item.subtitle?.length ?? 0) - 1 ? "2px solid #0000004B" : "none",
+                                                            subIndex === (item.subtitle?.length ?? 0) - 1 ? "2px solid #0000004B" : "none",
                                                     }}
                                                 >
                                                     <td colSpan={2} className="align-middle td-border" style={{ maxWidth: "280px" }}>
                                                         <span className="fw-bold" style={{ marginLeft: "55px" }}>
-                                                            {subtitleText}
+                                                            {index + 1}.{subIndex + 1} {subtitleText}
                                                         </span>
                                                         {uploaded?.files?.map((file, idx) => (
                                                             <>
@@ -566,7 +565,7 @@ const UploadPreparation: React.FC = () => {
                                                                     style={{ cursor: "pointer" }}
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
-                                                                        handleRemoveFile(item.id, index, idx);
+                                                                        handleRemoveFile(item.id, subIndex, idx);
                                                                     }}
                                                                     title="ลบไฟล์"
                                                                 />
@@ -583,7 +582,7 @@ const UploadPreparation: React.FC = () => {
                                                             color="#FFFFFF"
                                                             maxWidth="150px"
                                                             variant="bg-hide"
-                                                            onClick={() => mergeAndOpenPdf(item.id, index)}
+                                                            onClick={() => mergeAndOpenPdf(item.id, subIndex)}
                                                             disabled={!uploaded?.files?.length}
                                                         />
                                                         <input
@@ -591,8 +590,8 @@ const UploadPreparation: React.FC = () => {
                                                             accept="application/pdf"
                                                             multiple
                                                             style={{ display: "none" }}
-                                                            id={`file-upload-${item.id}-${index}`}
-                                                            onChange={(e) => handleDocumentFileUpload(e, item.id, index)}
+                                                            id={`file-upload-${item.id}-${subIndex}`}
+                                                            onChange={(e) => handleDocumentFileUpload(e, item.id, subIndex)}
                                                         />
                                                         <Button
                                                             className="w-100"
@@ -603,11 +602,11 @@ const UploadPreparation: React.FC = () => {
                                                             maxWidth="200px"
                                                             variant="bg-hide"
                                                             onClick={() =>
-                                                                document.getElementById(`file-upload-${item.id}-${index}`)?.click()
+                                                                document.getElementById(`file-upload-${item.id}-${subIndex}`)?.click()
                                                             }
-                                                            disabled={uploadingMap[getUploadKey(item.id, index)]}
+                                                            disabled={uploadingMap[getUploadKey(item.id, subIndex)]}
                                                         >
-                                                            {uploadingMap[getUploadKey(item.id, index)] && (
+                                                            {uploadingMap[getUploadKey(item.id, subIndex)] && (
                                                                 <Spinner animation="border" size="sm" className="me-2" />
                                                             )}
                                                         </Button>
