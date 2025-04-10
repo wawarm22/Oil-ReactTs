@@ -4,6 +4,7 @@ import { documentList } from "../../types/docList";
 import PdfPreview from "./PdfPreview";
 import DocumentChecklist from "./DocumentChecklist";
 import ChecklistPanel from "./ChecklistPanel";
+import { OcrFields } from "../../types/ocrFileType";
 
 interface AuditDetailProps {
     selectedId: number | null;
@@ -14,7 +15,7 @@ interface AuditDetailProps {
 
 const AuditDetail: React.FC<AuditDetailProps> = ({ selectedId, currentPage, uploadedFiles, folders }) => {
     const [pdfPageImage, setPdfPageImage] = useState<string | null>(null);
-    const [selectedOcrFields, setSelectedOcrFields] = useState<Record<string, any> | null>(null);
+    const [selectedOcrFields, setSelectedOcrFields] = useState<OcrFields | null>(null);
 
     useEffect(() => {
         if (selectedId !== null && uploadedFiles[selectedId]) {

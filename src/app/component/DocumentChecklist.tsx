@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { DocumentItem } from "../../types/docList";
 import { apiGetAllOcr } from "../../utils/api/OcrListApi";
+import { OcrFields } from "../../types/ocrFileType";
 
 interface Props {
     documentList: DocumentItem[];
     folders: string[];
-    onSelectDocument: (ocrFields: Record<string, any> | null) => void;
+    onSelectDocument: (ocrFields: OcrFields | null) => void;
 }
 
 const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDocument }) => {

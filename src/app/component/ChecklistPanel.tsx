@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import AuditPagination from "../reusable/AuditPagination";
+import { OcrFields } from "../../types/ocrFileType";
 
 interface Props {
-    ocrFields: Record<string, any> | null;
+    ocrFields: OcrFields | null;
 }
 
 const ChecklistPanel: React.FC<Props> = ({ ocrFields }) => {

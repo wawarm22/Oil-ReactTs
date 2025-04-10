@@ -356,7 +356,8 @@ const UploadPreparation: React.FC = () => {
             });
 
             localStorage.setItem("folders", JSON.stringify(folders));
-            navigate("/audit");
+            // navigate("/audit");
+            navigate("/");
 
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
