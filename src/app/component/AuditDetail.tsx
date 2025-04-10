@@ -48,7 +48,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ selectedId, currentPage, uplo
                 folders={folders}
                 onSelectDocument={setSelectedOcrFields}
             />
-            <PdfPreview imageSrc={pdfPageImage} currentPage={currentPage} />
+            <PdfPreview imageSrc={pdfPageImage} currentPage={currentPage} ocrFields={selectedOcrFields}/>
             <ChecklistPanel ocrFields={selectedOcrFields} />
         </div>
     );
