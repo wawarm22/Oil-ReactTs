@@ -88,6 +88,19 @@ export const apiListPdfFiles = async (prefix: string): Promise<PdfListResponse> 
     }
 };
 
+export const apiListPdfAfter = async (prefix: string): Promise<PdfListResponse> => {
+    try {
+        const response = await axios.get(`${BASE_URL}/list-files-afterconfirm`, {
+            params: { prefix },
+        });
+
+        return response.data as PdfListResponse;
+    } catch (error) {
+        console.error("Error fetching PDF list:", error instanceof Error ? error.message : error);
+        throw error;
+    }
+};
+
 export const apiSearchFiles = async (startsWith: string, search: string): Promise<PdfListResponse> => {
     try {
         const response = await axios.get(`${BASE_URL}/search-files`, {

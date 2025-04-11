@@ -1,10 +1,10 @@
 import axios from "axios";
 import { BASE_URL } from "./apiConfig";
 
-export const apiGetAllOcr = async (documentGroup: string, limit: number) => {
+export const apiGetAllOcr = async (documentGroup: string) => {
     try {
         const response = await axios.get(`${BASE_URL}/documents`, {
-            params: { limit, documentGroup },
+            params: { documentGroup },
         });
 
         return response.data;
