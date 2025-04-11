@@ -320,6 +320,7 @@ const UploadPreparation: React.FC = () => {
     );
 
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
+    console.log(isConfirmDisabled);    
 
     const handleConfirm = () => {
         console.log(baseName);
