@@ -133,7 +133,14 @@ const UploadPreparation: React.FC = () => {
         setFilters(prev => {
             const resetFields = resetMap[field] || [];
             const resetValues = Object.fromEntries(resetFields.map(k => [k, null]));
-            return { ...prev, ...resetValues, [field]: value };
+            let updatedFilters = { ...prev, ...resetValues, [field]: value };
+
+            const pipeWarehouses = ["H401", "K103"];
+            if (field === "warehouse" && pipeWarehouses.includes(value?.value)) {
+                updatedFilters.transport = { value: "01", label: "ทางท่อ" };
+            }
+
+            return updatedFilters;
         });
     };
 
@@ -322,7 +329,6 @@ const UploadPreparation: React.FC = () => {
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
 
     const handleConfirm = () => {
-        console.log(baseName);
         setShowConfirmModal(true);
     };
 
@@ -356,8 +362,10 @@ const UploadPreparation: React.FC = () => {
             });
 
             localStorage.setItem("folders", JSON.stringify(folders));
-            navigate("/audit");
-            // navigate("/");
+            localStorage.setItem("transport", filters.transport?.value || "");
+            localStorage.setItem("warehouse", filters.warehouse?.value || "");
+            // navigate("/audit");
+            navigate("/");
 
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
@@ -637,7 +645,7 @@ const UploadPreparation: React.FC = () => {
                         bgColor="#FFCB02"
                         color="#1E2329"
                         variant="bg-hide"
-                        // disabled={isConfirmDisabled}
+                        disabled={isConfirmDisabled}
                     />
                 </div>
             </div>

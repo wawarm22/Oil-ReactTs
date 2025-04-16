@@ -6,6 +6,7 @@ import AuditDetail from "../component/AuditDetail";
 import AuditButton from "../component/AuditButton";
 import { useNavigate } from "react-router-dom";
 import { useSignalR } from "../../utils/function/useSignalr";
+import SignalRTest from "../component/SignalOcr";
 
 type UploadedFilesType = {
     [key: number]: { name: string; data: string; pageCount: number }[];
@@ -69,6 +70,8 @@ const DocumentAudit: React.FC = () => {
 
     const handleBack = () => {
         localStorage.removeItem("folders");
+        localStorage.removeItem("transport");
+        localStorage.removeItem("warehouse");
         navigate('/pre-upload')
     };
 
@@ -104,6 +107,8 @@ const DocumentAudit: React.FC = () => {
                 onNextStep={handleNextStep}
                 disableSave={false}
             />
+
+            <SignalRTest/>
         </div>
     );
 };

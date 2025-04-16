@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DocumentItem } from "../../types/docList";
 import { apiGetAllOcr } from "../../utils/api/OcrListApi";
 import { OcrFields } from "../../types/ocrFileType";
+import MotionCard from "../reusable/MotionCard";
 
 interface Props {
     documentList: DocumentItem[];
@@ -16,7 +17,14 @@ interface Props {
 
 const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDocument, ocrTrigger }) => {
     const [ocrByDocId, setOcrByDocId] = useState<{ [docId: number]: any }>({});
+    const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
+    const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
 
+    const transportFilter = localStorage.getItem("transport");
+
+    const filteredList = documentList.filter(item =>
+        !transportFilter || item.transport === transportFilter
+    );
     useEffect(() => {
         const fetchOcrData = async () => {
             const results: {
@@ -92,35 +100,66 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
         const selectedFields = pages[currentPage];
 
         onSelectDocument(selectedFields, { pages, pageCount });
+        setSelectedDocId(docId);
+        setSelectedSubtitleIdx(subtitleIndex);
     };
-
 
     return (
         <div className="shadow-sm bg-white rounded-2 p-3" style={{ width: "30%", overflowY: "auto" }}>
-            {documentList.map((item, index) => (
+            {filteredList.map((item, index) => (
                 <div key={index} className="mb-1 d-flex">
-                    <div className="me-2 rounded-2" style={{ width: "4px", height: "38px", backgroundColor: "#BDBDBD" }} />
+                    <div
+                        className="me-2 rounded-2"
+                        style={{
+                            width: "4px",
+                            height: "38px",
+                            backgroundColor: ocrByDocId[item.id]?.[0]?.pages ? "green" : "#BDBDBD"
+                        }}
+                    />
                     <div className="flex-grow-1">
-                        <div
-                            className="d-flex align-items-center justify-content-between p-2 mb-2 border shadow-sm rounded-2"
+                        <MotionCard
                             onClick={() => handleSelect(item.id)}
-                            style={{ cursor: "pointer" }}
+                            isSelected={selectedDocId === item.id && selectedSubtitleIdx === 0}
+                            width="100%"
+                            height="auto"
+                            textSize="14px"
+                            container="d-flex align-items-center justify-content-between p-2 mb-2 shadow-sm rounded-2"
+                            style={{
+                                border: '1px solid #dee2e6',
+                                borderLeft: ocrByDocId[item.id]?.[0]?.pages ? '6px solid green' : '6px solid #BDBDBD',
+                            }}
                         >
-                            <span className="fw-bold" style={{ fontSize: "14px" }}>{item.title}</span>
-                        </div>
+                            {item.title}
+                        </MotionCard>
+
 
                         {item.subtitle && (
                             <div className="ps-4">
                                 {item.subtitle.map((subItem, subIdx) => (
                                     <div key={subIdx} className="d-flex">
-                                        <div className="me-2 rounded-2" style={{ width: "4px", height: "38px", backgroundColor: "#BDBDBD", fontSize: '14px' }} />
                                         <div
-                                            className="flex-grow-1 d-flex align-items-center justify-content-between p-2 mb-2 border shadow-sm rounded-2"
+                                            className="me-2 rounded-2"
+                                            style={{
+                                                width: "4px",
+                                                height: "38px",
+                                                backgroundColor: ocrByDocId[item.id]?.[subIdx]?.pages ? "green" : "#BDBDBD"
+                                            }}
+                                        />
+
+                                        <MotionCard
                                             onClick={() => handleSelect(item.id, subIdx)}
-                                            style={{ cursor: "pointer" }}
+                                            isSelected={selectedDocId === item.id && selectedSubtitleIdx === subIdx}
+                                            width="100%"
+                                            height="auto"
+                                            textSize="12px"
+                                            container="d-flex align-items-center justify-content-between p-2 mb-2 shadow-sm rounded-2"
+                                            style={{
+                                                border: '1px solid #dee2e6',
+                                                borderLeft: ocrByDocId[item.id]?.[subIdx]?.pages ? '6px solid green' : '6px solid #BDBDBD',
+                                            }}
                                         >
-                                            <span className="fw-bold" style={{ fontSize: "12px" }}>{subItem}</span>
-                                        </div>
+                                            {subItem}
+                                        </MotionCard>
                                     </div>
                                 ))}
                             </div>

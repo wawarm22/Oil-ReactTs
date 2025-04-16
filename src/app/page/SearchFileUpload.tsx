@@ -15,7 +15,7 @@ import UploadFilterPanel from "../reusable/UploadFilterPanel";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser"
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-import { apiDeleteBlob, apiPreviewPdf, apiSearchFiles, comfirmUpload } from "../../utils/api/uploadApi";
+import { apiDeleteBlobAfter, apiPreviewPdf, apiSearchFiles, comfirmUpload } from "../../utils/api/uploadApi";
 import { useUser } from "../../hook/useUser";
 import { useCompanyStore } from "../../store/companyStore";
 import { MdCancel } from "react-icons/md";
@@ -415,7 +415,7 @@ const SearchFileUpload: React.FC = () => {
         if (!fileToDelete) return;
 
         try {
-            await apiDeleteBlob(fileToDelete.blobPath);
+            await apiDeleteBlobAfter(fileToDelete.blobPath);
             console.log("ลบ blob สำเร็จ:", fileToDelete.blobPath);
         } catch (err) {
             console.error("ลบ blob ไม่สำเร็จ:", err);

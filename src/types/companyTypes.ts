@@ -29,3 +29,8 @@ export type ApiResponse<T = unknown> = {
     status: boolean;
     data: T;
 };
+
+export type ApiPasswordResponse = {
+    message: string;
+    status: boolean;
+};

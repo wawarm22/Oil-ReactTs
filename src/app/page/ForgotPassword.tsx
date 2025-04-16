@@ -11,10 +11,28 @@ import bCorner from "../../assets/img/b-corner.png";
 import lineTop from "../../assets/img/line-top.png";
 import Button from "../reusable/Button";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { apiForgotPassword } from "../../utils/api/authenApi";
+import { Spinner } from "react-bootstrap";
 
 const ForgotPassword: React.FC = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSendResetLink = async () => {
+        setIsLoading(true);
+        try {
+            await apiForgotPassword(email);
+            toast.success("ส่งลิงก์รีเซ็ตรหัสผ่านเรียบร้อยแล้ว กรุณาตรวจสอบอีเมลของคุณ");
+            // navigate("/login");
+        } catch (error) {
+            toast.error("ไม่สามารถส่งลิงก์รีเซ็ตรหัสผ่านได้");
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <>
@@ -98,14 +116,21 @@ const ForgotPassword: React.FC = () => {
                                             />
                                         </div>
                                         <Button
-                                            className="mt-5 w-100"
+                                            className="mt-5 w-100 d-flex justify-content-center align-items-center"
                                             type="button"
                                             label="ส่งลิงค์สำหรับเปลี่ยนรหัสผ่าน"
                                             maxWidth="300px"
                                             bgColor="#FFCB02"
                                             color="#131516"
-                                            variant="bg-hide"                                            
-                                        />
+                                            variant="bg-hide"
+                                            onClick={handleSendResetLink}
+                                            disabled={isLoading}
+                                        >
+                                            {isLoading && (
+                                                <Spinner animation="border" role="status" size="sm" className="me-1"/>
+                                            )}
+                                        </Button>
+
                                         <Button
                                             className="mt-3 w-100"
                                             type="button"

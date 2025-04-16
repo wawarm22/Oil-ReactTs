@@ -41,6 +41,23 @@ export const apiDeleteBlob = async (prefix: string): Promise<DeleteUploadRespons
     }
 };
 
+export const apiDeleteBlobAfter = async (prefix: string): Promise<DeleteUploadResponse> => {
+    try {
+        const response = await axios.post(
+            `${BASE_URL}/delete-blobs-afterconfirm`,
+            { prefix }, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting blob:", error instanceof Error ? error.message : error);
+        throw error;
+    }
+};
+
 export const apiDeleteDoc = async (documentGroup: string): Promise<DeleteUploadResponse> => {
     try {
         const response = await axios.post(

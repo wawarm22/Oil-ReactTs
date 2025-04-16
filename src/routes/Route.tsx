@@ -17,6 +17,7 @@ import TaxSubmission from "../app/page/TaxSubmission";
 import UploadPreparation from "../app/page/UploadPreparation";
 import AuthRoute from "./middleware/AuthRoute";
 import SearchFileUpload from "../app/page/SearchFileUpload";
+import SignalOcr from "../app/component/SignalOcr";
 
 const WebRoute = () => {
   return (
@@ -25,7 +26,7 @@ const WebRoute = () => {
         {/* GUEST ROUTES */}
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/auth/forgot-password" element={<ResetPassword />} />
         <Route path="/register" element={<Register />} />
 
         {/* AUTH ROUTES */}
@@ -41,6 +42,7 @@ const WebRoute = () => {
         <Route path="/match-list" element={<AuthRoute children={(<MatchList />)} />} />
         <Route path="/match-document" element={<AuthRoute children={(<MatchDocument />)} />} />
         <Route path="/submit" element={<AuthRoute children={(<TaxSubmission />)} />} />
+        <Route path="/test" element={<AuthRoute children={(<SignalOcr />)} />} />
       </Routes>
     </Layout>
   );
