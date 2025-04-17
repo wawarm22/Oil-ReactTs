@@ -3,11 +3,11 @@ import { DocumentItem } from "../../types/docList";
 import { apiGetAllOcr } from "../../utils/api/OcrListApi";
 import { OcrFields } from "../../types/ocrFileType";
 import MotionCard from "../reusable/MotionCard";
+import { useSocket } from "../../hook/socket";
 
 interface Props {
     documentList: DocumentItem[];
     folders: string[];
-    ocrTrigger: number;
     onSelectDocument: (
         singlePageOcr: OcrFields | null,
         fullOcrPages: { pages: { [page: number]: OcrFields }; pageCount: number } | null
@@ -15,75 +15,90 @@ interface Props {
 
 }
 
-const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDocument, ocrTrigger }) => {
+const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDocument }) => {
     const [ocrByDocId, setOcrByDocId] = useState<{ [docId: number]: any }>({});
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
+    const { addCallbacks, removeCallbacks } = useSocket();
 
     const transportFilter = localStorage.getItem("transport");
 
     const filteredList = documentList.filter(item =>
         !transportFilter || item.transport === transportFilter
     );
-    useEffect(() => {
-        const fetchOcrData = async () => {
-            const results: {
-                [docId: number]: {
-                    [subtitleIndex: number]: {
-                        pages: { [pageNum: number]: OcrFields },
-                        pageCount: number
-                    }
-                }
-            } = {};
 
-            for (const folder of folders) {
-                try {
-                    const data = await apiGetAllOcr(folder);
-                    const documents = data?.documents ?? [];
-
-                    for (const document of documents) {
-                        const groupParts = document.documentGroup.split('/');
-                        const len = groupParts.length;
-
-                        let docId = 0;
-                        let subtitleIndex = 0;
-
-                        if (len >= 2 && !isNaN(Number(groupParts[len - 1]))) {
-                            docId = parseInt(groupParts[len - 1]);
-                        }
-
-                        if (len >= 3 && !isNaN(Number(groupParts[len - 2])) && !isNaN(Number(groupParts[len - 1]))) {
-                            docId = parseInt(groupParts[len - 2]);
-                            subtitleIndex = parseInt(groupParts[len - 1]) - 1;
-                        }
-
-                        const pageNumber = parseInt(document.pageNumber ?? "1");
-                        const pageCount = parseInt(document.pageCount ?? "1");
-
-                        if (!results[docId]) results[docId] = {};
-                        if (!results[docId][subtitleIndex]) {
-                            results[docId][subtitleIndex] = {
-                                pages: {},
-                                pageCount: pageCount
-                            };
-                        }
-
-                        results[docId][subtitleIndex].pages[pageNumber] = document.fields;
-                    }
-
-                } catch (err) {
-                    console.error("OCR fetch failed:", err);
+    const fetchOcrData = async () => {
+        const results: {
+            [docId: number]: {
+                [subtitleIndex: number]: {
+                    pages: { [pageNum: number]: OcrFields },
+                    pageCount: number
                 }
             }
+        } = {};
 
-            console.log("Final OCR by page:", results);
-            setOcrByDocId(results);
-        };
+        for (const folder of folders) {
+            try {
+                const data = await apiGetAllOcr(folder);
+                const documents = data?.documents ?? [];
 
+                for (const document of documents) {
+                    const groupParts = document.documentGroup.split('/');
+                    const len = groupParts.length;
+
+                    let docId = 0;
+                    let subtitleIndex = 0;
+
+                    if (len >= 2 && !isNaN(Number(groupParts[len - 1]))) {
+                        docId = parseInt(groupParts[len - 1]);
+                    }
+
+                    if (len >= 3 && !isNaN(Number(groupParts[len - 2])) && !isNaN(Number(groupParts[len - 1]))) {
+                        docId = parseInt(groupParts[len - 2]);
+                        subtitleIndex = parseInt(groupParts[len - 1]) - 1;
+                    }
+
+                    const pageNumber = parseInt(document.pageNumber ?? "1");
+                    const pageCount = parseInt(document.pageCount ?? "1");
+
+                    if (!results[docId]) results[docId] = {};
+                    if (!results[docId][subtitleIndex]) {
+                        results[docId][subtitleIndex] = {
+                            pages: {},
+                            pageCount: pageCount
+                        };
+                    }
+
+                    results[docId][subtitleIndex].pages[pageNumber] = document.fields;
+                }
+
+            } catch (err) {
+                console.error("OCR fetch failed:", err);
+            }
+        }
+
+        console.log("Final OCR by page:", results);
+        setOcrByDocId(results);
+    };
+
+    useEffect(() => {
         if (folders.length > 0) {
             fetchOcrData();
         }
-    }, [folders, ocrTrigger]);
+    }, [folders]);
+
+    useEffect(() => {
+        const handleSocketUpdate = () => {
+            console.log("orc");
+            
+            if (folders.length > 0) {
+                fetchOcrData();
+            }
+        };
+    
+        addCallbacks("ocr-refresh-checklist", handleSocketUpdate);
+        return () => removeCallbacks("ocr-refresh-checklist");
+    }, [folders]);
 
     const handleSelect = (docId: number, subtitleIndex = 0) => {
         const docGroup = ocrByDocId[docId]?.[subtitleIndex];

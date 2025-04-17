@@ -376,9 +376,18 @@ const UploadPreparation: React.FC = () => {
         }
     };
 
-    const filteredDocuments = documentList.filter(
-        (item) => !filters.transport || item.transport === filters.transport.value
-    );
+    const filteredDocuments = documentList.filter((item) => {
+        const warehouse = filters.warehouse?.value;
+        const transport = filters.transport?.value;
+
+        const transportMatch = !transport || item.transport === transport;
+        if (!transportMatch) return false;
+
+        if (item.id === 51) return warehouse === "H401";
+        if (item.id === 52) return warehouse === "K103";
+
+        return true;
+    });
 
     return (
         <div className="container-fluid mt-3 w-100" style={{ maxWidth: '1800px' }}>

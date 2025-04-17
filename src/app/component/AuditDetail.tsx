@@ -10,10 +10,9 @@ interface AuditDetailProps {
     currentPage: number;
     uploadedFiles: { [key: number]: { name: string; data: string; pageCount: number }[] };
     folders: string[];
-    ocrTrigger: number;
 }
 
-const AuditDetail: React.FC<AuditDetailProps> = ({ folders, ocrTrigger }) => {
+const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
     const [_selectedOcrFields, setSelectedOcrFields] = useState<OcrFields | null>(null);
     const [selectedOcrDocument, setSelectedOcrDocument] = useState<{
         pages: { [page: number]: OcrFields };
@@ -25,7 +24,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, ocrTrigger }) => {
             <DocumentChecklist
                 documentList={documentList}
                 folders={folders}
-                ocrTrigger={ocrTrigger}
                 onSelectDocument={(singlePage, fullDoc) => {
                     setSelectedOcrFields(singlePage);
                     setSelectedOcrDocument(fullDoc);

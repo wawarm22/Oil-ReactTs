@@ -12,7 +12,7 @@ const SubDocumentList: React.FC<SubDocumentListProps> = ({ selectedId, setSelect
     const [selectedSubIndex, setSelectedSubIndex] = useState<number | null>(null);
 
     useEffect(() => {
-        if (selectedCategory && selectedCategory.documents.length > 0) {
+        if (selectedCategory && selectedCategory.documents!.length > 0) {
             setSelectedSubIndex(0);
             setSelectedDocIndex(0); 
         }
@@ -32,7 +32,7 @@ const SubDocumentList: React.FC<SubDocumentListProps> = ({ selectedId, setSelect
 
                 {selectedCategory && (
                     <div className="d-flex flex-wrap justify-content-start">
-                        {selectedCategory.documents.map((doc, index) => (
+                        {selectedCategory.documents!.map((doc, index) => (
                             <MotionCard
                                 key={index}
                                 isSelected={selectedSubIndex === index}

@@ -17,6 +17,9 @@ import { apiLogin } from "../../utils/api/authenApi";
 import { ApiLoginResponseSchema } from "../../types/schema/api";
 import { useUser } from "../../hook/useUser";
 import { cipherEncrypt } from "../../utils/encoding/cipher";
+import apiMyFactory from "../../utils/api/apiMyFactory";
+import { useSocket } from "../../hook/socket";
+import { FactorySchema } from "../schemas/factorySchema";
 
 const Login: React.FC = () => {
     const signIn = useSignIn();
@@ -27,6 +30,7 @@ const Login: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
+    const { setFactories } = useSocket()
 
     const handleRegister = () => {
         navigate('/register');
@@ -59,21 +63,23 @@ const Login: React.FC = () => {
                 if (!isSignedIn) {
                     throw new Error("Failed to sign in");
                 }
-                // const { accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn, user } = parsed.data
                 const { user } = parsed.data
-                // const json_str = JSON.stringify({ accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn })
-
-                // const token = cipherEncrypt(json_str)
                 const encryptedUser = cipherEncrypt(JSON.stringify(user));
 
-                // localStorage.setItem("token", token);
                 localStorage.setItem("user", encryptedUser);
                 if (user) {
                     setUser(user);
                 } else {
                     setUser(null);
                 }
+                const fac = await apiMyFactory(parsed.data!)
+                const factory = FactorySchema.parse(fac.data)
+                const factory_id = factory.map(f => f.factory.slug)
 
+                setFactories(factory_id)
+                // addCallbacks("login", (data) => {
+                //     console.log(data);
+                // })
                 navigate('/', { replace: true });
             } else {
 
