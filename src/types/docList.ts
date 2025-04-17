@@ -252,7 +252,7 @@ export const documentList: DocumentItem[] = [
     },
     {
         id: 39,
-        title: "เอกสาร ใบกำกับภาษี (โรงกลั่น)",
+        title: "เอกสาร ใบกำกับภาษี (โรงกลั่น) (ถ้ามี)",
         documents: ["เอกสารแบบ ภส. 05-02 ภส. 05-02/1", "เอกสารแบบ ภส. 07-01"],
         transport: "01"
     },
@@ -270,7 +270,7 @@ export const documentList: DocumentItem[] = [
     },
     {
         id: 42,
-        title: "เอกสาร Outturn Statement รายงานปริมาณน้ำมันที่ได้รับจริง",
+        title: "เอกสาร Outturn Statement รายงานปริมาณน้ำมันที่ได้รับจริง (ถ้ามี)",
         documents: ["เอกสารแบบ ภส. 05-02 ภส. 05-02/1", "เอกสารแบบ ภส. 07-01"],
         transport: "01"
     },
@@ -315,8 +315,8 @@ export const documentList: DocumentItem[] = [
         title: "เอกสารจาก 3PL",
         documents: ["เอกสารแบบ ภส. 05-02 ภส. 05-02/1", "เอกสารแบบ ภส. 07-01"],
         subtitle: [
-            "Thappline",
-            "FPT"
+            "Thappline (ถ้ามี)",
+            "FPT (ถ้ามี)"
         ],
         transport: "01"
     },

@@ -13,7 +13,7 @@ interface AuditDetailProps {
 }
 
 const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
-    const [_selectedOcrFields, setSelectedOcrFields] = useState<OcrFields | null>(null);
+    // const [_selectedOcrFields, setSelectedOcrFields] = useState<OcrFields | null>(null);
     const [selectedOcrDocument, setSelectedOcrDocument] = useState<{
         pages: { [page: number]: OcrFields };
         pageCount: number;
@@ -24,8 +24,8 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
             <DocumentChecklist
                 documentList={documentList}
                 folders={folders}
-                onSelectDocument={(singlePage, fullDoc) => {
-                    setSelectedOcrFields(singlePage);
+                onSelectDocument={(_singlePage, fullDoc) => {
+                    // setSelectedOcrFields(singlePage);
                     setSelectedOcrDocument(fullDoc);
                 }}
             />
