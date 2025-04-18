@@ -237,6 +237,7 @@ const UploadPreparation: React.FC = () => {
 
         if (!uploadedResults.length) {
             setUploadingMap(prev => ({ ...prev, [key]: false }));
+            event.target.value = "";
             return;
         }
 
@@ -258,6 +259,7 @@ const UploadPreparation: React.FC = () => {
         });
 
         setUploadingMap(prev => ({ ...prev, [key]: false }));
+        event.target.value = "";
     };
 
     const handleRemoveFile = (docId: number, subtitleIndex: number = 0, fileIndex: number) => {
@@ -314,11 +316,7 @@ const UploadPreparation: React.FC = () => {
 
         if (Array.isArray(subtitle) && subtitle.every((text: string): boolean => text.includes("ถ้ามี"))) {
             return true;
-        }
-
-        // if (Array.isArray(subtitle) && subtitle.every((text) => text.includes("ถ้ามี"))) {
-        //     return true;
-        // }        
+        }                
 
         const uploaded = uploadedFiles[item.id];
         if (!uploaded) return false;
@@ -340,21 +338,7 @@ const UploadPreparation: React.FC = () => {
         }
 
         return !item.title.includes("ถ้ามี") && isTransportMatch;
-    });
-
-    // const notUploadedItems = currentDocuments.filter(item => !isUploadedComplete(item));
-
-    // console.log("เอกสารที่ยังไม่ได้อัปโหลดทั้งหมด:");
-    // notUploadedItems.forEach(item => {
-    //     console.log({
-    //         id: item.id,
-    //         title: item.title,
-    //         subtitle: item.subtitle,
-    //         transport: item.transport,
-    //     });
-    // });
-
-    // const isConfirmDisabled = notUploadedItems.length > 0;
+    });    
 
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
 
@@ -394,8 +378,8 @@ const UploadPreparation: React.FC = () => {
             localStorage.setItem("folders", JSON.stringify(folders));
             localStorage.setItem("transport", filters.transport?.value || "");
             localStorage.setItem("warehouse", filters.warehouse?.value || "");
-            navigate("/audit");
-            // navigate("/");
+            // navigate("/audit");
+            navigate("/");
 
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
