@@ -310,21 +310,51 @@ const UploadPreparation: React.FC = () => {
     };
 
     const isUploadedComplete = (item: DocumentItem): boolean => {
+        const subtitle = item.subtitle;
+
+        if (Array.isArray(subtitle) && subtitle.every((text: string): boolean => text.includes("ถ้ามี"))) {
+            return true;
+        }
+
+        // if (Array.isArray(subtitle) && subtitle.every((text) => text.includes("ถ้ามี"))) {
+        //     return true;
+        // }        
+
         const uploaded = uploadedFiles[item.id];
         if (!uploaded) return false;
 
-        if (item.subtitle?.length) {
-            return Object.values(uploaded).some(u => u.files.length > 0);
-        }
-
-        return uploaded[0]?.files.length > 0;
+        return Object.values(uploaded).some(u => u.files.length > 0);
     };
 
-    const currentDocuments = documentList.filter(
-        (item) =>
-            !item.title.includes("ถ้ามี") &&
-            (!filters.transport || item.transport === filters.transport.value)
-    );
+
+    const currentDocuments = documentList.filter((item) => {
+        const subtitle = item.subtitle;
+
+        const isSubtitleOptional =
+            Array.isArray(subtitle) && subtitle.every((s: string) => s.includes("ถ้ามี"));
+
+        const isTransportMatch = !filters.transport || item.transport === filters.transport.value;
+
+        if (subtitle) {
+            return !isSubtitleOptional && isTransportMatch;
+        }
+
+        return !item.title.includes("ถ้ามี") && isTransportMatch;
+    });
+
+    // const notUploadedItems = currentDocuments.filter(item => !isUploadedComplete(item));
+
+    // console.log("เอกสารที่ยังไม่ได้อัปโหลดทั้งหมด:");
+    // notUploadedItems.forEach(item => {
+    //     console.log({
+    //         id: item.id,
+    //         title: item.title,
+    //         subtitle: item.subtitle,
+    //         transport: item.transport,
+    //     });
+    // });
+
+    // const isConfirmDisabled = notUploadedItems.length > 0;
 
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
 
@@ -364,8 +394,8 @@ const UploadPreparation: React.FC = () => {
             localStorage.setItem("folders", JSON.stringify(folders));
             localStorage.setItem("transport", filters.transport?.value || "");
             localStorage.setItem("warehouse", filters.warehouse?.value || "");
-            // navigate("/audit");
-            navigate("/");
+            navigate("/audit");
+            // navigate("/");
 
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");

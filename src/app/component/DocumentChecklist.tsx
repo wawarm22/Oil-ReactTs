@@ -77,7 +77,6 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
             }
         }
 
-        console.log("Final OCR by page:", results);
         setOcrByDocId(results);
     };
 

@@ -2,6 +2,7 @@ import React from "react";
 import { OcrTaxDocument } from "../../types/ocrFileType";
 
 const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
+    
     const fields = [
         { label: "บริษัท", value: data.company_name },
         { label: "คลังน้ำมัน", value: data.branch_no },

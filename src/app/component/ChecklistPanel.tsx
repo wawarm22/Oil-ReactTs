@@ -17,9 +17,7 @@ const ChecklistPanel: React.FC<Props> = ({ ocrDocument }) => {
 
     if (!ocrDocument) return <p className="text-muted">ไม่มีข้อมูล OCR</p>;
 
-    const currentOcrFields = ocrDocument.pages[currentPage];
-    console.log("currentOcrFields", currentOcrFields);
-    
+    const currentOcrFields = ocrDocument.pages[currentPage];    
     const type = detectOcrType(currentOcrFields);
 
     return (
