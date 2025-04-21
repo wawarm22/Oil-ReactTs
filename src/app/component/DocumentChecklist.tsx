@@ -41,7 +41,8 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
             try {
                 const data = await apiGetAllOcr(folder);
                 const documents = data?.documents ?? [];
-
+                console.log("data",data);
+                
                 for (const document of documents) {
                     const groupParts = document.documentGroup.split('/');
                     const len = groupParts.length;
@@ -77,6 +78,8 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
             }
         }
 
+        console.log("results", results);
+        
         setOcrByDocId(results);
     };
 

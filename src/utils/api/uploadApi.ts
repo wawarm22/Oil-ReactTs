@@ -92,6 +92,24 @@ export const apiPreviewPdf = async (path: string): Promise<string> => {
     }
 };
 
+
+export const apiPreviewPdfAfterConfirm = async (path: string): Promise<string> => {
+    try {
+        const response = await axios.get(`${BASE_URL}/preview-url-afterconfirm`, {
+            params: { path },
+        });
+
+        if (response.data?.previewUrl) {
+            return response.data.previewUrl;
+        } else {
+            throw new Error("ไม่พบ previewUrl ใน response");
+        }
+    } catch (error) {
+        console.error("Error fetching preview URL:", error instanceof Error ? error.message : error);
+        throw error;
+    }
+};
+
 export const apiListPdfFiles = async (prefix: string): Promise<PdfListResponse> => {
     try {
         const response = await axios.get(`${BASE_URL}/list-files`, {

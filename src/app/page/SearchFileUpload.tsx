@@ -15,7 +15,7 @@ import UploadFilterPanel from "../reusable/UploadFilterPanel";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser"
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-import { apiDeleteBlobAfter, apiPreviewPdf, apiSearchFiles, comfirmUpload } from "../../utils/api/uploadApi";
+import { apiDeleteBlobAfter, apiPreviewPdfAfterConfirm, apiSearchFiles, comfirmUpload } from "../../utils/api/uploadApi";
 import { useUser } from "../../hook/useUser";
 import { useCompanyStore } from "../../store/companyStore";
 import { MdCancel } from "react-icons/md";
@@ -167,7 +167,7 @@ const SearchFileUpload: React.FC = () => {
         const mergedPdf = await PDFDocument.create();
         for (const file of storedFiles) {
             try {
-                const previewUrl = await apiPreviewPdf(file.blobPath);
+                const previewUrl = await apiPreviewPdfAfterConfirm(file.blobPath);
                 const pdfBytes = await fetch(previewUrl).then(res => res.arrayBuffer());
                 const pdfDoc = await PDFDocument.load(pdfBytes);
                 const pages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
@@ -184,7 +184,7 @@ const SearchFileUpload: React.FC = () => {
 
     const openBlobSecurely = async (blobPath: string) => {
         try {
-            const previewUrl = await apiPreviewPdf(blobPath);
+            const previewUrl = await apiPreviewPdfAfterConfirm(blobPath);
             const response = await fetch(previewUrl);
             const blob = await response.blob();
             const url = URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
