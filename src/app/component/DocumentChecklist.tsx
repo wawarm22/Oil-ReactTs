@@ -122,7 +122,7 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
     };
 
     return (
-        <div className="shadow-sm bg-white rounded-2 p-3" style={{ width: "30%", overflowY: "auto" }}>
+        <div className="shadow-sm bg-white rounded-2 p-3" style={{ width: "25%", overflowY: "auto" }}>
             {filteredList.map((item, index) => (
                 <div key={index} className="mb-1 d-flex">
                     <div

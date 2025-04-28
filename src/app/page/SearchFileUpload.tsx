@@ -158,16 +158,24 @@ const SearchFileUpload: React.FC = () => {
     };
 
     const mergeAndOpenPdf = async (docId: number, subtitleIndex: number = 0) => {
-        const storedFiles = parsedFiles.filter(f => f.docId === docId && f.subtitleIndex === subtitleIndex);
-        if (!storedFiles.length) {
+        const storedFiles = uploadedFiles[docId]?.[subtitleIndex]?.files;
+        if (!storedFiles || storedFiles.length === 0) {
             toast.warning("ไม่มีไฟล์ที่อัปโหลด");
             return;
         }
 
         const mergedPdf = await PDFDocument.create();
+        // mergeAndOpenPdf: ไม่ควรรวม non-pdf เข้าด้วย ให้เปิดแบบแยกแทน
         for (const file of storedFiles) {
             try {
                 const previewUrl = await apiPreviewPdfAfterConfirm(file.blobPath);
+                const ext = file.name.split('.').pop()?.toLowerCase();
+                if (ext !== "pdf") {
+                    // แสดงแยกต่างหากใน tab ใหม่
+                    window.open(previewUrl, "_blank");
+                    continue;
+                }
+
                 const pdfBytes = await fetch(previewUrl).then(res => res.arrayBuffer());
                 const pdfDoc = await PDFDocument.load(pdfBytes);
                 const pages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
@@ -187,13 +195,13 @@ const SearchFileUpload: React.FC = () => {
             const previewUrl = await apiPreviewPdfAfterConfirm(blobPath);
             const response = await fetch(previewUrl);
             const blob = await response.blob();
-            const url = URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
+            const url = URL.createObjectURL(blob);
             window.open(url, "_blank");
         } catch (err) {
             toast.error("ไม่สามารถเปิดเอกสารได้");
             console.error(err);
         }
-    };
+    };    
 
     const buildBaseName = (
         warehouseCode: string,
@@ -336,7 +344,7 @@ const SearchFileUpload: React.FC = () => {
             : selectedCompany.name;
 
         // const companyName = selectedCompany.name;
-        const {uploadedResults, baseNameWithoutDocSeq} = await uploadFile(
+        const { uploadedResults, baseNameWithoutDocSeq } = await uploadFile(
             files,
             companyName,
             filters.warehouse.value,
@@ -382,7 +390,7 @@ const SearchFileUpload: React.FC = () => {
             };
         });
 
-        console.log("newParsed", newParsed);        
+        console.log("newParsed", newParsed);
 
         setParsedFiles(prev => [...prev, ...newParsed]);
         setUploadingMap((prev) => ({ ...prev, [key]: false }));
@@ -490,7 +498,7 @@ const SearchFileUpload: React.FC = () => {
 
             const blobPath = `${companyName}/`;
             console.log("blobPath", blobPath);
-            
+
             const result = await comfirmUpload(blobPath);
             console.log("อัปโหลดเสร็จแล้ว:", result);
             toast.success("อัปโหลดเสร็จแล้ว");
@@ -592,7 +600,7 @@ const SearchFileUpload: React.FC = () => {
                                                 />
                                                 <div style={{ whiteSpace: "normal", wordBreak: "break-word", paddingTop: "1px" }}>
                                                     <span className="fw-bold" style={{ cursor: "pointer" }}>
-                                                       {index + 1}. {item.title}
+                                                        {index + 1}. {item.title}
                                                     </span>
                                                 </div>
                                             </div>
@@ -674,7 +682,7 @@ const SearchFileUpload: React.FC = () => {
                                                 />
                                                 <input
                                                     type="file"
-                                                    accept="application/pdf"
+                                                    accept=".pdf,image/*"
                                                     multiple
                                                     style={{ display: "none" }}
                                                     id={`file-upload-${item.id}`}
@@ -764,7 +772,7 @@ const SearchFileUpload: React.FC = () => {
                                                         />
                                                         <input
                                                             type="file"
-                                                            accept="application/pdf"
+                                                            accept=".pdf,image/*"
                                                             multiple
                                                             style={{ display: "none" }}
                                                             id={`file-upload-${item.id}-${subIndex}`}

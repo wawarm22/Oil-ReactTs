@@ -10,7 +10,7 @@ export const generateUploadUrl = async (
             `${BASE_URL}/generate-upload-url`,
             payload, {
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/pdfpdfjson",
             },
         });
 
@@ -30,7 +30,7 @@ export const apiDeleteBlob = async (prefix: string): Promise<DeleteUploadRespons
             `${BASE_URL}/delete-blobs`,
             { prefix }, {
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/pdfpdfjson",
             },
         });
 
@@ -47,7 +47,7 @@ export const apiDeleteBlobAfter = async (prefix: string): Promise<DeleteUploadRe
             `${BASE_URL}/delete-blobs-afterconfirm`,
             { prefix }, {
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/pdfpdfjson",
             },
         });
 
@@ -64,7 +64,7 @@ export const apiDeleteDoc = async (documentGroup: string): Promise<DeleteUploadR
             `${BASE_URL}/delete-documents-by-group`,
             { documentGroup }, {
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/pdfpdfjson",
             },
         });
 
@@ -159,7 +159,8 @@ export const apiUpload = async (
             headers: {
                 "x-ms-blob-type": "BlockBlob",
                 "x-ms-meta-documentgroup": documentGroup,
-                "Content-Type": "application/pdf",
+                "Content-Type": file.type || "application/octet-stream",
+                // "Content-Type": "application/pdf",
             },
         });
 
@@ -176,7 +177,7 @@ export const comfirmUpload = async (blobPath: string): Promise<ComfirmUploadResp
             `${BASE_URL}/confirm-upload`,
             { blobPath }, {
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/pdfpdfjson",
             },
         });
 

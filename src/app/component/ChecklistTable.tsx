@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { OcrDetailTableDocument } from "../../types/ocrFileType";
-import { apiValidate } from "../../utils/api/validateApi";
+import { validateOilCompare } from "../../utils/api/validateApi";
 import { OCRValidationPayload } from "../../types/validateTypes";
 import { buildValidationMap } from "../../utils/function/validationMap";
 import { ValidationResponse } from "../../types/validateTypes";
@@ -26,13 +26,9 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
 
     useEffect(() => {
         if (cleanedRowsRef.current.fields.length > 0) {
-            console.log("cleanedRowsRef", cleanedRowsRef);
 
-            apiValidate(cleanedRowsRef.current).then((res: ValidationResponse) => {
-                console.log("res.data", res.data);
+            validateOilCompare(cleanedRowsRef.current).then((res: ValidationResponse) => {
                 const map = buildValidationMap(res.data, cleanedRowsRef.current.fields);
-                console.log("map", map);
-
                 setValidationMap(map);
             });
         }

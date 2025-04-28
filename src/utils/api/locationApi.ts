@@ -16,7 +16,7 @@ export const apiProvince = async () => {
     try {
         const response = await axios.get(`${BASE_URL}/provinces`, {
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/pdfpdfjson"
             }
         });
 
@@ -32,7 +32,7 @@ export const apiDistrict = async (provinceId: string) => {
     try {
         const response = await axios.get(`${BASE_URL}/ampur?provinceId=${provinceId}`, {
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/pdfpdfjson"
             }
         });
 
@@ -48,7 +48,7 @@ export const apiSubDistrict = async (amphureId: string) => {
     try {
         const response = await axios.get(`${BASE_URL}/tambon?amphureId=${amphureId}`, {
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/pdfpdfjson"
             }
         });
 

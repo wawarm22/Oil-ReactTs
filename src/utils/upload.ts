@@ -81,10 +81,11 @@ export const uploadFile = async (
         const checkList = await apiListPdfFiles(targetPath);
         listCount = checkList.count || 0;
 
-        const fileNames = files.map((_, i) => {
+        const fileNames = files.map((file, i) => {
+            const ext = file.name.split(".").pop()?.toLowerCase() || "pdf";
             const suffix = `-${listCount + i + 1}`;
-            return `${baseName}${suffix}.pdf`;
-        });
+            return `${baseName}${suffix}.${ext}`;
+        });        
 
         const uploadMeta = await generateUploadUrl({ fileNames, targetPath });
 

@@ -118,7 +118,7 @@ const UploadMultiple: React.FC = () => {
 
                             <input
                                 type="file"
-                                accept="application/pdf"
+                                accept=".pdf,image/*"
                                 multiple
                                 style={{ display: "none" }}
                                 id="file-upload-more"

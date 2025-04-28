@@ -136,8 +136,15 @@ const UploadPreparation: React.FC = () => {
             let updatedFilters = { ...prev, ...resetValues, [field]: value };
 
             const pipeWarehouses = ["H401", "K103"];
+            const selectedWarehouse = field === "warehouse" ? value?.value : prev.warehouse?.value;
             if (field === "warehouse" && pipeWarehouses.includes(value?.value)) {
                 updatedFilters.transport = { value: "01", label: "ทางท่อ" };
+            }
+
+            if (field === "transport" && pipeWarehouses.includes(selectedWarehouse)) {
+                if (value?.value === "00") {
+                    return prev;
+                }
             }
 
             return updatedFilters;
@@ -160,9 +167,17 @@ const UploadPreparation: React.FC = () => {
         }
 
         const mergedPdf = await PDFDocument.create();
+        // mergeAndOpenPdf: ไม่ควรรวม non-pdf เข้าด้วย ให้เปิดแบบแยกแทน
         for (const file of storedFiles) {
             try {
                 const previewUrl = await apiPreviewPdf(file.blobPath);
+                const ext = file.name.split('.').pop()?.toLowerCase();
+                if (ext !== "pdf") {
+                    // แสดงแยกต่างหากใน tab ใหม่
+                    window.open(previewUrl, "_blank");
+                    continue;
+                }
+
                 const pdfBytes = await fetch(previewUrl).then(res => res.arrayBuffer());
                 const pdfDoc = await PDFDocument.load(pdfBytes);
                 const pages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
@@ -182,7 +197,7 @@ const UploadPreparation: React.FC = () => {
             const previewUrl = await apiPreviewPdf(blobPath);
             const response = await fetch(previewUrl);
             const blob = await response.blob();
-            const url = URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
+            const url = URL.createObjectURL(blob);
             window.open(url, "_blank");
         } catch (err) {
             toast.error("ไม่สามารถเปิดเอกสารได้");
@@ -311,12 +326,35 @@ const UploadPreparation: React.FC = () => {
         });
     };
 
+    const filteredDocuments = documentList.filter((item) => {
+        const warehouse = filters.warehouse?.value;
+        const transport = filters.transport?.value;
+
+        const transportMatch = !transport || item.transport === transport;
+        if (!transportMatch) return false;
+
+        if (warehouse === "H401") {
+            const allowedIds = [38, 39, 40, 41, 42, 49, 51];
+            return allowedIds.includes(item.id);
+        }
+
+        if (warehouse === "K103") {
+            const allowedIds = [38, 39, 49];
+            return allowedIds.includes(item.id);
+        }
+
+        if (item.id === 51) return warehouse === "H401";
+        if (item.id === 52) return warehouse === "K103";
+
+        return true;
+    });
+
     const isUploadedComplete = (item: DocumentItem): boolean => {
         const subtitle = item.subtitle;
 
         if (Array.isArray(subtitle) && subtitle.every((text: string): boolean => text.includes("ถ้ามี"))) {
             return true;
-        }                
+        }
 
         const uploaded = uploadedFiles[item.id];
         if (!uploaded) return false;
@@ -324,21 +362,19 @@ const UploadPreparation: React.FC = () => {
         return Object.values(uploaded).some(u => u.files.length > 0);
     };
 
-
-    const currentDocuments = documentList.filter((item) => {
+    const currentDocuments = filteredDocuments.filter((item) => {
         const subtitle = item.subtitle;
-
+    
+        // ถ้ามี subtitle แล้วทุกอันมีคำว่า "ถ้ามี" หมด = ไม่บังคับ upload
         const isSubtitleOptional =
             Array.isArray(subtitle) && subtitle.every((s: string) => s.includes("ถ้ามี"));
-
-        const isTransportMatch = !filters.transport || item.transport === filters.transport.value;
-
-        if (subtitle) {
-            return !isSubtitleOptional && isTransportMatch;
-        }
-
-        return !item.title.includes("ถ้ามี") && isTransportMatch;
-    });    
+    
+        // ถ้าไม่มี subtitle ให้ดูจาก title
+        const isTitleOptional = item.title.includes("ถ้ามี");
+    
+        return !(isSubtitleOptional || isTitleOptional);
+    });
+    
 
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
 
@@ -378,8 +414,8 @@ const UploadPreparation: React.FC = () => {
             localStorage.setItem("folders", JSON.stringify(folders));
             localStorage.setItem("transport", filters.transport?.value || "");
             localStorage.setItem("warehouse", filters.warehouse?.value || "");
-            // navigate("/audit");
-            navigate("/");
+            navigate("/audit");
+            // navigate("/");
 
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
@@ -390,18 +426,7 @@ const UploadPreparation: React.FC = () => {
         }
     };
 
-    const filteredDocuments = documentList.filter((item) => {
-        const warehouse = filters.warehouse?.value;
-        const transport = filters.transport?.value;
 
-        const transportMatch = !transport || item.transport === transport;
-        if (!transportMatch) return false;
-
-        if (item.id === 51) return warehouse === "H401";
-        if (item.id === 52) return warehouse === "K103";
-
-        return true;
-    });
 
     return (
         <div className="container-fluid mt-3 w-100" style={{ maxWidth: '1800px' }}>
@@ -533,7 +558,7 @@ const UploadPreparation: React.FC = () => {
                                                 />
                                                 <input
                                                     type="file"
-                                                    accept="application/pdf"
+                                                    accept=".pdf,image/*"
                                                     multiple
                                                     style={{ display: "none" }}
                                                     id={`file-upload-${item.id}`}
@@ -564,6 +589,13 @@ const UploadPreparation: React.FC = () => {
                                 <AnimatePresence>
                                     {openDropdown[item.id] && (
                                         item.subtitle?.map((subtitleText, subIndex) => {
+                                            const warehouse = filters.warehouse?.value;
+                                            const isSpecialWarehouse = warehouse === "H401" || warehouse === "K103";
+
+                                            if (item.id === 49 && isSpecialWarehouse && subIndex > 1) {
+                                                return null;
+                                            }
+
                                             const uploaded = uploadedFiles[item.id]?.[subIndex];
                                             return (
                                                 <motion.tr
@@ -619,7 +651,7 @@ const UploadPreparation: React.FC = () => {
                                                         />
                                                         <input
                                                             type="file"
-                                                            accept="application/pdf"
+                                                            accept=".pdf,image/*"
                                                             multiple
                                                             style={{ display: "none" }}
                                                             id={`file-upload-${item.id}-${subIndex}`}

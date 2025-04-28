@@ -32,7 +32,7 @@ export const apiRefreshToken = async (refreshToken: string) => {
 export const apiRegister = async (userData: UserData) => {
     try {
         const response = await axios.post(`${BASE_URL_AWS}/auth/register`, userData, {
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/pdfpdfjson" },
         });
 
         if (response.status !== 200) {

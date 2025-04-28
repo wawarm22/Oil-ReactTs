@@ -80,7 +80,7 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ ocrFields }) => {
                 <img
                     src={currentThumbnail}
                     alt={`Page ${currentPage}`}
-                    style={{ maxWidth: "100%", height: "740px", objectFit: "cover", borderRadius: "6px" }}
+                    style={{ maxWidth: "100%", height: "740px", objectFit: "contain", borderRadius: "6px" }}
                 />
             ) : (
                 <p className="text-muted">ไม่มีหน้าที่ {currentPage}</p>

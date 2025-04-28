@@ -135,7 +135,7 @@ const Upload: React.FC = () => {
                             <th className="text-end">
                                 <input
                                     type="file"
-                                    accept="application/pdf"
+                                    accept=".pdf,image/*"
                                     multiple
                                     style={{ display: "none" }}
                                     id="file-upload-multi"
@@ -217,7 +217,7 @@ const Upload: React.FC = () => {
                                         )}
                                         <input
                                             type="file"
-                                            accept="application/pdf"
+                                            accept=".pdf,image/*"
                                             multiple
                                             style={{ display: "none" }}
                                             id={`file-upload-${item.id}`}
