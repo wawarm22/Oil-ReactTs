@@ -70,7 +70,7 @@ const UploadPreparation: React.FC = () => {
     const [baseName, setBaseName] = useState<string | null>(null);
     const [uploadingMap, setUploadingMap] = useState<Record<string, boolean>>({});
     const [filters, setFilters] = useState<FilterState>({
-        warehouse: null, transport: null, periodType: null, dateStart: null, dateEnd: null, month: null,
+        warehouse: null, transport: { value: "00", label: "ทางเรือ" }, periodType: null, dateStart: null, dateEnd: null, month: null,
     });
 
     const getUploadKey = (docId: number, subtitleIndex?: number) =>
@@ -364,20 +364,17 @@ const UploadPreparation: React.FC = () => {
 
     const currentDocuments = filteredDocuments.filter((item) => {
         const subtitle = item.subtitle;
-    
-        // ถ้ามี subtitle แล้วทุกอันมีคำว่า "ถ้ามี" หมด = ไม่บังคับ upload
+
         const isSubtitleOptional =
             Array.isArray(subtitle) && subtitle.every((s: string) => s.includes("ถ้ามี"));
-    
-        // ถ้าไม่มี subtitle ให้ดูจาก title
+
         const isTitleOptional = item.title.includes("ถ้ามี");
-    
+
         return !(isSubtitleOptional || isTitleOptional);
     });
-    
+
 
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
-    console.log(isConfirmDisabled);    
 
     const handleConfirm = () => {
         setShowConfirmModal(true);
@@ -415,8 +412,8 @@ const UploadPreparation: React.FC = () => {
             localStorage.setItem("folders", JSON.stringify(folders));
             localStorage.setItem("transport", filters.transport?.value || "");
             localStorage.setItem("warehouse", filters.warehouse?.value || "");
-            // navigate("/audit");
-            navigate("/");
+            navigate("/audit");
+            // navigate("/");
 
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
@@ -426,8 +423,6 @@ const UploadPreparation: React.FC = () => {
             setShowConfirmModal(false);
         }
     };
-
-
 
     return (
         <div className="container-fluid mt-3 w-100" style={{ maxWidth: '1800px' }}>
@@ -701,7 +696,7 @@ const UploadPreparation: React.FC = () => {
                         bgColor="#FFCB02"
                         color="#1E2329"
                         variant="bg-hide"
-                        disabled={isConfirmDisabled}
+                        // disabled={isConfirmDisabled}
                     />
                 </div>
             </div>

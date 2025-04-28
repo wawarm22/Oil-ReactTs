@@ -9,6 +9,7 @@ interface ChecklistStockOilFormattedProps {
 
 type OCRValidationPayload = {
     docType: string;
+    company: string;
     fields: OCRFieldRow[];
 };
 
@@ -113,7 +114,7 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
         if (summaryRow) all.push(summaryRow);
 
         setAllRowsState(all);
-        console.log("✅ allRowsState (for API):", all);
+        console.log("allRowsState (for API):", all);
     }, [data.detail_table]);
 
     const transformToOCRFieldRow = (row: Record<string, any>): OCRFieldRow => {
@@ -134,11 +135,12 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
 
             const payload: OCRValidationPayload = {
                 docType: "oil-07-01-page-1",
+                company: "",
                 fields: transformedFields,
             };
 
             validateOil0701(payload).then((res) => {
-                console.log("✅ validationMap:", res);
+                console.log("validationMap:", res);
             });
         }
     }, [allRowsState]);
