@@ -30,6 +30,8 @@ interface UploadFilterPanelProps {
 }
 
 const UploadFilterPanel: React.FC<UploadFilterPanelProps> = ({ filters, onChange, options }) => {
+
+    console.log("UploadFilterPanel | render | filters.month:", filters.month);
     return (
         <div className="d-flex justify-content-center gap-2 px-4 w-100">
             <CustomSelect
@@ -169,12 +171,27 @@ const UploadFilterPanel: React.FC<UploadFilterPanelProps> = ({ filters, onChange
                             }}
 
                             onChangeRaw={(e) => {
-                                const input = (e?.target as HTMLInputElement)?.value;
-                                const parsed = dayjs(input, "MM/YYYY", true).subtract(543, "year");
-                                if (parsed.isValid()) {
-                                    onChange("month", parsed.toDate());
+                                const input = (e?.target as HTMLInputElement)?.value;                            
+                                if (!input || !input.includes("/")) {
+                                    console.log("onChangeRaw | input empty or invalid:", input);
+                                    return; 
                                 }
-                            }}
+                            
+                                const parsed = dayjs(input, "MM/YYYY", true);
+                            
+                                const yearInput = parseInt(input.split("/")[1]);
+                            
+                                let adjusted;
+                                if (yearInput > 2500) {
+                                    adjusted = parsed.subtract(543, "year"); // BE → CE
+                                } else {
+                                    adjusted = parsed;
+                                }                            
+                            
+                                if (adjusted.isValid()) {
+                                    onChange("month", adjusted.toDate());
+                                }
+                            }}                            
 
                             customInput={
                                 <BuddhistInput
@@ -200,7 +217,7 @@ const UploadFilterPanel: React.FC<UploadFilterPanelProps> = ({ filters, onChange
                                     onChangeDate={(newDate) => {
                                         const newDateWithMonth = new Date(
                                             newDate.getFullYear(),
-                                            filters.month?.getMonth() ?? new Date().getMonth(),
+                                            filters.month ? filters.month.getMonth() : newDate.getMonth(),
                                             1
                                         );
                                         onChange("month", newDateWithMonth);

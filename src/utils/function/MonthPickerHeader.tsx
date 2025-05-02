@@ -9,7 +9,6 @@ interface MonthPickerHeaderProps {
     onChangeDate?: (newDate: Date) => void;
 }
 
-
 const MonthPickerHeader: React.FC<MonthPickerHeaderProps> = ({
     date,
     changeYear,
@@ -23,25 +22,26 @@ const MonthPickerHeader: React.FC<MonthPickerHeaderProps> = ({
     const selectedYearBE = selectedYear + 543;
     const currentYear = dayjs().year();
     const currentYearBE = currentYear + 543;
-
     const latestYearBE = Math.max(selectedYearBE, currentYearBE);
     const startYear = latestYearBE;
     const endYear = 2500;
     const years = Array.from({ length: startYear - endYear + 1 }, (_, i) => startYear - i);
 
+    const handleYearChange = (newYear: number) => {
+        const oldMonth = dayjs(date).month();
+        const newDate = dayjs(date).year(newYear).month(oldMonth).toDate();
+        changeYear(newYear);
+        onChangeDate?.(newDate);
+    };    
+
     return (
         <div className="position-relative px-2 pb-2">
-            {/* Header */}
             <div
-                className="d-flex justify-content-between align-items-center mb-2 rounded"
-                style={{ backgroundColor: "white", padding: "0.5rem" }} // เพิ่ม padding ด้วยให้ดูไม่ติดขอบ
+                className="d-flex justify-content-between align-items-center mb-2 px-3 rounded"
+                style={{ backgroundColor: "white" }}
             >
                 <button
-                    onClick={() => {
-                        const newYear = selectedYear - 1;
-                        changeYear(newYear);
-                        onChangeDate?.(new Date(newYear, date.getMonth(), 1));
-                    }}
+                    onClick={() => handleYearChange(selectedYear - 1)}
                     disabled={prevYearButtonDisabled}
                     className="btn btn-sm btn-outline-secondary"
                 >
@@ -57,11 +57,7 @@ const MonthPickerHeader: React.FC<MonthPickerHeaderProps> = ({
                 </span>
 
                 <button
-                    onClick={() => {
-                        const newYear = selectedYear + 1;
-                        changeYear(newYear);
-                        onChangeDate?.(new Date(newYear, date.getMonth(), 1));
-                    }}
+                    onClick={() => handleYearChange(selectedYear + 1)}
                     disabled={nextYearButtonDisabled}
                     className="btn btn-sm btn-outline-secondary"
                 >
@@ -69,7 +65,6 @@ const MonthPickerHeader: React.FC<MonthPickerHeaderProps> = ({
                 </button>
             </div>
 
-            {/* Year Grid Overlay */}
             {showYearGrid && (
                 <div
                     className="position-absolute bg-white shadow border rounded p-2"
@@ -89,12 +84,7 @@ const MonthPickerHeader: React.FC<MonthPickerHeaderProps> = ({
                         <button
                             key={year}
                             className={`btn btn-sm ${year === selectedYearBE ? "btn-primary" : "btn-outline-secondary"}`}
-                            onClick={() => {
-                                const newYear = year - 543;
-                                changeYear(newYear);
-                                onChangeDate?.(new Date(newYear, date.getMonth(), 1));
-                                setShowYearGrid(false);
-                            }}
+                            onClick={() => handleYearChange(year - 543)} // ใช้ปีใหม่ที่เลือก
                         >
                             {year}
                         </button>

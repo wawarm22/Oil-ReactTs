@@ -13,20 +13,21 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
     }
 
     if ("detail_table" in fields && Array.isArray(fields.detail_table)) {
-        const firstTable = fields.detail_table[0];
+        const firstTable = fields.detail_table[0];        
         if (firstTable && Array.isArray(firstTable.rows)) {
             const thaiDatePattern = /^\d{1,2}\s?(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s?\d{2,4}$/;
             const slashDatePattern = /^\d{1,2}\/\d{1,2}\/\d{2,4}$/;
+            const datePattern = /^\d{1,2}\s?[A-Za-zก-ฮ]+\.[A-Za-zก-ฮ]+\.\s?\d{2,4}$/;
 
             const hasStockOilPattern = firstTable.rows.some((row: any, idx: number) => {
-                const raw = row?.column_0 ?? "";
+                const raw = fields.oil_type === "Diesel PR - 902]" ? row?.column_2 : row?.column_1;
                 const value = raw.trim?.() ?? "";
-                const match = thaiDatePattern.test(value) || slashDatePattern.test(value);
-                if (value !== "") {
-                    console.log(`row[${idx}].column_0 = "${value}" → match: ${match}`);
-                }
+                const cleanedValue = value.replace(/\s+/g, "").toUpperCase();
+                const match = thaiDatePattern.test(value) || slashDatePattern.test(value) || datePattern.test(cleanedValue);
+                console.log(`match for row[${idx}] → ${match}: ${cleanedValue}`);
+
                 return match;
-            });
+            }); 
 
             if (hasStockOilPattern) return "stock_oil";
         }

@@ -57,7 +57,7 @@ export type OcrOilProductDocument = OcrFieldsBase & {
 export type OcrStockOilDocument = OcrFieldsBase & {
     type: "stock_oil";
     form_type?: string;
-    oil_type?: string;
+    oil_type: string;
     oil_unit?: string;
     branch?: string;
     detail_table: {

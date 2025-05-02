@@ -165,13 +165,11 @@ const SearchFileUpload: React.FC = () => {
         }
 
         const mergedPdf = await PDFDocument.create();
-        // mergeAndOpenPdf: ไม่ควรรวม non-pdf เข้าด้วย ให้เปิดแบบแยกแทน
         for (const file of storedFiles) {
             try {
                 const previewUrl = await apiPreviewPdfAfterConfirm(file.blobPath);
                 const ext = file.name.split('.').pop()?.toLowerCase();
                 if (ext !== "pdf") {
-                    // แสดงแยกต่างหากใน tab ใหม่
                     window.open(previewUrl, "_blank");
                     continue;
                 }
@@ -454,7 +452,6 @@ const SearchFileUpload: React.FC = () => {
             )
         );
     };
-
 
     const hasParsedFiles = (docId: number, subtitleIndex: number = 0): boolean => {
         return parsedFiles.some(f => f.docId === docId && f.subtitleIndex === subtitleIndex);

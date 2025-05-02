@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { OcrStockOilDocument } from "../../types/ocrFileType";
 import { validateOil0701 } from "../../utils/api/validateApi";
 import { cleanCellValue, renderLabel } from "../../utils/function/ocrUtils";
+import { useUser } from "../../hook/useUser";
+import { useCompanyStore } from "../../store/companyStore";
 
 interface ChecklistStockOilFormattedProps {
     data: OcrStockOilDocument;
@@ -9,7 +11,9 @@ interface ChecklistStockOilFormattedProps {
 
 type OCRValidationPayload = {
     docType: string;
-    company: string;
+    oil_type: string;
+    company?: string;
+    factories: string | null;
     fields: OCRFieldRow[];
 };
 
@@ -18,32 +22,42 @@ type OCRFieldRow = {
 };
 
 const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) => {
+    const { user } = useUser();
     const [allRowsState, setAllRowsState] = useState<Record<string, any>[]>([]);
     const [labelMap, setLabelMap] = useState<Record<string, string>>({});
+    const { selectedCompany, fetchCompanyById } = useCompanyStore();
     // const [validationMap, setValidationMap] = useState<Record<string, boolean>>({});
+    const factoriesNumber = localStorage.getItem("warehouse");
+
+    useEffect(() => {
+        if (user?.company_id) {            
+            fetchCompanyById(user.company_id);
+        }
+    }, [user?.company_id]);
 
     useEffect(() => {
         const tableRows = data.detail_table?.[0]?.rows ?? [];
         if (tableRows.length === 0) return;
-
         const datePattern = new RegExp(
             [
                 /^\d{1,2}\s?(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s?\d{2,4}$/,
                 /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/,
-                /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/
+                /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/,
+                /^\d{1,2}\s?[A-Za-zก-ฮ]+\.[A-Za-zก-ฮ]+\.\s?\d{2,4}$/
             ]
                 .map((r) => r.source)
                 .join("|")
         );
-
+        
+        const useColumn = data.oil_type === "Diesel PR - 902]" ? "column_2" : "column_1";
         const firstDataIndex = tableRows.findIndex((row) =>
-            datePattern.test(row.column_0?.trim?.() ?? "")
-        );
+            datePattern.test(row?.[useColumn]?.trim?.() ?? "")
+        );        
 
         if (firstDataIndex === -1) return;
 
         const newLabelMap: Record<string, string> = {};
-        for (let col = 0; col <= 17; col++) {
+        for (let col = 1; col <= 17; col++) {            
             for (let row = firstDataIndex - 1; row >= 0; row--) {
                 const currentRow = tableRows[row];
                 const containsYodyokma = Object.values(currentRow).some(
@@ -114,7 +128,6 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
         if (summaryRow) all.push(summaryRow);
 
         setAllRowsState(all);
-        console.log("allRowsState (for API):", all);
     }, [data.detail_table]);
 
     const transformToOCRFieldRow = (row: Record<string, any>): OCRFieldRow => {
@@ -130,20 +143,22 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
     };
 
     useEffect(() => {
-        if (allRowsState.length > 0) {
-            const transformedFields = allRowsState.map(transformToOCRFieldRow);
-
+        if (allRowsState.length > 0 && selectedCompany) {
+            const transformedFields = allRowsState.map(transformToOCRFieldRow);            
+            
             const payload: OCRValidationPayload = {
                 docType: "oil-07-01-page-1",
-                company: "",
+                oil_type: data.oil_type,
+                company: selectedCompany?.name,
+                factories: factoriesNumber,
                 fields: transformedFields,
-            };
-
+            };   
+    
             validateOil0701(payload).then((res) => {
                 console.log("validationMap:", res);
             });
         }
-    }, [allRowsState]);
+    }, [allRowsState, selectedCompany]);     
 
     if (allRowsState.length === 0) {
         return <p className="text-muted">ไม่พบข้อมูลตาราง</p>;
@@ -158,7 +173,10 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
                         {isSummary && <div className="fw-bold fs-5 text-primary">รวมเดือนนี้</div>}
 
                         {Object.entries(labelMap).map(([colKey, label]) => {
-                            if (isSummary && (colKey === "column_0" || colKey === "column_1")) return null;
+                            if (
+                                (data.oil_type === "Diesel PR - 902]" && colKey === "column_1") ||
+                                (isSummary && (colKey === "column_1" || colKey === "column_2"))
+                            ) return null;
 
                             const raw = row[colKey];
                             const isEmpty =
