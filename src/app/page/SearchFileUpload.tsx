@@ -82,7 +82,7 @@ const SearchFileUpload: React.FC = () => {
     const [isCancel, setIsCancel] = useState(false);
     const [uploadingMap, setUploadingMap] = useState<Record<string, boolean>>({});
     const [filters, setFilters] = useState<FilterState>({
-        warehouse: null, transport: null, periodType: null, dateStart: null, dateEnd: null, month: null,
+        warehouse: null, transport: { value: "00", label: "ทางเรือ" }, periodType: null, dateStart: null, dateEnd: null, month: null,
     });
 
     const getUploadKey = (docId: number, subtitleIndex?: number) =>
@@ -145,7 +145,21 @@ const SearchFileUpload: React.FC = () => {
         setFilters(prev => {
             const resetFields = resetMap[field] || [];
             const resetValues = Object.fromEntries(resetFields.map(k => [k, null]));
-            return { ...prev, ...resetValues, [field]: value };
+            let updatedFilters = { ...prev, ...resetValues, [field]: value };
+
+            const pipeWarehouses = ["H401", "K103"];
+            const selectedWarehouse = field === "warehouse" ? value?.value : prev.warehouse?.value;
+            if (field === "warehouse" && pipeWarehouses.includes(value?.value)) {
+                updatedFilters.transport = { value: "01", label: "ทางท่อ" };
+            }
+
+            if (field === "transport" && pipeWarehouses.includes(selectedWarehouse)) {
+                if (value?.value === "00") {
+                    return prev;
+                }
+            }
+
+            return updatedFilters;
         });
     };
 
@@ -199,7 +213,7 @@ const SearchFileUpload: React.FC = () => {
             toast.error("ไม่สามารถเปิดเอกสารได้");
             console.error(err);
         }
-    };    
+    };
 
     const buildBaseName = (
         warehouseCode: string,
@@ -457,22 +471,53 @@ const SearchFileUpload: React.FC = () => {
         return parsedFiles.some(f => f.docId === docId && f.subtitleIndex === subtitleIndex);
     };
 
+    const filteredDocuments = documentList.filter((item) => {
+        const warehouse = filters.warehouse?.value;
+        const transport = filters.transport?.value;
+
+        const transportMatch = !transport || item.transport === transport;
+        if (!transportMatch) return false;
+
+        if (warehouse === "H401") {
+            const allowedIds = [38, 39, 40, 41, 42, 49, 51];
+            return allowedIds.includes(item.id);
+        }
+
+        if (warehouse === "K103") {
+            const allowedIds = [38, 39, 49];
+            return allowedIds.includes(item.id);
+        }
+
+        if (item.id === 51) return warehouse === "H401";
+        if (item.id === 52) return warehouse === "K103";
+
+        return true;
+    });
+
     const isUploadedComplete = (item: DocumentItem): boolean => {
+        const subtitle = item.subtitle;
+
+        if (Array.isArray(subtitle) && subtitle.every((text: string): boolean => text.includes("ถ้ามี"))) {
+            return true;
+        }
+
         const uploaded = uploadedFiles[item.id];
         if (!uploaded) return false;
 
-        if (item.subtitle?.length) {
-            return item.subtitle.some((_, idx) => uploaded[idx]?.files?.length > 0);
-        }
-
-        return uploaded[0]?.files?.length > 0;
+        return Object.values(uploaded).some(u => u.files.length > 0);
     };
 
-    const currentDocuments = documentList.filter(
-        (item) =>
-            !item.title.includes("ถ้ามี") &&
-            (!filters.transport || item.transport === filters.transport.value)
-    );
+    const currentDocuments = filteredDocuments.filter((item) => {
+        const subtitle = item.subtitle;
+
+        const isSubtitleOptional =
+            Array.isArray(subtitle) && subtitle.every((s: string) => s.includes("ถ้ามี"));
+
+        const isTitleOptional = item.title.includes("ถ้ามี");
+
+        return !(isSubtitleOptional || isTitleOptional);
+    });
+
 
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
 
@@ -522,10 +567,6 @@ const SearchFileUpload: React.FC = () => {
             };
         });
     };
-
-    const filteredDocuments = documentList.filter(
-        (item) => !filters.transport || item.transport === filters.transport.value
-    );
 
     return (
         <div className="container-fluid mt-3 w-100" style={{ maxWidth: '1800px' }}>
