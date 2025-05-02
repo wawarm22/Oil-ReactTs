@@ -6,6 +6,7 @@ import PopoverMenu from "../reusable/PopoverMenu";
 import { Link } from "react-router-dom";
 import { useUser } from "../../hook/useUser";
 import { useCompanyStore } from "../../store/companyStore";
+import dayjs from "dayjs";
 
 const Header: React.FC = () => {
     const { user } = useUser();
@@ -82,7 +83,9 @@ const Header: React.FC = () => {
                 <div className="flex-grow-1 bg-dark text-end text-white d-flex align-items-center justify-content-center position-relative">
                     <div>
                         บริษัท: {selectedCompany?.name}
-                        <span className="d-block fw-bold">วันที่ 10/01/2025</span>
+                        <span className="d-block fw-bold">
+                            วันที่ {dayjs().format("DD/MM/BBBB")}
+                        </span>
                     </div>
                     <img
                         src={borderMenu}
