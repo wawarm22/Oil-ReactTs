@@ -50,5 +50,5 @@ export const useCompanyStore = create<CompanyState>((set) => ({
     selectedCompany: null,
     isLoading: false,
     error: null,
-  }) // ✅ reset state ทั้งหมด
+  })
 }));

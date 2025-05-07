@@ -31,7 +31,6 @@ interface UploadFilterPanelProps {
 
 const UploadFilterPanel: React.FC<UploadFilterPanelProps> = ({ filters, onChange, options }) => {
 
-    console.log("UploadFilterPanel | render | filters.month:", filters.month);
     return (
         <div className="d-flex justify-content-center gap-2 px-4 w-100">
             <CustomSelect

@@ -41,7 +41,7 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
             try {
                 const data = await apiGetAllOcr(folder);
                 const documents = data?.documents ?? [];
-                // console.log("data",data);
+                console.log("data",data);
                 
                 for (const document of documents) {
                     const groupParts = document.documentGroup.split('/');

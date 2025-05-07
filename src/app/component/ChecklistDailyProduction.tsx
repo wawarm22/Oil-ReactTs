@@ -1,13 +1,19 @@
-import React from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { OcrDailyProductionDocument } from "../../types/ocrFileType";
 import { cleanCellValue, renderLabel } from "../../utils/function/ocrUtils";
+import { useCompanyStore } from "../../store/companyStore";
+import { validateOil0701 } from "../../utils/api/validateApi";
 
 interface Props {
     data: OcrDailyProductionDocument;
 }
 
 const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
+    const { selectedCompany } = useCompanyStore();
     const tables = data.detail_table ?? [];
+    const factoriesNumber = localStorage.getItem("warehouse") ?? null;
+    const [_validationResult, setValidationResult] = useState<any>(null);
+
     if (tables.length === 0) return <p className="text-muted">ไม่พบข้อมูลตาราง</p>;
 
     const datePattern = new RegExp(
@@ -26,7 +32,6 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
     let monthCount: Record<string, number> = {};
     let monthOfRow: string[] = [];
 
-    // 1. เก็บ label จาก rows ก่อนเจอวันที่
     for (let i = 0; i < tables.length; i++) {
         const props = tables[i]?.properties as Record<string, any>;
         const col1Value = cleanCellValue(props?.column_1?.value ?? "");
@@ -38,7 +43,6 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
         });
     }
 
-    // 2. เก็บแถวที่เจอวันที่และนับเดือน
     let collecting = false;
     for (let i = 0; i < tables.length; i++) {
         const row = tables[i];
@@ -67,8 +71,6 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
     const mostFrequentMonth = Object.entries(monthCount).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "-";
     const filteredRows = rowsToRender.filter((_, idx) => monthOfRow[idx] === mostFrequentMonth);
 
-    // 3. หาค่า "รวมเดือนนี้"
-    // หาค่า "รวมเดือนนี้"
     const summaryRow = tables.find((table) => {
         const values = Object.values(table?.properties ?? {}) as any[];
         return values.some((cell) => cleanCellValue(cell?.value).includes("รวมเดือนนี้"));
@@ -90,6 +92,57 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
         });
     }
 
+    const allRowsState = useMemo(() => {
+        const rows: Record<string, any>[] = [];    
+        filteredRows.forEach((row) => {
+            const props: Record<string, any> = row.properties ?? {};
+            const newRow: Record<string, any> = {};
+            Object.entries(labelMap).forEach(([colKey, label]) => {
+                const cell = props?.[colKey];
+                const value = cleanCellValue(typeof cell === "object" ? cell?.value : cell);
+                newRow[label] = value;
+            });
+            rows.push(newRow);
+        });
+    
+        if (summaryContent.length > 0) {
+            const summaryRow: Record<string, any> = { __summary: "รวมเดือนนี้" };
+            summaryContent.forEach(({ label, value }) => {
+                summaryRow[label] = value;
+            });
+            rows.push(summaryRow);
+        }
+    
+        return rows;
+    }, [filteredRows, summaryContent, labelMap]);    
+
+    const ocrFieldRows = useMemo(() => {
+        return allRowsState.map((row) => {
+            const properties: Record<string, { value: string }> = {};
+            Object.entries(row).forEach(([label, value]) => {
+                if (label !== "__summary") {
+                    properties[label] = { value };
+                }
+            });
+            return { properties };
+        });
+    }, [allRowsState]);
+
+    useEffect(() => {
+        if (ocrFieldRows.length > 0 && selectedCompany) {
+            const payload = {
+                docType: "oil-07-02-page-1",
+                company: selectedCompany.name,
+                factories: factoriesNumber,
+                fields: ocrFieldRows
+            };
+
+            validateOil0701(payload).then((res) => {
+                console.log("ผลลัพธ์ Validate:", res);
+                setValidationResult(res);
+            });
+        }
+    }, [ocrFieldRows, selectedCompany]);
 
     return (
         <div className="d-flex flex-column">
@@ -123,7 +176,7 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
                         </React.Fragment>
                     ))}
                 </div>
-            )}
+            )}            
         </div>
     );
 };
