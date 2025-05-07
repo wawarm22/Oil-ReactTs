@@ -13,7 +13,6 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
         return v.trim();
     };
 
-    // --- Field หลัก ---
     const fields = [
         { label: "เลขที่ใบเสร็จ", value: data.receipt_no },
         { label: "เลขที่คุมเอกสาร", value: data.doc_no },
@@ -38,14 +37,14 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                 </div>
             ))}
 
-            {/* --- Detail Table --- */}
             {data.detail_table?.length > 0 && (
                 <>
                     <hr className="border-top border-2 border-secondary mt-2 mb-2" />
                     {(() => {
                         const details = [];
                         let foundSummary = false;
-
+                        console.log(foundSummary);
+                        
                         for (let i = 1; i < data.detail_table.length; i++) { 
                             const row = data.detail_table[i]?.properties || {};
                             const label = cleanValue(row.column_1);
@@ -80,7 +79,6 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                 </>
             )}
 
-            {/* --- ลงชื่อผู้รับเงิน --- */}
             {cleanValue(data.name) && (
                 <>
                     <hr className="border-top border-2 border-secondary mt-2 mb-2" />
