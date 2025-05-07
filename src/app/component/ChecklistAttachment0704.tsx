@@ -10,7 +10,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         const raw = typeof val === "object" ? val?.value : val;
         if (!raw || raw.trim() === "" || raw === ":unselected:") return "-";
         return raw.trim();
-    };    
+    };
 
     const fields = [
         { label: "แบบฟอร์ม", value: data.form_type },
@@ -23,8 +23,9 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
     ];
 
     const table1 = data.detail_table[0]?.rows ?? [];
+    const table2 = data.detail_table[1]?.rows ?? [];
 
-    const tableMap = [
+    const tableMap1 = [
         { label: "รายการ/วัตถุดิบ (หน่วย)", index: 0 },
         { label: "คงเหลือยกมา", index: 1 },
         { label: "รับเดือนนี้", index: 2 },
@@ -37,9 +38,25 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { label: "คงเหลือยกไป", index: 9 },
     ];
 
+    const tableMap2 = [
+        { label: "รายการ/ประเภทสินค้า ชนิด ตราหรือเครื่องหมาย/แบบ/รุ่น/ดีกรี/ความหวาน ขนาด (หน่วย)", index: 0 },
+        { label: "คงเหลือยกมา", index: 1 },
+        { label: "รับจากการผลิต", index: 2 },
+        { label: "รับคืนจากคลังสินค้าทัณฑ์บน", index: 3 },
+        { label: "อื่น ๆ", index: 4 },
+        { label: "รวม", index: 5 },
+        { label: "จำหน่ายในประเทศ", index: 6 },
+        { label: "จำหน่ายต่างประเทศ", index: 7 },
+        { label: "ใช้ในโรงอุตสาหกรรม", index: 8 },
+        { label: "คลังสินค้าทัณฑ์บน", index: 9 },
+        { label: "เสียหาย", index: 10 },
+        { label: "คงเหลือยกไป", index: 11 },
+        { label: "อื่น ๆ", index: 12 },
+    ];
+
     return (
         <div className="d-flex flex-column gap-3">
-            {/* แสดง header fields */}
+            {/* Header fields */}
             {fields.map(({ label, value }) => (
                 <div key={label}>
                     <div className="fw-bold">{label}</div>
@@ -49,13 +66,28 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                 </div>
             ))}
 
-            {/* แสดงข้อมูลที่ map จาก column_7 */}
+            {/* Section 1: ข้อมูลวัตถุดิบ */}
             <hr className="border-top border-2 border-secondary my-2" />
-            <div className="fw-bold">ข้อมูลวัตถุดิบ</div>
-            {tableMap.map(({ label, index }) => {
+            <div className="fw-bold">๑. ข้อมูลวัตถุดิบ</div>
+            {tableMap1.map(({ label, index }) => {
                 const row = table1[index];
-                const value = row?.column_7 ?? "-";
+                const value = row?.column_7;
+                return (
+                    <div key={label}>
+                        <div className="fw-bold">{label}</div>
+                        <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                            {cleanValue(value)}
+                        </div>
+                    </div>
+                );
+            })}
 
+            {/* Section 2: งบการผลิต */}
+            <hr className="border-top border-2 border-secondary my-2" />
+            <div className="fw-bold">๒. งบการผลิต</div>
+            {tableMap2.map(({ label, index }) => {
+                const row = table2[index];
+                const value = row?.column_9;
                 return (
                     <div key={label}>
                         <div className="fw-bold">{label}</div>
