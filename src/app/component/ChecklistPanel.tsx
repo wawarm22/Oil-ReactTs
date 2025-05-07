@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AuditPagination from "../reusable/AuditPagination";
-import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document } from "../../types/ocrFileType";
+import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document } from "../../types/ocrFileType";
 import { detectOcrType } from "../../utils/function/ocrType";
 import ChecklistTax from "./ChecklistTax";
 import ChecklistTable from "./ChecklistTable";
@@ -21,6 +21,7 @@ import ChecklistCustomsReceipt from "./ChecklistCustomsReceipt";
 import ChecklistDailyComparison from "./ChecklistDailyComparison";
 import ChecklistTaxReceiptExcise from "./ChecklistTaxReceiptExcise";
 import ChecklistAttachment0307 from "./ChecklistAttachment0307";
+import ChecklistAttachment0704 from "./ChecklistAttachment0704";
 
 interface Props {
     ocrDocument: {
@@ -97,7 +98,10 @@ const ChecklistPanel: React.FC<Props> = ({ ocrDocument }) => {
                 )}
                 {type === "attachment_0307" && (
                     <ChecklistAttachment0307 data={currentOcrFields as OcrAttachment0307Document} />
-                )}                
+                )}      
+                {type === "attachment_0704" && (
+                    <ChecklistAttachment0704 data={currentOcrFields as OcrAttachment0704Document} />
+                )}                           
             </div>
         </div>
     );

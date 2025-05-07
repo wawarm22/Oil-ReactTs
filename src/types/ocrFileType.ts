@@ -77,6 +77,8 @@ export type OcrDailyProductionDocument = OcrFieldsBase & {
     product_cate: string;
     product_type: string;
     product_unit: string;
+    product_brand?: string;
+    product_size?: string; 
     detail_table: {
         kind: string;
         properties: Array<Record<string, any>>;
@@ -464,6 +466,29 @@ export type OcrAttachment0307Document = OcrFieldsBase & {
     }[];
 };
 
+export type OcrAttachment0704Document = OcrFieldsBase & {
+    type: "attachment_0704";           
+    documentGroup: string;             
+    pageCount: string;                 
+    pageNumber: string;
+    form_type?: string;
+    form_no?: string;
+    form_date?: string;
+    form_officer_1?: string;
+    company_name?: string;
+    excise?: string;
+    date?: string;
+    form_officer_2?: string;
+    form_officer_name?: string;
+    detail_table: {
+        columnCount: number;           
+        rowCount: number;             
+        rows: Array<                   
+            Record<string, { value: string }>
+        >;                            
+    }[];
+};
+
 export type OcrFields =
     | OcrTaxDocument
     | OcrDetailTableDocument
@@ -486,4 +511,5 @@ export type OcrFields =
     | OcrCustomsReceiptDocument
     | OcrDailyComparisonDocument
     | OcrTaxReceiptExciseDocument
+    | OcrAttachment0704Document
     | (OcrFieldsBase & Record<string, any>); 

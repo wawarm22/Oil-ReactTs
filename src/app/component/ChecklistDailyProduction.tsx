@@ -93,7 +93,7 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
     }
 
     const allRowsState = useMemo(() => {
-        const rows: Record<string, any>[] = [];    
+        const rows: Record<string, any>[] = [];
         filteredRows.forEach((row) => {
             const props: Record<string, any> = row.properties ?? {};
             const newRow: Record<string, any> = {};
@@ -104,7 +104,7 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
             });
             rows.push(newRow);
         });
-    
+
         if (summaryContent.length > 0) {
             const summaryRow: Record<string, any> = { __summary: "รวมเดือนนี้" };
             summaryContent.forEach(({ label, value }) => {
@@ -112,9 +112,9 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
             });
             rows.push(summaryRow);
         }
-    
+
         return rows;
-    }, [filteredRows, summaryContent, labelMap]);    
+    }, [filteredRows, summaryContent, labelMap]);
 
     const ocrFieldRows = useMemo(() => {
         return allRowsState.map((row) => {
@@ -146,8 +146,32 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
 
     return (
         <div className="d-flex flex-column">
+            <div>
+                {renderLabel("แบบฟอร์ม")}
+                <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.form_type)}</div>
+            </div>
+            <div>
+                {renderLabel("ประเภทสินค้า")}
+                <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.product_cate)}</div>
+            </div>
+            <div>
+                {renderLabel("ชนิด")}
+                <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.product_type)}</div>
+            </div>
+            <div>
+                {renderLabel("ตราหรือเครื่องหมาย/เเบบ/รุ่น/ดีกรี/ความหวาน")}
+                <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.product_brand)}</div>
+            </div>
+            <div>
+                {renderLabel("ขนาด")}
+                <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.product_size)}</div>
+            </div>
+            <div>
+                {renderLabel("หน่วย")}
+                <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.product_unit)}</div>
+            </div>
             {filteredRows.map((row, idx) => (
-                <div key={idx} className="d-flex flex-column gap-1 pt-2">
+                <div key={idx} className="d-flex flex-column gap-1 pt-3 border-top mt-3">
                     {Object.entries(labelMap).map(([colKey, label]) => {
                         const props = row.properties as Record<string, any>;
                         const raw = cleanCellValue(props?.[colKey]?.value);
@@ -160,7 +184,7 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
                             </React.Fragment>
                         );
                     })}
-                    {idx < filteredRows.length - 1 && <hr className="my-2" />}
+                    {/* {idx < filteredRows.length - 1 && <hr className="my-2" />} */}
                 </div>
             ))}
 
@@ -176,7 +200,7 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
                         </React.Fragment>
                     ))}
                 </div>
-            )}            
+            )}
         </div>
     );
 };

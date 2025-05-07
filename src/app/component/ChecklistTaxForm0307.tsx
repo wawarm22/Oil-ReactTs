@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { OcrTaxForm0307Document } from "../../types/ocrFileType";
 import { FaRegCheckSquare, FaRegSquare } from "react-icons/fa";
+import { validateOil0701 } from "../../utils/api/validateApi";
+import { useCompanyStore } from "../../store/companyStore";
 
 interface Props {
     data: OcrTaxForm0307Document;
 }
 
 const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
+    const { selectedCompany } = useCompanyStore();
+    const factoriesNumber = localStorage.getItem("warehouse") ?? null;
+    const [_validationResult, setValidationResult] = useState<any>(null);
+
     const cleanValue = (val?: string | null): string => {
         if (!val || val.trim() === "" || val === ":unselected:") return "-";
         return val.replace(/:selected:/g, "").trim();
@@ -74,6 +80,64 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
         column_14: "ภาษีเก็บเพิ่มฯ (บาท)",
         column_15: "ภาษีเก็บเพิ่มฯ (สต.)",
     };
+
+    const ocrFieldRows = useMemo(() => {
+        const rows: { properties: Record<string, { value: string }> }[] = [];    
+        const headerProps: Record<string, { value: string }> = {};
+        fields.forEach(({ label, value }) => {
+            if (label === "ชำระภาษีสำหรับ") {
+                if (data.tax_type_1_check === ":selected:") {
+                    headerProps["ประเภทภาษี"] = { value: "แสตมป์สรรพสามิต/เครื่องหมายแสดงการเสียภาษี" };
+                }
+                if (data.tax_type_2_check === ":selected:") {
+                    headerProps["ประเภทภาษี"] = { value: `สินค้านำออกตั้งแต่ ${cleanValue(data.tax_type_date)}` };
+                }
+                if (data.tax_type_3_check === ":selected:") {
+                    headerProps["ประเภทภาษี"] = { value: "ชำระเพิ่มเติม สำหรับใบเสร็จ" };
+                }
+                if (data.tax_type_4_check === ":selected:") {
+                    headerProps["ประเภทภาษี"] = { value: "อื่น" };
+                }
+            } else {
+                headerProps[label] = { value: cleanValue(value) };
+            }
+        });
+    
+        rows.push({ properties: headerProps });
+    
+        data.detail_table.slice(3).forEach((row, rowIndex) => {
+            const rawProps = row.properties;
+            const properties: Record<string, any> =
+                Array.isArray(rawProps) ? rawProps[0] : typeof rawProps === "object" && rawProps !== null ? rawProps : {};
+    
+            const rowProps: Record<string, { value: string }> = {};
+    
+            Object.entries(columnLabelMap).forEach(([key, colLabel]) => {
+                const value = cleanValue(properties?.[key]?.value ?? "");
+                rowProps[`${colLabel} (แถว ${rowIndex + 4})`] = { value };
+            });
+    
+            rows.push({ properties: rowProps });
+        });
+    
+        return rows;
+    }, [data]);    
+
+    useEffect(() => {
+        if (ocrFieldRows.length > 0 && selectedCompany) {
+            const payload = {
+                docType: "oil-03-07-page-1",
+                company: selectedCompany.name,
+                factories: factoriesNumber,
+                fields: ocrFieldRows
+            };
+
+            validateOil0701(payload).then((res) => {
+                console.log("ผลลัพธ์ Validate:", res);
+                setValidationResult(res);
+            });
+        }
+    }, [ocrFieldRows, selectedCompany]);
 
     return (
         <div className="d-flex flex-column gap-3">

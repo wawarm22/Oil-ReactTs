@@ -2,12 +2,12 @@ import { OcrFields } from "../../types/ocrFileType";
 
 export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] => {
     if (!fields || typeof fields !== "object") return "unknown";
-    
+
     if ("amount" in fields && "tax_id" in fields) return "tax";
 
     if ("form_type" in fields && typeof fields.form_type === "string") {
         const formType = fields.form_type.trim();
-        if (formType.includes("ภส.03-07") || formType.includes("กส.๐๓-๐๗")) {
+        if (formType.includes("ภส.03-07") || formType.includes("ภส.๐๓-๐๗")) {
             return "tax_form_0307";
         }
 
@@ -27,10 +27,10 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
     if ("customer_name" in fields && "tax_id" in fields && "doc_no" in fields) {
         return "refinery_tax_invoice";
     }
-    
+
     if (fields.header?.includes("ตารางเทียบ แบบรายการภาษีสรรพสามิต (ภส.03-07)") || fields.header?.includes("ตารางเปรียบเทียบ แบบรายการภาษีสรรพสามิต (ภส.03-07)")) {
         return "comparison_0503_0307";
-    }    
+    }
 
     if (fields.header && fields.header.includes("ตารางเปรียบเทียบการจ่ายวัตถุดิบ (แบบ ภส.07-01) เทียบกับปริมาณการผลิตและจำหน่าย (ภส.07-02)") && fields.header.includes("07-01")) {
         return "daily_comparison";
@@ -38,7 +38,7 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
 
     if ("receipt_type" in fields && "tax_id" in fields && "company_name" in fields && "duty_payment" in fields) {
         return "customs_receipt";
-    }    
+    }
 
     if (
         "product" in fields &&
@@ -78,8 +78,8 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
 
     if ("form_no" in fields && "tax_id" in fields && "company_name_th" in fields) {
         return "import_entry_0409";
-    } 
-    
+    }
+
     if ("company_name" in fields && "date" in fields && Array.isArray(fields.detail_table)) {
         // ต้องมี property no, tax_no, date_tax ใน detail_table ถึงจะตรง
         const hasExpectedProps = fields.detail_table.some((row: any) => {
@@ -91,8 +91,16 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
         }
     }
 
+    if (
+        Array.isArray(fields.detail_table) &&
+        fields.detail_table.length > 0 &&
+        fields.detail_table[0].rows?.[0]?.column_1?.includes("ประเภทวัตถุดิบ")
+    ) {
+        return "attachment_0704";
+    }
+
     if ("detail_table" in fields && Array.isArray(fields.detail_table)) {
-        const firstTable = fields.detail_table[0];        
+        const firstTable = fields.detail_table[0];
         if (firstTable && Array.isArray(firstTable.rows)) {
             const thaiDatePattern = /^\d{1,2}\s?(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s?\d{2,4}$/;
             const slashDatePattern = /^\d{1,2}\/\d{1,2}\/\d{2,4}$/;
@@ -106,7 +114,7 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
                 console.log(`match for row[${idx}] → ${match}: ${cleanedValue}`);
 
                 return match;
-            }); 
+            });
 
             if (hasStockOilPattern) return "stock_oil";
         }
@@ -139,7 +147,7 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
         if (hasOilProductPattern) return "product_document";
 
         return "table";
-    }    
+    }
 
     return "unknown";
 };

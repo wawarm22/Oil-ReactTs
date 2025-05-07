@@ -39,21 +39,7 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
                     </div>
                 ) : null
             )}
-
-            {/* Checkbox Approve */}
-            {/* <hr className="border-top border-2 border-secondary mt-3 mb-2" />
-            <div className="fw-bold mb-2">การอนุมัติ</div>
-            {[
-                { label: "อนุมัติครั้งที่ 1", checked: data.approve_1_check === ":selected:" },
-                { label: "อนุมัติครั้งที่ 2", checked: data.approve_2_check === ":selected:" },
-            ].map(({ label, checked }) => (
-                <div key={label} className="d-flex align-items-center gap-2 py-1">
-                    {checked ? <FaRegCheckSquare size={18} /> : <FaRegSquare size={18} />}
-                    {label}
-                </div>
-            ))} */}
-
-            {/* Detail Table */}
+                        
             {data.detail_table.length > 3 && (
                 <>
                     {data.detail_table.slice(3).map((entry, index) => {
