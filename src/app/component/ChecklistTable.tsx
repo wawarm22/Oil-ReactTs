@@ -7,11 +7,12 @@ import { ValidationResponse } from "../../types/validateTypes";
 
 const COLUMN_LABELS: { [key: string]: string } = {
     column_1: "ชื่อผลิตภัณฑ์",
-    column_2: "รายการวัตถุดิบหรือหรือส่วนประกอบที่ใช้ในการผลิต",
-    column_3: "ปริมาณ",
-    column_4: "สินค้าต่อ 1 หน่วย",
-    column_5: "สูตรการผลิต",
-    column_6: "หมายเหตุ",
+    column_2: "ชื่อผลิตภัณฑ์ (ตามหนังสืออนุมัติ)",
+    column_3: "รายการวัตถุดิบหรือหรือส่วนประกอบที่ใช้ในการผลิต",
+    column_4: "ปริมาณ",
+    column_5: "สินค้าต่อ 1 หน่วย",
+    column_6: "สูตรการผลิต",
+    column_7: "หมายเหตุ",
 };
 
 const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) => {
@@ -38,6 +39,14 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
         return <p className="text-muted">ไม่มีข้อมูลตาราง</p>;
     }
 
+    let startIndex = 1; 
+    const checkRow = allRows[1]?.properties;
+    const firstRowHasChue = Object.values(checkRow || {}).some(
+        (cell: any) => cell?.value?.includes("ชื่อ")
+    );
+
+    if (firstRowHasChue) startIndex = 2;
+
     return (
         <div className="d-flex flex-column gap-1">
             {(() => {
@@ -45,7 +54,7 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
                 return null;
             })()}
             {allRows.map((row, rowIdx) => {
-                if (rowIdx === 0 && data.pageNumber === "1") return null;
+                if (rowIdx < startIndex) return null;
 
                 const props = row.properties ?? {};
                 const visibleColumns = Object.keys(COLUMN_LABELS).filter((key) => {

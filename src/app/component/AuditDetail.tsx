@@ -16,6 +16,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
     const [selectedOcrDocument, setSelectedOcrDocument] = useState<{
         pages: { [page: number]: OcrFields };
         pageCount: number;
+        pageFileKeyMap: { [page: number]: string };
     } | null>(null);
 
     return (

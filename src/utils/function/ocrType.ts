@@ -5,6 +5,10 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
 
     if ("amount" in fields && "tax_id" in fields) return "tax";
 
+    if ("officer_name" in fields) {
+        return "tax_form_0503";
+    }
+    
     if ("form_type" in fields && typeof fields.form_type === "string") {
         const formType = fields.form_type.trim();
         if (formType.includes("ภส.03-07") || formType.includes("ภส.๐๓-๐๗")) {
@@ -14,7 +18,13 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
         if (formType.includes("ภส. ๐๕-๐๓") || formType.includes("ภส.05-03")) {
             return "tax_form_0503";
         }
-    }
+
+        if (formType.includes("ภส.๐๗-๐๑") || formType.includes("ภส.07-01")) {
+            return "stock_oil";
+        }
+        if (formType.includes("ภส.05-02") || formType.includes("ภส.๐๕-๐๒") || formType.includes("กส.๐๕-๐๒")) {
+            return "tax_form_0502";
+        }    }
 
     if (
         fields.header?.includes("สรุปภาษีสรรพสามิต") &&
@@ -92,32 +102,37 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
     }
 
     if (
-        Array.isArray(fields.detail_table) &&
-        fields.detail_table.length > 0 &&
-        fields.detail_table[0].rows?.[0]?.column_1?.includes("ประเภทวัตถุดิบ")
+        Array.isArray(fields.detail_table_1) &&
+        Array.isArray(fields.detail_table_2) &&
+        fields.detail_table_1[0]?.properties?.column_7
     ) {
         return "attachment_0704";
     }
 
     if ("detail_table" in fields && Array.isArray(fields.detail_table)) {
-        const firstTable = fields.detail_table[0];
-        if (firstTable && Array.isArray(firstTable.rows)) {
-            const thaiDatePattern = /^\d{1,2}\s?(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s?\d{2,4}$/;
-            const slashDatePattern = /^\d{1,2}\/\d{1,2}\/\d{2,4}$/;
-            const datePattern = /^\d{1,2}\s?[A-Za-zก-ฮ]+\.[A-Za-zก-ฮ]+\.\s?\d{2,4}$/;
+        // const firstTable = fields.detail_table[0];
 
-            const hasStockOilPattern = firstTable.rows.some((row: any, idx: number) => {
-                const raw = fields.oil_type === "Diesel PR - 902]" ? row?.column_2 : row?.column_1;
-                const value = raw.trim?.() ?? "";
-                const cleanedValue = value.replace(/\s+/g, "").toUpperCase();
-                const match = thaiDatePattern.test(value) || slashDatePattern.test(value) || datePattern.test(cleanedValue);
-                console.log(`match for row[${idx}] → ${match}: ${cleanedValue}`);
+        // if ("detail_table" in fields && Array.isArray(fields.detail_table)) {
+        //     const thaiDatePattern = /^\d{1,2}\s?(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s?\d{2,4}$/;
+        //     const slashDatePattern = /^\d{1,2}\/\d{1,2}\/\d{2,4}$/;
+        //     const datePattern = /^\d{1,2}\s?[A-Za-zก-ฮ]+\.[A-Za-zก-ฮ]+\.\s?\d{2,4}$/;
 
-                return match;
-            });
+        //     const hasStockOilPattern = fields.detail_table.some((row: any, idx: number) => {
+        //         const props = row?.properties;
+        //         const raw = fields.oil_type === "น้ำมันดีเซลพื้นฐาน (H-Base)" || fields.oil_type === "Diesel PR - 902]" || fields.oil_type === "B100"
+        //             ? props?.column_1?.value
+        //             : props?.column_2?.value;
 
-            if (hasStockOilPattern) return "stock_oil";
-        }
+        //         const value = raw?.trim?.() ?? "";
+        //         const cleanedValue = value.replace(/\s+/g, "").toUpperCase();
+        //         const match = thaiDatePattern.test(value) || slashDatePattern.test(value) || datePattern.test(cleanedValue);
+        //         console.log(`match row[${idx}] → ${match}: ${cleanedValue}`);
+
+        //         return match;
+        //     });
+
+        //     if (hasStockOilPattern) return "stock_oil";
+        // }
 
         const thaiDatePattern = /^\d{1,2}\s?(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s?\d{2,4}$/;
         const hasDailyProductionPattern = fields.detail_table.some((entry: any) => {

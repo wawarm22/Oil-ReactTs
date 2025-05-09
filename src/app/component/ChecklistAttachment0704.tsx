@@ -1,11 +1,17 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { OcrAttachment0704Document } from "../../types/ocrFileType";
+import { validateOil0701 } from "../../utils/api/validateApi";
+import { useCompanyStore } from "../../store/companyStore";
 
 interface Props {
     data: OcrAttachment0704Document;
 }
 
 const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
+    const { selectedCompany } = useCompanyStore();
+    const factoriesNumber = localStorage.getItem("warehouse") ?? null;
+    const [_validationResult, setValidationResult] = useState<any>(null);
+
     const cleanValue = (val?: string | { value: string } | null): string => {
         const raw = typeof val === "object" ? val?.value : val;
         if (!raw || raw.trim() === "" || raw === ":unselected:") return "-";
@@ -18,12 +24,12 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { label: "วัน เดือน ปี ที่รับ", value: data.form_date },
         { label: "เจ้าพนักงานผู้รับ", value: data.form_officer_1 },
         { label: "ชื่อโรงอุตสาหกรรม (คลัง)", value: data.company_name },
-        { label: "ทะเบียนสรรพสามิตเลขที่", value: data.excise },
+        { label: "ทะเบียนสรรพสามิตเลขที่", value: data.excise_id },
         { label: "ประจำเดือน ปี", value: data.date },
     ];
 
-    const table1 = data.detail_table[0]?.rows ?? [];
-    const table2 = data.detail_table[1]?.rows ?? [];
+    const table1 = data.detail_table_1 ?? [];
+    const table2 = data.detail_table_2 ?? [];
 
     const tableMap1 = [
         { label: "รายการ/วัตถุดิบ (หน่วย)", index: 0 },
@@ -54,6 +60,57 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { label: "อื่น ๆ", index: 12 },
     ];
 
+    const ocrFieldRows = useMemo(() => {
+        const rows: any[] = [];
+
+        // 1. Header
+        const headerProps: Record<string, { value: string }> = {};
+        fields.forEach(({ label, value }) => {
+            headerProps[label] = { value: cleanValue(value) };
+        });
+        rows.push({ properties: headerProps });
+
+        // 2. detail_table_1: รวม column_6 ถึง column_9 ของแต่ละแถว → แยกแถวแต่รวมใน array
+        const detailTable1Rows = [6, 7, 8, 9].map((col) => {
+            const props: Record<string, { value: string }> = {};
+
+            tableMap1.forEach(({ label, index }) => {
+                const rawValue = table1[index]?.properties?.[`column_${col}`]?.value;
+                props[label] = { value: cleanValue(rawValue) };
+            });
+
+            return { properties: props };
+        });
+
+        rows.push({ detail_table_1: detailTable1Rows });
+
+        // 3. detail_table_2: รวมค่า column_9
+        const detailTable2Props: Record<string, { value: string }> = {};
+        tableMap2.forEach(({ label, index }) => {
+            const value = table2[index]?.properties?.column_9?.value;
+            detailTable2Props[label] = { value: cleanValue(value) };
+        });
+
+        rows.push({ detail_table_2: { properties: detailTable2Props } });
+
+        return rows;
+    }, [data]);
+
+    useEffect(() => {
+        if (ocrFieldRows.length > 0 && selectedCompany) {
+            const payload = {
+                docType: "attachment_0704",
+                company: selectedCompany.name,
+                factories: factoriesNumber,
+                fields: ocrFieldRows
+            };
+            validateOil0701(payload).then((res) => {
+                console.log("ผลลัพธ์ Validate:", res);
+                setValidationResult(res);
+            });
+        }
+    }, [ocrFieldRows, selectedCompany]);
+
     return (
         <div className="d-flex flex-column gap-3">
             {/* Header fields */}
@@ -66,12 +123,47 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                 </div>
             ))}
 
-            {/* Section 1: ข้อมูลวัตถุดิบ */}
+            {/* Section 1 */}
             <hr className="border-top border-2 border-secondary my-2" />
             <div className="fw-bold">๑. ข้อมูลวัตถุดิบ</div>
             {tableMap1.map(({ label, index }) => {
-                const row = table1[index];
-                const value = row?.column_7;
+                const value = table1[index]?.properties?.column_6?.value;
+                return (
+                    <div key={label}>
+                        <div className="fw-bold">{label}</div>
+                        <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                            {cleanValue(value)}
+                        </div>
+                    </div>
+                );
+            })}
+            <hr className="border-top border-2 border-secondary my-2" />
+            {tableMap1.map(({ label, index }) => {
+                const value = table1[index]?.properties?.column_7?.value;
+                return (
+                    <div key={label}>
+                        <div className="fw-bold">{label}</div>
+                        <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                            {cleanValue(value)}
+                        </div>
+                    </div>
+                );
+            })}
+            <hr className="border-top border-2 border-secondary my-2" />
+            {tableMap1.map(({ label, index }) => {
+                const value = table1[index]?.properties?.column_8?.value;
+                return (
+                    <div key={label}>
+                        <div className="fw-bold">{label}</div>
+                        <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                            {cleanValue(value)}
+                        </div>
+                    </div>
+                );
+            })}
+            <hr className="border-top border-2 border-secondary my-2" />
+            {tableMap1.map(({ label, index }) => {
+                const value = table1[index]?.properties?.column_9?.value;
                 return (
                     <div key={label}>
                         <div className="fw-bold">{label}</div>
@@ -82,12 +174,11 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                 );
             })}
 
-            {/* Section 2: งบการผลิต */}
+            {/* Section 2 */}
             <hr className="border-top border-2 border-secondary my-2" />
             <div className="fw-bold">๒. งบการผลิต</div>
             {tableMap2.map(({ label, index }) => {
-                const row = table2[index];
-                const value = row?.column_9;
+                const value = table2[index]?.properties?.column_9?.value;
                 return (
                     <div key={label}>
                         <div className="fw-bold">{label}</div>

@@ -8,33 +8,34 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
     import.meta.url
 ).toString();
 
-export const getPdfThumbnail = async (pdfData: string, pageNum: number): Promise<string> => {
+export const getPdfThumbnails = async (pdfData: string): Promise<string[]> => {
     try {
         const loadingTask = pdfjsLib.getDocument({ data: atob(pdfData.split(",")[1]) });
         const pdf = await loadingTask.promise;
 
-        // ป้องกันการเรียกหน้าที่เกินจากจำนวนหน้าที่มี
-        const validPageNum = Math.max(1, Math.min(pageNum, pdf.numPages));
-        const page = await pdf.getPage(validPageNum);
+        const thumbnails: string[] = [];
 
-        const scale = 1.5;
-        const viewport = page.getViewport({ scale });
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale });
 
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
 
-        if (!context) {
-            throw new Error("Cannot get canvas context");
+            if (!context) throw new Error("Cannot get canvas context");
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            await page.render({ canvasContext: context, viewport }).promise;
+            thumbnails.push(canvas.toDataURL("image/png"));
         }
 
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({ canvasContext: context, viewport }).promise;
-
-        return canvas.toDataURL("image/png");
+        return thumbnails;
     } catch (error) {
-        console.error(`Error generating PDF thumbnail for page ${pageNum}:`, error);
-        return "/default-pdf-thumbnail.png";
+        console.error("Error generating PDF thumbnails:", error);
+        return [];
     }
 };
+

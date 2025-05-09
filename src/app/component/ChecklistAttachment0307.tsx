@@ -105,10 +105,12 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
         };
         rows.push({ properties: footerProps });
     
+        console.log("rows", rows);        
         return rows;
     }, [data, labelMap, normalRows, summaryRows]);    
 
     useEffect(() => {
+        console.log("ocrFieldRows", ocrFieldRows);        
         if (ocrFieldRows.length > 0 && selectedCompany) {
             const payload = {
                 docType: "attachment_0307",
@@ -116,13 +118,14 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                 factories: factoriesNumber,
                 fields: ocrFieldRows
             };    
+            console.log("ocrFieldRows", ocrFieldRows);
+            
             validateOil0701(payload).then((res) => {
                 console.log("ผลลัพธ์ Validate:", res);
                 setValidationResult(res);
             });
         }
-    }, [ocrFieldRows, selectedCompany]);    
-
+    }, [ocrFieldRows, selectedCompany]);
 
     return (
         <div className="d-flex flex-column gap-2">

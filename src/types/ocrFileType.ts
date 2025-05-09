@@ -61,9 +61,9 @@ export type OcrStockOilDocument = OcrFieldsBase & {
     oil_unit?: string;
     branch?: string;
     detail_table: {
-        rowCount: number;
-        columnCount: number;
-        rows: Array<Record<string, string>>;
+        confidence: number;
+        kind: string;
+        properties: Array<Record<string, string>>;
     }[];
 };
 
@@ -78,7 +78,9 @@ export type OcrDailyProductionDocument = OcrFieldsBase & {
     product_type: string;
     product_unit: string;
     product_brand?: string;
-    product_size?: string; 
+    product_size?: string;
+    oil_type: string;
+    oil_unit: string;
     detail_table: {
         kind: string;
         properties: Array<Record<string, any>>;
@@ -240,35 +242,68 @@ export type OcrOutturnStatementDocument = OcrFieldsBase & {
 
 export type OcrDeliveryInvoiceDocument = OcrFieldsBase & {
     type: "delivery_invoice";
-    bill_address: string;
-    business_place: string;
-    contractor: string;
-    customer_address: string;
-    customer_code: string;
-    customer_name: string;
-    delivery_date: string;
-    delivery_no: string;
-    invoice_no: string;
-    issuer_date: string;
-    issuer_signature: string;
-    loading_pot: string;
-    pageCount: string;
-    pageNumber: string;
-    paper_no: string;
-    purchase_date: string;
-    purchase_no: string;
-    sales_order_no: string;
-    send_address: string;
-    shipment_date: string;
-    tax_invoice_no: string;
-    time_out: string;
-    verify_signature: string;
-    detail_table: {
-        rowCount: number;
-        columnCount: number;
-        rows: Array<Record<string, string>>;
+    bill_address?: string;
+    business_place?: string;
+    contractor?: string;
+    customer_address?: string;
+    customer_code?: string;
+    customer_name?: string;
+    delivery_date?: string;
+    delivery_no?: string;
+    invoice_no?: string;
+    issuer_date?: string;
+    issuer_signature?: string;
+    loading_pot?: string;
+    pageCount?: string;
+    pageNumber?: string;
+    paper_no?: string;
+    purchase_date?: string;
+    purchase_no?: string;
+    sales_order_no?: string;
+    send_address?: string;
+    shipment_date?: string;
+    tax_invoice_no?: string;
+    time_out?: string;
+    verify_signature?: string;
+    verify_date?: string;
+    created_by?: string;
+    term_of_payment?: string;
+    sent_address?: string;
+    contact_no?: string;
+    incoterms?: string;
+    due_date?: string;
+    loading_pot_no?: string;
+    total_amount_word?: string;
+    remark?: string;
+    exchange_rate?: string;
+    vat_rate?: string;
+    detail_table?: {
+        kind: string;
+        confidence: number;
+        properties: Array<Record<string, any>>;
     }[];
-    documentGroup: string;
+    "detail-table-1": {
+        kind: string;
+        confidence: number;
+        properties: Array<Record<string, any>>;
+    }[];
+    amount_n_tax?: {
+        kind: string;
+        confidence: number;
+        properties: Array<Record<string, any>>;
+    }[];
+    shipment_detail?: {
+        kind: string;
+        confidence: number;
+        properties: Array<Record<string, any>>;
+    }[];
+    test_temp_table?: {
+        kind: string;
+        confidence: number;
+        properties: Array<Record<string, any>>;
+    }[];
+    documentGroup?: string;
+    fileKey?: string;
 };
 
 export type OcrTaxForm0503Document = OcrFieldsBase & {
@@ -296,6 +331,8 @@ export type OcrTaxForm0503Document = OcrFieldsBase & {
         kind: string;
         properties: Record<string, any>;
     }[];
+    officer_date?: string;
+    officer_name?: string;
     pageNumber: string;
     pageCount: string;
     phone_number: string;
@@ -403,7 +440,7 @@ export type OcrCustomsReceiptDocument = OcrFieldsBase & {
     detail_table: {
         kind: string;
         confidence: number;
-        properties: Record<string, any>; 
+        properties: Record<string, any>;
     }[];
 };
 
@@ -467,27 +504,75 @@ export type OcrAttachment0307Document = OcrFieldsBase & {
 };
 
 export type OcrAttachment0704Document = OcrFieldsBase & {
-    type: "attachment_0704";           
-    documentGroup: string;             
-    pageCount: string;                 
-    pageNumber: string;
+    type: "attachment_0704";
     form_type?: string;
     form_no?: string;
     form_date?: string;
     form_officer_1?: string;
-    company_name?: string;
-    excise?: string;
-    date?: string;
     form_officer_2?: string;
     form_officer_name?: string;
-    detail_table: {
-        columnCount: number;           
-        rowCount: number;             
-        rows: Array<                   
-            Record<string, { value: string }>
-        >;                            
-    }[];
+    company_name?: string;
+    excise_id?: string;
+    date?: string;
+    remark?: string;
+    detail_table: Array<{
+        confidence: number;
+        kind: string;
+        properties: Record<string, { value: string }>;
+    }>
+    detail_table_1: Array<{
+        confidence: number;
+        kind: string;
+        properties: Record<string, { value: string }>;
+    }>
+    detail_table_2: Array<{
+        confidence: number;
+        kind: string;
+        properties: Record<string, { value: string }>;
+    }>
 };
+
+export type OcrTaxForm0502Document = OcrFieldsBase & {
+    type: "tax_form_0502";
+    address: string;
+    applicant_date: string;
+    applicant_name: string;
+    applicant_signature: string;
+    approve_1_check: string;
+    approve_2: string;
+    approve_2_check: string;
+    approve_date: string;
+    approve_name: string;
+    approve_signature: string;
+    attach_2: string;
+    company_name: string;
+    date: string;
+    detail_table: Array<{
+        kind: string;
+        properties: Record<string, { value?: string; }>;
+    }>;
+    district: string;
+    documentGroup: string;
+    electronics_id: string;
+    excise_id: string;
+    fileKey: string;
+    form_id: string;
+    form_type: string;
+    name: string;
+    officer_comment: string;
+    officer_signature: string;
+    pageCount: string;
+    pageNumber: string;
+    phone_number: string;
+    postcode: string;
+    province: string;
+    road: string;
+    soi?: string;
+    sub_district: string;
+    validate_date: string;
+    validate_name: string;
+};
+
 
 export type OcrFields =
     | OcrTaxDocument
@@ -512,4 +597,5 @@ export type OcrFields =
     | OcrDailyComparisonDocument
     | OcrTaxReceiptExciseDocument
     | OcrAttachment0704Document
+    | OcrTaxForm0502Document
     | (OcrFieldsBase & Record<string, any>); 

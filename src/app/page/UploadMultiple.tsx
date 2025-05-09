@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { getPdfThumbnail } from "../../utils/function/pdfUtils";
 import Button from "../reusable/Button";
 import { RiFileDownloadLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../reusable/Pagination";
 import "../../assets/css/checkbox.css";
 import DocumentClassificationModal from "../modal/DocumentClassificationModal";
+import { getPdfThumbnail } from "../../utils/function/pdf";
 
 const UploadMultiple: React.FC = () => {
     const navigate = useNavigate();
@@ -22,7 +22,7 @@ const UploadMultiple: React.FC = () => {
                 const filesWithThumbnails = await Promise.all(
                     parsedFiles.map(async (file: { name: string; url: string }) => ({
                         ...file,
-                        thumbnail: await getPdfThumbnail(file.url, 1),
+                        thumbnail: await getPdfThumbnail(file.url),
                     }))
                 );
                 console.log(filesWithThumbnails);
@@ -42,7 +42,7 @@ const UploadMultiple: React.FC = () => {
             newFiles.map(async (file) => ({
                 name: file.name,
                 url: URL.createObjectURL(file),
-                thumbnail: await getPdfThumbnail(URL.createObjectURL(file), 1),
+                thumbnail: await getPdfThumbnail(URL.createObjectURL(file)),
             }))
         );
 

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { apiListPdfAfter } from "../../utils/api/uploadApi";
-import { getPdfThumbnail } from "../../utils/function/pdfUtils";
 import Pagination from "../reusable/Pagination";
+import { getPdfThumbnails } from "../../utils/function/pdfUtils";
 
 interface OcrPageData {
     documentGroup: string;
+    fileKey?: string;
     pageNumber: string;
     pageCount: string;
     [key: string]: any;
@@ -27,42 +28,45 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ ocrFields }) => {
         if (!ocrFields) return;
 
         const preloadAllThumbnails = async () => {
-            const pageCount = ocrFields.pageCount;
-            const newThumbnails: (string | null)[] = [];
+            const collectedThumbnails: (string | null)[] = [];
 
-            for (let i = 1; i <= pageCount; i++) {
+            const seenFileKeys = new Set<string>();
+
+            for (let i = 1; i <= ocrFields.pageCount; i++) {
                 const pageData = ocrFields.pages[i];
-                if (!pageData?.documentGroup) {
-                    newThumbnails[i - 1] = null;
-                    continue;
-                }
+                const docGroup = pageData.documentGroup;
+
+                if (!docGroup) continue;
 
                 try {
-                    const response = await apiListPdfAfter(pageData.documentGroup);
-                    const previewUrl = response.files?.[0]?.previewUrl;
-                    if (!previewUrl) {
-                        newThumbnails[i - 1] = null;
-                        continue;
+                    const response = await apiListPdfAfter(docGroup);
+                    const files = response.files || [];
+
+                    for (const file of files) {
+                        const fileKey = file.fileName?.replace(/\.pdf$/, "");
+                        if (!fileKey || seenFileKeys.has(fileKey)) continue;
+
+                        seenFileKeys.add(fileKey);
+
+                        const res = await fetch(file.previewUrl);
+                        const blob = await res.blob();
+
+                        const base64 = await new Promise<string>((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result as string);
+                            reader.readAsDataURL(blob);
+                        });
+
+                        const fileThumbnails = await getPdfThumbnails(base64);
+                        collectedThumbnails.push(...fileThumbnails);
                     }
 
-                    const res = await fetch(previewUrl);
-                    const blob = await res.blob();
-
-                    const base64 = await new Promise<string>((resolve) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result as string);
-                        reader.readAsDataURL(blob);
-                    });
-
-                    const thumbnail = await getPdfThumbnail(base64, i);
-                    newThumbnails[i - 1] = thumbnail;
                 } catch (err) {
-                    console.error(`Failed to load thumbnail for page ${i}:`, err);
-                    newThumbnails[i - 1] = null;
+                    console.error(`Failed to load thumbnails from ${docGroup}:`, err);
                 }
             }
 
-            setThumbnails(newThumbnails);
+            setThumbnails(collectedThumbnails);
             setCurrentPage(1);
         };
 
@@ -88,7 +92,7 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ ocrFields }) => {
 
             <Pagination
                 currentPage={currentPage}
-                totalPages={ocrFields?.pageCount || 1}
+                totalPages={thumbnails.length || 1}
                 onPageChange={setCurrentPage}
             />
         </div>

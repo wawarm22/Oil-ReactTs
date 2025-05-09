@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AuditPagination from "../reusable/AuditPagination";
-import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document } from "../../types/ocrFileType";
+import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document } from "../../types/ocrFileType";
 import { detectOcrType } from "../../utils/function/ocrType";
 import ChecklistTax from "./ChecklistTax";
 import ChecklistTable from "./ChecklistTable";
@@ -22,11 +22,13 @@ import ChecklistDailyComparison from "./ChecklistDailyComparison";
 import ChecklistTaxReceiptExcise from "./ChecklistTaxReceiptExcise";
 import ChecklistAttachment0307 from "./ChecklistAttachment0307";
 import ChecklistAttachment0704 from "./ChecklistAttachment0704";
+import ChecklistTaxForm0502 from "./ChecklistTaxForm0502";
 
 interface Props {
     ocrDocument: {
         pages: { [page: number]: OcrFields };
         pageCount: number;
+        pageFileKeyMap?: { [page: number]: string };
     } | null;
 }
 
@@ -35,16 +37,32 @@ const ChecklistPanel: React.FC<Props> = ({ ocrDocument }) => {
 
     if (!ocrDocument) return <p className="text-muted">ไม่มีข้อมูล OCR</p>;
 
+    const { pages, pageFileKeyMap } = ocrDocument;
+    const selectedFields = pages[currentPage];
+
+    if (!selectedFields) {
+        console.warn(`No OCR data found for page ${currentPage}`);
+        return <p className="text-muted">ไม่พบข้อมูล OCR ในหน้านี้</p>;
+    }
+
     const currentOcrFields = ocrDocument.pages[currentPage];
     const type = detectOcrType(currentOcrFields);
-    console.log("📦 Detected OCR type:", type);
+    console.log("Detected OCR type:", type);
 
     return (
         <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
             <AuditPagination
                 totalPages={ocrDocument.pageCount}
                 currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
+                setCurrentPage={(page) => {
+                    const fileKey = pageFileKeyMap?.[page];
+                    if (!fileKey) {
+                        // console.warn(`FileKey not found for page ${page}`);
+                    } else {
+                        console.log(`FileKey for page ${page}: ${fileKey}`);
+                    }
+                    setCurrentPage(page);
+                }}
             />
 
             <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>
@@ -98,10 +116,13 @@ const ChecklistPanel: React.FC<Props> = ({ ocrDocument }) => {
                 )}
                 {type === "attachment_0307" && (
                     <ChecklistAttachment0307 data={currentOcrFields as OcrAttachment0307Document} />
-                )}      
+                )}
                 {type === "attachment_0704" && (
                     <ChecklistAttachment0704 data={currentOcrFields as OcrAttachment0704Document} />
-                )}                           
+                )}
+                {type === "tax_form_0502" && (
+                    <ChecklistTaxForm0502 data={currentOcrFields as OcrTaxForm0502Document} />
+                )}
             </div>
         </div>
     );

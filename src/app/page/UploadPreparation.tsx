@@ -400,7 +400,7 @@ const UploadPreparation: React.FC = () => {
             toast.success("อัปโหลดสำเร็จ");
 
             const response = await apiSearchFiles(companyName, baseName!);
-
+            // console.log("response", response);            
             const folders = response.files.map((file: any) => {
                 const parts = file.fileName.split('/');
                 parts.pop();
@@ -410,8 +410,8 @@ const UploadPreparation: React.FC = () => {
             localStorage.setItem("folders", JSON.stringify(folders));
             localStorage.setItem("transport", filters.transport?.value || "");
             localStorage.setItem("warehouse", filters.warehouse?.value || "");
-            navigate("/audit");
-            // navigate("/");
+            // navigate("/audit");
+            navigate("/");
 
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
