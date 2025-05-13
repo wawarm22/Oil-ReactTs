@@ -9,7 +9,7 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
     return (
         <div className="table-responsive shadow-sm rounded py-3 px-5 bg-white mt-3">
             <p className="fw-bold mb-2" style={{ fontSize: '26px', fontFamily: 'IBM Plex Sans Thai' }}>
-                ตารางเปรียบเทียบอัตราส่วนกับสูตรการผลิตน้ำมัน
+                ตารางเปรียบเทียบปริมาณการจ่ายวัถุดิบเปรียบเทียบกับปริมาณการผลิตและจำหน่าย
             </p>
             <table className="table table-bordered border-dark align-middle text-center">
                 <thead>

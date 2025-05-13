@@ -15,6 +15,7 @@ import { DocumentCompareStep } from "../../types/enum/docCompare";
 import { OcrFields } from "../../types/ocrFileType";
 import PdfPreviewMatch from "../component/PdfPreviewMatch";
 import ChecklistMatch from "../component/ChecklistMatch";
+import ProductionReport from "../reusable/ProductionReport";
 
 type UploadedFilesType = {
     [key: number]: { name: string; data: string; pageCount: number }[];
@@ -180,7 +181,8 @@ const MatchDocument: React.FC = () => {
 
             {currentStep === 1 && <MatchTable data={sampleTableData} />}
             {currentStep === 2 && <VolumeCompareTable data={volumeCompareData} />}
-
+            {currentStep === 3 && <ProductionReport/>}
+            
             <AuditButton
                 stepStatus={StepStatus.MATCH}
                 onBack={handleBack}
