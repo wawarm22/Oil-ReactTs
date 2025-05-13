@@ -13,7 +13,7 @@ interface AuditButtonContainerProps {
 
 const AuditButtonContainer: React.FC<AuditButtonContainerProps> = ({
     stepStatus,
-    onUploadMore,
+    // onUploadMore,
     onBack,
     onSaveAudit,
     onNextStep,
@@ -25,7 +25,7 @@ const AuditButtonContainer: React.FC<AuditButtonContainerProps> = ({
                 className="flex-grow-1 d-flex justify-content-start w-100"
                 style={{ visibility: stepStatus === StepStatus.MATCH ? "hidden" : "visible" }}
             >
-                <Button
+                {/* <Button
                     type="button"
                     label="อัปโหลดเอกสารเพิ่มเติม"
                     bgColor="#1E2329"
@@ -36,7 +36,7 @@ const AuditButtonContainer: React.FC<AuditButtonContainerProps> = ({
                     hoverColor="#1E2329"
                     variant="bg-hide"
                     onClick={onUploadMore}
-                />
+                /> */}
             </div>
 
             <div className="d-flex gap-2 w-100">

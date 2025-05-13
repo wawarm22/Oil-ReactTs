@@ -1,7 +1,7 @@
 // AuditPagination.tsx
 
 import React from "react";
-import MotionCard from "./MotionCard";
+import MotionCardChecklist from "./MotionCardChecklist";
 
 interface PaginationProps {
     totalPages: number;
@@ -43,18 +43,18 @@ const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
     
         return pages.map((page, idx) =>
             typeof page === "number" ? (
-                <MotionCard
+                <MotionCardChecklist
                     key={`page-${page}`}
                     isSelected={currentPage === page}
                     onClick={() => setCurrentPage(page)}
                     width="50px"
-                    height="50px"
+                    minHeight="50px"
                     textSize="20px"
                     container="d-flex align-items-center justify-content-center"
                     margin="mx-1"
                 >
                     {page}
-                </MotionCard>
+                </MotionCardChecklist>
             ) : (
                 <div
                     key={`ellipsis-${idx}`}

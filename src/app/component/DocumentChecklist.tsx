@@ -4,6 +4,9 @@ import { apiGetAllOcr } from "../../utils/api/OcrListApi";
 import { OcrFields } from "../../types/ocrFileType";
 import MotionCard from "../reusable/MotionCard";
 import { useSocket } from "../../hook/socket";
+import { FaCheckCircle } from "react-icons/fa";
+import { MdDownloading } from "react-icons/md";
+import { parseUploadedStatus } from "../../utils/function/parseUploadedStatus";
 
 interface Props {
     documentList: DocumentItem[];
@@ -13,7 +16,7 @@ interface Props {
         fullOcrPages: {
             pages: { [page: number]: OcrFields };
             pageCount: number;
-            pageFileKeyMap: { [page: number]: string }; // ✅ เพิ่มตรงนี้
+            pageFileKeyMap: { [page: number]: string };
         } | null
     ) => void;
 }
@@ -33,12 +36,11 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
     const { addCallbacks, removeCallbacks } = useSocket();
-
     const transportFilter = localStorage.getItem("transport");
-
     const filteredList = documentList.filter(item =>
         !transportFilter || item.transport === transportFilter
     );
+    const uploadedStatus = parseUploadedStatus(folders);
 
     const fetchOcrData = async () => {
         const results: {
@@ -55,6 +57,7 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
         for (const folder of folders) {
             try {
                 const data = await apiGetAllOcr(folder);
+                console.log("data", data);
                 const documents = data?.documents ?? [];
 
                 for (const document of documents) {
@@ -130,7 +133,6 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
             return;
         }
 
-        // ✅ เรียง fileKeys ตามเลขท้าย -1, -2, -3...
         const fileKeys = Object.keys(docGroup).sort((a, b) => {
             const numA = parseInt(a.match(/-(\d+)$/)?.[1] || "0", 10);
             const numB = parseInt(b.match(/-(\d+)$/)?.[1] || "0", 10);
@@ -161,11 +163,18 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
         onSelectDocument(selectedFields, {
             pages: combinedPages,
             pageCount: pageOffset,
-            pageFileKeyMap, // ✅ ส่ง map นี้ไปด้วย
+            pageFileKeyMap,
         });
 
         setSelectedDocId(docId);
         setSelectedSubtitleIdx(subtitleIndex);
+    };
+
+    const getStatus = (docId: number, subtitleIndex = 0, hasOcr: boolean, isSelected: boolean) => {
+        const isUploaded = uploadedStatus[docId]?.has(subtitleIndex) ?? false;
+        if (hasOcr) return { Icon: FaCheckCircle, color: isSelected ? "#ffffff" : "#22C659", bar: "#22C659" };
+        if (isUploaded) return { Icon: MdDownloading, color: "#FFCA04", bar: "#FFCA04" }; 
+        return { Icon: MdDownloading, color: "#BDBDBD", bar: "#BDBDBD" }; 
     };
 
     return (
@@ -174,61 +183,73 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
                 const defaultSubIdx = 0;
                 const group = ocrByDocId[item.id]?.[defaultSubIdx];
                 const hasOcr = group && Object.values(group).some(file => Object.keys(file.pages || {}).length > 0);
+                const isSelected = selectedDocId === item.id && selectedSubtitleIdx === 0;
+                const { Icon, color, bar } = getStatus(item.id, defaultSubIdx, hasOcr, isSelected);
 
                 return (
-                    <div key={index} className="mb-1 d-flex">
-                        <div
-                            className="me-2 rounded-2"
-                            style={{
-                                width: "4px",
-                                height: "38px",
-                                backgroundColor: hasOcr ? "green" : "#BDBDBD"
-                            }}
-                        />
+                    <div key={index} className="d-flex mb-1">
                         <div className="flex-grow-1">
-                            <MotionCard
-                                onClick={() => handleSelect(item.id)}
-                                isSelected={selectedDocId === item.id && selectedSubtitleIdx === 0}
-                                width="100%"
-                                height="auto"
-                                textSize="14px"
-                                container="d-flex align-items-center justify-content-between p-2 mb-2 shadow-sm rounded-2"
-                                style={{
-                                    border: '1px solid #dee2e6',
-                                    borderLeft: hasOcr ? '6px solid green' : '6px solid #BDBDBD',
-                                }}
-                            >
-                                {item.title}
-                            </MotionCard>
+                            <div className="position-relative">
+                                <MotionCard
+                                    onClick={() => handleSelect(item.id)}
+                                    isSelected={selectedDocId === item.id && selectedSubtitleIdx === 0}
+                                    width="100%"
+                                    minHeight="48px"
+                                    textSize="14px"
+                                    container="d-flex align-items-center justify-content-between py-1 pe-2 mb-2 shadow-sm rounded-2 position-relative"
+                                    style={{
+                                        border: '1px solid #dee2e6',
+                                        paddingLeft: "45px"
+                                    }}
+                                >
+                                    <Icon
+                                        size={25}
+                                        className="position-absolute"
+                                        style={{
+                                            left: "10px", top: "50%", transform: "translateY(-50%)", color
+                                        }}
+                                    />
+                                    <div
+                                        className="rounded-2 position-absolute top-0 bottom-0"
+                                        style={{ width: "3px", backgroundColor: bar, left: "-10px" }}
+                                    />
+                                    {item.title}
+                                </MotionCard>
+                            </div>
 
                             {item.subtitle && (
                                 <div className="ps-4">
                                     {item.subtitle.map((subItem, subIdx) => {
                                         const subGroup = ocrByDocId[item.id]?.[subIdx];
                                         const hasOcrSub = subGroup && Object.values(subGroup).some(file => Object.keys(file.pages || {}).length > 0);
+                                        const isSelectedSub = selectedDocId === item.id && selectedSubtitleIdx === subIdx;
+                                        const { Icon, color, bar } = getStatus(item.id, subIdx, hasOcrSub, isSelectedSub);
 
                                         return (
                                             <div key={subIdx} className="d-flex">
-                                                <div
-                                                    className="me-2 rounded-2"
-                                                    style={{
-                                                        width: "4px",
-                                                        height: "38px",
-                                                        backgroundColor: hasOcrSub ? "green" : "#BDBDBD"
-                                                    }}
-                                                />
                                                 <MotionCard
                                                     onClick={() => handleSelect(item.id, subIdx)}
                                                     isSelected={selectedDocId === item.id && selectedSubtitleIdx === subIdx}
                                                     width="100%"
-                                                    height="auto"
+                                                    minHeight="45px"
                                                     textSize="12px"
-                                                    container="d-flex align-items-center justify-content-between p-2 mb-2 shadow-sm rounded-2"
+                                                    container="d-flex align-items-center justify-content-between py-1 pe-2 mb-2 shadow-sm rounded-2 position-relative"
                                                     style={{
                                                         border: '1px solid #dee2e6',
-                                                        borderLeft: hasOcrSub ? '6px solid green' : '6px solid #BDBDBD',
+                                                        paddingLeft: "42px",
                                                     }}
                                                 >
+                                                    <Icon
+                                                        size={25}
+                                                        className="position-absolute"
+                                                        style={{
+                                                            left: "10px", top: "50%", transform: "translateY(-50%)", color
+                                                        }}
+                                                    />
+                                                    <div
+                                                        className="rounded-2 position-absolute top-0 bottom-0"
+                                                        style={{ width: "3px", backgroundColor: bar, left: "-10.5px" }}
+                                                    />
                                                     {subItem}
                                                 </MotionCard>
                                             </div>
@@ -240,7 +261,6 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
                     </div>
                 );
             })}
-
         </div>
     );
 };

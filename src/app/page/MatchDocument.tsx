@@ -91,8 +91,6 @@ const MatchDocument: React.FC = () => {
                 <AuditPagination totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} customHeight={subDocHeight} />
             </div>
 
-            {/* <AuditDetail selectedId={selectedId} currentPage={currentPage} uploadedFiles={uploadedFiles} /> */}
-
             {selectedId === 1 && <MatchTable data={sampleTableData} />}
             {selectedId === 2 && <VolumeCompareTable data={volumeCompareData} />}
 

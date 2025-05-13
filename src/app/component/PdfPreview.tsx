@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { apiListPdfAfter } from "../../utils/api/uploadApi";
-import Pagination from "../reusable/Pagination";
 import { getPdfThumbnails } from "../../utils/function/pdfUtils";
 
 interface OcrPageData {
@@ -13,16 +12,16 @@ interface OcrPageData {
 
 interface PdfPreviewProps {
     ocrFields: {
-        pages: {
-            [page: number]: OcrPageData;
-        };
+        pages: { [page: number]: OcrPageData };
         pageCount: number;
     } | null;
+    currentPage: number;
+    setCurrentPage: (page: number) => void;
 }
 
-const PdfPreview: React.FC<PdfPreviewProps> = ({ ocrFields }) => {
+const PdfPreview: React.FC<PdfPreviewProps> = ({ ocrFields, currentPage, setCurrentPage}) => {
     const [thumbnails, setThumbnails] = useState<(string | null)[]>([]);
-    const [currentPage, setCurrentPage] = useState<number>(1);
+    // const [currentPage, setCurrentPage] = useState<number>(1);
 
     useEffect(() => {
         if (!ocrFields) return;
@@ -77,7 +76,7 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ ocrFields }) => {
 
     return (
         <div
-            className="shadow-sm pt-3 d-flex flex-column align-items-center"
+            className="shadow-sm d-flex flex-column align-items-center justify-content-center"
             style={{ width: "50%", background: "#E0E0E0", borderRadius: "8px", height: "800px" }}
         >
             {currentThumbnail ? (
@@ -90,11 +89,11 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ ocrFields }) => {
                 <p className="text-muted">ไม่มีหน้าที่ {currentPage}</p>
             )}
 
-            <Pagination
+            {/* <Pagination
                 currentPage={currentPage}
                 totalPages={thumbnails.length || 1}
                 onPageChange={setCurrentPage}
-            />
+            /> */}
         </div>
     );
 };

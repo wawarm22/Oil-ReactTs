@@ -186,7 +186,9 @@ const UploadPreparation: React.FC = () => {
         }
 
         const mergedPdfBytes = await mergedPdf.save();
-        const mergedBlobUrl = URL.createObjectURL(new Blob([mergedPdfBytes], { type: "application/pdf" }));
+        const arrayBuffer = mergedPdfBytes.buffer as ArrayBuffer; // บังคับ Type ให้เป็น ArrayBuffer
+        const mergedBlob = new Blob([arrayBuffer], { type: "application/pdf" });
+        const mergedBlobUrl = URL.createObjectURL(mergedBlob);
         window.open(mergedBlobUrl, "_blank");
     };
 
@@ -410,8 +412,8 @@ const UploadPreparation: React.FC = () => {
             localStorage.setItem("folders", JSON.stringify(folders));
             localStorage.setItem("transport", filters.transport?.value || "");
             localStorage.setItem("warehouse", filters.warehouse?.value || "");
-            // navigate("/audit");
-            navigate("/");
+            navigate("/audit");
+            // navigate("/");
 
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
@@ -694,7 +696,7 @@ const UploadPreparation: React.FC = () => {
                         bgColor="#FFCB02"
                         color="#1E2329"
                         variant="bg-hide"
-                        disabled={isConfirmDisabled}
+                        // disabled={isConfirmDisabled}
                     />
                 </div>
             </div>

@@ -13,6 +13,7 @@ interface AuditDetailProps {
 }
 
 const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const [selectedOcrDocument, setSelectedOcrDocument] = useState<{
         pages: { [page: number]: OcrFields };
         pageCount: number;
@@ -29,8 +30,15 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                 }}
             />
 
-            <PdfPreview ocrFields={selectedOcrDocument} />
-            <ChecklistPanel ocrDocument={selectedOcrDocument} />
+            <PdfPreview
+                ocrFields={selectedOcrDocument}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage} />
+
+            <ChecklistPanel
+                ocrDocument={selectedOcrDocument}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage} />
         </div>
     );
 };

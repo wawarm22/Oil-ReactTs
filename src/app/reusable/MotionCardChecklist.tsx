@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-interface MotionCardProps {
+interface MotionCardChecklistProps {
     onClick?: () => void;
     isSelected: boolean;
     children: React.ReactNode;
@@ -14,7 +14,7 @@ interface MotionCardProps {
     style?: React.CSSProperties; 
 }
 
-const MotionCard: React.FC<MotionCardProps> = ({
+const MotionCardChecklist: React.FC<MotionCardChecklistProps> = ({
     onClick,
     isSelected,
     children,
@@ -31,7 +31,7 @@ const MotionCard: React.FC<MotionCardProps> = ({
             style={{
                 width,
                 minHeight,
-                backgroundColor: isSelected ? "#22C659" : "#ffffff",
+                backgroundColor: isSelected ? "#3D4957" : "#ffffff",
                 color: isSelected ? "#ffffff" : "#000000",
                 cursor: "pointer",
                 ...style,
@@ -54,4 +54,4 @@ const MotionCard: React.FC<MotionCardProps> = ({
     );
 };
 
-export default MotionCard;
+export default MotionCardChecklist;

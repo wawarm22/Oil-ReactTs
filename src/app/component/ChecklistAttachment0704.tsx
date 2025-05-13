@@ -63,14 +63,12 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
     const ocrFieldRows = useMemo(() => {
         const rows: any[] = [];
 
-        // 1. Header
         const headerProps: Record<string, { value: string }> = {};
         fields.forEach(({ label, value }) => {
             headerProps[label] = { value: cleanValue(value) };
         });
         rows.push({ properties: headerProps });
 
-        // 2. detail_table_1: รวม column_6 ถึง column_9 ของแต่ละแถว → แยกแถวแต่รวมใน array
         const detailTable1Rows = [6, 7, 8, 9].map((col) => {
             const props: Record<string, { value: string }> = {};
 
@@ -84,7 +82,6 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
 
         rows.push({ detail_table_1: detailTable1Rows });
 
-        // 3. detail_table_2: รวมค่า column_9
         const detailTable2Props: Record<string, { value: string }> = {};
         tableMap2.forEach(({ label, index }) => {
             const value = table2[index]?.properties?.column_9?.value;
@@ -113,7 +110,6 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
 
     return (
         <div className="d-flex flex-column gap-3">
-            {/* Header fields */}
             {fields.map(({ label, value }) => (
                 <div key={label}>
                     <div className="fw-bold">{label}</div>
@@ -123,7 +119,6 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                 </div>
             ))}
 
-            {/* Section 1 */}
             <hr className="border-top border-2 border-secondary my-2" />
             <div className="fw-bold">๑. ข้อมูลวัตถุดิบ</div>
             {tableMap1.map(({ label, index }) => {
@@ -174,7 +169,6 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                 );
             })}
 
-            {/* Section 2 */}
             <hr className="border-top border-2 border-secondary my-2" />
             <div className="fw-bold">๒. งบการผลิต</div>
             {tableMap2.map(({ label, index }) => {
