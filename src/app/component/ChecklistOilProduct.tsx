@@ -20,7 +20,7 @@ const ChecklistOilProduct: React.FC<ChecklistOilProductProps> = ({ data }) => {
     }[] => {
         const result: ReturnType<typeof parseIngredients> = [];
 
-        const rows = data.detail_table.slice(2); // ข้าม header 2 แถวแรก
+        const rows = data.detail_table.slice(2);
 
         for (const row of rows) {
             const props = row.properties ?? {};

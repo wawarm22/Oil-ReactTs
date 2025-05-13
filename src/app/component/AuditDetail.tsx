@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { documentList } from "../../types/docList";
-import PdfPreview from "./PdfPreview";
 import DocumentChecklist from "./DocumentChecklist";
 import ChecklistPanel from "./ChecklistPanel";
 import { OcrFields } from "../../types/ocrFileType";
+import PdfPreview from "./PdfPreview";
 
 interface AuditDetailProps {
     selectedId: number | null;

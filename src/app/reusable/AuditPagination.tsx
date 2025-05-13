@@ -7,20 +7,19 @@ interface PaginationProps {
     totalPages: number;
     currentPage: number;
     setCurrentPage: (page: number) => void;
-    customHeight?: number;
 }
 
-const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, setCurrentPage, customHeight }) => {
+const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, setCurrentPage }) => {
     const renderPageNumbers = () => {
         const pages: (number | string)[] = [];
-    
+
         if (totalPages <= 7) {
             for (let i = 1; i <= totalPages; i++) {
                 pages.push(i);
             }
         } else {
             pages.push(1); // Always show page 1
-    
+
             if (currentPage <= 3) {
                 for (let i = 2; i <= 4; i++) {
                     if (i < totalPages) pages.push(i);
@@ -37,10 +36,10 @@ const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
                 pages.push(currentPage + 1);
                 pages.push("...");
             }
-    
+
             pages.push(totalPages); // Always show last page
         }
-    
+
         return pages.map((page, idx) =>
             typeof page === "number" ? (
                 <MotionCardChecklist
@@ -65,19 +64,18 @@ const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
                 </div>
             )
         );
-    };            
+    };
 
     return (
         <div
-            className="d-flex align-items-center justify-content-start shadow-sm bg-white ps-4 rounded-2 w-100"
+            className="container-fluid d-flex justify-content-start align-items-center shadow-sm bg-white rounded-2 h-100"
             style={{
-                maxWidth: '730px',
-                height: customHeight ? `${customHeight - 16}px` : '90px',
+                width: '100%',
                 fontFamily: "Sarabun"
             }}
         >
             <p className="fw-bold m-0 me-2" style={{ fontSize: "20px" }}>หน้า</p>
-            <div className="d-flex">
+            <div className="d-flex" style={{ maxHeight: "55px"}}>
                 {renderPageNumbers()}
             </div>
         </div>

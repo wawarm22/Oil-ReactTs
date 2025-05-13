@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import StepProgress from "../reusable/StepProgress";
 import { StepStatus } from "../../types/enum/stepStatus";
 import AuditList from "../component/AuditList";
-import SubDocumentList from "../component/SubDocumentList";
 import AuditPagination from "../reusable/AuditPagination";
 import { documentList } from "../../types/docList";
 import AuditButton from "../component/AuditButton";
@@ -11,6 +10,11 @@ import MatchTable from "../component/MatchTable";
 import { sampleTableData } from "../../types/tableTypes";
 import VolumeCompareTable from "../component/VolumeCompareTable";
 import { volumeCompareData } from "../../types/volumeTableTypes";
+import DocumentCompareProgress from "../reusable/DocumentCompareProgress";
+import { DocumentCompareStep } from "../../types/enum/docCompare";
+import { OcrFields } from "../../types/ocrFileType";
+import PdfPreviewMatch from "../component/PdfPreviewMatch";
+import ChecklistMatch from "../component/ChecklistMatch";
 
 type UploadedFilesType = {
     [key: number]: { name: string; data: string; pageCount: number }[];
@@ -20,11 +24,15 @@ const MatchDocument: React.FC = () => {
     const navigate = useNavigate();
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
+    const [selectedOcrDocument, setSelectedOcrDocument] = useState<{
+        pages: { [page: number]: OcrFields };
+        pageCount: number;
+        pageFileKeyMap: { [page: number]: string };
+    } | null>(null);
     const [totalPages, setTotalPages] = useState<number>(1);
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
     const [selectedDocIndex, setSelectedDocIndex] = useState<number | null>(null);
-    const [subDocHeight, setSubDocHeight] = useState<number>(0);
-    const subDocRef = useRef<HTMLDivElement | null>(null);
+    const [currentStep, setCurrentStep] = useState<number>(1);
 
     useEffect(() => {
         try {
@@ -57,14 +65,29 @@ const MatchDocument: React.FC = () => {
         }
     }, [selectedId, uploadedFiles]);
 
-    useEffect(() => {
-        if (subDocRef.current) {
-            setSubDocHeight(subDocRef.current.clientHeight);
-        }
-    }, [selectedId, selectedDocIndex]);
-
     const handleBack = () => {
-        navigate('/match-list')
+        if (currentStep > 1) {
+            setCurrentStep(prev => prev - 1);
+
+            const stepToDocIdMap: { [key: number]: number[] } = {
+                1: [3, 6],
+                2: [6, 7, 8],
+                3: [6, 7, 10],
+                4: [13, 17, 15, 24],
+                5: [8, 19],
+            };
+
+            const previousStep = currentStep - 1;
+            const prevDocs = stepToDocIdMap[previousStep] || [];
+
+            if (prevDocs.length > 0) {
+                setSelectedId(prevDocs[0]);
+            } else {
+                setSelectedId(null);
+            }
+        } else {
+            navigate("/match-list");
+        }
     };
 
     const handleSaveAudit = () => {
@@ -72,7 +95,35 @@ const MatchDocument: React.FC = () => {
     };
 
     const handleNextStep = () => {
-        console.log("บันทึกการตรวจสอบ");
+        if (currentStep < 5) {
+            setCurrentStep(prev => prev + 1);
+            const stepToDocIdMap: { [key: number]: number[] } = {
+                2: [6, 7, 8],
+                3: [6, 7, 10],
+                4: [13, 17, 15, 24],
+                5: [8, 19],
+            };
+            const nextStep = currentStep + 1;
+            const nextDocs = stepToDocIdMap[nextStep] || [];
+            if (nextDocs.length > 0) {
+                setSelectedId(nextDocs[0]);
+            } else {
+                setSelectedId(null);
+            }
+        }
+    };
+
+    const getFilteredDocumentList = () => {
+        const stepToDocIdMap: { [key: number]: number[] } = {
+            1: [3, 6],
+            2: [6, 7, 8],
+            3: [6, 7, 10],
+            4: [13, 17, 15, 24],
+            5: [8, 19],
+        };
+
+        const docIds = stepToDocIdMap[currentStep] || [];
+        return documentList.filter(doc => docIds.includes(doc.id));
     };
 
     return (
@@ -82,17 +133,53 @@ const MatchDocument: React.FC = () => {
             </p>
             <StepProgress status={StepStatus.MATCH} />
 
-            <AuditList selectedId={selectedId} setSelectedId={setSelectedId} />
+            <DocumentCompareProgress
+                currentStep={currentStep}
+                totalSteps={5}
+                descriptions={[
+                    DocumentCompareStep.STEP_1,
+                    DocumentCompareStep.STEP_2,
+                    DocumentCompareStep.STEP_3,
+                    DocumentCompareStep.STEP_4,
+                    DocumentCompareStep.STEP_5
+                ]}
+            />
 
-            <div className="d-flex justify-content-between align-items-center gap-2 w-100">
-                <div ref={subDocRef} className="w-100">
-                    <SubDocumentList selectedId={selectedId} setSelectedDocIndex={setSelectedDocIndex} />
+            <div className="d-flex justify-content-between align-items-stretch gap-2 w-100">
+                <div className="flex-grow-1">
+                    <AuditList
+                        selectedId={selectedId}
+                        setSelectedId={setSelectedId}
+                        documentList={getFilteredDocumentList()}
+                        currentStep={currentStep}
+                        selectedDocIndex={selectedDocIndex}
+                        setSelectedDocIndex={setSelectedDocIndex}
+                    />
                 </div>
-                <AuditPagination totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} customHeight={subDocHeight} />
+                <div style={{ width: "39.5%" }} className="d-flex flex-column flex-grow-1">
+                    <AuditPagination
+                        totalPages={totalPages}
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
+                    />
+                </div>
             </div>
 
-            {selectedId === 1 && <MatchTable data={sampleTableData} />}
-            {selectedId === 2 && <VolumeCompareTable data={volumeCompareData} />}
+            <div className="d-flex w-100 gap-2 mt-2">
+                <PdfPreviewMatch
+                    ocrFields={selectedOcrDocument}
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                />
+                <ChecklistMatch
+                    ocrDocument={selectedOcrDocument}
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                />
+            </div>
+
+            {currentStep === 1 && <MatchTable data={sampleTableData} />}
+            {currentStep === 2 && <VolumeCompareTable data={volumeCompareData} />}
 
             <AuditButton
                 stepStatus={StepStatus.MATCH}

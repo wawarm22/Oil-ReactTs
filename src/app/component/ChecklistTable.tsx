@@ -27,6 +27,7 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
 
     useEffect(() => {
         if (cleanedRowsRef.current.fields.length > 0) {
+            console.log("cleanedRowsRef", cleanedRowsRef);
 
             validateOilCompare(cleanedRowsRef.current).then((res: ValidationResponse) => {
                 const map = buildValidationMap(res.data, cleanedRowsRef.current.fields);
@@ -39,7 +40,7 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
         return <p className="text-muted">ไม่มีข้อมูลตาราง</p>;
     }
 
-    let startIndex = 1; 
+    let startIndex = 1;
     const checkRow = allRows[1]?.properties;
     const firstRowHasChue = Object.values(checkRow || {}).some(
         (cell: any) => cell?.value?.includes("ชื่อ")
