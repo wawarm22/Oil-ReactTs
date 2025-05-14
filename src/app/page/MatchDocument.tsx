@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import StepProgress from "../reusable/StepProgress";
 import { StepStatus } from "../../types/enum/stepStatus";
 import AuditList from "../component/AuditList";
-import AuditPagination from "../reusable/AuditPagination";
 import { documentList } from "../../types/docList";
 import AuditButton from "../component/AuditButton";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +15,7 @@ import { OcrFields } from "../../types/ocrFileType";
 import PdfPreviewMatch from "../component/PdfPreviewMatch";
 import ChecklistMatch from "../component/ChecklistMatch";
 import ProductionReport from "../reusable/ProductionReport";
+import MatchPagination from "../reusable/MatchPagination";
 
 type UploadedFilesType = {
     [key: number]: { name: string; data: string; pageCount: number }[];
@@ -158,7 +158,7 @@ const MatchDocument: React.FC = () => {
                     />
                 </div>
                 <div style={{ width: "39.5%" }} className="d-flex flex-column flex-grow-1">
-                    <AuditPagination
+                    <MatchPagination
                         totalPages={totalPages}
                         currentPage={currentPage}
                         setCurrentPage={setCurrentPage}
@@ -182,7 +182,7 @@ const MatchDocument: React.FC = () => {
             {currentStep === 1 && <MatchTable data={sampleTableData} />}
             {currentStep === 2 && <VolumeCompareTable data={volumeCompareData} />}
             {currentStep === 3 && <ProductionReport/>}
-            
+
             <AuditButton
                 stepStatus={StepStatus.MATCH}
                 onBack={handleBack}
