@@ -1,8 +1,5 @@
-import { stringToNumber } from "../../../../utils/data";
-import {
-    checkMaterialMatchAI,
-    checkProductMatchAI,
-} from "../../../../utils/documentGroup";
+import { checkMaterialMatchAI, checkProductMatchAI } from "../../documentGroup";
+import { stringToNumber } from "../../stringToNumber";
 
 export type Check<T = string> = {
     label: string;
@@ -272,6 +269,7 @@ type Product = {
     defected: number;
     forward: number;
     etc_used: number;
+    etc: number;
 };
 
 type Material = {

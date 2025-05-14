@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { OcrDetailTableDocument } from "../../types/ocrFileType";
 import { validateOilCompare } from "../../utils/api/validateApi";
-import { OCRValidationPayload } from "../../types/validateTypes";
 import { buildValidationMap } from "../../utils/function/validationMap";
 import { ValidationResponse } from "../../types/validateTypes";
+import { useCompanyStore } from "../../store/companyStore";
 
 const COLUMN_LABELS: { [key: string]: string } = {
     column_1: "ชื่อผลิตภัณฑ์",
     column_2: "ชื่อผลิตภัณฑ์ (ตามหนังสืออนุมัติ)",
-    column_3: "รายการวัตถุดิบหรือหรือส่วนประกอบที่ใช้ในการผลิต",
+    column_3: "รายการวัตถุดิบหรือส่วนประกอบที่ใช้ในการผลิต",
     column_4: "ปริมาณ",
     column_5: "สินค้าต่อ 1 หน่วย",
     column_6: "สูตรการผลิต",
@@ -16,92 +16,112 @@ const COLUMN_LABELS: { [key: string]: string } = {
 };
 
 const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) => {
+    const { selectedCompany } = useCompanyStore();
+    const factoriesNumber = localStorage.getItem("warehouse") ?? null;
+    
     const allRows = Array.isArray(data.detail_table) ? data.detail_table : [];
+    const cleanValue = (val?: string | null): string =>
+        !val || val.trim() === "" || val === ":unselected:" ? "-" : val.trim();
 
-    const cleanedRowsRef = useRef<OCRValidationPayload>({
-        docType: "oil-compare-1",
-        fields: [],
-    });
+    const fields = [
+        { label: "บริษัท", value: data.company },
+        { label: "คลัง", value: data.depot },
+        { label: "วันที่", value: data.date },
+    ];
 
+    const cleanedFieldsRef = useRef<any[]>([]);
     const [validationMap, setValidationMap] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
-        if (cleanedRowsRef.current.fields.length > 0) {
-            console.log("cleanedRowsRef", cleanedRowsRef);
+        if (cleanedFieldsRef.current.length > 0) {
+            const payload = {
+                docType: "oil-compare-1",
+                company: selectedCompany?.name,
+                factories: factoriesNumber,
+                documentGroup: data.documentGroup,
+                fields: cleanedFieldsRef.current,
+            };
 
-            validateOilCompare(cleanedRowsRef.current).then((res: ValidationResponse) => {
-                const map = buildValidationMap(res.data, cleanedRowsRef.current.fields);
+            validateOilCompare(payload).then((res: ValidationResponse) => {
+                const map = buildValidationMap(res.data, cleanedFieldsRef.current);
                 setValidationMap(map);
             });
         }
-    }, []);
+    }, [data]);
 
-    if (allRows.length === 0) {
-        return <p className="text-muted">ไม่มีข้อมูลตาราง</p>;
-    }
+    if (allRows.length === 0) return <p className="text-muted">ไม่มีข้อมูลตาราง</p>;
 
     let startIndex = 1;
     const checkRow = allRows[1]?.properties;
-    const firstRowHasChue = Object.values(checkRow || {}).some(
-        (cell: any) => cell?.value?.includes("ชื่อ")
-    );
-
+    const firstRowHasChue = Object.values(checkRow || {}).some((cell: any) => cell?.value?.includes("ชื่อ"));
     if (firstRowHasChue) startIndex = 2;
+
+    cleanedFieldsRef.current = [
+        {
+            data: fields.reduce((acc, { label, value }) => {
+                acc[label] = { value: cleanValue(value) };
+                return acc;
+            }, {} as Record<string, { value: string }>),
+        },
+    ];
 
     return (
         <div className="d-flex flex-column gap-1">
-            {(() => {
-                cleanedRowsRef.current.fields = [];
-                return null;
-            })()}
+            {fields.map(({ label, value }) => (
+                <div key={label}>
+                    <div className="fw-bold">{label}</div>
+                    <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                        {cleanValue(value)}
+                    </div>
+                </div>
+            ))}
+            <hr className="border-top border-2 border-secondary my-2" />
+
             {allRows.map((row, rowIdx) => {
                 if (rowIdx < startIndex) return null;
-
                 const props = row.properties ?? {};
-                const visibleColumns = Object.keys(COLUMN_LABELS).filter((key) => {
-                    const value = props[key]?.value;
-                    return typeof value === "string" && value.trim() !== "";
+                const visibleColumns = Object.keys(COLUMN_LABELS).filter(
+                    (key) => typeof props[key]?.value === "string" && props[key].value.trim() !== ""
+                );
+
+                const cleanedRow: Record<string, { value: string }> = {};
+
+                const content = visibleColumns.map((colKey) => {
+                    const rawValue = props[colKey]?.value;
+                    const cleanedVal = typeof rawValue === "string" ? rawValue.replace(/^[,<>\/]/, "").trim() : rawValue;
+
+                    cleanedRow[colKey] = { value: cleanedVal };
+
+                    const fieldKey = `${rowIdx}-${colKey}`;
+                    const isValid = validationMap[fieldKey];
+
+                    return (
+                        <React.Fragment key={colKey}>
+                            <div className="fw-bold" style={{ fontSize: "14px" }}>
+                                {COLUMN_LABELS[colKey]}
+                            </div>
+                            <div
+                                className={`border rounded-2 shadow-sm bg-white mb-1 ${isValid === false ? "border-danger" : ""}`}
+                                style={{
+                                    fontSize: "14px",
+                                    whiteSpace: "pre-line",
+                                    padding: "10px 10px",
+                                }}
+                            >
+                                {cleanedVal}
+                            </div>
+                        </React.Fragment>
+                    );
                 });
 
-                const cleanedRow: { [key: string]: { value: string } } = {};
+                if (Object.keys(cleanedRow).length > 0) {
+                    cleanedFieldsRef.current.push({ detail_table: cleanedRow });
+                }
 
                 return (
                     <React.Fragment key={rowIdx}>
-                        {visibleColumns.map((colKey) => {
-                            const rawValue = props[colKey]?.value;
-                            const cleanedValue =
-                                typeof rawValue === "string" ? rawValue.replace(/^[,<>\/]/, "").trim() : rawValue;
-
-                            cleanedRow[colKey] = { value: cleanedValue };
-
-                            const fieldKey = `${rowIdx}-${colKey}`;
-                            const isValid = validationMap[fieldKey];
-
-                            return (
-                                <React.Fragment key={colKey}>
-                                    <div className="fw-bold" style={{ fontSize: "14px" }}>
-                                        {COLUMN_LABELS[colKey]}
-                                    </div>
-                                    <div
-                                        className={`border rounded-2 shadow-sm bg-white mb-1 ${isValid === false ? "border-danger" : ""}`}
-                                        style={{
-                                            fontSize: "14px",
-                                            whiteSpace: "pre-line",
-                                            padding: "10px 10px",
-                                        }}
-                                    >
-                                        {cleanedValue}
-                                    </div>
-                                </React.Fragment>
-                            );
-                        })}
+                        {content}
                         {visibleColumns.length > 0 && rowIdx < allRows.length - 1 && <hr className="my-2" />}
-                        {(() => {
-                            if (Object.keys(cleanedRow).length > 0) {
-                                cleanedRowsRef.current.fields.push({ properties: cleanedRow });
-                            }
-                            return null;
-                        })()}
                     </React.Fragment>
                 );
             })}

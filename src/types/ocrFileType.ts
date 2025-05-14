@@ -21,6 +21,12 @@ export type OcrTaxDocument = OcrFieldsBase & {
 export type OcrDetailTableDocument = OcrFieldsBase & {
     type: "table";
     header: string;
+    company: string;
+    date: string;
+    depot: string;
+    oil: string;
+    pageCount: string;
+    pageNumber: string;
     detail_table: Record<string, any>[];
 };
 

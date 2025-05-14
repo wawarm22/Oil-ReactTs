@@ -7,9 +7,10 @@ interface PaginationProps {
     totalPages: number;
     currentPage: number;
     setCurrentPage: (page: number) => void;
+    customHeight?: number;
 }
 
-const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, setCurrentPage }) => {
+const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, setCurrentPage, customHeight }) => {
     const renderPageNumbers = () => {
         const pages: (number | string)[] = [];
 
@@ -68,14 +69,15 @@ const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
 
     return (
         <div
-            className="container-fluid d-flex justify-content-start align-items-center shadow-sm bg-white rounded-2 h-100"
+            className="d-flex align-items-center justify-content-start shadow-sm bg-white ps-4 rounded-2 w-100"
             style={{
-                width: '100%',
+                maxWidth: '730px',
+                height: customHeight ? `${customHeight - 16}px` : '90px',
                 fontFamily: "Sarabun"
             }}
         >
             <p className="fw-bold m-0 me-2" style={{ fontSize: "20px" }}>หน้า</p>
-            <div className="d-flex" style={{ maxHeight: "55px"}}>
+            <div className="d-flex">
                 {renderPageNumbers()}
             </div>
         </div>

@@ -16,6 +16,10 @@ import PdfPreviewMatch from "../component/PdfPreviewMatch";
 import ChecklistMatch from "../component/ChecklistMatch";
 import ProductionReport from "../reusable/ProductionReport";
 import MatchPagination from "../reusable/MatchPagination";
+import OilReceiveTable from "../component/OilReceiveTable";
+import { oilReceiveData } from "../../types/oilReceiveTypes";
+import TaxRefundCalculationTable from "../component/TaxRefundCalculationTable";
+import { taxRefundData } from "../../types/taxRefundTypes";
 
 type UploadedFilesType = {
     [key: number]: { name: string; data: string; pageCount: number }[];
@@ -182,6 +186,8 @@ const MatchDocument: React.FC = () => {
             {currentStep === 1 && <MatchTable data={sampleTableData} />}
             {currentStep === 2 && <VolumeCompareTable data={volumeCompareData} />}
             {currentStep === 3 && <ProductionReport/>}
+            {currentStep === 4 && <OilReceiveTable data={oilReceiveData} />}
+            {currentStep === 5 && <TaxRefundCalculationTable data={taxRefundData}/>}
 
             <AuditButton
                 stepStatus={StepStatus.MATCH}

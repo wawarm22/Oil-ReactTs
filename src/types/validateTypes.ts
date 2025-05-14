@@ -8,9 +8,22 @@ export type OCRFieldRow = {
     };
 };
 
+export interface FieldCompare {
+    properties?: { [key: string]: { value: string } };
+    detail_table?: { [column: string]: OCRFieldProperty };
+}
+
 export type OCRValidationPayload = {
     docType: string;
     fields: OCRFieldRow[];
+};
+
+export type ValidationCompare = {
+    docType: string;
+    company: string;
+    factories: string;
+    documentGroup: string;
+    fields: FieldCompare[];
 };
 
 export type ValidationEntry = {

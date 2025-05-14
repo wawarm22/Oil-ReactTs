@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { OcrAttachment0704Document } from "../../types/ocrFileType";
 import { validateOil0701 } from "../../utils/api/validateApi";
 import { useCompanyStore } from "../../store/companyStore";
+import { genRequestObject } from "../../utils/function/checklist/attachment0704";
 
 interface Props {
     data: OcrAttachment0704Document;
@@ -60,53 +61,75 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { label: "อื่น ๆ", index: 12 },
     ];
 
-    const ocrFieldRows = useMemo(() => {
-        const rows: any[] = [];
+    // const ocrFieldRows = useMemo(() => {
+    //     const rows: any[] = [];
 
-        const headerProps: Record<string, { value: string }> = {};
-        fields.forEach(({ label, value }) => {
-            headerProps[label] = { value: cleanValue(value) };
-        });
-        rows.push({ properties: headerProps });
+    //     const headerProps: Record<string, { value: string }> = {};
+    //     fields.forEach(({ label, value }) => {
+    //         headerProps[label] = { value: cleanValue(value) };
+    //     });
+    //     rows.push({ properties: headerProps });
 
-        const detailTable1Rows = [6, 7, 8, 9].map((col) => {
-            const props: Record<string, { value: string }> = {};
+    //     const detailTable1Rows = [6, 7, 8, 9].map((col) => {
+    //         const props: Record<string, { value: string }> = {};
 
-            tableMap1.forEach(({ label, index }) => {
-                const rawValue = table1[index]?.properties?.[`column_${col}`]?.value;
-                props[label] = { value: cleanValue(rawValue) };
-            });
+    //         tableMap1.forEach(({ label, index }) => {
+    //             const rawValue = table1[index]?.properties?.[`column_${col}`]?.value;
+    //             props[label] = { value: cleanValue(rawValue) };
+    //         });
 
-            return { properties: props };
-        });
+    //         return { properties: props };
+    //     });
 
-        rows.push({ detail_table_1: detailTable1Rows });
+    //     rows.push({ detail_table_1: detailTable1Rows });
 
-        const detailTable2Props: Record<string, { value: string }> = {};
-        tableMap2.forEach(({ label, index }) => {
-            const value = table2[index]?.properties?.column_9?.value;
-            detailTable2Props[label] = { value: cleanValue(value) };
-        });
+    //     const detailTable2Props: Record<string, { value: string }> = {};
+    //     tableMap2.forEach(({ label, index }) => {
+    //         const value = table2[index]?.properties?.column_9?.value;
+    //         detailTable2Props[label] = { value: cleanValue(value) };
+    //     });
 
-        rows.push({ detail_table_2: { properties: detailTable2Props } });
+    //     rows.push({ detail_table_2: { properties: detailTable2Props } });
 
-        return rows;
-    }, [data]);
+    //     return rows;
+    // }, [data]);
+
+    // useEffect(() => {
+    //     if (ocrFieldRows.length > 0 && selectedCompany) {
+    //         const payload = {
+    //             docType: "oil-07-04-page-1",
+    //             company: selectedCompany.name,
+    //             factories: factoriesNumber,
+    //             fields: ocrFieldRows
+    //         };
+    //         validateOil0701(payload).then((res) => {
+    //             console.log("ผลลัพธ์ Validate:", res);
+    //             setValidationResult(res);
+    //         });
+    //     }
+    // }, [ocrFieldRows, selectedCompany]);
 
     useEffect(() => {
-        if (ocrFieldRows.length > 0 && selectedCompany) {
-            const payload = {
-                docType: "attachment_0704",
-                company: selectedCompany.name,
-                factories: factoriesNumber,
-                fields: ocrFieldRows
-            };
-            validateOil0701(payload).then((res) => {
-                console.log("ผลลัพธ์ Validate:", res);
-                setValidationResult(res);
-            });
+        if (data && selectedCompany) { 
+
+            
+            console.log("data", data);
+            
+            genRequestObject({ fields: data })
+                .then(payload => {
+                    payload.company_name = selectedCompany.name;
+                    payload.form_officer_name = factoriesNumber;  
+
+                    console.log("payload", payload);
+                    
+                    // validateOil0701(payload).then((res) => {
+                    //     console.log("ผลลัพธ์ Validate:", res);
+                    //     setValidationResult(res);
+                    // });
+                })
+                .catch(err => console.error("Error generating payload:", err));
         }
-    }, [ocrFieldRows, selectedCompany]);
+    }, [data, selectedCompany]);
 
     return (
         <div className="d-flex flex-column gap-3">
