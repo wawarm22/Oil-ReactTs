@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { OcrTaxDocument } from "../../types/ocrFileType";
 import { useCompanyStore } from "../../store/companyStore";
+import { validateOilCompare } from "../../utils/api/validateApi";
 
 const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
     const { selectedCompany } = useCompanyStore();
@@ -16,12 +17,13 @@ const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
             branch_no: data.branch_no,
             tax_date: data.tax_date,
             amount: data.amount,
+            reference_no: data.tax_id
         },
     };
 
     useEffect(() => {
         console.log("Payload ส่ง API:", payload);
-        // validateOilCompare(payload).then((res: ValidationResponse) => {
+        // validateOilCompare(payload).then((res) => {
         //     console.log("Validation Result:", res);
         // });
     }, [data]);
