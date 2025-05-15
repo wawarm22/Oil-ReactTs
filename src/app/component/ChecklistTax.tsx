@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { OcrTaxDocument } from "../../types/ocrFileType";
 import { useCompanyStore } from "../../store/companyStore";
-import { validateOilCompare } from "../../utils/api/validateApi";
 
 const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
     const { selectedCompany } = useCompanyStore();
