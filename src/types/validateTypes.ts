@@ -1,3 +1,5 @@
+import { Material, Product } from "../utils/function/checklist/attachment0704";
+
 export type OCRFieldProperty = {
     value: string;
 };
@@ -24,6 +26,36 @@ export type ValidationCompare = {
     factories: string;
     documentGroup: string;
     fields: FieldCompare[];
+};
+
+export type ValidateSubmissionPayload = {
+    docType: string; 
+    company: string | null; 
+    factories: string | null; 
+    documentGroup: string; 
+    fields: {
+        company_name: string;
+        branch_no: string;
+        tax_date: string;
+        amount: string;
+        reference_no: string;
+    };
+};
+
+export type Validate0704Payload = {
+    docType: string;
+    documentGroup: string;
+    fields: {
+        form_type: string;
+        request_number: string | null;
+        received_at: string;
+        form_officer_name: string;
+        company_name: string;
+        excise_id: string;
+        date: string;
+        materials: Material[];
+        products: Product[];
+    };
 };
 
 export type ValidationEntry = {

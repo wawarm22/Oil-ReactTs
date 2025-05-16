@@ -255,7 +255,7 @@ export const genRequestObject = async (input: Record<string, any>) => {
     };
 };
 
-type Product = {
+export type Product = {
     product_name: string;
     open: number;
     produced: number;
@@ -272,7 +272,7 @@ type Product = {
     etc: number;
 };
 
-type Material = {
+export type Material = {
     material_name: string;
     open: number;
     getted: number;

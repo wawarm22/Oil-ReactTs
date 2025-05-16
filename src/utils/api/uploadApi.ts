@@ -10,7 +10,7 @@ export const generateUploadUrl = async (
             `${BASE_URL}/generate-upload-url`,
             payload, {
             headers: {
-                "Content-Type": "application/pdfpdfjson",
+                "Content-Type": "application/json",
             },
         });
 
@@ -30,7 +30,7 @@ export const apiDeleteBlob = async (prefix: string): Promise<DeleteUploadRespons
             `${BASE_URL}/delete-blobs`,
             { prefix }, {
             headers: {
-                "Content-Type": "application/pdfpdfjson",
+                "Content-Type": "application/json",
             },
         });
 
@@ -47,7 +47,7 @@ export const apiDeleteBlobAfter = async (prefix: string): Promise<DeleteUploadRe
             `${BASE_URL}/delete-blobs-afterconfirm`,
             { prefix }, {
             headers: {
-                "Content-Type": "application/pdfpdfjson",
+                "Content-Type": "application/json",
             },
         });
 
@@ -64,7 +64,7 @@ export const apiDeleteDoc = async (documentGroup: string): Promise<DeleteUploadR
             `${BASE_URL}/delete-documents-by-group`,
             { documentGroup }, {
             headers: {
-                "Content-Type": "application/pdfpdfjson",
+                "Content-Type": "application/json",
             },
         });
 
@@ -177,7 +177,7 @@ export const comfirmUpload = async (blobPath: string): Promise<ComfirmUploadResp
             `${BASE_URL}/confirm-upload`,
             { blobPath }, {
             headers: {
-                "Content-Type": "application/pdfpdfjson",
+                "Content-Type": "application/json",
             },
         });
 

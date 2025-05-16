@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { OcrTaxDocument } from "../../types/ocrFileType";
 import { useCompanyStore } from "../../store/companyStore";
+import { validateSubmission } from "../../utils/api/validateApi";
 
 const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
     const { selectedCompany } = useCompanyStore();
@@ -8,8 +9,8 @@ const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
     
     const payload = {
         docType: "first-page-letter-or-1",
-        company: selectedCompany?.name,
-        factories: factoriesNumber,
+        company: selectedCompany?.name ?? "",
+        factories: factoriesNumber ?? "",
         documentGroup: data.documentGroup,
         fields: {
             company_name: data.company_name,
@@ -22,9 +23,9 @@ const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
 
     useEffect(() => {
         console.log("Payload ส่ง API:", payload);
-        // validateOilCompare(payload).then((res) => {
-        //     console.log("Validation Result:", res);
-        // });
+        validateSubmission(payload).then((res) => {
+            console.log("Validation Result:", res);
+        });
     }, [data]);
 
     const fields = [
