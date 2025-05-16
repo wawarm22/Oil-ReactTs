@@ -8,20 +8,29 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
     if ("officer_name" in fields) {
         return "tax_form_0503";
     }
+
+    if ("docType" in fields && typeof fields.docType === "string") {
+        const docType = fields.docType.trim();
+
+        if (docType === "oil-05-03-page-3") {
+            return "tax_form_0503";
+        }
+
+        if (docType === "oil-05-03-page-4") {
+            return "tax_form_0503_page2";
+        }
+    }
     
     if ("form_type" in fields && typeof fields.form_type === "string") {
         const formType = fields.form_type.trim();
         if (formType.includes("ภส.03-07") || formType.includes("ภส.๐๓-๐๗")) {
             return "tax_form_0307";
         }
-
-        if (formType.includes("ภส. ๐๕-๐๓") || formType.includes("ภส.05-03")) {
-            return "tax_form_0503";
-        }
-
+        
         if (formType.includes("ภส.๐๗-๐๑") || formType.includes("ภส.07-01")) {
             return "stock_oil";
         }
+        
         if (formType.includes("ภส.05-02") || formType.includes("ภส.๐๕-๐๒") || formType.includes("กส.๐๕-๐๒")) {
             return "tax_form_0502";
         }    }

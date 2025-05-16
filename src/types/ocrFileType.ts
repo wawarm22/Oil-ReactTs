@@ -324,6 +324,7 @@ export type OcrTaxForm0503Document = OcrFieldsBase & {
     road: string;
     sub_district: string;
     district: string;
+    docType: string;
     province: string;
     postcode: string;
     date: string;
@@ -343,6 +344,37 @@ export type OcrTaxForm0503Document = OcrFieldsBase & {
     pageCount: string;
     phone_number: string;
     documentGroup: string;
+};
+
+export type OcrTaxForm0503Page2Document = OcrFieldsBase & {
+    type: "tax_form_0503_page2";
+    approve_1_check: string;
+    approve_2_check: string;
+    approve_2: string;
+    docType: string;
+    documentGroup: string;
+    fileKey: string;
+    pageCount: string;
+    pageNumber: string;
+    reference_no: string;
+    refund_check: string;
+    refund_tax_1: string;
+    refund_tax_2: string;
+    refund_tax_3: string;
+    refund_tax_4: string;
+    refund_tax_5: string;
+    refund_tax_6: string;
+    refund_tax_sum: string;
+    request_date: string;
+    request_name: string;
+    request_signature: string;
+    officer_comment: string;
+    officer_name: string;
+    officer_signature: string;
+    officer_date: string;
+    validate_name: string;
+    validate_signature: string;
+    validate_date: string;
 };
 
 export type OcrComparison0503And0307Document = OcrFieldsBase & {
@@ -604,4 +636,5 @@ export type OcrFields =
     | OcrTaxReceiptExciseDocument
     | OcrAttachment0704Document
     | OcrTaxForm0502Document
+    | OcrTaxForm0503Page2Document
     | (OcrFieldsBase & Record<string, any>); 

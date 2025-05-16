@@ -1,6 +1,6 @@
 import React, { } from "react";
 import AuditPagination from "../reusable/AuditPagination";
-import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document } from "../../types/ocrFileType";
+import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document } from "../../types/ocrFileType";
 import { detectOcrType } from "../../utils/function/ocrType";
 import ChecklistTax from "./ChecklistTax";
 import ChecklistTable from "./ChecklistTable";
@@ -23,6 +23,7 @@ import ChecklistTaxReceiptExcise from "./ChecklistTaxReceiptExcise";
 import ChecklistAttachment0307 from "./ChecklistAttachment0307";
 import ChecklistAttachment0704 from "./ChecklistAttachment0704";
 import ChecklistTaxForm0502 from "./ChecklistTaxForm0502";
+import ChecklistTaxForm0503Page2 from "./ChecklistTaxForm0503Page2";
 
 interface Props {
     ocrDocument: {
@@ -103,6 +104,7 @@ const ChecklistPanel: React.FC<Props> = ({ ocrDocument, currentPage, setCurrentP
                     <ChecklistDeliveryInvoice data={currentOcrFields as OcrDeliveryInvoiceDocument} />
                 )}
                 {type === "tax_form_0503" && <ChecklistTaxForm0503 data={currentOcrFields as OcrTaxForm0503Document} />}
+                {type === "tax_form_0503_page2" && <ChecklistTaxForm0503Page2 data={currentOcrFields as OcrTaxForm0503Page2Document} />}
                 {type === "comparison_0503_0307" && (
                     <ChecklistComparison0503And0307 data={currentOcrFields as OcrComparison0503And0307Document} />
                 )}

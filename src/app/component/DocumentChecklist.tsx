@@ -95,6 +95,7 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
                         ...document.fields,
                         fileKey,
                         documentGroup: document.documentGroup,
+                        docType: document.docType
                     };
                 }
 
@@ -173,8 +174,8 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
     const getStatus = (docId: number, subtitleIndex = 0, hasOcr: boolean, isSelected: boolean) => {
         const isUploaded = uploadedStatus[docId]?.has(subtitleIndex) ?? false;
         if (hasOcr) return { Icon: FaCheckCircle, color: isSelected ? "#ffffff" : "#22C659", bar: "#22C659" };
-        if (isUploaded) return { Icon: MdDownloading, color: "#FFCA04", bar: "#FFCA04" }; 
-        return { Icon: MdDownloading, color: "#BDBDBD", bar: "#BDBDBD" }; 
+        if (isUploaded) return { Icon: MdDownloading, color: "#FFCA04", bar: "#FFCA04" };
+        return { Icon: MdDownloading, color: "#BDBDBD", bar: "#BDBDBD" };
     };
 
     return (

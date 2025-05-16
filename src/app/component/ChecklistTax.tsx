@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { OcrTaxDocument } from "../../types/ocrFileType";
 import { useCompanyStore } from "../../store/companyStore";
 import { validateSubmission } from "../../utils/api/validateApi";
@@ -6,7 +6,9 @@ import { validateSubmission } from "../../utils/api/validateApi";
 const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
     const { selectedCompany } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse") ?? null;
-    
+
+    const [validationResults, setValidationResults] = useState<Record<string, { value: string; expected: string; passed: boolean }> | null>(null);
+
     const payload = {
         docType: "first-page-letter-or-1",
         company: selectedCompany?.name ?? "",
@@ -17,22 +19,25 @@ const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
             branch_no: data.branch_no,
             tax_date: data.tax_date,
             amount: data.amount,
-            reference_no: data.tax_id
+            reference_no: data.tax_id,
         },
     };
 
     useEffect(() => {
-        console.log("Payload ส่ง API:", payload);
         validateSubmission(payload).then((res) => {
             console.log("Validation Result:", res);
+            if (res?.status && Array.isArray(res.data) && res.data[0]?.properties) {
+                setValidationResults(res.data[0].properties);
+            }
         });
     }, [data]);
 
     const fields = [
-        { label: "บริษัท", value: data.company_name },
-        { label: "คลังน้ำมัน", value: data.branch_no },
-        { label: "วันที่", value: data.tax_date },
+        { key: "company_name", label: "บริษัท", value: data.company_name },
+        { key: "branch_no", label: "คลังน้ำมัน", value: data.branch_no },
+        { key: "tax_date", label: "วันที่", value: data.tax_date },
         {
+            key: "amount",
             label: "สำหรับสินค้าที่ผลิตขึ้นจากสินค้าที่ได้เสียภาษีไว้แล้วรวมเป็นเงิน",
             value: data.amount,
         },
@@ -40,17 +45,32 @@ const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
 
     return (
         <div className="d-flex flex-column gap-1">
-            {fields.map((field, index) => (
-                <React.Fragment key={index}>
-                    <div className="fw-bold">{field.label}</div>
-                    <div
-                        className="border rounded-2 shadow-sm bg-white mb-1"
-                        style={{ fontSize: "14px", whiteSpace: "pre-line", padding: "10px 10px" }}
-                    >
-                        {field.value}
-                    </div>
-                </React.Fragment>
-            ))}
+            {fields.map((field, index) => {
+                const validation = validationResults?.[field.key];
+                const isValid = validation?.passed;
+                const borderColor = validation
+                    ? isValid
+                        ? "#22C659" 
+                        : "#FF0100" 
+                    : "#dee2e6"; 
+
+                return (
+                    <React.Fragment key={index}>
+                        <div className="fw-bold">{field.label}</div>
+                        <div
+                            className="rounded-3 shadow-sm bg-white mb-1"
+                            style={{
+                                fontSize: "14px",
+                                whiteSpace: "pre-line",
+                                padding: "10px 10px",
+                                border: `4px solid ${borderColor}`,
+                            }}
+                        >
+                            {field.value}
+                        </div>
+                    </React.Fragment>
+                );
+            })}
         </div>
     );
 };
