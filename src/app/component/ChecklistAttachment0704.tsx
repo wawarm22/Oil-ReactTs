@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect } from "react";
 import { OcrAttachment0704Document } from "../../types/ocrFileType";
-import { validateOil0701 } from "../../utils/api/validateApi";
 import { useCompanyStore } from "../../store/companyStore";
 import { genRequestObject } from "../../utils/function/checklist/attachment0704";
 
@@ -11,7 +10,7 @@ interface Props {
 const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
     const { selectedCompany } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse") ?? null;
-    const [_validationResult, setValidationResult] = useState<any>(null);
+    // const [_validationResult, setValidationResult] = useState<any>(null);
 
     const cleanValue = (val?: string | { value: string } | null): string => {
         const raw = typeof val === "object" ? val?.value : val;
