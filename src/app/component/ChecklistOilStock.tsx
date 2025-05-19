@@ -27,7 +27,7 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
     const { user } = useUser();
     const [allRowsState, setAllRowsState] = useState<Record<string, any>[]>([]);
     const [labelMap, setLabelMap] = useState<Record<string, string>>({});
-    const [materialType, setMaterialType] = useState<string>("");
+    const [ _materialType, setMaterialType] = useState<string>("");
     const { selectedCompany, fetchCompanyById } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse");
 
