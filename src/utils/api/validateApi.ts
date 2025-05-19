@@ -1,8 +1,8 @@
 import axios from "axios";
 import { BASE_URL_AWS } from "./apiConfig";
-import { OCRValidationPayload, ValidateSubmissionPayload } from "../../types/validateTypes";
+import { OCRValidationPayload, ValidateOil0704Payload, ValidateSubmissionPayload, ValidationCompare } from "../../types/validateTypes";
 
-export const validateOilCompare = async (validateData: OCRValidationPayload) => {
+export const validateOilCompare = async (validateData: ValidationCompare) => {
     try {
         const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/oil-compare-1`, validateData, {
             headers: { "Content-Type": "application/json" },
@@ -18,6 +18,19 @@ export const validateOilCompare = async (validateData: OCRValidationPayload) => 
 export const validateOil0701 = async (validateData: OCRValidationPayload) => {
     try {
         const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/07-01`, validateData, {
+            headers: { "Content-Type": "application/json" },
+        });            
+
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred during the registration process", error);
+        return undefined;
+    }
+};
+
+export const validateOil0704 = async (validateData: ValidateOil0704Payload) => {
+    try {
+        const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/07-04`, validateData, {
             headers: { "Content-Type": "application/json" },
         });            
 

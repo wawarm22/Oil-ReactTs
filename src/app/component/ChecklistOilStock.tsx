@@ -4,6 +4,7 @@ import { validateOil0701 } from "../../utils/api/validateApi";
 import { cleanCellValue, renderLabel } from "../../utils/function/ocrUtils";
 import { useUser } from "../../hook/useUser";
 import { useCompanyStore } from "../../store/companyStore";
+import { checkProdustType } from "../../utils/api/apiCheckData";
 
 interface ChecklistStockOilFormattedProps {
     data: OcrStockOilDocument;
@@ -11,8 +12,9 @@ interface ChecklistStockOilFormattedProps {
 
 type OCRValidationPayload = {
     docType: string;
-    oil_type: string;
+    documentGroup: string;
     company?: string;
+    materialType: string;
     factories: string | null;
     fields: OCRFieldRow[];
 };
@@ -25,6 +27,7 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
     const { user } = useUser();
     const [allRowsState, setAllRowsState] = useState<Record<string, any>[]>([]);
     const [labelMap, setLabelMap] = useState<Record<string, string>>({});
+    const [materialType, setMaterialType] = useState<string>("");
     const { selectedCompany, fetchCompanyById } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse");
 
@@ -32,7 +35,7 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
         if (user?.company_id) {
             fetchCompanyById(user.company_id);
         }
-    }, [user?.company_id]);
+    }, [user?.company_id]);    
 
     useEffect(() => {
         const tableRows = data.detail_table ?? [];
@@ -129,20 +132,34 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
     };
 
     useEffect(() => {
-        if (allRowsState.length > 0 && selectedCompany) {
+        const runValidation = async () => {
+            if (!selectedCompany || !data.oil_type) return;
+
+            const response = await checkProdustType(data.oil_type);
+            const productName = response?.ResultItems?.[0]?.DocumentExcerpt?.Response?.ProductName ?? "";
+
+            setMaterialType(productName); // ใช้เก็บไว้ก็ยังได้
+
             const transformedFields = allRowsState.map(transformToOCRFieldRow);
             const payload: OCRValidationPayload = {
                 docType: "oil-07-01-page-1",
-                oil_type: data.oil_type,
-                company: selectedCompany?.name,
+                documentGroup: data.documentGroup,
+                materialType: productName,
+                company: selectedCompany.name,
                 factories: factoriesNumber,
                 fields: transformedFields,
             };
+
             validateOil0701(payload).then((res) => {
                 console.log("validationMap:", res);
             });
+        };
+
+        if (allRowsState.length > 0) {
+            runValidation();
         }
     }, [allRowsState, selectedCompany]);
+
 
     if (allRowsState.length === 0) {
         return <p className="text-muted">ไม่พบข้อมูลตาราง</p>;

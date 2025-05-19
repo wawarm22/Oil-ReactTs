@@ -18,7 +18,7 @@ const COLUMN_LABELS: { [key: string]: string } = {
 const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) => {
     const { selectedCompany } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse") ?? null;
-    
+
     const allRows = Array.isArray(data.detail_table) ? data.detail_table : [];
     const cleanValue = (val?: string | null): string =>
         !val || val.trim() === "" || val === ":unselected:" ? "-" : val.trim();
@@ -29,21 +29,35 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
         { label: "วันที่", value: data.date },
     ];
 
-    const cleanedFieldsRef = useRef<any[]>([]);
+    const cleanedFieldsRef = useRef<
+        Array<{
+            data?: Record<string, { value: string }>;
+            detail_table?: Record<string, { value: string }>[];
+        }>
+    >([]);
+
     const [validationMap, setValidationMap] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
-        if (cleanedFieldsRef.current.length > 0) {
+        console.log(cleanedFieldsRef.current.length);
+
+        if (cleanedFieldsRef.current.length > 1) {
             const payload = {
                 docType: "oil-compare-1",
-                company: selectedCompany?.name,
-                factories: factoriesNumber,
+                company: selectedCompany?.name || "",
+                factories: factoriesNumber || "",
                 documentGroup: data.documentGroup,
                 fields: cleanedFieldsRef.current,
             };
 
             validateOilCompare(payload).then((res: ValidationResponse) => {
-                const map = buildValidationMap(res.data, cleanedFieldsRef.current);
+                const detailRows = cleanedFieldsRef.current.find(f => f.detail_table)?.detail_table || [];
+
+                const cleanedFieldsForValidation = detailRows.map((row) => ({
+                    properties: row,
+                }));
+
+                const map = buildValidationMap(res.data, cleanedFieldsForValidation);
                 setValidationMap(map);
             });
         }
@@ -56,14 +70,16 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
     const firstRowHasChue = Object.values(checkRow || {}).some((cell: any) => cell?.value?.includes("ชื่อ"));
     if (firstRowHasChue) startIndex = 2;
 
-    cleanedFieldsRef.current = [
-        {
-            data: fields.reduce((acc, { label, value }) => {
-                acc[label] = { value: cleanValue(value) };
-                return acc;
-            }, {} as Record<string, { value: string }>),
-        },
-    ];
+    cleanedFieldsRef.current = [];
+
+    const cleanedDataFields: Record<string, { value: string }> = fields.reduce((acc, { label, value }) => {
+        acc[label] = { value: cleanValue(value) };
+        return acc;
+    }, {} as Record<string, { value: string }>);
+
+    cleanedFieldsRef.current.push({ data: cleanedDataFields });
+
+    const detailTableArray: Record<string, { value: string }>[] = [];
 
     return (
         <div className="d-flex flex-column gap-1">
@@ -94,6 +110,7 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
 
                     const fieldKey = `${rowIdx}-${colKey}`;
                     const isValid = validationMap[fieldKey];
+                    const borderColor = isValid === false ? "#FF0100" : isValid === true ? "#22C659" : "#dee2e6";
 
                     return (
                         <React.Fragment key={colKey}>
@@ -101,11 +118,12 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
                                 {COLUMN_LABELS[colKey]}
                             </div>
                             <div
-                                className={`border rounded-2 shadow-sm bg-white mb-1 ${isValid === false ? "border-danger" : ""}`}
+                                className="rounded-2 shadow-sm bg-white mb-1"
                                 style={{
                                     fontSize: "14px",
                                     whiteSpace: "pre-line",
                                     padding: "10px 10px",
+                                    border: `1.5px solid ${borderColor}`,
                                 }}
                             >
                                 {cleanedVal}
@@ -115,7 +133,7 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
                 });
 
                 if (Object.keys(cleanedRow).length > 0) {
-                    cleanedFieldsRef.current.push({ detail_table: cleanedRow });
+                    detailTableArray.push(cleanedRow);
                 }
 
                 return (
@@ -125,6 +143,8 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
                     </React.Fragment>
                 );
             })}
+
+            {detailTableArray.length > 0 && cleanedFieldsRef.current.push({ detail_table: detailTableArray })}
         </div>
     );
 };

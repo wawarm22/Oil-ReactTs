@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { OcrDailyProductionDocument } from "../../types/ocrFileType";
 import { cleanCellValue, renderLabel } from "../../utils/function/ocrUtils";
 import { useCompanyStore } from "../../store/companyStore";
@@ -16,60 +16,24 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
 
     if (tables.length === 0) return <p className="text-muted">ไม่พบข้อมูลตาราง</p>;
 
-    const datePattern = new RegExp(
-        [
-            /^\d{1,2}\s?(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s?\d{2,4}$/,
-            /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/,
-            /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/
-        ]
-            .map((r) => r.source)
-            .join("|")
-    );
-
-    const labelMap: Record<string, string> = {};
-    const rowsToRender: typeof data.detail_table = [];
-
-    let monthCount: Record<string, number> = {};
-    let monthOfRow: string[] = [];
-
-    for (let i = 0; i < tables.length; i++) {
-        const props = tables[i]?.properties as Record<string, any>;
-        const col1Value = cleanCellValue(props?.column_1?.value ?? "");
-        if (datePattern.test(col1Value)) break;
-
-        Object.entries(props).forEach(([colKey, obj]) => {
-            const value = cleanCellValue(obj?.value);
-            if (value !== "-") labelMap[colKey] = value;
-        });
-    }
-
-    let collecting = false;
-    for (let i = 0; i < tables.length; i++) {
-        const row = tables[i];
-        const props = row?.properties as Record<string, any>;
-        const col1Value = cleanCellValue(props?.column_1?.value ?? "");
-
-        if (datePattern.test(col1Value)) collecting = true;
-        if (!collecting) continue;
-
-        let monthKey = "-";
-        const thaiMonth = col1Value.match(/(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)/);
-        if (thaiMonth) {
-            monthKey = thaiMonth[0];
-        } else {
-            const slashDate = col1Value.match(/^\d{1,2}[\/\-](\d{1,2})[\/\-]/);
-            if (slashDate) {
-                monthKey = slashDate[1];
-            }
-        }
-
-        monthCount[monthKey] = (monthCount[monthKey] || 0) + 1;
-        monthOfRow.push(monthKey);
-        rowsToRender.push(row);
-    }
-
-    const mostFrequentMonth = Object.entries(monthCount).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "-";
-    const filteredRows = rowsToRender.filter((_, idx) => monthOfRow[idx] === mostFrequentMonth);
+    const fixedLabels: { key: string; label: string }[] = [
+        { key: "column_1", label: "วันเดือนปี" },
+        { key: "column_2", label: "รายการ" },
+        { key: "column_3", label: "หลักฐานเลขที่" },
+        { key: "column_4", label: "จำนวนรับ\nผลิตได้" },
+        { key: "column_5", label: "รับคืนจากคลังสินค้าทัณฑ์บน" },
+        { key: "column_6", label: "อื่นๆ" },
+        { key: "column_7", label: "รวมรับสินค้า" },
+        { key: "column_8", label: "จำนวนจ่าย\nจำหน่ายในประเทศ" },
+        { key: "column_9", label: "จำหน่ายต่างประเทศ" },
+        { key: "column_10", label: "ใช้ในโรงงานอุตสาหกรรม" },
+        { key: "column_11", label: "คลังสินค้าทัณฑ์บน" },
+        { key: "column_12", label: "เสียหาย" },
+        { key: "column_13", label: "อื่นๆ" },
+        { key: "column_14", label: "รวมจ่ายสินค้า" },
+        { key: "column_15", label: "ยอดคงเหลือ" },
+        { key: "column_16", label: "หมายเหตุ" },
+    ];
 
     const summaryRow = tables.find((table) => {
         const values = Object.values(table?.properties ?? {}) as any[];
@@ -79,54 +43,23 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
     const summaryContent: { label: string; value: string }[] = [];
     if (summaryRow) {
         const props = summaryRow.properties as Record<string, any>;
-        Object.entries(props).forEach(([colKey, cell]) => {
-            const value = cleanCellValue(cell?.value);
-            const label = labelMap[colKey];
-            if (
-                label &&
-                value !== "-" &&
-                !label.includes("วันเดือนปี")
-            ) {
+        fixedLabels.forEach(({ key, label }) => {
+            const value = cleanCellValue(props?.[key]?.value ?? "");
+            if (value && value !== "-") {
                 summaryContent.push({ label, value });
             }
         });
     }
 
-    const allRowsState = useMemo(() => {
-        const rows: Record<string, any>[] = [];
-        filteredRows.forEach((row) => {
-            const props: Record<string, any> = row.properties ?? {};
-            const newRow: Record<string, any> = {};
-            Object.entries(labelMap).forEach(([colKey, label]) => {
-                const cell = props?.[colKey];
-                const value = cleanCellValue(typeof cell === "object" ? cell?.value : cell);
-                newRow[label] = value;
-            });
-            rows.push(newRow);
+    const ocrFieldRows = tables.map((row) => {
+        const props = row.properties as Record<string, any>;
+        const properties: Record<string, { value: string }> = {};
+        fixedLabels.forEach(({ key, label }) => {
+            const value = cleanCellValue(props?.[key]?.value ?? "");
+            properties[label] = { value };
         });
-
-        if (summaryContent.length > 0) {
-            const summaryRow: Record<string, any> = { __summary: "รวมเดือนนี้" };
-            summaryContent.forEach(({ label, value }) => {
-                summaryRow[label] = value;
-            });
-            rows.push(summaryRow);
-        }
-
-        return rows;
-    }, [filteredRows, summaryContent, labelMap]);
-
-    const ocrFieldRows = useMemo(() => {
-        return allRowsState.map((row) => {
-            const properties: Record<string, { value: string }> = {};
-            Object.entries(row).forEach(([label, value]) => {
-                if (label !== "__summary") {
-                    properties[label] = { value };
-                }
-            });
-            return { properties };
-        });
-    }, [allRowsState]);
+        return { properties };
+    });
 
     useEffect(() => {
         if (ocrFieldRows.length > 0 && selectedCompany) {
@@ -170,23 +103,25 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
                 {renderLabel("หน่วย")}
                 <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.product_unit)}</div>
             </div>
-            {filteredRows.map((row, idx) => (
-                <div key={idx} className="d-flex flex-column gap-1 pt-3 border-top mt-3">
-                    {Object.entries(labelMap).map(([colKey, label]) => {
-                        const props = row.properties as Record<string, any>;
-                        const raw = cleanCellValue(props?.[colKey]?.value);
-                        return (
-                            <React.Fragment key={`${idx}-${colKey}`}>
-                                {renderLabel(label)}
-                                <div className="border rounded-2 shadow-sm bg-white mb-2" style={{ fontSize: "13px", whiteSpace: "pre-line", padding: "10px" }}>
-                                    {raw}
-                                </div>
-                            </React.Fragment>
-                        );
-                    })}
-                    {/* {idx < filteredRows.length - 1 && <hr className="my-2" />} */}
-                </div>
-            ))}
+
+            {tables.slice(3).map((row, idx) => {
+                const props = row.properties as Record<string, any>;
+                return (
+                    <div key={idx} className="d-flex flex-column gap-1 pt-3 border-top mt-3">
+                        {fixedLabels.map(({ key, label }) => {
+                            const raw = cleanCellValue(props?.[key]?.value ?? "");
+                            return (
+                                <React.Fragment key={`${idx}-${key}`}>
+                                    {renderLabel(label)}
+                                    <div className="border rounded-2 shadow-sm bg-white mb-2" style={{ fontSize: "13px", whiteSpace: "pre-line", padding: "10px" }}>
+                                        {raw}
+                                    </div>
+                                </React.Fragment>
+                            );
+                        })}
+                    </div>
+                );
+            })}
 
             {summaryContent.length > 0 && (
                 <div className="pt-2 border-top mt-3">

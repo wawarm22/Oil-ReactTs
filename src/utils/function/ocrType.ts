@@ -19,6 +19,10 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
         if (docType === "oil-05-03-page-4") {
             return "tax_form_0503_page2";
         }
+
+        if (docType === "oil-07-02-page-1") {
+            return "daily_production";
+        }
     }
     
     if ("form_type" in fields && typeof fields.form_type === "string") {
@@ -100,7 +104,6 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
     }
 
     if ("company_name" in fields && "date" in fields && Array.isArray(fields.detail_table)) {
-        // ต้องมี property no, tax_no, date_tax ใน detail_table ถึงจะตรง
         const hasExpectedProps = fields.detail_table.some((row: any) => {
             const p = row?.properties ?? {};
             return "no" in p && "tax_no" in p && "date_tax" in p;
@@ -118,38 +121,15 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
         return "attachment_0704";
     }
 
-    if ("detail_table" in fields && Array.isArray(fields.detail_table)) {
-        // const firstTable = fields.detail_table[0];
+    if ("detail_table" in fields && Array.isArray(fields.detail_table)) {        
 
-        // if ("detail_table" in fields && Array.isArray(fields.detail_table)) {
-        //     const thaiDatePattern = /^\d{1,2}\s?(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s?\d{2,4}$/;
-        //     const slashDatePattern = /^\d{1,2}\/\d{1,2}\/\d{2,4}$/;
-        //     const datePattern = /^\d{1,2}\s?[A-Za-zก-ฮ]+\.[A-Za-zก-ฮ]+\.\s?\d{2,4}$/;
+        // const thaiDatePattern = /^\d{1,2}\s?(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s?\d{2,4}$/;
+        // const hasDailyProductionPattern = fields.detail_table.some((entry: any) => {
+        //     const val = entry?.properties?.column_1?.value?.trim?.() ?? "";
+        //     return thaiDatePattern.test(val);
+        // });
 
-        //     const hasStockOilPattern = fields.detail_table.some((row: any, idx: number) => {
-        //         const props = row?.properties;
-        //         const raw = fields.oil_type === "น้ำมันดีเซลพื้นฐาน (H-Base)" || fields.oil_type === "Diesel PR - 902]" || fields.oil_type === "B100"
-        //             ? props?.column_1?.value
-        //             : props?.column_2?.value;
-
-        //         const value = raw?.trim?.() ?? "";
-        //         const cleanedValue = value.replace(/\s+/g, "").toUpperCase();
-        //         const match = thaiDatePattern.test(value) || slashDatePattern.test(value) || datePattern.test(cleanedValue);
-        //         console.log(`match row[${idx}] → ${match}: ${cleanedValue}`);
-
-        //         return match;
-        //     });
-
-        //     if (hasStockOilPattern) return "stock_oil";
-        // }
-
-        const thaiDatePattern = /^\d{1,2}\s?(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s?\d{2,4}$/;
-        const hasDailyProductionPattern = fields.detail_table.some((entry: any) => {
-            const val = entry?.properties?.column_1?.value?.trim?.() ?? "";
-            return thaiDatePattern.test(val);
-        });
-
-        if (hasDailyProductionPattern) return "daily_production";
+        // if (hasDailyProductionPattern) return "daily_production";
 
         const hasGroupedRow = fields.detail_table.some(
             (row: any) => row?.properties?.material_per_liter?.value === "รวม"

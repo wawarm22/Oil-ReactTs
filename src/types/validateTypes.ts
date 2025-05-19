@@ -10,10 +10,10 @@ export type OCRFieldRow = {
     };
 };
 
-export interface FieldCompare {
-    properties?: { [key: string]: { value: string } };
-    detail_table?: { [column: string]: OCRFieldProperty };
-}
+// export interface FieldCompare {
+//     properties?: { [key: string]: { value: string } };
+//     detail_table?: { [column: string]: OCRFieldProperty };
+// }
 
 export type OCRValidationPayload = {
     docType: string;
@@ -25,14 +25,26 @@ export type ValidationCompare = {
     company: string;
     factories: string;
     documentGroup: string;
-    fields: FieldCompare[];
+    fields: Array<{
+        data?: Record<string, { value: string }>;
+        detail_table?: Record<string, { value: string }>[];
+    }>;
 };
 
+
+// export type ValidationCompare = {
+//     docType: string;
+//     company: string;
+//     factories: string;
+//     documentGroup: string;
+//     fields: FieldCompare[];
+// };
+
 export type ValidateSubmissionPayload = {
-    docType: string; 
-    company: string | null; 
-    factories: string | null; 
-    documentGroup: string; 
+    docType: string;
+    company: string | null;
+    factories: string | null;
+    documentGroup: string;
     fields: {
         company_name: string;
         branch_no: string;
@@ -77,4 +89,51 @@ export type ValidationResponse = {
     message: string;
     status: boolean;
 };
+
+export interface Oil0704Material {
+    material_name: string;
+    open: number | null;
+    getted: number | null;
+    total: number | null;
+    produce: number | null;
+    produce_other: number | null;
+    defected: number | null;
+    etc: number | null;
+    loss_gain: number | null;
+    forward: number | null;
+}
+
+export interface Oil0704Product {
+    product_name: string;
+    open: number | null;
+    produced: number | null;
+    bonded_return: number | null;
+    etc_getted: number | null;
+    total: number | null;
+    domestic_sales: number | null;
+    overseas_sales: number | null;
+    used_in_industrial_plans: number | null;
+    bonded: number | null;
+    defected: number | null;
+    forward: number | null;
+    etc_used: number | null;
+}
+
+export interface Oil0704Fields {
+    form_type: string;
+    request_number: string | null;
+    received_at: string;
+    form_officer_name: string;
+    company_name: string;
+    excise_id: string;
+    date: string;
+    materials: Oil0704Material[];
+    products: Oil0704Product[];
+}
+
+export interface ValidateOil0704Payload {
+    docType: string;
+    documentGroup: string;
+    fields: Oil0704Fields;
+}
 
