@@ -29,7 +29,7 @@ const MatchDocument: React.FC = () => {
     const navigate = useNavigate();
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [selectedOcrDocument, setSelectedOcrDocument] = useState<{
+    const [selectedOcrDocument, _setSelectedOcrDocument] = useState<{
         pages: { [page: number]: OcrFields };
         pageCount: number;
         pageFileKeyMap: { [page: number]: string };
