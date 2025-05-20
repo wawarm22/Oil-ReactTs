@@ -117,8 +117,6 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
 
     useEffect(() => {
         const handleSocketUpdate = () => {
-            console.log("orc");
-
             if (folders.length > 0) {
                 fetchOcrData();
             }

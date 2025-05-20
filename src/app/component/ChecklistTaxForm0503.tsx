@@ -1,16 +1,48 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { OcrTaxForm0503Document } from "../../types/ocrFileType";
+import { AuthSchema } from "../../types/schema/auth";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { getPrepared0503 } from "../../utils/api/validateApi";
 
 interface Props {
     data: OcrTaxForm0503Document;
 }
 
 const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
+    const auth = useAuthUser<AuthSchema>();
+    const [ocrData, setOcrData] = useState<OcrTaxForm0503Document | null>(null);
 
     const cleanValue = (val?: string | null): string => {
         if (!val || val.trim() === "" || val === ":unselected:") return "-";
         return val.trim();
     };
+
+    useEffect(() => {
+        console.log("auth",auth);
+        console.log("id", data.id);        
+        
+        if (!auth || !auth.accessToken) {
+            return;
+        }
+
+        if (!data.id) {
+            return;
+        }
+
+        getPrepared0503(data.id, auth)
+            .then((res) => {
+                console.log("Data from getPrepared0503:", res);
+                if (res) {
+                    setOcrData(res);
+                } else {
+                    console.log("Failed to fetch OCR data.");
+                }
+            })
+            .catch((e) => {
+                console.log("Error fetching OCR data.");
+            })
+    }, [data.id, auth]);
+
 
     const fields = [
         { label: "ชื่อผู้ประกอบอุตสาหกรรม", value: cleanValue(data.excise_name) },
@@ -28,7 +60,6 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
 
     return (
         <div className="d-flex flex-column gap-2">
-            {/* Header */}
             {fields.map(({ label, value }) =>
                 value ? (
                     <div key={label}>
@@ -39,7 +70,7 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
                     </div>
                 ) : null
             )}
-                        
+
             {data.detail_table.length > 3 && (
                 <>
                     {data.detail_table.slice(3).map((entry, index) => {

@@ -76,7 +76,7 @@ const UploadPreparation: React.FC = () => {
     const getUploadKey = (docId: number, subtitleIndex?: number) =>
         `${docId}-${subtitleIndex ?? 0}`;
 
-    useEffect(() => {
+    useEffect(() => {        
         apiMyFactory(auth!)
             .then(ApiMyFactorySchema.parse)
             .then(({ data }) => data.map((i) => ({

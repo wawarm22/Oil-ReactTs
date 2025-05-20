@@ -81,17 +81,17 @@ export const validate0704 = async (validateData: any) => {
     }
 };
 
-export const getPrepared0503 = async (id: number, auth: AuthSchema) => {
-    try {
-        const response = await axios.get(`${BASE_URL_AWS}/ocr/ocr-prepared/05-03/${id}`, {
-            headers: {
-                Authorization: `Bearer ${auth.accessToken}`
-            }
-        });            
-
-        return response.data;
-    } catch (error) {
-        console.error("An error occurred during the registration process", error);
-        return undefined;
-    }
+export const getPrepared0503 = async (id: string, auth: AuthSchema): Promise<any | undefined> => {
+  try {
+    const response = await axios.get(`${BASE_URL_AWS}/ocr/ocr-prepared/05-03/${id}`, {
+      headers: {
+        Authorization: `Bearer ${auth.accessToken}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("An error occurred while fetching OCR prepared data", error);
+    return undefined;
+  }
 };
+

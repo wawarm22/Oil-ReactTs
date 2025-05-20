@@ -324,6 +324,7 @@ export type OcrDeliveryInvoiceDocument = OcrFieldsBase & {
 
 export type OcrTaxForm0503Document = OcrFieldsBase & {
     type: "tax_form_0503";
+    id: string;
     reference_no: string;
     form_type: string;
     excise_name: string;
