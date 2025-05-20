@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { OcrAttachment0704Document } from "../../types/ocrFileType";
 import { useCompanyStore } from "../../store/companyStore";
 import { genRequestObject } from "../../utils/function/checklist/attachment0704";
@@ -12,7 +12,7 @@ interface Props {
 const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
     const { selectedCompany } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse") ?? null;
-    const [validationResult, setValidationResult] = useState<any>(null);
+    const [_validationResult, setValidationResult] = useState<any>(null);
 
     const cleanValue = (val?: string | { value: string } | null): string => {
         const raw = typeof val === "object" ? val?.value : val;
