@@ -7,9 +7,11 @@ interface Props {
 
 const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
 
-    const cleanValue = (val?: string | null): string => {
-        if (!val || val.trim() === "" || val === ":unselected:") return "";
-        return val.trim();
+    const cleanValue = (val?: any): string => {
+        if (val === null || val === undefined) return "";
+        const str = String(val);
+        if (str.trim() === "" || str === ":unselected:") return "";
+        return str.trim();
     };
 
     const fields = [
@@ -17,8 +19,10 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
         { label: "PRODUCT", value: cleanValue(data.product) },
     ];
 
-    const row29 = data.detail_table?.[0]?.rows?.[29] || {};
-    const quantity = cleanValue(row29.column_1); 
+    const value = data.detail_table_1[27].properties.column_2 || {};
+    const name = data.detail_table_1[27].properties.column_1 || {};
+    const valueQuantity = cleanValue(value.value);
+    const nameQuantity = cleanValue(name.value);
 
     return (
         <div className="d-flex flex-column gap-2">
@@ -34,12 +38,16 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
                 ) : null
             ))}
 
-            {quantity && (
+            {valueQuantity && (
                 <>
                     <hr className="border-top border-2 border-secondary m-0 mt-2" />
-                    <div className="fw-bold">QUANTITY</div>
+                    <div className="fw-bold">Quantity</div>
                     <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
-                        {quantity}
+                        {nameQuantity}
+                    </div>
+                    <div className="fw-bold m-0">ปริมาณ</div>
+                    <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                        {valueQuantity}
                     </div>
                 </>
             )}

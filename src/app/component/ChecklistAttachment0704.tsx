@@ -28,7 +28,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                 style={{
                     fontSize: "14px",
                     whiteSpace: "pre-line",
-                    border: `1.5px solid ${passed === true ? "green" : passed === false ? "red" : "#dee2e6"}`,
+                    border: `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#dee2e6"}`,
                 }}
             >
                 {cleanValue(value)}

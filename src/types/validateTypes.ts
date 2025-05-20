@@ -137,3 +137,18 @@ export interface ValidateOil0704Payload {
     fields: Oil0704Fields;
 }
 
+export interface ValidateOil0307Payload {
+    docType: string;        
+    company: string;          
+    factories: string | null;       
+    documentGroup: string;    
+    fields: Array<{
+        properties: {
+            [key: string]: {
+                value: string;     
+            };
+        };
+    }>;
+}
+
+

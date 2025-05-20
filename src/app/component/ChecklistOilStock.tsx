@@ -5,6 +5,8 @@ import { cleanCellValue, renderLabel } from "../../utils/function/ocrUtils";
 import { useUser } from "../../hook/useUser";
 import { useCompanyStore } from "../../store/companyStore";
 import { checkProdustType } from "../../utils/api/apiCheckData";
+import { getLabelMap } from "../../utils/labelMaps";
+import { findBestMatch } from "../../utils/function/fuzzySearch";
 
 interface ChecklistStockOilFormattedProps {
     data: OcrStockOilDocument;
@@ -27,16 +29,40 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
     const { user } = useUser();
     const [allRowsState, setAllRowsState] = useState<Record<string, any>[]>([]);
     const [labelMap, setLabelMap] = useState<Record<string, string>>({});
-    const [_materialType, setMaterialType] = useState<string>("");
+    const [materialType, setMaterialType] = useState<string>("");
     const [validationResult, setValidationResult] = useState<any>(null);
     const { selectedCompany, fetchCompanyById } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse");
+    const factoriesName = localStorage.getItem("nameWarehouse")
 
     useEffect(() => {
         if (user?.company_id) {
             fetchCompanyById(user.company_id);
         }
     }, [user?.company_id]);
+
+    useEffect(() => {
+        const fetchMaterialType = async () => {
+            if (!data.oil_type || !selectedCompany?.name || !factoriesName) return;
+
+            const response = await checkProdustType(data.oil_type);
+            const resultItems = response?.ResultItems ?? [];
+
+            const productName = findBestMatch(resultItems, selectedCompany.name, factoriesName);
+
+            setMaterialType(productName);
+        };
+
+        fetchMaterialType();
+    }, [data.oil_type, selectedCompany?.name, factoriesName]);
+
+    useEffect(() => {
+        if (!materialType) return;
+        console.log("materialType", materialType);
+
+        const newLabelMap = getLabelMap(materialType);
+        setLabelMap(newLabelMap);
+    }, [materialType]);
 
     useEffect(() => {
         const tableRows = data.detail_table ?? [];
@@ -47,45 +73,6 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
         const values = Object.values(checkRow).map(cell => cell?.value ?? "");
         const isYodyokmaRow = values.some(text => text.includes("ยอดยก") || text.includes("ยอดยกมา"));
         if (isYodyokmaRow) firstDataIndex = 3;
-
-        let newLabelMap: Record<string, string> = {};
-        if (data.oil_type.includes("H-Base")) {
-            newLabelMap = {
-                column_1: "วัน เดือน ปี",
-                column_2: "รายการ",
-                column_3: "หลักฐานเลขที่",
-                column_4: "B/L",
-                column_5: "Outturn",
-                column_6: "ปริมาณสิทธิ์หักลดหย่อน",
-                column_7: "อัตราภาษี",
-                column_8: "ผลิตสินค้าพิกัด อัตราภาษีสรรพามิต",
-                column_9: "ผลิตสินค้าอื่น",
-                column_10: "เสียหาย",
-                column_11: "อื่นๆ",
-                column_12: "รวมจ่าย",
-                column_13: "ยอดคงเหลือ Stock",
-                column_14: "ยอดคงเหลือตามบัญชีสิทธิ์",
-                column_15: "น้ำมัน Gain",
-                column_16: "หมายเหตุ",
-            };
-        } else {
-            newLabelMap = {
-                column_1: "วัน เดือน ปี",
-                column_2: "รายการ",
-                column_3: "หลักฐานเลขที่",
-                column_4: "B/L",
-                column_5: "Outturn",
-                column_6: "ผลิตสินค้าพิกัด อัตราภาษีสรรพามิต",
-                column_7: "ผลิตสินค้าอื่น",
-                column_8: "เสียหาย",
-                column_9: "อื่นๆ",
-                column_10: "รวมจ่าย",
-                column_11: "ยอดคงเหลือ",
-                column_12: "หมายเหตุ",
-            };
-        }
-
-        setLabelMap(newLabelMap);
 
         const rowsToRender: Record<string, any>[] = [];
         let summaryRow: Record<string, any> | null = null;
@@ -134,18 +121,12 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
 
     useEffect(() => {
         const runValidation = async () => {
-            if (!selectedCompany || !data.oil_type) return;
-
-            const response = await checkProdustType(data.oil_type);
-            const productName = response?.ResultItems?.[0]?.DocumentExcerpt?.Response?.ProductName ?? "";
-
-            setMaterialType(productName);
-
+            if (!selectedCompany || !materialType || allRowsState.length === 0) return;
             const transformedFields = allRowsState.map(transformToOCRFieldRow);
             const payload: OCRValidationPayload = {
                 docType: "oil-07-01-page-1",
                 documentGroup: data.documentGroup,
-                materialType: productName,
+                materialType: materialType,
                 company: selectedCompany.name,
                 factories: factoriesNumber,
                 fields: transformedFields,
@@ -159,7 +140,7 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
         if (allRowsState.length > 0) {
             runValidation();
         }
-    }, [allRowsState, selectedCompany]);
+    }, [allRowsState, selectedCompany, materialType]);
 
     if (allRowsState.length === 0) {
         return <p className="text-muted">ไม่พบข้อมูลตาราง</p>;
@@ -169,8 +150,6 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
         <div className="d-flex flex-column">
             {allRowsState.map((row, idx) => {
                 const isSummary = row.__isSummary === true;
-
-                // หา validation ของแถวนี้
                 const validationRow = validationResult?.data?.find((vRow: any) => vRow.row === idx);
 
                 return (
@@ -206,7 +185,6 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
                                 display = "-";
                             }
 
-                            // หา passed status จาก validation
                             const passed = validationRow?.properties?.[colKey]?.passed;
 
                             elements.push(
@@ -218,7 +196,7 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
                                             fontSize: "14px",
                                             whiteSpace: "pre-line",
                                             padding: "10px",
-                                            borderColor: passed === true ? "green" : passed === false ? "red" : "#dee2e6",
+                                            borderColor: passed === true ? "#22C659" : passed === false ? "#FF0100" : "#dee2e6",
                                             borderWidth: "2px",
                                             borderStyle: "solid",
                                         }}

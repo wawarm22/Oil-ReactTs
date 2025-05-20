@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { OcrTaxForm0307Document } from "../../types/ocrFileType";
 import { FaRegCheckSquare, FaRegSquare } from "react-icons/fa";
-import { validateOil0701 } from "../../utils/api/validateApi";
+import { validateOil0307 } from "../../utils/api/validateApi";
 import { useCompanyStore } from "../../store/companyStore";
 
 interface Props {
@@ -18,6 +18,21 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
         return val.replace(/:selected:/g, "").trim();
     };
 
+    const cleanExciseNo = (val?: string | null): string => {
+        if (!val) return "-";
+        const digitsOnly = val.replace(/\D/g, "");
+        return digitsOnly || "-";
+    };
+
+    const cleanTaxTypeDate = (val?: string | null): string => {
+        if (!val) return "-";
+        return val
+            .replace(/_/g, " ")
+            .replace(/\s*-\s*/g, "-")
+            .replace(/\s+/g, " ")
+            .trim();
+    };
+
     const renderCheckbox = (checked: boolean, label: string, subtext?: string) => (
         <div className="d-flex flex-column">
             <div className="d-flex align-items-center gap-2 py-1" style={{ fontSize: "14px" }}>
@@ -26,7 +41,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
             </div>
             {checked && subtext && (
                 <div className="" style={{ fontSize: "14px", paddingLeft: '26px' }}>
-                    วันที่ {subtext}
+                    {subtext}
                 </div>
             )}
         </div>
@@ -38,7 +53,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
             {renderCheckbox(
                 data.tax_type_2_check === ":selected:",
                 "สินค้านำออกจากโรงอุตสาหกรรม ตั้งแต่",
-                cleanValue(data.tax_type_date)
+                cleanTaxTypeDate(data.tax_type_date)
             )}
             {renderCheckbox(data.tax_type_3_check === ":selected:", "ชำระเพิ่มเติม สำหรับใบเสร็จรับเงินเลขที่/เล่มที่")}
             {renderCheckbox(data.tax_type_4_check === ":selected:", "อื่น")}
@@ -48,7 +63,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
     const fields = [
         { label: "ชื่อประกอบอุตสาหกรรม/ผู้เสียภาษี", value: data.excise_name },
         { label: "ชื่อโรงอุตสาหกรรม", value: data.company_name },
-        { label: "เลขทะเบียนสรรพสามิต", value: data.excise_no },
+        { label: "เลขทะเบียนสรรพสามิต", value: cleanExciseNo(data.excise_no) },
         { label: "สถานที่ตั้ง เลขที่", value: data.address_no },
         { label: "หมู่ที่", value: data.moo },
         { label: "ตรอก/ซอย", value: data.soi },
@@ -82,7 +97,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
     };
 
     const ocrFieldRows = useMemo(() => {
-        const rows: { properties: Record<string, { value: string }> }[] = [];    
+        const rows: { properties: Record<string, { value: string }> }[] = [];
         const headerProps: Record<string, { value: string }> = {};
         fields.forEach(({ label, value }) => {
             if (label === "ชำระภาษีสำหรับ") {
@@ -90,7 +105,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                     headerProps["ประเภทภาษี"] = { value: "แสตมป์สรรพสามิต/เครื่องหมายแสดงการเสียภาษี" };
                 }
                 if (data.tax_type_2_check === ":selected:") {
-                    headerProps["ประเภทภาษี"] = { value: `สินค้านำออกตั้งแต่ ${cleanValue(data.tax_type_date)}` };
+                    headerProps["ประเภทภาษี"] = { value: `สินค้านำออกตั้งแต่ ${cleanTaxTypeDate(data.tax_type_date)}` };
                 }
                 if (data.tax_type_3_check === ":selected:") {
                     headerProps["ประเภทภาษี"] = { value: "ชำระเพิ่มเติม สำหรับใบเสร็จ" };
@@ -102,37 +117,38 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                 headerProps[label] = { value: cleanValue(value) };
             }
         });
-    
+
         rows.push({ properties: headerProps });
-    
+
         data.detail_table.slice(3).forEach((row, rowIndex) => {
             const rawProps = row.properties;
             const properties: Record<string, any> =
                 Array.isArray(rawProps) ? rawProps[0] : typeof rawProps === "object" && rawProps !== null ? rawProps : {};
-    
+
             const rowProps: Record<string, { value: string }> = {};
-    
+
             Object.entries(columnLabelMap).forEach(([key, colLabel]) => {
                 const value = cleanValue(properties?.[key]?.value ?? "");
                 rowProps[`${colLabel} (แถว ${rowIndex + 4})`] = { value };
             });
-    
+
             rows.push({ properties: rowProps });
         });
-    
+
         return rows;
-    }, [data]);    
+    }, [data]);
 
     useEffect(() => {
         if (ocrFieldRows.length > 0 && selectedCompany) {
             const payload = {
                 docType: "oil-03-07-page-1",
                 company: selectedCompany.name,
-                factories: factoriesNumber,
+                factories: factoriesNumber ?? "",
+                documentGroup: data.documentGroup,
                 fields: ocrFieldRows
             };
 
-            validateOil0701(payload).then((res) => {
+            validateOil0307(payload).then((res) => {
                 console.log("ผลลัพธ์ Validate:", res);
                 setValidationResult(res);
             });

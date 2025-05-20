@@ -3,17 +3,17 @@ import { OcrFields } from "../../types/ocrFileType";
 export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] => {
     if (!fields || typeof fields !== "object") return "unknown";
 
-    if ("amount" in fields && "tax_id" in fields) return "tax";
-
-    if ("officer_name" in fields) {
-        return "tax_form_0503";
-    }
+    if ("amount" in fields && "tax_id" in fields) return "tax";    
 
     if ("docType" in fields && typeof fields.docType === "string") {
         const docType = fields.docType.trim();
-
+        
         if (docType === "oil-05-03-page-3") {
             return "tax_form_0503";
+        }
+
+        if (docType === "oil-03-07-page-1") {
+            return "tax_form_0307";
         }
 
         if (docType === "oil-05-03-page-4") {

@@ -233,17 +233,27 @@ export type OcrOutturnStatementDocument = OcrFieldsBase & {
     approve_signature: string;
     calculated_signature: string;
     date: string;
+    detail_table: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    detail_table_1: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    detail_table_2: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
     dip_number: string;
+    page: string;
+    pageCount: string;
+    pageNumber: string;
     product: string;
     surveyor_signature: string;
-    detail_table: {
-        rowCount: number;
-        columnCount: number;
-        rows: Array<Record<string, string>>;
-    }[];
-    pageNumber: string;
-    pageCount: string;
-    documentGroup: string;
 };
 
 export type OcrDeliveryInvoiceDocument = OcrFieldsBase & {
