@@ -696,7 +696,7 @@ const UploadPreparation: React.FC = () => {
                         bgColor="#FFCB02"
                         color="#1E2329"
                         variant="bg-hide"
-                        // disabled={isConfirmDisabled}
+                        disabled={isConfirmDisabled}
                     />
                 </div>
             </div>
