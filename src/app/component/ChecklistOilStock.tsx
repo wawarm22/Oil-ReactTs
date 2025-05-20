@@ -27,7 +27,8 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
     const { user } = useUser();
     const [allRowsState, setAllRowsState] = useState<Record<string, any>[]>([]);
     const [labelMap, setLabelMap] = useState<Record<string, string>>({});
-    const [ _materialType, setMaterialType] = useState<string>("");
+    const [_materialType, setMaterialType] = useState<string>("");
+    const [validationResult, setValidationResult] = useState<any>(null);
     const { selectedCompany, fetchCompanyById } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse");
 
@@ -35,7 +36,7 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
         if (user?.company_id) {
             fetchCompanyById(user.company_id);
         }
-    }, [user?.company_id]);    
+    }, [user?.company_id]);
 
     useEffect(() => {
         const tableRows = data.detail_table ?? [];
@@ -138,7 +139,7 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
             const response = await checkProdustType(data.oil_type);
             const productName = response?.ResultItems?.[0]?.DocumentExcerpt?.Response?.ProductName ?? "";
 
-            setMaterialType(productName); // ใช้เก็บไว้ก็ยังได้
+            setMaterialType(productName);
 
             const transformedFields = allRowsState.map(transformToOCRFieldRow);
             const payload: OCRValidationPayload = {
@@ -150,8 +151,8 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
                 fields: transformedFields,
             };
 
-            validateOil0701(payload).then((res) => {
-                console.log("validationMap:", res);
+            validateOil0701(payload).then(res => {
+                setValidationResult(res);
             });
         };
 
@@ -159,7 +160,6 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
             runValidation();
         }
     }, [allRowsState, selectedCompany]);
-
 
     if (allRowsState.length === 0) {
         return <p className="text-muted">ไม่พบข้อมูลตาราง</p>;
@@ -169,6 +169,10 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
         <div className="d-flex flex-column">
             {allRowsState.map((row, idx) => {
                 const isSummary = row.__isSummary === true;
+
+                // หา validation ของแถวนี้
+                const validationRow = validationResult?.data?.find((vRow: any) => vRow.row === idx);
+
                 return (
                     <div key={idx} className="d-flex flex-column gap-1 pt-1">
                         {isSummary && <div className="fw-bold fs-5 text-primary">รวมเดือนนี้</div>}
@@ -202,12 +206,22 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
                                 display = "-";
                             }
 
+                            // หา passed status จาก validation
+                            const passed = validationRow?.properties?.[colKey]?.passed;
+
                             elements.push(
                                 <React.Fragment key={`${idx}-${colKey}`}>
                                     {renderLabel(label)}
                                     <div
-                                        className="border rounded-2 shadow-sm bg-white mb-2"
-                                        style={{ fontSize: "14px", whiteSpace: "pre-line", padding: "10px" }}
+                                        className="rounded-2 shadow-sm bg-white mb-2"
+                                        style={{
+                                            fontSize: "14px",
+                                            whiteSpace: "pre-line",
+                                            padding: "10px",
+                                            borderColor: passed === true ? "green" : passed === false ? "red" : "#dee2e6",
+                                            borderWidth: "2px",
+                                            borderStyle: "solid",
+                                        }}
                                     >
                                         {display}
                                     </div>
