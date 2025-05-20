@@ -95,7 +95,8 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
                         ...document.fields,
                         fileKey,
                         documentGroup: document.documentGroup,
-                        docType: document.docType
+                        docType: document.docType,
+                        id: document.id
                     };
                 }
 

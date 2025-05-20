@@ -47,8 +47,29 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
         </div>
     );
 
+    // ตรวจสอบสถานะ passed ของ "ประเภทภาษี" สำหรับกรอบของ taxTypeSection
+    const taxTypePassed = (() => {
+        const props = _validationResult?.data?.[0]?.properties;
+        if (!props) return null;
+        const key = "ประเภทภาษี";
+        if (typeof props[key]?.passed === "boolean") return props[key].passed;
+        return null;
+    })();
+
     const taxTypeSection = (
-        <div className="border rounded-2 shadow-sm bg-white p-2">
+        <div
+            className="rounded-2 shadow-sm bg-white p-2"
+            style={{
+                borderWidth: "2px",
+                borderStyle: "solid",
+                borderColor:
+                    taxTypePassed === null
+                        ? "#dee2e6"      // ยังไม่มีผล validate → สีเทา
+                        : taxTypePassed
+                            ? "#22C659"      // ผ่าน → สีเขียว
+                            : "#FF0100"      // ไม่ผ่าน → สีแดง
+            }}
+        >
             {renderCheckbox(data.tax_type_1_check === ":selected:", "แสตมป์สรรพสามิต/เครื่องหมายแสดงการเสียภาษี")}
             {renderCheckbox(
                 data.tax_type_2_check === ":selected:",
@@ -96,25 +117,33 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
         column_15: "ภาษีเก็บเพิ่มฯ (สต.)",
     };
 
+    // ฟังก์ชันช่วยแปลง columnKey + แถว เป็น key ที่ตรงกับ API response
+    const getApiPropertyKey = (columnKey: string, rowIndex: number) => {
+        const actualRow = rowIndex + 4; // เพราะ slice(3) เริ่มแถวที่ 4
+        const baseLabel = columnLabelMap[columnKey]; // เช่น "ลำดับ", "ประเภทที่", ...
+        return `${baseLabel} (แถว ${actualRow})`; // เช่น "ลำดับ (แถว 4)"
+    };
+
     const ocrFieldRows = useMemo(() => {
-        const rows: { properties: Record<string, { value: string }> }[] = [];
-        const headerProps: Record<string, { value: string }> = {};
+        const rows: { properties: Record<string, { value: string; passed: boolean }> }[] = [];
+        const headerProps: Record<string, { value: string; passed: boolean }> = {};
+
         fields.forEach(({ label, value }) => {
             if (label === "ชำระภาษีสำหรับ") {
                 if (data.tax_type_1_check === ":selected:") {
-                    headerProps["ประเภทภาษี"] = { value: "แสตมป์สรรพสามิต/เครื่องหมายแสดงการเสียภาษี" };
+                    headerProps["ประเภทภาษี"] = { value: "แสตมป์สรรพสามิต/เครื่องหมายแสดงการเสียภาษี", passed: true };
                 }
                 if (data.tax_type_2_check === ":selected:") {
-                    headerProps["ประเภทภาษี"] = { value: `สินค้านำออกตั้งแต่ ${cleanTaxTypeDate(data.tax_type_date)}` };
+                    headerProps["ประเภทภาษี"] = { value: `สินค้านำออกตั้งแต่ ${cleanTaxTypeDate(data.tax_type_date)}`, passed: true };
                 }
                 if (data.tax_type_3_check === ":selected:") {
-                    headerProps["ประเภทภาษี"] = { value: "ชำระเพิ่มเติม สำหรับใบเสร็จ" };
+                    headerProps["ประเภทภาษี"] = { value: "ชำระเพิ่มเติม สำหรับใบเสร็จ", passed: true };
                 }
                 if (data.tax_type_4_check === ":selected:") {
-                    headerProps["ประเภทภาษี"] = { value: "อื่น" };
+                    headerProps["ประเภทภาษี"] = { value: "อื่น", passed: true };
                 }
             } else {
-                headerProps[label] = { value: cleanValue(value) };
+                headerProps[label] = { value: cleanValue(value), passed: true };
             }
         });
 
@@ -125,11 +154,14 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
             const properties: Record<string, any> =
                 Array.isArray(rawProps) ? rawProps[0] : typeof rawProps === "object" && rawProps !== null ? rawProps : {};
 
-            const rowProps: Record<string, { value: string }> = {};
+            const rowProps: Record<string, { value: string; passed: boolean }> = {};
 
             Object.entries(columnLabelMap).forEach(([key, colLabel]) => {
                 const value = cleanValue(properties?.[key]?.value ?? "");
-                rowProps[`${colLabel} (แถว ${rowIndex + 4})`] = { value };
+                rowProps[`${colLabel} (แถว ${rowIndex + 4})`] = {
+                    value,
+                    passed: properties?.[key]?.passed ?? false,
+                };
             });
 
             rows.push({ properties: rowProps });
@@ -145,7 +177,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                 company: selectedCompany.name,
                 factories: factoriesNumber ?? "",
                 documentGroup: data.documentGroup,
-                fields: ocrFieldRows
+                fields: ocrFieldRows,
             };
 
             validateOil0307(payload).then((res) => {
@@ -165,16 +197,29 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                             {taxTypeSection}
                         </div>
                     ) : (
-
                         <div>
                             <div className="fw-bold">{label}</div>
-                            <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                            <div
+                                className="rounded-2 shadow-sm bg-white p-2"
+                                style={{
+                                    fontSize: "14px",
+                                    borderWidth: "2px",
+                                    borderStyle: "solid",
+                                    borderColor:
+                                        typeof _validationResult?.data[0]?.properties?.[label]?.passed === "boolean"
+                                            ? _validationResult.data[0].properties[label].passed
+                                                ? "#22C659" // ผ่าน → สีเขียว
+                                                : "#FF0100" // ไม่ผ่าน → สีแดง
+                                            : "#dee2e6",   // ยังไม่มีผล → สีเทา
+                                }}
+                            >
                                 {cleanValue(value)}
                             </div>
                         </div>
                     )}
                 </React.Fragment>
             ))}
+
             {data.detail_table.slice(3).map((row, rowIndex) => {
                 const rawProps = row.properties;
                 const properties: Record<string, any> =
@@ -183,13 +228,29 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                 return (
                     <React.Fragment key={`row-${rowIndex}`}>
                         <hr className="border-top border-2 border-secondary m-0 mt-1" />
-                        {Object.entries(columnLabelMap).map(([key, label]) => {
-                            const value = properties?.[key]?.value ?? "-";
+                        {Object.entries(columnLabelMap).map(([columnKey, label]) => {
+                            const value = properties?.[columnKey]?.value ?? "-";
+                            const apiKey = getApiPropertyKey(columnKey, rowIndex);
+                            const passed = _validationResult?.data?.[rowIndex + 1]?.properties?.[apiKey]?.passed;
+
                             return (
-                                <div key={`${rowIndex}-${key}`}>
+                                <div key={`${rowIndex}-${columnKey}`}>
                                     <div className="fw-bold">{label}</div>
-                                    <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
-                                        {cleanValue(value)}
+                                    <div
+                                        className="rounded-2 shadow-sm bg-white p-2"
+                                        style={{
+                                            fontSize: "14px",
+                                            borderWidth: "2px",
+                                            borderStyle: "solid",
+                                            borderColor:
+                                                typeof passed === "boolean"
+                                                    ? passed
+                                                        ? "#22C659"  // สีเขียวถ้าผ่าน
+                                                        : "#FF0100"  // สีแดงถ้าไม่ผ่าน
+                                                    : "#dee2e6",    // สีเทาถ้ายังไม่มีผลตรวจ
+                                        }}
+                                    >
+                                        {value}
                                     </div>
                                 </div>
                             );

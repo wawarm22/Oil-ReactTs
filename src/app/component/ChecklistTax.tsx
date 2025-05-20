@@ -63,7 +63,7 @@ const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
                                 fontSize: "14px",
                                 whiteSpace: "pre-line",
                                 padding: "10px 10px",
-                                border: `4px solid ${borderColor}`,
+                                border: `2px solid ${borderColor}`,
                             }}
                         >
                             {field.value}

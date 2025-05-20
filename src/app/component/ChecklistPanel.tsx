@@ -40,7 +40,7 @@ const ChecklistPanel: React.FC<Props> = ({ ocrDocument, currentPage, setCurrentP
     if (!ocrDocument) return <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
         <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>
             <p className="text-muted">
-                ไม่พบข้อมูล OCR ในหน้านี้
+                กำลังประมวลผล OCR กรุณารอ...
             </p>
         </div>
     </div>

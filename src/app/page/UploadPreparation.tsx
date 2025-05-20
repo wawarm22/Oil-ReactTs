@@ -186,7 +186,7 @@ const UploadPreparation: React.FC = () => {
         }
 
         const mergedPdfBytes = await mergedPdf.save();
-        const arrayBuffer = mergedPdfBytes.buffer as ArrayBuffer; // บังคับ Type ให้เป็น ArrayBuffer
+        const arrayBuffer = mergedPdfBytes.buffer as ArrayBuffer;
         const mergedBlob = new Blob([arrayBuffer], { type: "application/pdf" });
         const mergedBlobUrl = URL.createObjectURL(mergedBlob);
         window.open(mergedBlobUrl, "_blank");

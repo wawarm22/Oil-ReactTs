@@ -198,7 +198,9 @@ const SearchFileUpload: React.FC = () => {
         }
 
         const mergedPdfBytes = await mergedPdf.save();
-        const mergedBlobUrl = URL.createObjectURL(new Blob([mergedPdfBytes], { type: "application/pdf" }));
+        const arrayBuffer = mergedPdfBytes.buffer as ArrayBuffer; 
+        const mergedBlob = new Blob([arrayBuffer], { type: "application/pdf" });
+        const mergedBlobUrl = URL.createObjectURL(mergedBlob);
         window.open(mergedBlobUrl, "_blank");
     };
 
