@@ -412,6 +412,7 @@ const UploadPreparation: React.FC = () => {
             localStorage.setItem("folders", JSON.stringify(folders));
             localStorage.setItem("transport", filters.transport?.value || "");
             localStorage.setItem("warehouse", filters.warehouse?.value || "");
+            localStorage.setItem("nameWarehouse", filters.warehouse?.label || "");
             navigate("/audit");
             // navigate("/");
 
