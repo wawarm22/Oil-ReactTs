@@ -1,17 +1,33 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { OcrAttachment0307Document } from "../../types/ocrFileType";
 import { cleanCellValue, renderLabel } from "../../utils/function/ocrUtils";
-import { validateOil0701 } from "../../utils/api/validateApi";
+import { getPrepared0307, validateOil0701 } from "../../utils/api/validateApi";
 import { useCompanyStore } from "../../store/companyStore";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { AuthSchema } from "../../types/schema/auth";
 
 interface Props {
     data: OcrAttachment0307Document;
 }
 
 const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
+    const auth = useAuthUser<AuthSchema>();
     const { selectedCompany } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse") ?? null;
-    const [_validationResult, setValidationResult] = useState<any>(null);
+    const [preparedData, setPreparedData] = useState<OcrAttachment0307Document | null>(null);
+    const [validationResult, setValidationResult] = useState<any>(null);
+
+    useEffect(() => {
+        if (data.id && auth) {
+            getPrepared0307(data.id, auth).then((res) => {
+                if (res && res.data) {
+                    setPreparedData(res.data);
+                } else {
+                    setPreparedData(null);
+                }
+            });
+        }
+    }, [data.id, auth]);
 
     const tables = data.detail_table ?? [];
     if (tables.length < 3) return <p className="text-muted">ไม่พบข้อมูลตาราง</p>;
@@ -52,35 +68,35 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
 
     const ocrFieldRows = useMemo(() => {
         const rows: { properties: Record<string, { value: string }> }[] = [];
-    
+
         const headerProps: Record<string, { value: string }> = {
             "เอกสาร": { value: cleanCellValue(data.header) },
             "วันที่": { value: cleanCellValue(data.date) },
             "น้ำมัน": { value: cleanCellValue(data.oil) },
         };
         rows.push({ properties: headerProps });
-    
+
         normalRows.forEach((row, rowIndex) => {
             const rowProps: Record<string, { value: string }> = {};
-    
+
             Object.entries(labelMap).forEach(([colKey, label]) => {
                 const value = cleanCellValue(row.properties?.[colKey]?.value);
                 if (value && value !== "-") {
                     rowProps[`${label} (แถว ${rowIndex + 4})`] = { value };
                 }
             });
-    
+
             rows.push({ properties: rowProps });
         });
-    
+
         summaryRows.forEach((row, sIdx) => {
             const rowProps: Record<string, { value: string }> = {};
-    
+
             Object.entries(labelMap).forEach(([colKey, label]) => {
                 const props = row.properties || {};
                 const value = cleanCellValue(props?.[colKey]?.value);
-    
-                if (colKey === "column_1") return;     
+
+                if (colKey === "column_1") return;
                 if (colKey === "column_7") {
                     const customLabel = cleanCellValue(props?.[colKey]?.value);
                     if (customLabel) {
@@ -88,42 +104,42 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                     }
                     return;
                 }
-    
+
                 if (!value || value === "-") return;
-    
+
                 rowProps[`${label} (รวม แถว ${sIdx + 4 + normalRows.length})`] = { value };
             });
-    
+
             if (Object.keys(rowProps).length > 0) {
                 rows.push({ properties: rowProps });
             }
         });
-    
+
         const footerProps: Record<string, { value: string }> = {
             "ลงชื่อ ผู้ประกอบอุตสาหกรรม": { value: cleanCellValue(data.name) },
             "ตำแหน่ง": { value: cleanCellValue(data.position) },
         };
         rows.push({ properties: footerProps });
-    
-        console.log("rows", rows);        
+
+        console.log("rows", rows);
         return rows;
-    }, [data, labelMap, normalRows, summaryRows]);    
+    }, [data, labelMap, normalRows, summaryRows]);
 
     useEffect(() => {
-        console.log("ocrFieldRows", ocrFieldRows);        
+        console.log("ocrFieldRows", ocrFieldRows);
         if (ocrFieldRows.length > 0 && selectedCompany) {
             const payload = {
                 docType: "attachment_0307",
                 company: selectedCompany.name,
                 factories: factoriesNumber,
                 fields: ocrFieldRows
-            };    
+            };
             console.log("ocrFieldRows", ocrFieldRows);
-            
-            validateOil0701(payload).then((res) => {
-                console.log("ผลลัพธ์ Validate:", res);
-                setValidationResult(res);
-            });
+
+            // validateOil0701(payload).then((res) => {
+            //     console.log("ผลลัพธ์ Validate:", res);
+            //     setValidationResult(res);
+            // });
         }
     }, [ocrFieldRows, selectedCompany]);
 
@@ -162,7 +178,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                 <>
                     <div className="fw-bold fs-5 text-primary border-top pt-3">รวม</div>
                     {summaryRows.map((row, sIdx) => (
-                        <div key={`summary-${sIdx}`} className="border-top pt-2">
+                        <div key={`summary-${sIdx}`} className="pt-2">
                             {Object.entries(labelMap).map(([colKey, label]) => {
                                 const props = row.properties || {};
                                 const value = cleanCellValue(props?.[colKey]?.value);
@@ -194,6 +210,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                     ))}
                 </>
             )}
+            <hr className="border-top border-2 border-secondary my-1" />
             <div className="m-0">
                 {renderLabel("ลงชื่อ ผู้ประกอบอุตสาหกรรม")}
                 <div className="border rounded-2 shadow-sm bg-white p-2">

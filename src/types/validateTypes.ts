@@ -138,17 +138,75 @@ export interface ValidateOil0704Payload {
 }
 
 export interface ValidateOil0307Payload {
-    docType: string;        
-    company: string;          
-    factories: string | null;       
-    documentGroup: string;    
+    docType: string;
+    company: string;
+    factories: string | null;
+    documentGroup: string;
     fields: Array<{
         properties: {
             [key: string]: {
-                value: string;     
+                value: string;
             };
         };
     }>;
 }
+
+export interface ValidateProduct {
+    index: number;
+    product_name: string;
+    product_id: number;
+    quantity: number;
+    tax_by_value_baht: number;
+    tax_by_value_satang: number;
+    tax_by_volumn_baht: number;
+    tax_by_volumn_satang: number;
+    discount_baht: number;
+    discount_satang: number;
+}
+
+export interface Validate0503Page1Payload {
+    docType: string;
+    documentGroup: string;
+    fields: {
+        form_name: string;
+        ref_no: string;
+        request_no: string;
+        request_date: string;
+        request_officer: string;
+        company_name: string;
+        factory_name: string;
+        excise_no: string;
+        address_no: string;
+        village_no: string;
+        soi: string;
+        street: string;
+        sub_district: string;
+        district: string;
+        province: string;
+        zipcode: string;
+        tel_no: string;
+        form_0503a_ref: string;
+        form_0503b_ref: string;
+        products: ValidateProduct[];
+        total_tax: number;
+    };
+}
+
+export interface Validate0503Page2Payload {
+    docType: string;
+    documentGroup: string;
+    fields: {
+        ref_no: string;
+        excise_tax: number;
+        health_fund: number;
+        radio_fund: number;
+        sport_fund: number;
+        elder_fund: number;
+        interior_tax: number;
+        total_tax: number;
+    }
+}
+
+
 
 

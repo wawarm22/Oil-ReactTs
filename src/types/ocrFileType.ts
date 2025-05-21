@@ -359,6 +359,7 @@ export type OcrTaxForm0503Document = OcrFieldsBase & {
 
 export type OcrTaxForm0503Page2Document = OcrFieldsBase & {
     type: "tax_form_0503_page2";
+    id: string;
     approve_1_check: string;
     approve_2_check: string;
     approve_2: string;
@@ -537,6 +538,7 @@ export type OcrTaxReceiptExciseDocument = OcrFieldsBase & {
 
 export type OcrAttachment0307Document = OcrFieldsBase & {
     type: "attachment_0307";
+    id: string;
     documentGroup: string;
     header: string;
     date?: string;

@@ -14,6 +14,17 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
     const factoriesNumber = localStorage.getItem("warehouse") ?? null;
     const [validationResult, setValidationResult] = useState<any>(null);
 
+    const normalize = (str: any) => {
+        if (!str) return '';
+        if (typeof str === 'string') return str.trim().replace(/\s+/g, '').toLowerCase();
+        if (typeof str === 'object' && typeof str.value === 'string')
+            return str.value.trim().replace(/\s+/g, '').toLowerCase();
+        return String(str).trim().replace(/\s+/g, '').toLowerCase();
+    };
+
+    const isBracketPattern = (str: string | undefined | null) =>
+        !!str && /^\(.*\)$/.test(str.trim());
+
     const cleanValue = (val?: string | { value: string } | null): string => {
         const raw = typeof val === "object" ? val?.value : val;
         if (!raw || raw.trim() === "" || raw === ":unselected:") return "-";
@@ -21,7 +32,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
     };
 
     const renderBox = (label: string, value: any, passed?: boolean) => (
-        <div key={label}>
+        <div key={label + (typeof value === "string" ? value : "")}>
             <div className="fw-bold">{label}</div>
             <div
                 className="rounded-2 shadow-sm bg-white p-2"
@@ -59,7 +70,6 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                             form_officer_name: factoriesNumber || "",
                         },
                     };
-
                     return validateOil0704(payload);
                 })
                 .then((res) => {
@@ -103,6 +113,20 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { label: "อื่น ๆ", field: "etc_used" },
     ];
 
+    const validMaterialNames = [6, 7, 8, 9, 10, 11]
+        .map(colIdx => ({
+            name: table1[0]?.properties?.[`column_${colIdx}`]?.value,
+            colIdx
+        }))
+        .filter(({ name }) => name && !isBracketPattern(name));
+
+    const validProductNames = Array.from({ length: 13 }, (_, i) => i + 2)
+        .map(colIdx => ({
+            name: table2[0]?.properties?.[`column_${colIdx}`]?.value,
+            colIdx
+        }))
+        .filter(({ name }) => name && !isBracketPattern(name));
+
     return (
         <div className="d-flex flex-column gap-3">
             {fieldsToDisplay.map(({ key, label, value }) =>
@@ -111,20 +135,34 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
 
             <hr className="border-top border-2 border-secondary my-2" />
             <div className="fw-bold">๑. ข้อมูลวัตถุดิบ</div>
-            {[6, 7, 8, 9].map((colIdx) =>
-                tableMap1.map(({ label, field }, i) => {
-                    const val = table1[i]?.properties?.[`column_${colIdx}`]?.value;
-                    const passed = validationResult?.data?.materials?.[i]?.[field]?.passed;
+            {validMaterialNames.map(({ name, colIdx }) => {
+                const validateObj = validationResult?.data?.materials?.find(
+                    (m: { material_name: string }) =>
+                        normalize(m.material_name) === normalize(name)
+                );
+                return tableMap1.map(({ label, field }, rowIdx) => {
+                    const val = field === "material_name"
+                        ? name
+                        : table1[rowIdx]?.properties?.[`column_${colIdx}`]?.value;
+                    const passed = validateObj?.[field]?.passed;
                     return renderBox(label, val, passed);
-                })
-            )}
+                });
+            })}
 
             <hr className="border-top border-2 border-secondary my-2" />
             <div className="fw-bold">๒. งบการผลิต</div>
-            {tableMap2.map(({ label, field }, i) => {
-                const val = table2[i]?.properties?.column_9?.value;
-                const passed = validationResult?.data?.products?.[i]?.[field]?.passed;
-                return renderBox(label, val, passed);
+            {validProductNames.map(({ name, colIdx }) => {
+                const validateObj = validationResult?.data?.products?.find(
+                    (p: { product_name: string }) =>
+                        normalize(p.product_name) === normalize(name)
+                );
+                return tableMap2.map(({ label, field }, rowIdx) => {
+                    const val = field === "product_name"
+                        ? name
+                        : table2[rowIdx]?.properties?.[`column_${colIdx}`]?.value;
+                    const passed = validateObj?.[field]?.passed;
+                    return renderBox(label, val, passed);
+                });
             })}
         </div>
     );
