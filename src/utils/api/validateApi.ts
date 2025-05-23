@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BASE_URL_AWS } from "./apiConfig";
-import { OCRValidationPayload, Validate0503Page1Payload, Validate0503Page2Payload, ValidateOil0307Payload, ValidateOil0704Payload, ValidateSubmissionPayload, ValidationCompare } from "../../types/validateTypes";
+import { OCRValidationPayload, Validate0503Page1Payload, Validate0503Page2Payload, validateAttachment0307Payload, ValidateOil0307Payload, ValidateOil0704Payload, ValidateSubmissionPayload, ValidationCompare } from "../../types/validateTypes";
 import { AuthSchema } from "../../types/schema/auth";
 
 export const validateOilCompare = async (validateData: ValidationCompare) => {
@@ -55,6 +55,19 @@ export const validateOil0307 = async (validateData: ValidateOil0307Payload) => {
     }
 };
 
+export const validateAttachment0307 = async (validateData: validateAttachment0307Payload) => {
+    try {
+        const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/03-07-attachment`, validateData, {
+            headers: { "Content-Type": "application/json" },
+        });            
+
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred during the registration process", error);
+        return undefined;
+    }
+};
+
 export const validateSubmission = async (validateData: ValidateSubmissionPayload) => {
     try {
         const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/submission`, validateData, {
@@ -84,6 +97,19 @@ export const validate0503Page1 = async (validateData: Validate0503Page1Payload) 
 export const validate0503Page2 = async (validateData: Validate0503Page2Payload) => {
     try {
         const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/05-03`, validateData, {
+            headers: { "Content-Type": "application/json" },
+        });            
+
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred during the registration process", error);
+        return undefined;
+    }
+};
+
+export const validateOutturn = async (validateData: any) => {
+    try {
+        const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/outturn`, validateData, {
             headers: { "Content-Type": "application/json" },
         });            
 

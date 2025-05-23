@@ -624,6 +624,27 @@ export type OcrTaxForm0502Document = OcrFieldsBase & {
     validate_name: string;
 };
 
+export type OcrIncomeNExpenseDocument = OcrFieldsBase & {
+    type: "oil-income-expense";
+    id: string;
+    documentGroup: string;
+    docTypes: string;
+    header: string;
+    pageCount: string;
+    pageNumber: string;
+    detail_table: Array<{
+        kind: string;
+        properties: Record<string, { value?: string; }>;
+    }>;
+    summary_table?: Array<{
+        kind: string;
+        properties: {
+            label: { value?: string };
+            value: { value?: string };
+            [key: string]: { value?: string };
+        };
+    }>;
+}
 
 export type OcrFields =
     | OcrTaxDocument
@@ -650,4 +671,5 @@ export type OcrFields =
     | OcrAttachment0704Document
     | OcrTaxForm0502Document
     | OcrTaxForm0503Page2Document
+    | OcrIncomeNExpenseDocument
     | (OcrFieldsBase & Record<string, any>); 

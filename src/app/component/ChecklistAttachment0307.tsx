@@ -1,21 +1,66 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { OcrAttachment0307Document } from "../../types/ocrFileType";
 import { cleanCellValue, renderLabel } from "../../utils/function/ocrUtils";
-import { getPrepared0307, validateOil0701 } from "../../utils/api/validateApi";
+import { getPrepared0307, validateAttachment0307 } from "../../utils/api/validateApi";
 import { useCompanyStore } from "../../store/companyStore";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { AuthSchema } from "../../types/schema/auth";
+import { PreparedTaxData, validateAttachment0307Payload } from "../../types/validateTypes";
+import { ValidationResult0307 } from "../../types/validateResTypes";
+import { DailyDetailSection } from "./DailyDetailSection";
+import { TaxSummarySection } from "./TaxSummarySection";
 
 interface Props {
     data: OcrAttachment0307Document;
 }
 
+type TaxSummaryFieldKey = "raw_tax" | "discount_105";
+type TaxSummaryTotalTaxKey = "paid" | "retrived";
+
+const taxMap = [
+    { key: "excise_tax", label: "ภาษีสรรพสามิต" },
+    { key: "interior_tax", label: "ภาษีมหาดไทย" },
+    { key: "total_tax", label: "รวมทั้งสิน" },
+];
+
+const taxSubFields: Array<{ key: TaxSummaryFieldKey | TaxSummaryTotalTaxKey; label: string }> = [
+    { key: "raw_tax", label: "ภาษีสรรพสามิต" },
+    { key: "discount_105", label: "ค่าลดหย่อน มาตรา 105" },
+    { key: "paid", label: "นำส่ง" },
+    { key: "retrived", label: "ขอคืน" },
+];
+
+const buildDetailFields = (row: any, _idx: number) => {
+    if (row.date === "รวม") {
+        return [
+            { label: "รวม" },
+            { label: "เนื้อน้ำมัน (ลิตร)", value: row.materials[0]?.quantity, key: "material_0" },
+            { label: "ไบโอดีเชล", value: row.materials[1]?.quantity, key: "material_1" },
+            { label: "สารเติมแต่ง", value: row.materials[2]?.quantity, key: "material_2" },
+        ];
+    } else {
+        return [
+            { label: "วันที่", value: row.date, key: "date" },
+            { label: "เนื้อน้ำมัน (ลิตร)", value: row.materials[0]?.quantity, key: "material_0" },
+            { label: "ไบโอดีเชล", value: row.materials[1]?.quantity, key: "material_1" },
+            { label: "สารเติมแต่ง", value: row.materials[2]?.quantity, key: "material_2" },
+            { label: "ปริมาณรวมสารเติมแต่ง", value: row.total, key: "total" },
+            { label: "อัตราภาษีสรรสามิต", value: row.tax_rate, key: "tax_rate" },
+            { label: "อัตราภาษีหักลดหย่อน", value: row.tax_discount_rate, key: "tax_discount_rate" },
+            { label: "ภาษีสรรพสามิต", value: row.raw_tax, key: "raw_tax" },
+            { label: "ค่าลดหย่อน มาตรา 105", value: row.discount_105, key: "discount_105" },
+            { label: "นำส่ง", value: row.total_tax?.paid, key: "paid" },
+            { label: "ขอคืน", value: row.total_tax?.retrived, key: "retrived" },
+        ];
+    }
+};
+
 const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
     const auth = useAuthUser<AuthSchema>();
     const { selectedCompany } = useCompanyStore();
-    const factoriesNumber = localStorage.getItem("warehouse") ?? null;
-    const [preparedData, setPreparedData] = useState<OcrAttachment0307Document | null>(null);
-    const [validationResult, setValidationResult] = useState<any>(null);
+    const factoriesNumber = localStorage.getItem("warehouse") ?? "";
+    const [preparedData, setPreparedData] = useState<PreparedTaxData | null>(null);
+    const [validationResult, setValidationResult] = useState<ValidationResult0307 | null>(null);
 
     useEffect(() => {
         if (data.id && auth) {
@@ -29,187 +74,91 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
         }
     }, [data.id, auth]);
 
-    const tables = data.detail_table ?? [];
-    if (tables.length < 3) return <p className="text-muted">ไม่พบข้อมูลตาราง</p>;
-
-    const labelMap: Record<string, string> = {};
-    const propsRow1 = tables[1]?.properties || {};
-    const propsRow2 = tables[2]?.properties || {};
-
-    for (let col = 1; col <= 11; col++) {
-        const key = `column_${col}`;
-        let label = "";
-
-        if (col >= 10) {
-            label = cleanCellValue(propsRow2[key]?.value);
-        } else {
-            label = cleanCellValue(propsRow1[key]?.value);
-        }
-
-        if (label) labelMap[key] = label;
-    }
-
-    const normalRows: typeof tables = [];
-    const summaryRows: typeof tables = [];
-
-    let foundSummary = false;
-    for (const row of tables.slice(3)) {
-        const col1 = cleanCellValue(row.properties?.column_1?.value ?? "");
-        if (!foundSummary && col1.includes("รวม")) {
-            foundSummary = true;
-        }
-
-        if (foundSummary) {
-            summaryRows.push(row);
-        } else {
-            normalRows.push(row);
-        }
-    }
-
-    const ocrFieldRows = useMemo(() => {
-        const rows: { properties: Record<string, { value: string }> }[] = [];
-
-        const headerProps: Record<string, { value: string }> = {
-            "เอกสาร": { value: cleanCellValue(data.header) },
-            "วันที่": { value: cleanCellValue(data.date) },
-            "น้ำมัน": { value: cleanCellValue(data.oil) },
-        };
-        rows.push({ properties: headerProps });
-
-        normalRows.forEach((row, rowIndex) => {
-            const rowProps: Record<string, { value: string }> = {};
-
-            Object.entries(labelMap).forEach(([colKey, label]) => {
-                const value = cleanCellValue(row.properties?.[colKey]?.value);
-                if (value && value !== "-") {
-                    rowProps[`${label} (แถว ${rowIndex + 4})`] = { value };
-                }
-            });
-
-            rows.push({ properties: rowProps });
-        });
-
-        summaryRows.forEach((row, sIdx) => {
-            const rowProps: Record<string, { value: string }> = {};
-
-            Object.entries(labelMap).forEach(([colKey, label]) => {
-                const props = row.properties || {};
-                const value = cleanCellValue(props?.[colKey]?.value);
-
-                if (colKey === "column_1") return;
-                if (colKey === "column_7") {
-                    const customLabel = cleanCellValue(props?.[colKey]?.value);
-                    if (customLabel) {
-                        rowProps[customLabel] = { value: "-" };
-                    }
-                    return;
-                }
-
-                if (!value || value === "-") return;
-
-                rowProps[`${label} (รวม แถว ${sIdx + 4 + normalRows.length})`] = { value };
-            });
-
-            if (Object.keys(rowProps).length > 0) {
-                rows.push({ properties: rowProps });
-            }
-        });
-
-        const footerProps: Record<string, { value: string }> = {
-            "ลงชื่อ ผู้ประกอบอุตสาหกรรม": { value: cleanCellValue(data.name) },
-            "ตำแหน่ง": { value: cleanCellValue(data.position) },
-        };
-        rows.push({ properties: footerProps });
-
-        console.log("rows", rows);
-        return rows;
-    }, [data, labelMap, normalRows, summaryRows]);
-
     useEffect(() => {
-        console.log("ocrFieldRows", ocrFieldRows);
-        if (ocrFieldRows.length > 0 && selectedCompany) {
-            const payload = {
-                docType: "attachment_0307",
+        if (
+            preparedData &&
+            selectedCompany &&
+            data.documentGroup
+        ) {
+            const payload: validateAttachment0307Payload = {
+                docType: "oil-formular-2",
                 company: selectedCompany.name,
                 factories: factoriesNumber,
-                fields: ocrFieldRows
+                documentGroup: data.documentGroup,
+                fields: preparedData
             };
-            console.log("ocrFieldRows", ocrFieldRows);
-
-            // validateOil0701(payload).then((res) => {
-            //     console.log("ผลลัพธ์ Validate:", res);
-            //     setValidationResult(res);
-            // });
+            validateAttachment0307(payload).then((res) => {
+                setValidationResult(res?.data ?? null);
+            });
         }
-    }, [ocrFieldRows, selectedCompany]);
+    }, [preparedData, selectedCompany, data]);
 
     return (
         <div className="d-flex flex-column gap-2">
+            {/* Header */}
             <div>
                 {renderLabel("เอกสาร")}
-                <div className="border rounded-2 shadow-sm bg-white p-2">{cleanCellValue(data.header)}</div>
+                <div
+                    className="rounded-2 shadow-sm bg-white p-2"
+                    style={{
+                        border: `1.5px solid ${validationResult?.header?.passed === true ? "#22C659" : validationResult?.header?.passed === false ? "#FF0100" : "#dee2e6"}`
+                    }}
+                >
+                    {preparedData?.header}
+                </div>
             </div>
             <div>
                 {renderLabel("วันที่")}
-                <div className="border rounded-2 shadow-sm bg-white p-2">{cleanCellValue(data.date)}</div>
+                <div
+                    className="rounded-2 shadow-sm bg-white p-2"
+                    style={{
+                        border: `1.5px solid ${validationResult?.from_date?.passed === true ? "#22C659" : validationResult?.from_date?.passed === false ? "#FF0100" : "#dee2e6"}`
+                    }}
+                >
+                    {cleanCellValue(preparedData?.from_date)} - {cleanCellValue(preparedData?.to_date)}
+                </div>
             </div>
             <div>
                 {renderLabel("น้ำมัน")}
-                <div className="border rounded-2 shadow-sm bg-white p-2">{cleanCellValue(data.oil)}</div>
+                <div
+                    className="rounded-2 shadow-sm bg-white p-2"
+                    style={{
+                        border: `1.5px solid ${validationResult?.product_name?.passed === true ? "#22C659" : validationResult?.product_name?.passed === false ? "#FF0100" : "#dee2e6"}`
+                    }}
+                >
+                    {preparedData?.product_name}
+                </div>
             </div>
 
-            {normalRows.map((row, idx) => (
-                <div key={`row-${idx}`} className="border-top pt-2">
-                    {Object.entries(labelMap).map(([colKey, label]) => {
-                        const value = cleanCellValue(row.properties?.[colKey]?.value);
-                        if (!value) return null;
-
-                        return (
-                            <div key={`${idx}-${colKey}`} className="mb-1">
-                                {renderLabel(label)}
-                                <div className="border rounded-2 shadow-sm bg-white p-2">{value}</div>
-                            </div>
-                        );
-                    })}
-                </div>
-            ))}
-
-            {summaryRows.length > 0 && (
-                <>
-                    <div className="fw-bold fs-5 text-primary border-top pt-3">รวม</div>
-                    {summaryRows.map((row, sIdx) => (
-                        <div key={`summary-${sIdx}`} className="pt-2">
-                            {Object.entries(labelMap).map(([colKey, label]) => {
-                                const props = row.properties || {};
-                                const value = cleanCellValue(props?.[colKey]?.value);
-
-                                if (colKey === "column_1") return null;
-
-                                if (colKey === "column_7") {
-                                    const customLabel = cleanCellValue(props?.[colKey]?.value);
-                                    if (customLabel) {
-                                        return (
-                                            <div key={`summary-${sIdx}-${colKey}`} className="mb-1">
-                                                {renderLabel(customLabel)}
-                                            </div>
-                                        );
-                                    } else {
-                                        return null;
-                                    }
-                                }
-
-                                if (!value || value === "-") return null;
-                                return (
-                                    <div key={`summary-${sIdx}-${colKey}`} className="mb-1">
-                                        {renderLabel(label)}
-                                        <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{value}</div>
-                                    </div>
-                                );
-                            })}
-                        </div>
+            {preparedData && preparedData.details && preparedData.details.length > 0 && (
+                <div className="mt-3">
+                    {preparedData.details.map((row, idx) => (
+                        <DailyDetailSection
+                            key={idx}
+                            row={row}
+                            idx={idx}
+                            detailValidation={validationResult?.details?.[idx]}
+                            buildDetailFields={buildDetailFields}
+                        />
                     ))}
-                </>
+                </div>
             )}
+
+            {preparedData?.taxes && (
+                <div className="m-0">
+                    {taxMap.map((taxType) => (
+                        <TaxSummarySection
+                            key={taxType.key}
+                            taxKey={taxType.key as keyof PreparedTaxData["taxes"]}
+                            taxLabel={taxType.label}
+                            taxes={preparedData.taxes}
+                            validationResult={validationResult?.taxes}
+                            taxSubFields={taxSubFields}
+                        />
+                    ))}
+                </div>
+            )}
+
             <hr className="border-top border-2 border-secondary my-1" />
             <div className="m-0">
                 {renderLabel("ลงชื่อ ผู้ประกอบอุตสาหกรรม")}

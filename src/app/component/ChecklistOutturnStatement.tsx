@@ -1,12 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { OcrOutturnStatementDocument } from "../../types/ocrFileType";
+import { validateOutturn } from "../../utils/api/validateApi";
+import { useCompanyStore } from "../../store/companyStore";
 
 interface Props {
     data: OcrOutturnStatementDocument;
 }
 
 const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
-
+    const [validationResult, setValidationResult] = useState<any>(null);
+    const { selectedCompany } = useCompanyStore();
+    const factoriesNumber = localStorage.getItem("warehouse") ?? null;
+    
     const cleanValue = (val?: any): string => {
         if (val === null || val === undefined) return "";
         const str = String(val);
@@ -14,44 +19,66 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
         return str.trim();
     };
 
-    const fields = [
-        { label: "Date", value: cleanValue(data.date) },
-        { label: "PRODUCT", value: cleanValue(data.product) },
-    ];
-
-    const value = data.detail_table_1[27].properties.column_2 || {};
-    const name = data.detail_table_1[27].properties.column_1 || {};
+    const value = data.detail_table_1[27]?.properties?.column_2 || {};
+    const name = data.detail_table_1[27]?.properties?.column_1 || {};
     const valueQuantity = cleanValue(value.value);
     const nameQuantity = cleanValue(name.value);
 
+    useEffect(() => {
+        if (!data) return;
+
+        const validateFields = {
+            date: cleanValue(data.date),
+            product: cleanValue(data.product),
+            quality: nameQuantity,
+            quantity: Number(valueQuantity.replace(/,/g, "")) || 0,
+        };
+
+        const validateData = {
+            docType: "oil-shore-tank-1",
+            company: selectedCompany?.name,
+            factories: factoriesNumber,
+            documentGroup: data.documentGroup || "",
+            fields: validateFields,
+        };
+
+        validateOutturn(validateData).then((result) => {
+            setValidationResult(result);
+        });
+    }, [data]);
+
+    const borderColor = (passed?: boolean) =>
+        `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#dee2e6"}`;
+
+    const renderValidateBox = (
+        label: string,
+        fieldKey: string,
+        value: any
+    ) => {
+        const v = validationResult?.data?.[fieldKey];
+        return (
+            <div className="mb-2" key={fieldKey}>
+                <div className="fw-bold">{label}</div>
+                <div
+                    className="rounded-2 shadow-sm bg-white p-2"
+                    style={{
+                        fontSize: "14px",
+                        border: borderColor(v?.passed),
+                    }}
+                >
+                    {cleanValue(value)}
+                    
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="d-flex flex-column gap-2">
-
-            {fields.map(({ label, value }) => (
-                value ? (
-                    <div key={label}>
-                        <div className="fw-bold">{label}</div>
-                        <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
-                            {value}
-                        </div>
-                    </div>
-                ) : null
-            ))}
-
-            {valueQuantity && (
-                <>
-                    <hr className="border-top border-2 border-secondary m-0 mt-2" />
-                    <div className="fw-bold">Quantity</div>
-                    <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
-                        {nameQuantity}
-                    </div>
-                    <div className="fw-bold m-0">ปริมาณ</div>
-                    <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
-                        {valueQuantity}
-                    </div>
-                </>
-            )}
-
+            {renderValidateBox("Date", "date", data.date)}
+            {renderValidateBox("PRODUCT", "product_name", data.product)}
+            {nameQuantity && renderValidateBox(nameQuantity, "quality", nameQuantity)}
+            {valueQuantity && renderValidateBox("ปริมาณ", "quantity", valueQuantity)}
         </div>
     );
 };

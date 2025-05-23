@@ -90,7 +90,7 @@ export type ValidationResponse = {
     status: boolean;
 };
 
-export interface Oil0704Material {
+export type Oil0704Material = {
     material_name: string;
     open: number | null;
     getted: number | null;
@@ -103,7 +103,7 @@ export interface Oil0704Material {
     forward: number | null;
 }
 
-export interface Oil0704Product {
+export type Oil0704Product = {
     product_name: string;
     open: number | null;
     produced: number | null;
@@ -119,7 +119,7 @@ export interface Oil0704Product {
     etc_used: number | null;
 }
 
-export interface Oil0704Fields {
+export type Oil0704Fields = {
     form_type: string;
     request_number: string | null;
     received_at: string;
@@ -131,13 +131,13 @@ export interface Oil0704Fields {
     products: Oil0704Product[];
 }
 
-export interface ValidateOil0704Payload {
+export type ValidateOil0704Payload = {
     docType: string;
     documentGroup: string;
     fields: Oil0704Fields;
 }
 
-export interface ValidateOil0307Payload {
+export type ValidateOil0307Payload = {
     docType: string;
     company: string;
     factories: string | null;
@@ -151,7 +151,7 @@ export interface ValidateOil0307Payload {
     }>;
 }
 
-export interface ValidateProduct {
+export type ValidateProduct = {
     index: number;
     product_name: string;
     product_id: number;
@@ -164,7 +164,7 @@ export interface ValidateProduct {
     discount_satang: number;
 }
 
-export interface Validate0503Page1Payload {
+export type Validate0503Page1Payload = {
     docType: string;
     documentGroup: string;
     fields: {
@@ -192,7 +192,7 @@ export interface Validate0503Page1Payload {
     };
 }
 
-export interface Validate0503Page2Payload {
+export type Validate0503Page2Payload = {
     docType: string;
     documentGroup: string;
     fields: {
@@ -206,6 +206,74 @@ export interface Validate0503Page2Payload {
         total_tax: number;
     }
 }
+
+export type ValidateOutturnFields = {
+    date: string;
+    product: string;
+    quality: string;
+    quantity: number;
+}
+
+export type ValidateOutturnPayload = {
+    docType: string;
+    company: string;
+    factories: string | null;
+    documentGroup: string;
+    // materialType: string;     
+    fields: ValidateOutturnFields;
+}
+
+export type MaterialDetail = {
+    material_name: string;
+    material_id: number;
+    quantity: number;
+}
+
+export type TaxDetailRow = {
+    date: string;
+    materials: MaterialDetail[];
+    total: number;
+    tax_rate: number;
+    tax_discount_rate: number;
+    raw_tax: number;
+    discount_105: number;
+    total_tax: {
+        paid: number;
+        retrived: number;
+    };
+}
+
+export type TaxSummary = {
+    raw_tax: number;
+    discount_105: number;
+    total_tax: {
+        paid: number;
+        retrived: number;
+    };
+}
+
+export type PreparedTaxData = {
+    header: string;
+    from_date: string;
+    to_date: string;
+    product_name: string;
+    product_id: number;
+    details: TaxDetailRow[];
+    taxes: {
+        excise_tax: TaxSummary;
+        interior_tax: TaxSummary;
+        total_tax: TaxSummary;
+    };
+}
+
+export type validateAttachment0307Payload = {
+    docType: string;
+    company: string;
+    factories: string;
+    documentGroup: string;
+    fields: PreparedTaxData;
+}
+
 
 
 

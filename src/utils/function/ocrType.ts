@@ -23,6 +23,18 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
         if (docType === "oil-07-02-page-1") {
             return "daily_production";
         }
+
+        if (docType === "oil-shore-tank-1") {
+            return "outturn_statement";
+        }
+
+        if (docType === "oil-formular-2") {
+            return "attachment_0307";
+        }
+
+        if (docType === "oil-income-n-expense-1") {
+            return "oil-income-expense"
+        }
     }
     
     if ("form_type" in fields && typeof fields.form_type === "string") {
@@ -61,15 +73,6 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
 
     if ("receipt_type" in fields && "tax_id" in fields && "company_name" in fields && "duty_payment" in fields) {
         return "customs_receipt";
-    }
-
-    if (
-        "product" in fields &&
-        "approve_signature" in fields &&
-        "surveyor_signature" in fields &&
-        "dip_number" in fields
-    ) {
-        return "outturn_statement";
     }
 
     if (
@@ -121,15 +124,7 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
         return "attachment_0704";
     }
 
-    if ("detail_table" in fields && Array.isArray(fields.detail_table)) {        
-
-        // const thaiDatePattern = /^\d{1,2}\s?(ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s?\d{2,4}$/;
-        // const hasDailyProductionPattern = fields.detail_table.some((entry: any) => {
-        //     const val = entry?.properties?.column_1?.value?.trim?.() ?? "";
-        //     return thaiDatePattern.test(val);
-        // });
-
-        // if (hasDailyProductionPattern) return "daily_production";
+    if ("detail_table" in fields && Array.isArray(fields.detail_table)) {         
 
         const hasGroupedRow = fields.detail_table.some(
             (row: any) => row?.properties?.material_per_liter?.value === "รวม"
