@@ -14,6 +14,17 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
     const factoriesNumber = localStorage.getItem("warehouse") ?? null;
     const [validationResult, setValidationResult] = useState<any>(null);
 
+    const normalize = (str: any) => {
+        if (!str) return '';
+        if (typeof str === 'string') return str.trim().replace(/\s+/g, '').toLowerCase();
+        if (typeof str === 'object' && typeof str.value === 'string')
+            return str.value.trim().replace(/\s+/g, '').toLowerCase();
+        return String(str).trim().replace(/\s+/g, '').toLowerCase();
+    };
+
+    const isBracketPattern = (str: string | undefined | null) =>
+        !!str && /^\(.*\)$/.test(str.trim());
+
     const cleanValue = (val?: string | { value: string } | null): string => {
         const raw = typeof val === "object" ? val?.value : val;
         if (!raw || raw.trim() === "" || raw === ":unselected:") return "-";
