@@ -25,7 +25,7 @@ const EndOfMonthRenderer: React.FC<Props> = ({ endOfMonth, validation }) => {
     if (allZeroOrFalsy) return null;
     return (
         <div className="m-0">
-            <hr className="border-2 border-secondary mt-1" />
+            <hr className="border-2 border-secondary mt-0" />
             <div className="fw-bold mb-2">สิ้นเดือน</div>
             {endOfMonthMap.map((f, _idx) => {
                 const val = endOfMonth[f.key];

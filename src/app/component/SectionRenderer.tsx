@@ -47,13 +47,14 @@ const SectionRenderer: React.FC<Props> = ({ section, rows, validationRows }) => 
                                             <div className="fw-bold">คลังปลายทาง</div>
                                             <div style={{
                                                 fontSize: "14px",
+                                                height: "39px",
                                                 border: getBorderColor(tValidation?.destinationDepot),
                                                 borderRadius: "0.375rem",
                                                 boxShadow: "0 .5rem 1rem rgba(33,37,41,.03)",
                                                 background: "#fff",
                                                 padding: "0.5rem 1rem"
                                             }}>
-                                                {t.destinationDepot || "-"}
+                                                {t.destinationDepot || ""}
                                             </div>
                                         </div>
                                         <div className="mb-1">
@@ -73,13 +74,14 @@ const SectionRenderer: React.FC<Props> = ({ section, rows, validationRows }) => 
                                             <div className="fw-bold">เลขที่ใบกำกับภาษี</div>
                                             <div style={{
                                                 fontSize: "14px",
+                                                height: "39px",
                                                 border: getBorderColor(tValidation?.invoiceNo),
                                                 borderRadius: "0.375rem",
                                                 boxShadow: "0 .5rem 1rem rgba(33,37,41,.03)",
                                                 background: "#fff",
                                                 padding: "0.5rem 1rem"
                                             }}>
-                                                {t.invoiceNo || "-"}
+                                                {t.invoiceNo || ""}
                                             </div>
                                         </div>
                                     </React.Fragment>

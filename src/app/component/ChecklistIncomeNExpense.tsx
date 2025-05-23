@@ -108,7 +108,7 @@ const ChecklistIncomeNExpense: React.FC<Props> = ({ data }) => {
                                 padding: "0.5rem 1rem"
                             }}
                         >
-                            {value || "-"}
+                            {value || ""}
                         </div>
                     </div>
                 ) : null;
