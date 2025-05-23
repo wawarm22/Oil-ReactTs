@@ -6,7 +6,7 @@ import "../../assets/css/dropdown-animation.css";
 import "../../assets/css/table.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
-import { documentList } from "../../types/docList";
+import { DocumentItem, documentList } from "../../types/docList";
 import { RiArrowDropDownLine, RiFileDownloadLine } from "react-icons/ri";
 import { AnimatePresence, motion } from "framer-motion";
 import { uploadFile } from "../../utils/upload";
@@ -186,7 +186,7 @@ const UploadPreparation: React.FC = () => {
         }
 
         const mergedPdfBytes = await mergedPdf.save();
-        const arrayBuffer = mergedPdfBytes.buffer as ArrayBuffer;
+        const arrayBuffer = mergedPdfBytes.buffer as ArrayBuffer; // บังคับ Type ให้เป็น ArrayBuffer
         const mergedBlob = new Blob([arrayBuffer], { type: "application/pdf" });
         const mergedBlobUrl = URL.createObjectURL(mergedBlob);
         window.open(mergedBlobUrl, "_blank");
@@ -349,32 +349,32 @@ const UploadPreparation: React.FC = () => {
         return true;
     });
 
-    // const isUploadedComplete = (item: DocumentItem): boolean => {
-    //     const subtitle = item.subtitle;
+    const isUploadedComplete = (item: DocumentItem): boolean => {
+        const subtitle = item.subtitle;
 
-    //     if (Array.isArray(subtitle) && subtitle.every((text: string): boolean => text.includes("ถ้ามี"))) {
-    //         return true;
-    //     }
+        if (Array.isArray(subtitle) && subtitle.every((text: string): boolean => text.includes("ถ้ามี"))) {
+            return true;
+        }
 
-    //     const uploaded = uploadedFiles[item.id];
-    //     if (!uploaded) return false;
+        const uploaded = uploadedFiles[item.id];
+        if (!uploaded) return false;
 
-    //     return Object.values(uploaded).some(u => u.files.length > 0);
-    // };
+        return Object.values(uploaded).some(u => u.files.length > 0);
+    };
 
-    // const currentDocuments = filteredDocuments.filter((item) => {
-    //     const subtitle = item.subtitle;
+    const currentDocuments = filteredDocuments.filter((item) => {
+        const subtitle = item.subtitle;
 
-    //     const isSubtitleOptional =
-    //         Array.isArray(subtitle) && subtitle.every((s: string) => s.includes("ถ้ามี"));
+        const isSubtitleOptional =
+            Array.isArray(subtitle) && subtitle.every((s: string) => s.includes("ถ้ามี"));
 
-    //     const isTitleOptional = item.title.includes("ถ้ามี");
+        const isTitleOptional = item.title.includes("ถ้ามี");
 
-    //     return !(isSubtitleOptional || isTitleOptional);
-    // });
+        return !(isSubtitleOptional || isTitleOptional);
+    });
 
 
-    // const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
+    const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
 
     const handleConfirm = () => {
         setShowConfirmModal(true);
