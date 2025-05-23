@@ -10,8 +10,10 @@ interface MotionCardProps {
     padding?: string;
     textSize?: string;
     container?: string;
-    margin?: string; 
-    style?: React.CSSProperties; 
+    margin?: string;
+    style?: React.CSSProperties;
+    backgroundColor?: string;
+    color?: string;
 }
 
 const MotionCard: React.FC<MotionCardProps> = ({
@@ -24,15 +26,21 @@ const MotionCard: React.FC<MotionCardProps> = ({
     container = "d-flex flex-column justify-content-start align-items-start",
     margin = "",
     style = {},
+    backgroundColor,
+    color,
 }) => {
+    // ถ้า prop ไม่ส่งมา จะใช้ค่าตาม selected หรือ default
+    const appliedBg = backgroundColor ?? (isSelected ? "#22C659" : "#ffffff");
+    const appliedColor = color ?? (isSelected ? "#ffffff" : "#000000");
+
     return (
         <motion.div
-            className={`${container} border ${isSelected ? "border-light" : "border-dark"} border-1 rounded-2 ${margin}`}
+            className={`${container} border ${margin}`}
             style={{
                 width,
                 minHeight,
-                backgroundColor: isSelected ? "#22C659" : "#ffffff",
-                color: isSelected ? "#ffffff" : "#000000",
+                backgroundColor: appliedBg,
+                color: appliedColor,
                 cursor: "pointer",
                 ...style,
             }}

@@ -16,7 +16,7 @@ type OCRValidationPayload = {
     docType: string;
     documentGroup: string;
     company?: string;
-    materialType: string;
+    materialID: string;
     factories: string | null;
     fields: OCRFieldRow[];
 };
@@ -48,9 +48,9 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
             const response = await checkProdustType(data.oil_type);
             const resultItems = response?.ResultItems ?? [];
 
-            const productName = findBestMatch(resultItems, selectedCompany.name, factoriesName);
+            const productNumber = findBestMatch(resultItems, selectedCompany.name, factoriesName);
 
-            setMaterialType(productName);
+            setMaterialType(productNumber);
         };
 
         fetchMaterialType();
@@ -126,7 +126,7 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
             const payload: OCRValidationPayload = {
                 docType: "oil-07-01-page-1",
                 documentGroup: data.documentGroup,
-                materialType: materialType,
+                materialID: materialType,
                 company: selectedCompany.name,
                 factories: factoriesNumber,
                 fields: transformedFields,

@@ -629,7 +629,9 @@ export type OcrIncomeNExpenseDocument = OcrFieldsBase & {
     id: string;
     documentGroup: string;
     docTypes: string;
-    header: string;
+    company: string;
+    date: string;
+    oil: string;
     pageCount: string;
     pageNumber: string;
     detail_table: Array<{

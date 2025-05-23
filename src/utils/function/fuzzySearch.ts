@@ -1,7 +1,8 @@
 import Fuse from "fuse.js";
+import { CheckProductTypeResultItem } from "../../types/checkData";
 
 export function findBestMatch(
-    resultItems: any[],
+    resultItems: CheckProductTypeResultItem[],
     companyName: string,
     factoryName: string
 ): string {
@@ -39,8 +40,8 @@ export function findBestMatch(
     // })));
 
     if (results.length > 0) {
-        return results[0].item.Response.ProductName ?? "";
+        return results[0].item.Response.Id ?? "";
     }
-    return filteredByCompany[0]?.Response?.ProductName ?? "";
+    return filteredByCompany[0]?.Response?.Id ?? "";
 
 }

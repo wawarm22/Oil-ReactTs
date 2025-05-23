@@ -1,4 +1,5 @@
 import { Material, Product } from "../utils/function/checklist/attachment0704";
+import { PreparedData } from "./preparedTypes";
 
 export type OCRFieldProperty = {
     value: string;
@@ -272,6 +273,12 @@ export type validateAttachment0307Payload = {
     factories: string;
     documentGroup: string;
     fields: PreparedTaxData;
+}
+
+export type validateReceitpPaymentPayload = {
+    docType: string;
+    documentGroup: string;
+    fields: PreparedData;
 }
 
 

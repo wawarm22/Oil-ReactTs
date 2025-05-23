@@ -1,0 +1,61 @@
+export type LocalSale = {
+    quantity: number;
+    invoiceNo: string;
+};
+
+export type Transfer = {
+    destinationDepot: string;
+    quantity: number;
+    invoiceNo: string;
+};
+
+export type Receipt = {
+    receivedDate: string;
+    sourceDepot: string;
+    invoiceNo: string;
+    quantity: number;
+    invoiceBalance: number;
+    totalBalance: number;
+};
+
+export type OpeningBalance = {
+    receivedDate: string;
+    sourceDepot: string;
+    invoiceNo: string;
+    quantity: string;
+    invoiceBalance: number;
+    totalBalance: number;
+}
+
+export type Disbursement = {
+    paidDate: string;
+    localSale: LocalSale;
+    transfer: Transfer[];
+    invoiceBalance: number;
+    totalBalance: number;
+};
+
+export type EndOfMonth = {
+    tankMeasurement: number;
+    lossGainQuantity: number;
+    lossGainPercentage: number;
+    carriedForwardBalance: number;
+};
+
+export type Fields = {
+    header: {
+        formTitle: string;
+        productName: string;
+        factories: string;
+        period: string;
+    };
+    openingBalance: OpeningBalance[];
+    receipt: Receipt[];
+    disbursement: Disbursement[];
+    endOfMonth: EndOfMonth;
+};
+
+export type PreparedData = {
+    documentGroup: string;
+    fields: Fields;
+};
