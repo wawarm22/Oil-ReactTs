@@ -62,8 +62,6 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
 
     useEffect(() => {
         if (!materialType) return;
-        console.log("materialType", materialType);
-        console.log("materialName", materialName);
 
         const newLabelMap = getLabelMap(materialName);
         setLabelMap(newLabelMap);
