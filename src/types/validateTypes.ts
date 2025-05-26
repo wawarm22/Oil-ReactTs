@@ -281,6 +281,43 @@ export type validateReceitpPaymentPayload = {
     fields: PreparedData;
 }
 
+export type OilCompareFieldValidation = {
+    value: string;
+    expected: string;
+    passed: boolean;
+};
+
+export type OilCompareRowValidation = {
+    product: string;
+    field: string;
+    value: number | string;
+    expected: string | number;
+    passed: boolean;
+    status?: "passed" | "failed" | "warning";
+    type: string;
+    calculated?: number;
+    normalized?: number;
+    tolerance?: string;
+};
+
+export type OilCompareProductValidation = {
+    product: string;
+    validations: OilCompareRowValidation[];
+};
+
+export type ValidateOilCompareResponse = {
+    status: boolean;
+    message: string;
+    data: (
+        | {
+            company: OilCompareFieldValidation;
+            warehouse: OilCompareFieldValidation;
+        }
+        | OilCompareProductValidation
+    )[];
+};
+
+
 
 
 

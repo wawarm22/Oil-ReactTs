@@ -1,49 +1,45 @@
-import { ValidationResponse } from "../../types/validateTypes";
+// utils/function/buildValidationMap.ts
 
-export type CleanedFieldRow = {
-    properties: {
-        [key: string]: { value: string };
-    };
-};
+import { OilCompareProductValidation, OilCompareRowValidation } from "../../types/validateTypes";
+
+export type ValidationStatus = "passed" | "failed" | "warning";
 
 export const buildValidationMap = (
-    validationResult: ValidationResponse["data"],
-    cleanedData: CleanedFieldRow[]
-): Record<string, boolean> => {
-    const validationMap: Record<string, boolean> = {};
-    let fieldPointer = 0;
+  productValidations: OilCompareProductValidation[],
+  cleanedRows: Array<{ properties: Record<string, { value: string }> }>
+): Record<string, ValidationStatus> => {
+  const validationMap: Record<string, ValidationStatus> = {};
 
-    for (const productGroup of validationResult) {
-        for (const validation of productGroup.validations) {
-            const { type, passed } = validation;
+  let currentProduct = "";
+  let currentProductValidation: OilCompareProductValidation | undefined = undefined;
 
-            if (type === "ปริมาณรวม" || type === "เปอร์เซ็นต์รวม") {
-                const targetColumn = type === "ปริมาณรวม" ? "column_3" : "column_4";
-
-                const targetIndex = cleanedData.findIndex(
-                    (row) => row.properties?.column_2?.value.trim() === "ปริมาณรวม"
-                );
-
-                if (targetIndex !== -1) {
-                    validationMap[`${targetIndex}-${targetColumn}`] = passed;
-                }
-            } else {
-                // ข้าม field ที่ไม่มี column_4 (ระวัง null/undefined)
-                while (
-                    fieldPointer < cleanedData.length &&
-                    !cleanedData[fieldPointer]?.properties?.column_4?.value
-                ) {
-                    fieldPointer++;
-                }
-
-                if (fieldPointer < cleanedData.length) {
-                    validationMap[`${fieldPointer}-column_4`] = passed;
-                    fieldPointer++;
-                }
-            }
-        }
+  cleanedRows.forEach((row, rowIdx) => {
+    // Update current product
+    const thisProduct = row.properties.column_1?.value?.trim() || currentProduct;
+    if (thisProduct !== currentProduct && thisProduct) {
+      currentProductValidation = productValidations.find(pv => pv.product === thisProduct);
+      currentProduct = thisProduct;
     }
 
-    return validationMap;
-};
+    // Validate each column
+    Object.keys(row.properties).forEach(colKey => {
+      if (!currentProductValidation) return;
 
+      // Find matching validation for this field (colKey)
+      const validations = currentProductValidation.validations.filter(v => v.field === colKey);
+
+      if (validations.length > 0) {
+        const v: OilCompareRowValidation = validations[0];
+        let status: ValidationStatus;
+        if (typeof v.status === "string" && ["passed", "failed", "warning"].includes(v.status)) {
+          status = v.status as ValidationStatus;
+        } else {
+          status = v.passed ? "passed" : "failed";
+        }
+        validationMap[`${rowIdx}-${colKey}`] = status;
+      }
+    });
+  });
+
+  return validationMap;
+};
