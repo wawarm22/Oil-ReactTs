@@ -129,6 +129,8 @@ const labelMapsByMaterialType: { [key: string]: LabelMap } = {
 };
 
 export function getLabelMap(materialType: string): LabelMap {
+    // console.log("materialType", materialType);
+    
     for (const key in labelMapsByMaterialType) {
         if (materialType.includes(key)) {
             return labelMapsByMaterialType[key];

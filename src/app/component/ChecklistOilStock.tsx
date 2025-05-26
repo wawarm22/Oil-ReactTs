@@ -7,6 +7,7 @@ import { useCompanyStore } from "../../store/companyStore";
 import { checkProdustType } from "../../utils/api/apiCheckData";
 import { getLabelMap } from "../../utils/labelMaps";
 import { findBestMatch } from "../../utils/function/fuzzySearch";
+import { findBestMatchName } from "../../utils/function/fuzzySearchName";
 
 interface ChecklistStockOilFormattedProps {
     data: OcrStockOilDocument;
@@ -30,6 +31,7 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
     const [allRowsState, setAllRowsState] = useState<Record<string, any>[]>([]);
     const [labelMap, setLabelMap] = useState<Record<string, string>>({});
     const [materialType, setMaterialType] = useState<string>("");
+    const [materialName, setMaterialName] = useState<string>("");
     const [validationResult, setValidationResult] = useState<any>(null);
     const { selectedCompany, fetchCompanyById } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse");
@@ -46,10 +48,12 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
             if (!data.oil_type || !selectedCompany?.name || !factoriesName) return;
 
             const response = await checkProdustType(data.oil_type);
-            const resultItems = response?.ResultItems ?? [];
+            const resultItems = response?.ResultItems ?? [];        
 
             const productNumber = findBestMatch(resultItems, selectedCompany.name, factoriesName);
-
+            const productName = findBestMatchName(resultItems, selectedCompany.name, factoriesName);
+           
+            setMaterialName(productName);
             setMaterialType(productNumber);
         };
 
@@ -59,10 +63,11 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
     useEffect(() => {
         if (!materialType) return;
         console.log("materialType", materialType);
+        console.log("materialName", materialName);
 
-        const newLabelMap = getLabelMap(materialType);
+        const newLabelMap = getLabelMap(materialName);
         setLabelMap(newLabelMap);
-    }, [materialType]);
+    }, [materialType, materialName]);
 
     useEffect(() => {
         const tableRows = data.detail_table ?? [];
