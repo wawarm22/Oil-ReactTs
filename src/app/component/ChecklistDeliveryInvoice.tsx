@@ -7,7 +7,7 @@ interface Props {
 
 const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
     const cleanValue = (val?: string | null): string => {
-        if (!val || val.trim() === "" || val === ":unselected:" || val === ":selected:") return "-";
+        if (!val || val.trim() === "" || val === ":unselected:" || val === ":selected:") return "";
         return val.trim();
     };
 
@@ -43,7 +43,7 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
             {fields.map(({ label, value }) => (
                 <div key={label}>
                     <div className="fw-bold">{label}</div>
-                    <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                    <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
                         {value}
                     </div>
                 </div>
@@ -56,7 +56,7 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
                     {shipmentDetails.map((item, idx) => {
                         const props = (item.properties ?? {}) as Record<string, any>;
                         return (
-                            <div key={idx} className="d-flex flex-column gap-2 mb-3">
+                            <div key={idx} className="d-flex flex-column gap-2 mb-2">
                                 {[
                                     { label: "การส่งสินค้า", value: props.shipping_condition?.value },
                                     { label: "โดยพาหนะ", value: props.carrier_by?.value },
@@ -66,8 +66,8 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
                                     { label: "เที่ยวที่ Trip no.", value: props.trip_na?.value },
                                 ].map(({ label, value }) => (
                                     <div key={label}>
-                                        <div className="fw-bold">{label}</div>
-                                        <div className="border rounded-2 shadow-sm bg-white p-2">
+                                        <div className="fw-bold m-o">{label}</div>
+                                        <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
                                             {cleanValue(value)}
                                         </div>
                                     </div>
@@ -99,7 +99,7 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
                                 ].map(({ label, value }) => (
                                     <div key={label}>
                                         <div className="fw-bold">{label}</div>
-                                        <div className="border rounded-2 shadow-sm bg-white p-2">
+                                        <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
                                             {cleanValue(value)}
                                         </div>
                                     </div>
@@ -124,7 +124,7 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
                         return (
                             <div key={label}>
                                 <div className="fw-bold">{label}</div>
-                                <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                                <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
                                     {cleanValue(value)}
                                 </div>
                             </div>
@@ -146,7 +146,7 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
                 ].map(({ label, value }) => (
                     <div key={label}>
                         <div className="fw-bold">{label}</div>
-                        <div className="border rounded-2 shadow-sm bg-white p-2">
+                        <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
                             {cleanValue(value)}
                         </div>
                     </div>

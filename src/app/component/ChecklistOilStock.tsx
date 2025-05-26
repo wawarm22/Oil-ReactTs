@@ -177,12 +177,12 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
 
                             if (isSummary && isEmpty) return elements;
 
-                            let display = raw?.trim?.() ?? "-";
+                            let display = raw?.trim?.() ?? "";
                             if (isSummary) {
                                 display = raw.replace(/[^\d.,]/g, "").trim();
                                 if (!display) return elements;
                             } else if (!raw || raw === ":unselected:" || raw.trim() === "") {
-                                display = "-";
+                                display = "";
                             }
 
                             const passed = validationRow?.properties?.[colKey]?.passed;
@@ -196,7 +196,8 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
                                             fontSize: "14px",
                                             whiteSpace: "pre-line",
                                             padding: "10px",
-                                            borderColor: passed === true ? "#22C659" : passed === false ? "#FF0100" : "#dee2e6",
+                                            minHeight: "42px",
+                                            borderColor: passed === true ? "#22C659" : passed === false ? "#FF0100" : "#22C659",
                                             borderWidth: "2px",
                                             borderStyle: "solid",
                                         }}

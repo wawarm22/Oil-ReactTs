@@ -81,27 +81,27 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
         <div className="d-flex flex-column">
             <div>
                 {renderLabel("แบบฟอร์ม")}
-                <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.form_type)}</div>
+                <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.form_type)}</div>
             </div>
             <div>
                 {renderLabel("ประเภทสินค้า")}
-                <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.product_cate)}</div>
+                <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.product_cate)}</div>
             </div>
             <div>
                 {renderLabel("ชนิด")}
-                <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.product_type)}</div>
+                <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.product_type)}</div>
             </div>
             <div>
                 {renderLabel("ตราหรือเครื่องหมาย/เเบบ/รุ่น/ดีกรี/ความหวาน")}
-                <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.product_brand)}</div>
+                <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.product_brand)}</div>
             </div>
             <div>
                 {renderLabel("ขนาด")}
-                <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.product_size)}</div>
+                <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.product_size)}</div>
             </div>
             <div>
                 {renderLabel("หน่วย")}
-                <div className="border rounded-2 shadow-sm bg-white p-2 mb-2">{cleanCellValue(data.product_unit)}</div>
+                <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.product_unit)}</div>
             </div>
 
             {tables.slice(3).map((row, idx) => {
@@ -113,7 +113,16 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
                             return (
                                 <React.Fragment key={`${idx}-${key}`}>
                                     {renderLabel(label)}
-                                    <div className="border rounded-2 shadow-sm bg-white mb-2" style={{ fontSize: "13px", whiteSpace: "pre-line", padding: "10px" }}>
+                                    <div
+                                        className="rounded-2 shadow-sm bg-white mb-2"
+                                        style={{
+                                            fontSize: "13px",
+                                            whiteSpace: "pre-line",
+                                            padding: "10px",
+                                            minHeight: "42px",
+                                            border: `1.5px solid #22C659`
+                                        }}
+                                    >
                                         {raw}
                                     </div>
                                 </React.Fragment>
@@ -125,11 +134,11 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
 
             {summaryContent.length > 0 && (
                 <div className="pt-2 border-top mt-3">
-                    <div className="fw-bold fs-5 text-primary mb-1">รวมเดือนนี้</div>
+                    {/* <div className="fw-bold mb-1" style={{ fontSize: "18px"}}>รวมเดือนนี้</div> */}
                     {summaryContent.map(({ label, value }, idx) => (
                         <React.Fragment key={`summary-${idx}`}>
                             {renderLabel(label)}
-                            <div className="border rounded-2 shadow-sm bg-white mb-2" style={{ fontSize: "13px", whiteSpace: "pre-line", padding: "10px" }}>
+                            <div className="rounded-2 shadow-sm bg-white mb-2" style={{ fontSize: "13px", whiteSpace: "pre-line", padding: "10px", border: `1.5px solid #22C659` }}>
                                 {value}
                             </div>
                         </React.Fragment>

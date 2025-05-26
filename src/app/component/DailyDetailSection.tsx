@@ -26,7 +26,7 @@ export const DailyDetailSection: React.FC<DailyDetailSectionProps> = ({
                                 style={{
                                     border: `1.5px solid ${item.key && detailValidation
                                         ? safePassedColor(detailValidation, item.key)
-                                        : "#dee2e6"}`
+                                        : "#22C659"}`
                                 }}
                             >
                                 {formatNumber(item.value)}

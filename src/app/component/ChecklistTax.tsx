@@ -52,7 +52,7 @@ const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
                     ? isValid
                         ? "#22C659" 
                         : "#FF0100" 
-                    : "#dee2e6"; 
+                    : "#22C659"; 
 
                 return (
                     <React.Fragment key={index}>

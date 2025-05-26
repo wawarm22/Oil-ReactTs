@@ -22,7 +22,7 @@ export const TaxSummarySection: React.FC<TaxSummarySectionProps> = ({
         taxType: keyof PreparedTaxData["taxes"],
         field: TaxSummaryFieldKey | TaxSummaryTotalTaxKey
     ) => {
-        if (!validationResult) return "#dee2e6";
+        if (!validationResult) return "#22C659";
         if (field === "paid" || field === "retrived") {
             return getPassedColor(
                 validationResult[taxType]?.total_tax?.[field]?.passed
@@ -32,7 +32,7 @@ export const TaxSummarySection: React.FC<TaxSummarySectionProps> = ({
                 validationResult[taxType]?.[field]?.passed
             );
         }
-        return "#dee2e6";
+        return "#22C659";
     };
 
     return (

@@ -33,10 +33,16 @@ const ChecklistTaxForm0502: React.FC<Props> = ({ data }) => {
                         {label}
                     </div>
                     <div
-                        className="border rounded-2 shadow-sm bg-white mb-2"
-                        style={{ fontSize: "14px", whiteSpace: "pre-line", padding: "10px" }}
+                        className="rounded-2 shadow-sm bg-white mb-2"
+                        style={{
+                            fontSize: "14px",
+                            whiteSpace: "pre-line",
+                            padding: "10px",
+                            minHeight: "42px",
+                            border: `1.5px solid #22C659`
+                        }}
                     >
-                        {value?.trim() || "-"}
+                        {value?.trim() || ""}
                     </div>
                 </React.Fragment>
             ))}

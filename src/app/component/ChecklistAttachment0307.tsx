@@ -101,7 +101,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                 <div
                     className="rounded-2 shadow-sm bg-white p-2"
                     style={{
-                        border: `1.5px solid ${validationResult?.header?.passed === true ? "#22C659" : validationResult?.header?.passed === false ? "#FF0100" : "#dee2e6"}`
+                        border: `1.5px solid ${validationResult?.header?.passed === true ? "#22C659" : validationResult?.header?.passed === false ? "#FF0100" : "#22C659"}`
                     }}
                 >
                     {preparedData?.header}
@@ -112,7 +112,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                 <div
                     className="rounded-2 shadow-sm bg-white p-2"
                     style={{
-                        border: `1.5px solid ${validationResult?.from_date?.passed === true ? "#22C659" : validationResult?.from_date?.passed === false ? "#FF0100" : "#dee2e6"}`
+                        border: `1.5px solid ${validationResult?.from_date?.passed === true ? "#22C659" : validationResult?.from_date?.passed === false ? "#FF0100" : "#22C659"}`
                     }}
                 >
                     {cleanCellValue(preparedData?.from_date)} - {cleanCellValue(preparedData?.to_date)}
@@ -123,7 +123,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                 <div
                     className="rounded-2 shadow-sm bg-white p-2"
                     style={{
-                        border: `1.5px solid ${validationResult?.product_name?.passed === true ? "#22C659" : validationResult?.product_name?.passed === false ? "#FF0100" : "#dee2e6"}`
+                        border: `1.5px solid ${validationResult?.product_name?.passed === true ? "#22C659" : validationResult?.product_name?.passed === false ? "#FF0100" : "#22C659"}`
                     }}
                 >
                     {preparedData?.product_name}
@@ -162,13 +162,13 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
             <hr className="border-top border-2 border-secondary my-1" />
             <div className="m-0">
                 {renderLabel("ลงชื่อ ผู้ประกอบอุตสาหกรรม")}
-                <div className="border rounded-2 shadow-sm bg-white p-2">
+                <div className="rounded-2 shadow-sm bg-white p-2" style={{border: '1.5px solid #22C659'}}>
                     {cleanCellValue(data.name)}
                 </div>
             </div>
             <div>
                 {renderLabel("ตำแหน่ง")}
-                <div className="border rounded-2 shadow-sm bg-white p-2">
+                <div className="rounded-2 shadow-sm bg-white p-2" style={{border: '1.5px solid #22C659'}}>
                     {cleanCellValue(data.position)}
                 </div>
             </div>

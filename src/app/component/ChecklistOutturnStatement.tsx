@@ -48,7 +48,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
     }, [data]);
 
     const borderColor = (passed?: boolean) =>
-        `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#dee2e6"}`;
+        `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#22C659"}`;
 
     const renderValidateBox = (
         label: string,

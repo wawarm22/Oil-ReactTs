@@ -86,7 +86,7 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
             {fields.map(({ label, value }) => (
                 <div key={label}>
                     <div className="fw-bold">{label}</div>
-                    <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                    <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", border: `1.5px solid #22C659` }}>
                         {cleanValue(value)}
                     </div>
                 </div>
@@ -110,7 +110,7 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
 
                     const fieldKey = `${rowIdx}-${colKey}`;
                     const isValid = validationMap[fieldKey];
-                    const borderColor = isValid === false ? "#FF0100" : isValid === true ? "#22C659" : "#dee2e6";
+                    const borderColor = isValid === false ? "#FF0100" : isValid === true ? "#22C659" : "#22C659";
 
                     return (
                         <React.Fragment key={colKey}>

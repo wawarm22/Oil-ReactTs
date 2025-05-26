@@ -1,7 +1,7 @@
 import { ValidationDetail } from "../../types/validateResTypes";
 
 export const getPassedColor = (passed?: boolean) =>
-    passed === true ? "#22C659" : passed === false ? "#FF0100" : "#dee2e6";
+    passed === true ? "#22C659" : passed === false ? "#FF0100" : "#22C659";
 
 export const safePassedColor = (detailValidation: ValidationDetail, itemKey: string) => {
     if (!detailValidation) return "#dee2e6";
@@ -30,6 +30,6 @@ export const safePassedColor = (detailValidation: ValidationDetail, itemKey: str
             detailValidation[itemKey as keyof Omit<ValidationDetail, "materials" | "total_tax">]?.passed
         );
     }
-    return "#dee2e6";
+    return "#22C659";
 };
 

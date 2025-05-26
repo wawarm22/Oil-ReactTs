@@ -1,5 +1,5 @@
 export const cleanCellValue = (val: any): string => {
-    if (typeof val !== "string") return "-";
+    if (typeof val !== "string") return "";
     const cleaned = val
         .replace(/\(.*?\)/g, "")
         .replace(/:unselected:/g, "")
@@ -7,7 +7,7 @@ export const cleanCellValue = (val: any): string => {
         .replace(/\n|↵/g, "")
         .replace(/\s{2,}/g, " ")
         .trim();
-    return cleaned === "" ? "-" : cleaned;
+    return cleaned === "" ? "" : cleaned;
 };
 
 export const renderLabel = (label: string): JSX.Element => {

@@ -7,7 +7,7 @@ interface Props {
 
 const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
     const cleanValue = (val?: string | null): string => {
-        if (!val || val.trim() === "" || val === ":unselected:") return "-";
+        if (!val || val.trim() === "" || val === ":unselected:") return "";
         return val.trim();
     };
 
@@ -43,7 +43,7 @@ const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
             {fields.map(({ label, value }) => (
                 <div key={label}>
                     <div className="fw-bold">{label}</div>
-                    <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                    <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "42px", border: `1.5px solid #22C659` }}>
                         {cleanValue(value)}
                     </div>
                 </div>
@@ -63,7 +63,7 @@ const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
                             return (
                                 <div key={`${rowIndex}-${key}`}>
                                     <div className="fw-bold">{label}</div>
-                                    <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                                    <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "42px", border: `1.5px solid #22C659` }}>
                                         {cleanValue(value)}
                                     </div>
                                 </div>

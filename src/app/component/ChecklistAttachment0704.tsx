@@ -27,7 +27,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
 
     const cleanValue = (val?: string | { value: string } | null): string => {
         const raw = typeof val === "object" ? val?.value : val;
-        if (!raw || raw.trim() === "" || raw === ":unselected:") return "-";
+        if (!raw || raw.trim() === "" || raw === ":unselected:") return "";
         return raw.trim();
     };
 
@@ -39,7 +39,8 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                 style={{
                     fontSize: "14px",
                     whiteSpace: "pre-line",
-                    border: `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#dee2e6"}`,
+                    minHeight: "43px",
+                    border: `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#22C659"}`,
                 }}
             >
                 {cleanValue(value)}
@@ -51,7 +52,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { key: "form_type", label: "แบบฟอร์ม", value: data.form_type },
         { key: "form_no", label: "เลขที่รับ", value: data.form_no },
         { key: "form_date", label: "วัน เดือน ปี ที่รับ", value: data.form_date },
-        { key: "form_officer_1", label: "เจ้าพนักงานผู้รับ", value: data.form_officer_1 },
+        { key: "form_officer_1", label: "เจ้าพนักงานผู้รับ", value: data.form_officer_name },
         { key: "company_name", label: "ชื่อโรงอุตสาหกรรม (คลัง)", value: data.company_name },
         { key: "excise_id", label: "ทะเบียนสรรพสามิตเลขที่", value: data.excise_id },
         { key: "date", label: "ประจำเดือน ปี", value: data.date },
@@ -102,7 +103,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { label: "คงเหลือยกมา", field: "open" },
         { label: "รับจากการผลิต", field: "produced" },
         { label: "รับคืนจากคลังสินค้าทัณฑ์บน", field: "bonded_return" },
-        { label: "อื่น ๆ", field: "etc_getted" },
+        // { label: "อื่น ๆ", field: "etc_getted" },
         { label: "รวม", field: "total" },
         { label: "จำหน่ายในประเทศ", field: "domestic_sales" },
         { label: "จำหน่ายต่างประเทศ", field: "overseas_sales" },
@@ -110,7 +111,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { label: "คลังสินค้าทัณฑ์บน", field: "bonded" },
         { label: "เสียหาย", field: "defected" },
         { label: "คงเหลือยกไป", field: "forward" },
-        { label: "อื่น ๆ", field: "etc_used" },
+        // { label: "อื่น ๆ", field: "etc_used" },
     ];
 
     const validMaterialNames = [6, 7, 8, 9, 10, 11]
@@ -134,7 +135,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
             )}
 
             <hr className="border-top border-2 border-secondary my-2" />
-            <div className="fw-bold">๑. ข้อมูลวัตถุดิบ</div>
+            <div className="fw-bold">1. ข้อมูลวัตถุดิบ</div>
             {validMaterialNames.map(({ name, colIdx }) => {
                 const validateObj = validationResult?.data?.materials?.find(
                     (m: { material_name: string }) =>
@@ -150,7 +151,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
             })}
 
             <hr className="border-top border-2 border-secondary my-2" />
-            <div className="fw-bold">๒. งบการผลิต</div>
+            <div className="fw-bold">2. งบการผลิต</div>
             {validProductNames.map(({ name, colIdx }) => {
                 const validateObj = validationResult?.data?.products?.find(
                     (p: { product_name: string }) =>
