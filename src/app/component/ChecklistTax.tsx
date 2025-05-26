@@ -3,11 +3,26 @@ import { OcrTaxDocument } from "../../types/ocrFileType";
 import { useCompanyStore } from "../../store/companyStore";
 import { validateSubmission } from "../../utils/api/validateApi";
 
-const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
+interface ChecklistTaxProps {
+    data: OcrTaxDocument;
+    docId: number;
+    subIdx: number;
+    onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
+}
+
+const ChecklistTax: React.FC<ChecklistTaxProps> = ({
+    data,
+    docId,
+    subIdx,
+    onValidationStatusChange
+}) => {
     const { selectedCompany } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse") ?? null;
 
-    const [validationResults, setValidationResults] = useState<Record<string, { value: string; expected: string; passed: boolean }> | null>(null);
+    const [validationResults, setValidationResults] = useState<
+        Record<string, { value: string; expected: string; passed: boolean }>
+        | null
+    >(null);
 
     const payload = {
         docType: "first-page-letter-or-1",
@@ -25,11 +40,21 @@ const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
 
     useEffect(() => {
         validateSubmission(payload).then((res) => {
-            console.log("Validation Result:", res);
             if (res?.status && Array.isArray(res.data) && res.data[0]?.properties) {
                 setValidationResults(res.data[0].properties);
+
+                // ตรวจสอบ field ใด ๆ ที่ failed (passed === false)
+                const hasFailed = Object.values(res.data[0].properties).some(
+                    (v: any) => v.passed === false
+                );
+                // แจ้งผลพร้อม docId/subIdx กลับขึ้นไป
+                onValidationStatusChange?.({ docId, subIdx, failed: hasFailed });
+            } else {
+                // หากไม่มีข้อมูล validation ถือว่าไม่ fail
+                onValidationStatusChange?.({ docId, subIdx, failed: false });
             }
         });
+        // eslint-disable-next-line
     }, [data]);
 
     const fields = [
@@ -50,9 +75,9 @@ const ChecklistTax: React.FC<{ data: OcrTaxDocument }> = ({ data }) => {
                 const isValid = validation?.passed;
                 const borderColor = validation
                     ? isValid
-                        ? "#22C659" 
-                        : "#FF0100" 
-                    : "#22C659"; 
+                        ? "#22C659"
+                        : "#FF0100"
+                    : "#22C659";
 
                 return (
                     <React.Fragment key={index}>

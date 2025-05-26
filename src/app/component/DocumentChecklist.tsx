@@ -4,24 +4,33 @@ import { apiGetAllOcr } from "../../utils/api/OcrListApi";
 import { OcrFields } from "../../types/ocrFileType";
 import MotionCard from "../reusable/MotionCard";
 import { useSocket } from "../../hook/socket";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCircleExclamation } from "react-icons/fa6";
 import { MdDownloading } from "react-icons/md";
 import { parseUploadedStatus } from "../../utils/function/parseUploadedStatus";
+import { FaCheckCircle } from "react-icons/fa";
 
 interface Props {
     documentList: DocumentItem[];
     folders: string[];
+    validationFailStatus?: Record<string, boolean>;
     onSelectDocument: (
         singlePageOcr: OcrFields | null,
         fullOcrPages: {
             pages: { [page: number]: OcrFields };
             pageCount: number;
             pageFileKeyMap: { [page: number]: string };
-        } | null
+        } | null,
+        docId: number,
+        subtitleIdx: number
     ) => void;
 }
 
-const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDocument }) => {
+const DocumentChecklist: React.FC<Props> = ({
+    documentList,
+    folders,
+    validationFailStatus = {},
+    onSelectDocument
+}) => {
     const [ocrByDocId, setOcrByDocId] = useState<{
         [docId: number]: {
             [subtitleIndex: number]: {
@@ -42,7 +51,6 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
     );
     const uploadedStatus = parseUploadedStatus(folders);
 
-    // หา doc/subtitle ตัวแรกที่อัปโหลดแล้ว
     const findFirstUploadedDoc = () => {
         for (const item of filteredList) {
             if (item.subtitle && item.subtitle.length > 0) {
@@ -75,8 +83,6 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
             try {
                 const data = await apiGetAllOcr(folder);
                 const documents = data?.documents ?? [];
-                console.log("data", data);
-                
                 for (const document of documents) {
                     const fileName = document.plainOriginalFileName ?? '';
                     const fileKey = fileName.replace(/\.pdf_page\d+$/, '');
@@ -90,7 +96,6 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
                     if (len >= 2 && !isNaN(Number(groupParts[len - 2]))) {
                         docId = parseInt(groupParts[len - 2]);
                     }
-
                     if (len >= 3 && !isNaN(Number(groupParts[len - 3])) && !isNaN(Number(groupParts[len - 2]))) {
                         docId = parseInt(groupParts[len - 3]);
                         subtitleIndex = parseInt(groupParts[len - 2]) - 1;
@@ -115,13 +120,11 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
                         docType: document.docType,
                         id: document.id
                     };                   
-                    
                 }
             } catch (err) {
                 console.error("OCR fetch failed:", err);
             }
         }
-        console.log("results", results);
         setOcrByDocId(results);
     };
 
@@ -141,7 +144,6 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
         return () => removeCallbacks("ocr-refresh-checklist");
     }, [folders]);
 
-    // ตั้งค่าเลือก doc/subtitle ที่ isUploaded อัตโนมัติ
     useEffect(() => {
         if (selectedDocId === null && selectedSubtitleIdx === null) {
             const firstUploaded = findFirstUploadedDoc();
@@ -149,15 +151,23 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
                 handleSelect(firstUploaded.docId, firstUploaded.subtitleIdx);
             }
         }
-        // eslint-disable-next-line
     }, [ocrByDocId, filteredList]);
 
-    // --- ฟังก์ชันสถานะ/สี ---
     const getStatus = (
         isSelected: boolean,
         hasOcr: boolean,
-        isUploaded: boolean
+        isUploaded: boolean,
+        hasValidationFailed: boolean
     ) => {
+        if (hasValidationFailed) {
+            return {
+                Icon: FaCircleExclamation,
+                iconColor: "#FF0100",
+                bg: "#fff0f0",
+                textColor: "#FF0100",
+                bar: "#FF0100"
+            };
+        }
         if (isSelected && !hasOcr && isUploaded) {
             return { Icon: MdDownloading, iconColor: "#000000", bg: "#FFCA04", textColor: "#000000", bar: "#FFCA04" };
         }
@@ -173,11 +183,10 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
         return { Icon: MdDownloading, iconColor: "#BDBDBD", bg: "#ffffff", textColor: "#000000", bar: "#BDBDBD" };
     };
 
-    // ----
     const handleSelect = (docId: number, subtitleIndex = 0) => {
         const docGroup = ocrByDocId[docId]?.[subtitleIndex];
         if (!docGroup) {
-            onSelectDocument(null, null);
+            onSelectDocument(null, null, docId, subtitleIndex);
             setSelectedDocId(docId);
             setSelectedSubtitleIdx(subtitleIndex);
             return;
@@ -210,11 +219,16 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
         const currentPage = 1;
         const selectedFields = combinedPages[currentPage];
 
-        onSelectDocument(selectedFields, {
-            pages: combinedPages,
-            pageCount: pageOffset,
-            pageFileKeyMap,
-        });
+        onSelectDocument(
+            selectedFields,
+            {
+                pages: combinedPages,
+                pageCount: pageOffset,
+                pageFileKeyMap,
+            },
+            docId,
+            subtitleIndex
+        );
 
         setSelectedDocId(docId);
         setSelectedSubtitleIdx(subtitleIndex);
@@ -228,7 +242,8 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
                 const hasOcr = group && Object.values(group).some(file => Object.keys(file.pages || {}).length > 0);
                 const isSelected = selectedDocId === item.id && selectedSubtitleIdx === 0;
                 const isUploaded = uploadedStatus[item.id]?.has(defaultSubIdx) ?? false;
-                const { Icon, iconColor, bg, textColor, bar } = getStatus(isSelected, hasOcr, isUploaded);
+                const hasValidationFailed = validationFailStatus?.[`${item.id}-0`] ?? false;
+                const { Icon, iconColor, bg, textColor, bar } = getStatus(isSelected, hasOcr, isUploaded, hasValidationFailed);
 
                 return (
                     <div key={index} className="d-flex mb-1">
@@ -269,7 +284,8 @@ const DocumentChecklist: React.FC<Props> = ({ documentList, folders, onSelectDoc
                                         const hasOcrSub = subGroup && Object.values(subGroup).some(file => Object.keys(file.pages || {}).length > 0);
                                         const isSelectedSub = selectedDocId === item.id && selectedSubtitleIdx === subIdx;
                                         const isUploadedSub = uploadedStatus[item.id]?.has(subIdx) ?? false;
-                                        const { Icon, iconColor, bg, textColor, bar } = getStatus(isSelectedSub, hasOcrSub, isUploadedSub);
+                                        const hasValidationFailedSub = validationFailStatus?.[`${item.id}-${subIdx}`] ?? false;
+                                        const { Icon, iconColor, bg, textColor, bar } = getStatus(isSelectedSub, hasOcrSub, isUploadedSub, hasValidationFailedSub);
 
                                         return (
                                             <div key={subIdx} className="d-flex">

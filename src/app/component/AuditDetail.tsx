@@ -1,9 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { documentList } from "../../types/docList";
 import DocumentChecklist from "./DocumentChecklist";
 import ChecklistPanel from "./ChecklistPanel";
 import { OcrFields } from "../../types/ocrFileType";
 import PdfPreview from "./PdfPreview";
+import { OCR_VALIDATE_MAP } from "../../utils/function/ocrValidateMap";
+
+type OcrByDocIdType = {
+    [docId: number]: {
+        [subtitleIndex: number]: {
+            [fileKey: string]: {
+                pages: { [pageNum: number]: OcrFields };
+                pageCount: number;
+            };
+        };
+    };
+};
 
 interface AuditDetailProps {
     selectedId: number | null;
@@ -20,25 +32,155 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
         pageFileKeyMap: { [page: number]: string };
     } | null>(null);
 
+    const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
+    const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
+    const [ocrByDocId, setOcrByDocId] = useState<OcrByDocIdType>({});
+    const [validationFailStatus, setValidationFailStatus] = useState<Record<string, boolean>>({});
+
+    useEffect(() => {
+        async function fetchOcrData() {
+            const { apiGetAllOcr } = await import("../../utils/api/OcrListApi");
+            const results: OcrByDocIdType = {};
+
+            for (const folder of folders) {
+                try {
+                    const data = await apiGetAllOcr(folder);
+                    const documents = data?.documents ?? [];
+                    for (const document of documents) {
+                        const fileName = document.plainOriginalFileName ?? '';
+                        const fileKey = fileName.replace(/\.pdf_page\d+$/, '');
+                        const groupParts = fileName.split('/');
+                        const len = groupParts.length;
+
+                        let docId = 0;
+                        let subtitleIndex = 0;
+                        if (len >= 2 && !isNaN(Number(groupParts[len - 2]))) {
+                            docId = parseInt(groupParts[len - 2]);
+                        }
+                        if (len >= 3 && !isNaN(Number(groupParts[len - 3])) && !isNaN(Number(groupParts[len - 2]))) {
+                            docId = parseInt(groupParts[len - 3]);
+                            subtitleIndex = parseInt(groupParts[len - 2]) - 1;
+                        }
+                        const pageNumber = parseInt(document.pageNumber ?? "1");
+                        const pageCount = parseInt(document.pageCount ?? "1");
+
+                        if (!results[docId]) results[docId] = {};
+                        if (!results[docId][subtitleIndex]) results[docId][subtitleIndex] = {};
+                        if (!results[docId][subtitleIndex][fileKey]) {
+                            results[docId][subtitleIndex][fileKey] = {
+                                pages: {},
+                                pageCount
+                            };
+                        }
+
+                        results[docId][subtitleIndex][fileKey].pages[pageNumber] = {
+                            ...document.fields,
+                            fileKey,
+                            documentGroup: document.documentGroup,
+                            docType: document.docType,
+                            id: document.id
+                        };
+                    }
+                } catch (err) {
+                    console.error("OCR fetch failed:", err);
+                }
+            }
+            setOcrByDocId(results);
+        }
+
+        if (folders.length > 0) {
+            fetchOcrData();
+        }
+    }, [folders]);
+
+    useEffect(() => {
+        async function batchValidateAll() {
+            if (!ocrByDocId || Object.keys(ocrByDocId).length === 0) return;
+
+            const validatePromises: Promise<{ docId: number, subIdx: number, failed: boolean } | null>[] = [];
+
+            for (const doc of documentList) {
+                const docId = doc.id;
+                const subtitleLength = doc.subtitle?.length ?? 1;
+
+                for (let subIdx = 0; subIdx < subtitleLength; subIdx++) {
+                    const docGroup = ocrByDocId[docId]?.[subIdx];
+                    if (!docGroup) continue;
+
+                    const fileKeys = Object.keys(docGroup);
+                    if (fileKeys.length === 0) continue;
+                    const firstFileKey = fileKeys[0];
+                    const page1 = docGroup[firstFileKey]?.pages[1];
+                    if (!page1) continue;
+                    if (!('docType' in page1) || typeof page1.docType !== 'string') continue;
+                    const docType = page1.docType as string;
+
+                    if (!OCR_VALIDATE_MAP[docType]) continue;
+                    const validateConfig = OCR_VALIDATE_MAP[docType];
+                    if (!validateConfig) continue;
+
+                    validatePromises.push(
+                        (async () => {
+                            try {
+                                const payload = validateConfig.buildPayload(page1);
+                                const res = await validateConfig.api(payload);
+                                let hasFailed = false;
+
+                                if (page1.docType === "first-page-letter-or-1") {
+                                    hasFailed =
+                                        Array.isArray(res?.data) && res.data[0]?.properties
+                                            ? Object.values(res.data[0].properties).some((v: any) => v.passed === false)
+                                            : false;
+                                }
+                                return { docId, subIdx, failed: hasFailed };
+                            } catch (e) {
+                                return { docId, subIdx, failed: true };
+                            }
+                        })()
+                    );
+                }
+            }
+
+            const results = await Promise.all(validatePromises);
+            let statusMap: Record<string, boolean> = {};
+            for (const r of results) {
+                if (!r) continue;
+                statusMap[`${r.docId}-${r.subIdx}`] = r.failed;
+            }
+            setValidationFailStatus(statusMap);
+        }
+
+        if (Object.keys(ocrByDocId).length > 0) {
+            batchValidateAll();
+        }
+    }, [ocrByDocId]);
+
     return (
         <div className="d-flex w-100 gap-3 mt-3" style={{ maxHeight: "800px" }}>
             <DocumentChecklist
                 documentList={documentList}
                 folders={folders}
-                onSelectDocument={(_singlePage, fullDoc) => {
+                validationFailStatus={validationFailStatus}
+                onSelectDocument={(_singlePage, fullDoc, docId, subtitleIdx) => {
                     setSelectedOcrDocument(fullDoc);
+                    setSelectedDocId(docId);
+                    setSelectedSubtitleIdx(subtitleIdx);
                 }}
             />
 
             <PdfPreview
                 ocrFields={selectedOcrDocument}
                 currentPage={currentPage}
-                setCurrentPage={setCurrentPage} />
+                setCurrentPage={setCurrentPage}
+            />
 
             <ChecklistPanel
                 ocrDocument={selectedOcrDocument}
                 currentPage={currentPage}
-                setCurrentPage={setCurrentPage} />
+                setCurrentPage={setCurrentPage}
+                selectedDocId={selectedDocId}
+                selectedSubtitleIdx={selectedSubtitleIdx}
+            />
         </div>
     );
 };

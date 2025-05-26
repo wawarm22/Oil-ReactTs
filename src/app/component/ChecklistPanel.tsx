@@ -34,9 +34,19 @@ interface Props {
     } | null;
     currentPage: number;
     setCurrentPage: (page: number) => void;
+    selectedDocId: number | null;
+    selectedSubtitleIdx: number | null;
+    onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
 }
 
-const ChecklistPanel: React.FC<Props> = ({ ocrDocument, currentPage, setCurrentPage }) => {
+const ChecklistPanel: React.FC<Props> = ({
+    ocrDocument,
+    currentPage,
+    setCurrentPage,
+    selectedDocId,
+    selectedSubtitleIdx,
+    onValidationStatusChange
+}) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
     if (!ocrDocument) return <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
         <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>
@@ -58,6 +68,9 @@ const ChecklistPanel: React.FC<Props> = ({ ocrDocument, currentPage, setCurrentP
     const type = detectOcrType(currentOcrFields);
     console.log("Detected OCR type:", type);
 
+    const docId = selectedDocId ?? 0;
+    const subIdx = selectedSubtitleIdx ?? 0;
+
     return (
         <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
             <AuditPagination
@@ -75,7 +88,14 @@ const ChecklistPanel: React.FC<Props> = ({ ocrDocument, currentPage, setCurrentP
             />
 
             <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>
-                {type === "tax" && <ChecklistTax data={currentOcrFields as OcrTaxDocument} />}
+                {type === "tax" && (
+                    <ChecklistTax
+                        data={selectedFields as OcrTaxDocument}
+                        docId={docId}
+                        subIdx={subIdx}
+                        onValidationStatusChange={onValidationStatusChange}
+                    />
+                )}
                 {type === "table" && <ChecklistTable data={currentOcrFields as OcrDetailTableDocument} />}
                 {type === "grouped_product" && (
                     <ChecklistGroupedProduct data={currentOcrFields as OcrGroupedProductDocument} />

@@ -2,10 +2,12 @@ export type OcrFieldsBase = {
     pageCount: string;
     pageNumber: string;
     documentGroup: string;
+    docType?: string;
 };
 
 export type OcrTaxDocument = OcrFieldsBase & {
     type: "tax";
+    docType: string;
     amount: string;
     amount_in_word: string;
     attach_form: string;
@@ -20,6 +22,7 @@ export type OcrTaxDocument = OcrFieldsBase & {
 
 export type OcrDetailTableDocument = OcrFieldsBase & {
     type: "table";
+    docType: string;
     header: string;
     company: string;
     date: string;

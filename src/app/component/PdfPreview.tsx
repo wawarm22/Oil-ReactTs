@@ -86,7 +86,7 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ ocrFields, currentPage, setCurr
                     style={{ maxWidth: "100%", height: "740px", objectFit: "contain", borderRadius: "6px" }}
                 />
             ) : (
-                <p className="text-muted">ไม่มีหน้าที่ {currentPage}</p>
+                <p className="text-muted"></p>
             )}
 
             {/* <Pagination
