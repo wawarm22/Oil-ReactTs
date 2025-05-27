@@ -63,10 +63,10 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                 borderStyle: "solid",
                 borderColor:
                     taxTypePassed === null
-                        ? "#22C659"     
+                        ? "#22C659"
                         : taxTypePassed
-                            ? "#22C659"     
-                            : "#FF0100"      
+                            ? "#22C659"
+                            : "#FF0100"
             }}
         >
             {renderCheckbox(data.tax_type_1_check === ":selected:", "แสตมป์สรรพสามิต/เครื่องหมายแสดงการเสียภาษี")}
@@ -116,11 +116,10 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
         column_15: "ภาษีเก็บเพิ่มฯ (สต.)",
     };
 
-    // ฟังก์ชันช่วยแปลง columnKey + แถว เป็น key ที่ตรงกับ API response
     const getApiPropertyKey = (columnKey: string, rowIndex: number) => {
-        const actualRow = rowIndex + 4; // เพราะ slice(3) เริ่มแถวที่ 4
-        const baseLabel = columnLabelMap[columnKey]; // เช่น "ลำดับ", "ประเภทที่", ...
-        return `${baseLabel} (แถว ${actualRow})`; // เช่น "ลำดับ (แถว 4)"
+        const actualRow = rowIndex + 4;
+        const baseLabel = columnLabelMap[columnKey];
+        return `${baseLabel} (แถว ${actualRow})`;
     };
 
     const ocrFieldRows = useMemo(() => {
@@ -208,9 +207,9 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                                     borderColor:
                                         typeof _validationResult?.data[0]?.properties?.[label]?.passed === "boolean"
                                             ? _validationResult.data[0].properties[label].passed
-                                                ? "#22C659" 
-                                                : "#FF0100" 
-                                            : "#22C659",   
+                                                ? "#22C659"
+                                                : "#FF0100"
+                                            : "#22C659",
                                 }}
                             >
                                 {cleanValue(value)}
@@ -246,9 +245,9 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                                             borderColor:
                                                 typeof passed === "boolean"
                                                     ? passed
-                                                        ? "#22C659"  // สีเขียวถ้าผ่าน
-                                                        : "#FF0100"  // สีแดงถ้าไม่ผ่าน
-                                                    : "#22C659",    // สีเทาถ้ายังไม่มีผลตรวจ
+                                                        ? "#22C659"
+                                                        : "#FF0100"
+                                                    : "#22C659",
                                         }}
                                     >
                                         {value}

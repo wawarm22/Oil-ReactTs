@@ -76,7 +76,7 @@ const UploadPreparation: React.FC = () => {
     const getUploadKey = (docId: number, subtitleIndex?: number) =>
         `${docId}-${subtitleIndex ?? 0}`;
 
-    useEffect(() => {        
+    useEffect(() => {
         apiMyFactory(auth!)
             .then(ApiMyFactorySchema.parse)
             .then(({ data }) => data.map((i) => ({
@@ -333,6 +333,8 @@ const UploadPreparation: React.FC = () => {
         const transportMatch = !transport || item.transport === transport;
         if (!transportMatch) return false;
 
+        console.log("warehouse", warehouse);
+
         if (warehouse === "H401") {
             const allowedIds = [38, 39, 40, 41, 42, 49, 51];
             return allowedIds.includes(item.id);
@@ -347,6 +349,15 @@ const UploadPreparation: React.FC = () => {
         if (item.id === 52) return warehouse === "K103";
 
         return true;
+    }).map((item) => {
+        const warehouse = filters.warehouse?.value;
+        // เงื่อนไขเพิ่มเติมสำหรับ warehouse === "BS11" และ id === 43
+        if (warehouse === "BS11" && item.id === 43) {
+            console.log("43");
+
+            return { ...item, title: `${item.title} (ถ้ามี)` };
+        }
+        return item;
     });
 
     const isUploadedComplete = (item: DocumentItem): boolean => {
@@ -697,7 +708,7 @@ const UploadPreparation: React.FC = () => {
                         bgColor="#FFCB02"
                         color="#1E2329"
                         variant="bg-hide"
-                        // disabled={isConfirmDisabled}
+                        disabled={isConfirmDisabled}
                     />
                 </div>
             </div>

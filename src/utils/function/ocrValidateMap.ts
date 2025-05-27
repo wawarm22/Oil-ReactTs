@@ -1,8 +1,8 @@
-import { validateSubmission } from "../api/validateApi";
+import { validateSubmission, validateOilCompare, validateOil0701 } from "../api/validateApi";
 
-// Build payload utility ฟอร์มต่าง ๆ
-export const buildTaxPayload = (ocr: any) => ({
-    docType: "first-page-letter-or-1",
+// TAX
+const buildTaxPayload = (ocr: any) => ({
+    docType: ocr.docType,
     company: ocr.company_name ?? "",
     factories: ocr.branch_no ?? "",
     documentGroup: ocr.documentGroup ?? "",
@@ -12,43 +12,95 @@ export const buildTaxPayload = (ocr: any) => ({
         tax_date: ocr.tax_date ?? "",
         amount: ocr.amount ?? "",
         reference_no: ocr.tax_id ?? "",
-    },
+    }
 });
 
-// ตัวอย่าง stock_oil (เติมเองถ้ามี)
-export const buildStockOilPayload = (ocr: any) => ({
-    // ...payload
+// OIL-COMPARE
+const buildOilComparePayload = (ocr: any) => ({
+    docType: "oil-compare-1",
+    company: ocr.company ?? "",
+    factories: ocr.depot ?? "",
+    documentGroup: ocr.documentGroup ?? "",
+    fields: [
+        { data: { company: ocr.company ?? "", warehouse: ocr.depot ?? "", date: ocr.date ?? "" } },
+        { detail_table: ocr.detail_table ?? [] }
+    ]
 });
 
-// แผนที่ type → { api, buildPayload }
-export const OCR_VALIDATE_MAP: Record<string, {
-    buildPayload: (data: any) => any,
-    api: (payload: any) => Promise<any>
-}> = {
+// OIL-07-01 (รับ ocr, context)
+const buildOil0701Payload = (ocr: any, context: { materialID: string; company: string; factories: string }) => ({
+    docType: "oil-07-01-page-1",
+    documentGroup: ocr.documentGroup ?? "",
+    materialID: context.materialID ?? "",
+    company: context.company ?? "",
+    factories: context.factories ?? "",
+    fields: ocr.detail_table ?? [],
+});
+
+// --- CHECK FAILED LOGIC ---
+const checkTaxFailed = (res: any) =>
+    Array.isArray(res?.data) &&
+    res.data[0]?.properties
+        ? Object.values(res.data[0].properties).some((v: any) => v.passed === false)
+        : false;
+
+const checkOilCompareFailed = (res: any) =>
+    Array.isArray(res?.data) &&
+    res.data.some(
+        (item: any) =>
+            (item.company && item.company.passed === false) ||
+            (item.warehouse && item.warehouse.passed === false) ||
+            (item.validations && Array.isArray(item.validations) && item.validations.some((v: any) => v.passed === false))
+    );
+
+// สำหรับ 07-01 สมมติว่าสำเร็จถ้า data บรรทัดไหนมี passed === false
+const checkOil0701Failed = (res: any) =>
+    Array.isArray(res?.data) &&
+    res.data.some((row: any) =>
+        Object.values(row?.properties ?? {}).some((cell: any) => cell?.passed === false)
+    );
+
+// --- OCR_VALIDATE_MAP (version ที่รับ context ได้) ---
+export const OCR_VALIDATE_MAP: Record<
+    string,
+    {
+        buildPayload: (ocr: any, context?: any) => any;
+        api: (payload: any) => Promise<any>;
+        checkFailed: (res: any) => boolean;
+        needsContext?: boolean; // flag สำหรับฟอร์มที่ต้องการ context เพิ่มเติม
+    }
+> = {
     "first-page-letter-or-1": {
-        buildPayload: (data) => ({
-            docType: data.docType,
-            company: data.company_name,
-            factories: data.branch_no,
-            documentGroup: data.documentGroup,
-            fields: {
-                company_name: data.company_name,
-                branch_no: data.branch_no,
-                tax_date: data.tax_date,
-                amount: data.amount,
-                reference_no: data.tax_id,
-            }
-        }),
-        api: validateSubmission
+        buildPayload: buildTaxPayload,
+        api: validateSubmission,
+        checkFailed: checkTaxFailed,
     },
-    // "tax_form_0503": {
-    //     buildPayload: (data) => ({
-    //         docType: data.docType,
-    //         company: data.company_name,
-    //         documentGroup: data.documentGroup,
-    //         // ...ระบุ fields ตามที่ API ต้องการ
-    //     }),
-    //     api: validate0503Page1
-    // },
-    // เพิ่ม docType อื่น ๆ ตามต้องการ
+
+    "oil-compare-1": {
+        buildPayload: buildOilComparePayload,
+        api: validateOilCompare,
+        checkFailed: checkOilCompareFailed,
+    },
+
+    "oil-07-01-page-1": {
+        buildPayload: buildOil0701Payload, // ต้องส่ง context ด้วย!
+        api: validateOil0701,
+        checkFailed: checkOil0701Failed,
+        needsContext: true, // mark ว่าต้องการ context
+    },
 };
+
+/**
+ * === วิธีใช้ buildPayload (สำหรับ docType ที่ต้องการ context เช่น "oil-07-01-page-1") ===
+ * 
+ * const validateConfig = OCR_VALIDATE_MAP[docType];
+ * 
+ * // ถ้า needsContext ให้ส่ง context เพิ่ม (ตัวอย่าง context จาก zustand/localStorage)
+ * const payload = validateConfig.needsContext
+ *      ? validateConfig.buildPayload(page1, { materialID, company, factories })
+ *      : validateConfig.buildPayload(page1);
+ * 
+ * const res = await validateConfig.api(payload);
+ * const hasFailed = validateConfig.checkFailed(res);
+ */
+
