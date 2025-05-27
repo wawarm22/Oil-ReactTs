@@ -82,6 +82,7 @@ const DocumentChecklist: React.FC<Props> = ({
         for (const folder of folders) {
             try {
                 const data = await apiGetAllOcr(folder);
+                console.log("data", data);                
                 const documents = data?.documents ?? [];
                 for (const document of documents) {
                     const fileName = document.plainOriginalFileName ?? '';
@@ -125,6 +126,7 @@ const DocumentChecklist: React.FC<Props> = ({
                 console.error("OCR fetch failed:", err);
             }
         }
+        console.log("results", results);        
         setOcrByDocId(results);
     };
 

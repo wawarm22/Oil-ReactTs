@@ -9,10 +9,10 @@ interface Props {
 }
 
 const endOfMonthMap: { key: keyof EndOfMonth, label: string }[] = [
-    { key: "tankMeasurement", label: "ยอดวัดถัง" },
-    { key: "lossGainQuantity", label: "ขาด/เกิน (ปริมาณ)" },
-    { key: "lossGainPercentage", label: "ขาด/เกิน (%)" },
-    { key: "carriedForwardBalance", label: "ยอดคงเหลือยกไป" },
+    { key: "tankMeasurement", label: "ยอดวัดถัง ณ สิ้นเดือน" },
+    { key: "lossGainQuantity", label: "ปริมาณ Loss / Gain" },
+    { key: "lossGainPercentage", label: "เปอร์เซ็นต์ Loss / Gain" },
+    { key: "carriedForwardBalance", label: "ยอดคงเหลือยกไปเดือนถัดไป" },
 ];
 
 const EndOfMonthRenderer: React.FC<Props> = ({ endOfMonth, validation }) => {

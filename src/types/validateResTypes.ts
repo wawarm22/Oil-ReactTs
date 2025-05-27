@@ -46,7 +46,6 @@ export type ValidationResult0307 = {
     };
 };
 
-
 export type FieldValidation<T = any> = {
     value: T;
     expected: T | string;

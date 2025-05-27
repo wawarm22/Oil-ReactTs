@@ -7,6 +7,9 @@ import PdfPreview from "./PdfPreview";
 import { OCR_VALIDATE_MAP } from "../../utils/function/ocrValidateMap";
 import { useSocket } from "../../hook/socket";
 import { getContextForDocType } from "../../utils/contextGetters";
+import { AuthSchema } from "../../types/schema/auth";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { apiGetAllOcr } from "../../utils/api/OcrListApi";
 
 type OcrByDocIdType = {
     [docId: number]: {
@@ -35,13 +38,13 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
         pageFileKeyMap: { [page: number]: string };
     } | null>(null);
 
-    const [_selectedDocId, setSelectedDocId] = useState<number | null>(null);
-    const [_selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
+    const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
+    const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
     const [ocrByDocId, setOcrByDocId] = useState<OcrByDocIdType>({});
     const [validationFailStatus, setValidationFailStatus] = useState<Record<string, boolean>>({});
+    const auth = useAuthUser<AuthSchema>();
 
     const fetchOcrData = async () => {
-        const { apiGetAllOcr } = await import("../../utils/api/OcrListApi");
         const results: OcrByDocIdType = {};
 
         for (const folder of folders) {
@@ -133,7 +136,12 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                     validatePromises.push(
                         (async () => {
                             try {
-                                const context = await getContext(page1);
+                                let context;
+                                if (validateConfig.needsAuth) {
+                                    context = await getContext(page1, { auth });
+                                } else {
+                                    context = await getContext(page1);
+                                }
                                 const payload = await validateConfig.buildPayload(page1, context);
                                 const res = await validateConfig.api(payload);
 
@@ -159,7 +167,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
         if (Object.keys(ocrByDocId).length > 0) {
             batchValidateAll();
         }
-    }, [ocrByDocId]);
+    }, [ocrByDocId, auth]); 
 
     return (
         <div className="d-flex w-100 gap-3 mt-3" style={{ maxHeight: "800px" }}>
@@ -184,8 +192,8 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                 ocrDocument={selectedOcrDocument}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
-                // selectedDocId={selectedDocId}
-                // selectedSubtitleIdx={selectedSubtitleIdx}
+                selectedDocId={selectedDocId}
+                selectedSubtitleIdx={selectedSubtitleIdx}
             />
         </div>
     );
