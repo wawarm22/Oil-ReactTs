@@ -35,8 +35,8 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
         pageFileKeyMap: { [page: number]: string };
     } | null>(null);
 
-    const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
-    const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
+    const [_selectedDocId, setSelectedDocId] = useState<number | null>(null);
+    const [_selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
     const [ocrByDocId, setOcrByDocId] = useState<OcrByDocIdType>({});
     const [validationFailStatus, setValidationFailStatus] = useState<Record<string, boolean>>({});
 
@@ -184,8 +184,8 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                 ocrDocument={selectedOcrDocument}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
-                selectedDocId={selectedDocId}
-                selectedSubtitleIdx={selectedSubtitleIdx}
+                // selectedDocId={selectedDocId}
+                // selectedSubtitleIdx={selectedSubtitleIdx}
             />
         </div>
     );

@@ -5,16 +5,16 @@ import { validateSubmission } from "../../utils/api/validateApi";
 
 interface ChecklistTaxProps {
     data: OcrTaxDocument;
-    docId: number;
-    subIdx: number;
-    onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
+    // docId: number;
+    // subIdx: number;
+    // onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
 }
 
 const ChecklistTax: React.FC<ChecklistTaxProps> = ({
     data,
-    docId,
-    subIdx,
-    onValidationStatusChange
+    // docId,
+    // subIdx,
+    // onValidationStatusChange
 }) => {
     const { selectedCompany } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse") ?? null;
@@ -43,18 +43,17 @@ const ChecklistTax: React.FC<ChecklistTaxProps> = ({
             if (res?.status && Array.isArray(res.data) && res.data[0]?.properties) {
                 setValidationResults(res.data[0].properties);
 
-                // ตรวจสอบ field ใด ๆ ที่ failed (passed === false)
-                const hasFailed = Object.values(res.data[0].properties).some(
-                    (v: any) => v.passed === false
-                );
-                // แจ้งผลพร้อม docId/subIdx กลับขึ้นไป
-                onValidationStatusChange?.({ docId, subIdx, failed: hasFailed });
-            } else {
-                // หากไม่มีข้อมูล validation ถือว่าไม่ fail
-                onValidationStatusChange?.({ docId, subIdx, failed: false });
+            //     // ตรวจสอบ field ใด ๆ ที่ failed (passed === false)
+            //     const hasFailed = Object.values(res.data[0].properties).some(
+            //         (v: any) => v.passed === false
+            //     );
+            //     // แจ้งผลพร้อม docId/subIdx กลับขึ้นไป
+            //     onValidationStatusChange?.({ docId, subIdx, failed: hasFailed });
+            // } else {
+            //     // หากไม่มีข้อมูล validation ถือว่าไม่ fail
+            //     onValidationStatusChange?.({ docId, subIdx, failed: false });
             }
         });
-        // eslint-disable-next-line
     }, [data]);
 
     const fields = [

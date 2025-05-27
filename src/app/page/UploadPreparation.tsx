@@ -234,7 +234,7 @@ const UploadPreparation: React.FC = () => {
 
         setUploadingMap(prev => ({ ...prev, [key]: true }));
 
-        const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com';
+        const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com' || user?.email === 'ja.test006+bsrc@gmail.com';
 
         const companyName = isTestEmail
             ? `${selectedCompany.name}-test`
@@ -401,7 +401,7 @@ const UploadPreparation: React.FC = () => {
             }
 
             const isTestEmail =
-                user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com';
+                user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com' || user?.email === 'ja.test006+bsrc@gmail.com';
 
             const companyName = isTestEmail
                 ? `${selectedCompany.name}-test`
