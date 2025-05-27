@@ -33,7 +33,11 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
         }
 
         if (docType === "oil-income-n-expense-1") {
-            return "oil-income-expense"
+            return "oil-income-expense";
+        }
+
+        if (docType === "oil-pipline-delivery-customer") {
+            return "oil-outturn-pipline";
         }
     }
     

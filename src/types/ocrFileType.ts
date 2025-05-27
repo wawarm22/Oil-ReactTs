@@ -651,6 +651,31 @@ export type OcrIncomeNExpenseDocument = OcrFieldsBase & {
     }>;
 }
 
+export type OcrOutturnPipline = OcrFieldsBase & {
+    type: "oil-outturn-pipline";
+    approved_signature: string;
+    batch_no: string;
+    book_no: string;
+    customer_tank_no: string;
+    date: string;
+    depot: string;
+    detail_table: Array<{
+        kind: string;
+        properties: Record<string, { value?: string; }>;
+    }>;
+    docType: string;
+    doc_no: string;
+    documentGroup: string;
+    fileKey: string;
+    id: string;
+    note: string;
+    pageCount: string;
+    pageNumber: string;
+    product: string;
+    summary_amount: string;
+    time: string;
+}
+
 export type OcrFields =
     | OcrTaxDocument
     | OcrDetailTableDocument
