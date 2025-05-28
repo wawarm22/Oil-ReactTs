@@ -15,7 +15,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
 
     const cleanValue = (val?: string | null): string => {
         if (!val || val.trim() === "" || val === ":unselected:") return "";
-        return val.replace(/:selected:/g, "").trim();
+        return val.replace(/:selected:/g, "").replace(/_/g, "").replace(/-/g, "").trim();
     };
 
     const cleanExciseNo = (val?: string | null): string => {
