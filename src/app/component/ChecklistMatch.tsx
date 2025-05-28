@@ -69,7 +69,8 @@ const ChecklistMatch: React.FC<Props> = ({
     const type = detectOcrType(currentOcrFields);
     console.log("Detected OCR type:", type);
 
-   
+    const docId = selectedDocId ?? 0;
+    const subIdx = selectedSubtitleIdx ?? 0;
 
     return (
         <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
