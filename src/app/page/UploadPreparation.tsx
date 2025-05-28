@@ -335,9 +335,6 @@ const UploadPreparation: React.FC = () => {
 
         const transportMatch = !transport || item.transport === transport;
         if (!transportMatch) return false;
-
-        console.log("warehouse", warehouse);
-
         if (warehouse === "H401") {
             const allowedIds = [38, 39, 40, 41, 42, 49, 51];
             return allowedIds.includes(item.id);

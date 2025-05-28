@@ -112,18 +112,15 @@ const checkOil0701Failed = (res: any) =>
 const checkOil0704Failed = (res: any) => {
     const d = res?.data;
     if (!d) return true;
-    // ตัวอย่าง logic: ถ้ามี field ไหนใน data/materials/products ที่ passed === false
     if (
         Object.values(d).some((f: any) => typeof f === "object" && f?.passed === false)
     ) return true;
 
-    // check materials
     if (Array.isArray(d.materials)) {
         for (const mat of d.materials) {
             if (Object.values(mat).some((cell: any) => cell?.passed === false)) return true;
         }
     }
-    // check products
     if (Array.isArray(d.products)) {
         for (const prod of d.products) {
             if (Object.values(prod).some((cell: any) => cell?.passed === false)) return true;
@@ -136,22 +133,16 @@ const checkIncomeExpenseFailed = (res: { data?: Partial<ValidationResultData> } 
     const d = res?.data;
     if (!d) return true;
 
-    // ตรวจ header
     if (d.header && Object.values(d.header).some((h: FieldValidation<any>) => h?.passed === false)) return true;
 
-    // ตรวจแต่ละ section
     for (const sectionKey of ["openingBalance", "receipt", "disbursement"] as const) {
         const rows = d[sectionKey];
         if (Array.isArray(rows)) {
             for (const row of rows) {
-                // ถ้าเป็น disbursement จะมี nested object ต้อง handle เพิ่ม (ตาม type ข้างบน)
-                // แต่เบื้องต้นใช้ Object.values เช็ค cell.passed ได้เหมือนเดิมถ้า structure ไม่ซับซ้อนมาก
                 if (row && Object.values(row).some((cell: any) => {
-                    // กรณีเป็น object nested
                     if (typeof cell === "object" && cell !== null && "passed" in cell) {
                         return cell.passed === false;
                     }
-                    // ถ้าเป็น array เช่น localSale, transfer
                     if (Array.isArray(cell)) {
                         return cell.some((item: any) => item?.passed === false ||
                             (typeof item === "object" && "passed" in item && item.passed === false));
@@ -162,7 +153,6 @@ const checkIncomeExpenseFailed = (res: { data?: Partial<ValidationResultData> } 
         }
     }
 
-    // ตรวจ endOfMonth
     if (d.endOfMonth && Object.values(d.endOfMonth).some((cell: FieldValidation<any>) => cell?.passed === false)) {
         return true;
     }
@@ -220,7 +210,6 @@ export const checkAttachment0307Failed = (res: { data?: ValidationResult0307 }):
 const checkOutturnFailed = (res: any): boolean => {
     const d = res?.data;
     if (!d) return true;
-    // ตัวอย่าง: failed ถ้ามี field ไหน passed === false
     return Object.values(d).some((cell: any) => cell?.passed === false);
 };
 

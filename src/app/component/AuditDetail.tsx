@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { documentList } from "../../types/docList";
 import DocumentChecklist from "./DocumentChecklist";
 import ChecklistPanel from "./ChecklistPanel";
@@ -43,6 +43,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
     const [ocrByDocId, setOcrByDocId] = useState<OcrByDocIdType>({});
     const [validationFailStatus, setValidationFailStatus] = useState<Record<string, boolean>>({});
     const auth = useAuthUser<AuthSchema>();
+    const validationRanRef = useRef(false);
 
     const fetchOcrData = async () => {
         const results: OcrByDocIdType = {};
@@ -109,11 +110,14 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
 
     useEffect(() => {
         async function batchValidateAll() {
+            if (validationRanRef.current) return;
+            validationRanRef.current = true;
             if (!ocrByDocId || Object.keys(ocrByDocId).length === 0) return;
 
             const validatePromises: Promise<{ docId: number, subIdx: number, failed: boolean } | null>[] = [];
-
+            
             for (const doc of documentList) {
+                
                 const docId = doc.id;
                 const subtitleLength = doc.subtitle?.length ?? 1;
 
@@ -157,17 +161,19 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
 
             const results = await Promise.all(validatePromises);
             let statusMap: Record<string, boolean> = {};
-            for (const r of results) {
+            
+            for (const r of results) {                
                 if (!r) continue;
                 statusMap[`${r.docId}-${r.subIdx}`] = r.failed;
             }
+            
             setValidationFailStatus(statusMap);
         }
 
         if (Object.keys(ocrByDocId).length > 0) {
             batchValidateAll();
         }
-    }, [ocrByDocId, auth]); 
+    }, [ocrByDocId, auth]);
 
     return (
         <div className="d-flex w-100 gap-3 mt-3" style={{ maxHeight: "800px" }}>

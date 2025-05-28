@@ -651,8 +651,8 @@ export type OcrIncomeNExpenseDocument = OcrFieldsBase & {
     }>;
 }
 
-export type OcrOutturnPipline = OcrFieldsBase & {
-    type: "oil-outturn-pipline";
+export type OcrDeliveryInvoicePipline = OcrFieldsBase & {
+    type: "oil-invoice-pipline";
     approved_signature: string;
     batch_no: string;
     book_no: string;
@@ -672,6 +672,7 @@ export type OcrOutturnPipline = OcrFieldsBase & {
     pageCount: string;
     pageNumber: string;
     product: string;
+    prepared_signature: string;
     summary_amount: string;
     time: string;
 }
@@ -702,4 +703,5 @@ export type OcrFields =
     | OcrTaxForm0502Document
     | OcrTaxForm0503Page2Document
     | OcrIncomeNExpenseDocument
+    | OcrDeliveryInvoicePipline
     | (OcrFieldsBase & Record<string, any>); 
