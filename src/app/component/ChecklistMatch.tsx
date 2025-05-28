@@ -1,6 +1,6 @@
 import React, { } from "react";
 import AuditPagination from "../reusable/AuditPagination";
-import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument } from "../../types/ocrFileType";
+import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument, OcrDeliveryInvoicePipline } from "../../types/ocrFileType";
 import { detectOcrType } from "../../utils/function/ocrType";
 import ChecklistTax from "./ChecklistTax";
 import ChecklistTable from "./ChecklistTable";
@@ -25,6 +25,7 @@ import ChecklistAttachment0704 from "./ChecklistAttachment0704";
 import ChecklistTaxForm0502 from "./ChecklistTaxForm0502";
 import ChecklistTaxForm0503Page2 from "./ChecklistTaxForm0503Page2";
 import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
+import ChecklistDeliveryInvoicePipline from "./ChecklistDeliveryInvoicePipline";
 
 interface Props {
     ocrDocument: {
@@ -34,8 +35,8 @@ interface Props {
     } | null;
     currentPage: number;
     setCurrentPage: (page: number) => void;
-    selectedDocId?: number | null;
-    selectedSubtitleIdx?: number | null;
+    selectedDocId: number | null;
+    selectedSubtitleIdx: number | null;
     onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
 }
 
@@ -155,6 +156,9 @@ const ChecklistMatch: React.FC<Props> = ({
                 )}
                 {type === "oil-income-expense" && (
                     <ChecklistIncomeNExpense data={currentOcrFields as OcrIncomeNExpenseDocument} />
+                )}
+                {type === "oil-invoice-pipline" && (
+                    <ChecklistDeliveryInvoicePipline data={currentOcrFields as OcrDeliveryInvoicePipline} />
                 )}
             </div>
         </div>
