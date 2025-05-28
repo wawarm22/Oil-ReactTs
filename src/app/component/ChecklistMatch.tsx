@@ -57,7 +57,7 @@ const ChecklistMatch: React.FC<Props> = ({
         </div>
     </div>
 
-    const { pages, pageFileKeyMap } = ocrDocument;
+    const { pages } = ocrDocument;
     const selectedFields = pages[currentPage];
 
     if (!selectedFields) {
