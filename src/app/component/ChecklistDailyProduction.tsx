@@ -69,6 +69,7 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
                 factories: factoriesNumber,
                 fields: ocrFieldRows
             };
+            
             validateOil0701(payload).then((res) => {
                 console.log("ผลลัพธ์ Validate:", res);
                 setValidationResult(res);
