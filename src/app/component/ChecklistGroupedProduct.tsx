@@ -9,35 +9,60 @@ const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data 
     const groupProducts = () => {
         const groups: {
             productName: string;
-            ingredients: { material: string; volume: string }[];
+            ingredients: { label: string; value?: string }[]; // Changed to hold label-value pairs
         }[] = [];
 
         let currentProductNames: string[] = [];
-        let currentIngredients: { material: string; volume: string }[] = [];
+        let currentIngredients: { label: string; value?: string }[] = [];
+        let stopGrouping = false; // Flag to stop grouping when "รวม" is found
 
         for (const row of data.detail_table) {
             const props = row?.properties ?? {};
-            const material = props.material_per_liter?.value?.trim();
-            const product = props.product_name?.value?.trim();
-            const volume = props.value_liter?.value?.trim();
 
-            if (!material) continue;
+            const no = props.no?.value?.trim().replace(/\n/g, " ");
+            const productType = props.product_type?.value?.trim().replace(/\n/g, " ");
+            const productName = props.product_name?.value?.trim().replace(/\n/g, " ");
+            const unit = props.unit?.value?.trim().replace(/\n/g, " ");
+            const materialType = props.material_type?.value?.trim().replace(/\n/g, " ");
+            const materialUnit = props.material_unit?.value?.trim().replace(/\n/g, " ");
+            const materialValue = props.material_value?.value?.trim().replace(/\n/g, " ");
 
-            if (volume) currentIngredients.push({ material, volume });
-            if (product) currentProductNames.push(product);
+            // Check for "รวม" in material_type and stop the grouping if found
+            if (materialType && materialType.includes("รวม")) {
+                currentIngredients.push({
+                    label: "รวม",
+                    value: materialValue || "-"
+                });
 
-            if (material === "รวม") {
+                // Add the current group and reset
                 groups.push({
                     productName: currentProductNames.join(" "),
                     ingredients: [...currentIngredients],
                 });
-                currentProductNames = [];
-                currentIngredients = [];
+                stopGrouping = true; // Stop grouping further
+                break; // Exit the loop when "รวม" is found
             }
+
+            // Add information to the current group
+            if (productName) currentProductNames.push(productName);
+
+            if (no) currentIngredients.push({ label: "ลำดับ", value: no });
+            if (productType) currentIngredients.push({ label: "ประเภทสินค้า", value: productType });
+            if (productName) currentIngredients.push({ label: "ชื่อสินค้าที่ผลิต", value: productName });
+            if (unit) currentIngredients.push({ label: "แบบหรือขนาด", value: unit });
+
+            // แทรก label สำหรับ "รายการวัตถุดิบหรือส่วนประกอบที่นำมาใช้ในการผลิตสินค้า (ต่อสินค้า 1 หน่วย)" และไม่แสดง value
+            if (materialType) {
+                currentIngredients.push({ label: "รายการวัตถุดิบหรือส่วนประกอบที่นำมาใช้ในการผลิตสินค้า (ต่อสินค้า 1 หน่วย)" });
+            }
+
+            if (materialType) currentIngredients.push({ label: "ประเภท", value: materialType });
+            if (materialUnit) currentIngredients.push({ label: "แบบหรือขนาด", value: materialUnit });
+            if (materialValue) currentIngredients.push({ label: "ปริมาณหรือจำนวน", value: materialValue });
         }
 
-        // กันกรณีไม่มี "รวม" ปิดท้าย
-        if (currentProductNames.length || currentIngredients.length) {
+        // Add the last group if no "รวม" was found
+        if (!stopGrouping && (currentProductNames.length || currentIngredients.length)) {
             groups.push({
                 productName: currentProductNames.join(" "),
                 ingredients: [...currentIngredients],
@@ -56,36 +81,22 @@ const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data 
     return (
         <div className="d-flex flex-column gap-4">
             {grouped.map((group, index) => (
-                <div key={index} className="d-flex flex-column gap-2">
-                    {/* Product Name */}
-                    <div className="fw-bold">ชื่อผลิตภัณฑ์</div>
-                    <div
-                        className="border rounded-2 shadow-sm bg-white"
-                        style={{ fontSize: "14px", whiteSpace: "pre-line", padding: "10px" }}
-                    >
-                        {group.productName || "-"}
-                    </div>
+                <div key={index} className="d-flex flex-column gap-2">                    
 
                     {/* Ingredients - separate labels */}
                     {group.ingredients.map((item, i) => (
                         <div key={i} className="d-flex flex-column gap-2">
                             {/* Material */}
-                            <div className="fw-bold">รายการวัตถุดิบหรือส่วนประกอบที่นำมาใช้ในการผลิตสินค้า (ต่อสินค้า ๑ หน่วย)</div>
-                            <div
-                                className="border rounded-2 shadow-sm bg-white"
-                                style={{ fontSize: "14px", whiteSpace: "pre-line", padding: "10px" }}
-                            >
-                                {item.material}
-                            </div>
-
-                            {/* Volume */}
-                            <div className="fw-bold">ปริมาณหรือจำนวน (ลิตร)</div>
-                            <div
-                                className="border rounded-2 shadow-sm bg-white mb-3"
-                                style={{ fontSize: "14px", whiteSpace: "pre-line", padding: "10px" }}
-                            >
-                                {item.volume}
-                            </div>
+                            <div className="fw-bold">{item.label}</div>
+                            {/* Only show value if it's not empty */}
+                            {item.value && (
+                                <div
+                                    className="border rounded-2 shadow-sm bg-white"
+                                    style={{ fontSize: "14px", whiteSpace: "pre-line", padding: "10px" }}
+                                >
+                                    {item.value || "-"}
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>

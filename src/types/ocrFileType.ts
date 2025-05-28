@@ -35,6 +35,12 @@ export type OcrDetailTableDocument = OcrFieldsBase & {
 
 export type OcrGroupedProductDocument = OcrFieldsBase & {
     type: "grouped_product";
+    id: string;
+    docType: string;
+    documentGroup: string;
+    pageCount: number;
+    pageNumber: number;
+    fileKey: string;
     detail_table: Record<string, any>[];
 };
 
