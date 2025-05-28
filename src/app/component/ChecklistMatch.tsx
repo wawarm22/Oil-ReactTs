@@ -1,6 +1,10 @@
 import React, { } from "react";
 import AuditPagination from "../reusable/AuditPagination";
+<<<<<<< HEAD
 import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument, OcrDeliveryInvoicePipline } from "../../types/ocrFileType";
+=======
+import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument } from "../../types/ocrFileType";
+>>>>>>> cc33eef (fix deploy error)
 import { detectOcrType } from "../../utils/function/ocrType";
 import ChecklistTax from "./ChecklistTax";
 import ChecklistTable from "./ChecklistTable";
@@ -25,7 +29,6 @@ import ChecklistAttachment0704 from "./ChecklistAttachment0704";
 import ChecklistTaxForm0502 from "./ChecklistTaxForm0502";
 import ChecklistTaxForm0503Page2 from "./ChecklistTaxForm0503Page2";
 import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
-import ChecklistDeliveryInvoicePipline from "./ChecklistDeliveryInvoicePipline";
 
 interface Props {
     ocrDocument: {
@@ -35,9 +38,15 @@ interface Props {
     } | null;
     currentPage: number;
     setCurrentPage: (page: number) => void;
+<<<<<<< HEAD
+    // selectedDocId: number | null;
+    // selectedSubtitleIdx: number | null;
+    // onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
+=======
     selectedDocId: number | null;
     selectedSubtitleIdx: number | null;
     onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
+>>>>>>> cc33eef (fix deploy error)
 }
 
 const ChecklistMatch: React.FC<Props> = ({
@@ -57,7 +66,7 @@ const ChecklistMatch: React.FC<Props> = ({
         </div>
     </div>
 
-    const { pages } = ocrDocument;
+    const { pages, pageFileKeyMap } = ocrDocument;
     const selectedFields = pages[currentPage];
 
     if (!selectedFields) {
@@ -69,8 +78,12 @@ const ChecklistMatch: React.FC<Props> = ({
     const type = detectOcrType(currentOcrFields);
     console.log("Detected OCR type:", type);
 
+<<<<<<< HEAD
+   
+=======
     const docId = selectedDocId ?? 0;
     const subIdx = selectedSubtitleIdx ?? 0;
+>>>>>>> cc33eef (fix deploy error)
 
     return (
         <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
@@ -151,9 +164,12 @@ const ChecklistMatch: React.FC<Props> = ({
                 {type === "oil-income-expense" && (
                     <ChecklistIncomeNExpense data={currentOcrFields as OcrIncomeNExpenseDocument} />
                 )}
+<<<<<<< HEAD
                 {type === "oil-invoice-pipline" && (
                     <ChecklistDeliveryInvoicePipline data={currentOcrFields as OcrDeliveryInvoicePipline} />
                 )}
+=======
+>>>>>>> cc33eef (fix deploy error)
             </div>
         </div>
     );
