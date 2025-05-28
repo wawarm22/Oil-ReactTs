@@ -88,12 +88,28 @@ const check0307Failed = (res: any) =>
         Object.values(row?.properties ?? {}).some((cell: any) => cell?.passed === false)
     );
 
-const checkTaxFailed = (res: any) =>
-    Array.isArray(res?.data) &&
-        res.data[0]?.properties
-        ? Object.values(res.data[0].properties).some((v: any) => v.passed === false)
-        : false;
+// const checkTaxFailed = (res: any) =>
+//     Array.isArray(res?.data) &&
+//         res.data[0]?.properties
+//         ? Object.values(res.data[0].properties).some((v: any) => v.passed === false)
+//         : false;
+const checkTaxFailed = (res: any) => {
+    // เช็คว่า res?.data เป็น Array หรือไม่
+    if (Array.isArray(res?.data)) {
+        return res.data.some((row: any) => {
+            // เช็คแต่ละ properties ภายใน row ว่ามี passed เป็น false หรือไม่
+            return Object.values(row?.properties ?? {}).some((v: any) => v.passed === false);
+        });
+    }
 
+    // กรณีที่ data ไม่เป็น Array หรือมีรูปแบบต่างๆ สามารถปรับให้รองรับ
+    // ตัวอย่างกรณีแรกที่มี properties ในระดับแรก
+    if (res?.data?.properties) {
+        return Object.values(res?.data.properties).some((v: any) => v.passed === false);
+    }
+
+    return false; // หากไม่มีข้อมูลที่ตรงตามเงื่อนไข
+};
 const checkOilCompareFailed = (res: any) =>
     Array.isArray(res?.data) &&
     res.data.some(
