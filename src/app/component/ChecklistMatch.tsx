@@ -32,9 +32,20 @@ interface Props {
     } | null;
     currentPage: number;
     setCurrentPage: (page: number) => void;
+    // selectedDocId: number | null;
+    // selectedSubtitleIdx: number | null;
+    // onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
 }
 
 const ChecklistMatch: React.FC<Props> = ({ ocrDocument, currentPage, setCurrentPage }) => {
+const ChecklistMatch: React.FC<Props> = ({
+    ocrDocument,
+    currentPage,
+    setCurrentPage,
+    // selectedDocId,
+    // selectedSubtitleIdx,
+    // onValidationStatusChange
+}) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
     if (!ocrDocument) return <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
         <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>
@@ -44,6 +55,7 @@ const ChecklistMatch: React.FC<Props> = ({ ocrDocument, currentPage, setCurrentP
         </div>
     </div>
 
+    const { pages, pageFileKeyMap } = ocrDocument;
     const { pages, pageFileKeyMap } = ocrDocument;
     const selectedFields = pages[currentPage];
 
@@ -56,18 +68,35 @@ const ChecklistMatch: React.FC<Props> = ({ ocrDocument, currentPage, setCurrentP
     const type = detectOcrType(currentOcrFields);
     console.log("Detected OCR type:", type);
 
+   
+
     return (
         <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
             <AuditPagination
                 totalPages={ocrDocument.pageCount}
                 currentPage={currentPage}
                 setCurrentPage={(page) => {                   
+                setCurrentPage={(page) => {
+                    const fileKey = pageFileKeyMap?.[page];
+                    if (!fileKey) {
+                        // console.warn(`FileKey not found for page ${page}`);
+                    } else {
+                        console.log(`FileKey for page ${page}: ${fileKey}`);
+                    }
                     setCurrentPage(page);
                 }}
             />
 
             <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>
                 {type === "tax" && <ChecklistTax data={currentOcrFields as OcrTaxDocument} />}
+                {type === "tax" && (
+                    <ChecklistTax
+                        data={selectedFields as OcrTaxDocument}
+                        // docId={docId}
+                        // subIdx={subIdx}
+                        // onValidationStatusChange={onValidationStatusChange}
+                    />
+                )}
                 {type === "table" && <ChecklistTable data={currentOcrFields as OcrDetailTableDocument} />}
                 {type === "grouped_product" && (
                     <ChecklistGroupedProduct data={currentOcrFields as OcrGroupedProductDocument} />
