@@ -38,18 +38,18 @@ interface Props {
     } | null;
     currentPage: number;
     setCurrentPage: (page: number) => void;
-    selectedDocId?: number | null;
-    selectedSubtitleIdx?: number | null;
-    onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
+    // selectedDocId: number | null;
+    // selectedSubtitleIdx: number | null;
+    // onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
 }
 
 const ChecklistMatch: React.FC<Props> = ({
     ocrDocument,
     currentPage,
     setCurrentPage,
-    selectedDocId,
-    selectedSubtitleIdx,
-    onValidationStatusChange
+    // selectedDocId,
+    // selectedSubtitleIdx,
+    // onValidationStatusChange
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
     if (!ocrDocument) return <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
@@ -72,8 +72,7 @@ const ChecklistMatch: React.FC<Props> = ({
     const type = detectOcrType(currentOcrFields);
     console.log("Detected OCR type:", type);
 
-    const docId = selectedDocId ?? 0;
-    const subIdx = selectedSubtitleIdx ?? 0;
+   
 
     return (
         <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
@@ -95,9 +94,9 @@ const ChecklistMatch: React.FC<Props> = ({
                 {type === "tax" && (
                     <ChecklistTax
                         data={selectedFields as OcrTaxDocument}
-                        docId={docId}
-                        subIdx={subIdx}
-                        onValidationStatusChange={onValidationStatusChange}
+                        // docId={docId}
+                        // subIdx={subIdx}
+                        // onValidationStatusChange={onValidationStatusChange}
                     />
                 )}
                 {type === "table" && <ChecklistTable data={currentOcrFields as OcrDetailTableDocument} />}
