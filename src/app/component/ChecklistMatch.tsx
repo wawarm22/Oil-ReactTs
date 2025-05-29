@@ -54,9 +54,9 @@ const ChecklistMatch: React.FC<Props> = ({
     ocrDocument,
     currentPage,
     setCurrentPage,
-    selectedDocId,
-    selectedSubtitleIdx,
-    onValidationStatusChange
+    // selectedDocId,
+    // selectedSubtitleIdx,
+    // onValidationStatusChange
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
     if (!ocrDocument) return <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
@@ -79,8 +79,7 @@ const ChecklistMatch: React.FC<Props> = ({
     const type = detectOcrType(currentOcrFields);
     console.log("Detected OCR type:", type);
 
-    const docId = selectedDocId ?? 0;
-    const subIdx = selectedSubtitleIdx ?? 0;
+   
 
     return (
         <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
@@ -88,6 +87,12 @@ const ChecklistMatch: React.FC<Props> = ({
                 totalPages={ocrDocument.pageCount}
                 currentPage={currentPage}
                 setCurrentPage={(page) => {
+                    const fileKey = pageFileKeyMap?.[page];
+                    if (!fileKey) {
+                        // console.warn(`FileKey not found for page ${page}`);
+                    } else {
+                        console.log(`FileKey for page ${page}: ${fileKey}`);
+                    }
                     setCurrentPage(page);
                 }}
             />
@@ -96,9 +101,9 @@ const ChecklistMatch: React.FC<Props> = ({
                 {type === "tax" && (
                     <ChecklistTax
                         data={selectedFields as OcrTaxDocument}
-                        docId={docId}
-                        subIdx={subIdx}
-                        onValidationStatusChange={onValidationStatusChange}
+                        // docId={docId}
+                        // subIdx={subIdx}
+                        // onValidationStatusChange={onValidationStatusChange}
                     />
                 )}
                 {type === "table" && <ChecklistTable data={currentOcrFields as OcrDetailTableDocument} />}
