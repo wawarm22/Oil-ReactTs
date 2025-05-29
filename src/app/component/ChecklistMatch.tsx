@@ -35,8 +35,13 @@ interface Props {
     } | null;
     currentPage: number;
     setCurrentPage: (page: number) => void;
+<<<<<<< HEAD
     selectedDocId?: number | null;
     selectedSubtitleIdx?: number | null;
+=======
+    selectedDocId: number | null;
+    selectedSubtitleIdx: number | null;
+>>>>>>> 9708ce4 (fix deploy error)
     onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
 }
 
