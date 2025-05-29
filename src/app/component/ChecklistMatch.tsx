@@ -1,6 +1,6 @@
 import React, { } from "react";
 import AuditPagination from "../reusable/AuditPagination";
-import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument } from "../../types/ocrFileType";
+import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument, OcrDeliveryInvoicePipline } from "../../types/ocrFileType";
 import { detectOcrType } from "../../utils/function/ocrType";
 import ChecklistTax from "./ChecklistTax";
 import ChecklistTable from "./ChecklistTable";
@@ -54,9 +54,9 @@ const ChecklistMatch: React.FC<Props> = ({
     ocrDocument,
     currentPage,
     setCurrentPage,
-    // selectedDocId,
-    // selectedSubtitleIdx,
-    // onValidationStatusChange
+    selectedDocId,
+    selectedSubtitleIdx,
+    onValidationStatusChange
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
     if (!ocrDocument) return <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
@@ -79,7 +79,8 @@ const ChecklistMatch: React.FC<Props> = ({
     const type = detectOcrType(currentOcrFields);
     console.log("Detected OCR type:", type);
 
-   
+    const docId = selectedDocId ?? 0;
+    const subIdx = selectedSubtitleIdx ?? 0;
 
     return (
         <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
@@ -101,9 +102,9 @@ const ChecklistMatch: React.FC<Props> = ({
                 {type === "tax" && (
                     <ChecklistTax
                         data={selectedFields as OcrTaxDocument}
-                        // docId={docId}
-                        // subIdx={subIdx}
-                        // onValidationStatusChange={onValidationStatusChange}
+                        docId={docId}
+                        subIdx={subIdx}
+                        onValidationStatusChange={onValidationStatusChange}
                     />
                 )}
                 {type === "table" && <ChecklistTable data={currentOcrFields as OcrDetailTableDocument} />}
@@ -165,6 +166,9 @@ const ChecklistMatch: React.FC<Props> = ({
                 )}
                 {type === "oil-income-expense" && (
                     <ChecklistIncomeNExpense data={currentOcrFields as OcrIncomeNExpenseDocument} />
+                )}
+                {type === "oil-invoice-pipline" && (
+                    <ChecklistDeliveryInvoicePipline data={currentOcrFields as OcrDeliveryInvoicePipline} />
                 )}
             </div>
         </div>
