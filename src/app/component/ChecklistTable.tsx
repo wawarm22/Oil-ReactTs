@@ -76,7 +76,7 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
     useEffect(() => {
         if (cleanedFieldsRef.current.length > 1) {
             const payload = {
-                docType: "oil-compare-1",
+                docType: data.docType,
                 company: selectedCompany?.name || "",
                 factories: factoriesNumber || "",
                 documentGroup: data.documentGroup,

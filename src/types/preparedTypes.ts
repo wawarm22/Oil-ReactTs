@@ -59,3 +59,16 @@ export type PreparedData = {
     documentGroup: string;
     fields: Fields;
 };
+
+export type PreparedFormularApprovResponse = {
+    docType: string;
+    documentGroup: string;
+    fields: {
+        product: string;
+        materials: {
+            name: string;
+            quantity: string;
+        }[];
+        total: number;
+    };
+};

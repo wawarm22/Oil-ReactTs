@@ -81,7 +81,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
             data.documentGroup
         ) {
             const payload: validateAttachment0307Payload = {
-                docType: "oil-formular-2",
+                docType: data.docType,
                 company: selectedCompany.name,
                 factories: factoriesNumber,
                 documentGroup: data.documentGroup,

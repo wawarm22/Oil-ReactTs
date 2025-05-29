@@ -6,8 +6,6 @@ import ChecklistTax from "./ChecklistTax";
 import ChecklistTable from "./ChecklistTable";
 import ChecklistGroupedProduct from "./ChecklistGroupedProduct";
 import ChecklistOilProduct from "./ChecklistOilProduct";
-import ChecklistOilStock from "./ChecklistOilStock";
-import ChecklistDailyProduction from "./ChecklistDailyProduction";
 import ChecklistTaxForm0307 from "./ChecklistTaxForm0307";
 import ChecklistRefineryTaxInvoice from "./ChecklistRefineryTaxInvoice";
 import ChecklistImportEntry0409 from "./ChecklistImportEntry0409";
@@ -26,6 +24,8 @@ import ChecklistTaxForm0502 from "./ChecklistTaxForm0502";
 import ChecklistTaxForm0503Page2 from "./ChecklistTaxForm0503Page2";
 import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
 import ChecklistDeliveryInvoicePipline from "./ChecklistDeliveryInvoicePipline";
+import ChecklistForm0701 from "./ChecklistForm0701";
+import ChecklistForm0702 from "./ChecklistForm0702";
 
 interface Props {
     ocrDocument: {
@@ -105,10 +105,10 @@ const ChecklistMatch: React.FC<Props> = ({
                     <ChecklistOilProduct data={currentOcrFields as OcrOilProductDocument} />
                 )}
                 {type === "stock_oil" && (
-                    <ChecklistOilStock data={currentOcrFields as OcrStockOilDocument} />
+                    <ChecklistForm0701 data={currentOcrFields as OcrStockOilDocument} />
                 )}
                 {type === "daily_production" && (
-                    <ChecklistDailyProduction data={currentOcrFields as OcrDailyProductionDocument} />
+                    <ChecklistForm0702 data={currentOcrFields as OcrDailyProductionDocument} />
                 )}
                 {type === "tax_form_0307" && (
                     <ChecklistTaxForm0307 data={currentOcrFields as OcrTaxForm0307Document} />

@@ -25,7 +25,7 @@ const ChecklistTax: React.FC<ChecklistTaxProps> = ({
     >(null);
 
     const payload = {
-        docType: "first-page-letter-or-1",
+        docType: data.docType,
         company: selectedCompany?.name ?? "",
         factories: factoriesNumber ?? "",
         documentGroup: data.documentGroup,

@@ -171,7 +171,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
     useEffect(() => {
         if (ocrFieldRows.length > 0 && selectedCompany) {
             const payload = {
-                docType: "oil-03-07-page-1",
+                docType: data.docType,
                 company: selectedCompany.name,
                 factories: factoriesNumber ?? "",
                 documentGroup: data.documentGroup,

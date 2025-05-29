@@ -64,7 +64,7 @@ const ChecklistIncomeNExpense: React.FC<Props> = ({ data }) => {
                     setPreparedData(res.data);
 
                     const payload: validateReceitpPaymentPayload = {
-                        docType: "oil-income-n-expense-1",
+                        docType: data.docType,
                         documentGroup: res.data.documentGroup,
                         fields: res.data.fields,
                     };

@@ -63,7 +63,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
             genRequestObject({ fields: data })
                 .then((genFields) => {
                     const payload: ValidateOil0704Payload = {
-                        docType: "oil-07-04-page-1",
+                        docType: data.docType,
                         documentGroup: data.documentGroup,
                         fields: {
                             ...genFields,

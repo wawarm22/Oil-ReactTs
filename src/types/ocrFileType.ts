@@ -3,6 +3,7 @@ export type OcrFieldsBase = {
     pageNumber: string;
     documentGroup: string;
     docType?: string;
+    oil_type?: string
 };
 
 export type OcrTaxDocument = OcrFieldsBase & {
@@ -46,6 +47,7 @@ export type OcrGroupedProductDocument = OcrFieldsBase & {
 
 export type OcrOilProductDocument = OcrFieldsBase & {
     type: "product_document";
+    docType: string;
     address_no?: string;
     attach_1_no?: string;
     attach_2_no?: string;
@@ -71,6 +73,7 @@ export type OcrOilProductDocument = OcrFieldsBase & {
 
 export type OcrStockOilDocument = OcrFieldsBase & {
     type: "stock_oil";
+    docType: string;
     form_type?: string;
     oil_type: string;
     oil_unit?: string;
@@ -84,6 +87,7 @@ export type OcrStockOilDocument = OcrFieldsBase & {
 
 export type OcrDailyProductionDocument = OcrFieldsBase & {
     type: "daily_production";
+    docType: string;
     documentGroup: string;
     form_header: string;
     form_type: string;
@@ -105,6 +109,7 @@ export type OcrDailyProductionDocument = OcrFieldsBase & {
 
 export type OcrTaxForm0307Document = OcrFieldsBase & {
     type: "tax_form_0307";
+    docType: string;
     reference_no: string;
     form_type: string;
     excise_name: string;
@@ -163,6 +168,7 @@ export type OcrTaxForm0307Document = OcrFieldsBase & {
 
 export type OcrRefineryTaxInvoiceDocument = OcrFieldsBase & {
     type: "refinery_tax_invoice";
+    docType: string;
     header_tax_id: string;
     issued_at: string;
     customer_name: string;
@@ -189,6 +195,7 @@ export type OcrRefineryTaxInvoiceDocument = OcrFieldsBase & {
 
 export type OcrImportEntry0409Document = OcrFieldsBase & {
     type: "import_entry_0409";
+    docType: string;
     agent_of: string;
     bank_account_no: string;
     bank_account_type: string;
@@ -239,6 +246,7 @@ export type OcrImportEntry0409Document = OcrFieldsBase & {
 
 export type OcrOutturnStatementDocument = OcrFieldsBase & {
     type: "outturn_statement";
+    docType: string;
     approve_signature: string;
     calculated_signature: string;
     date: string;
@@ -267,6 +275,7 @@ export type OcrOutturnStatementDocument = OcrFieldsBase & {
 
 export type OcrDeliveryInvoiceDocument = OcrFieldsBase & {
     type: "delivery_invoice";
+    docType: string;
     bill_address?: string;
     business_place?: string;
     contractor?: string;
@@ -401,6 +410,7 @@ export type OcrTaxForm0503Page2Document = OcrFieldsBase & {
 export type OcrComparison0503And0307Document = OcrFieldsBase & {
     type: "comparison_0503_0307";
     date: string;
+    docType: string;
     header: string;
     pageCount: string;
     pageNumber: string;
@@ -414,6 +424,7 @@ export type OcrComparison0503And0307Document = OcrFieldsBase & {
 
 export type OcrTaxPaymentCertificateDocument = OcrFieldsBase & {
     type: "tax_payment_certificate";
+    docType: string;
     address: string;
     auth_signature?: string | null;
     branch_no?: string | null;
@@ -443,6 +454,7 @@ export type OcrTaxPaymentCertificateDocument = OcrFieldsBase & {
 
 export type OcrOilPurchaseSummaryDocument = OcrFieldsBase & {
     type: "oil_purchase_summary";
+    docType: string;
     company_from: string;
     company_name: string;
     date: string;
@@ -458,6 +470,7 @@ export type OcrOilPurchaseSummaryDocument = OcrFieldsBase & {
 
 export type OcrTaxForm0704Document = OcrFieldsBase & {
     type: "tax_form_0704";
+    docType: string;
     documentGroup: string;
     pageCount: string;
     pageNumber: string;
@@ -470,6 +483,7 @@ export type OcrTaxForm0704Document = OcrFieldsBase & {
 
 export type OcrAdditiveApprovalCertificateDocument = OcrFieldsBase & {
     type: "additive_approval_certificate";
+    docType: string;
     documentGroup: string;
     pageCount: string;
     pageNumber: string;
@@ -483,6 +497,7 @@ export type OcrAdditiveApprovalCertificateDocument = OcrFieldsBase & {
 
 export type OcrCustomsReceiptDocument = OcrFieldsBase & {
     type: "customs_receipt";
+    docType: string;
     documentGroup: string;
     pageCount: string;
     pageNumber: string;
@@ -505,6 +520,7 @@ export type OcrCustomsReceiptDocument = OcrFieldsBase & {
 
 export type OcrDailyComparisonDocument = OcrFieldsBase & {
     type: "daily_comparison";
+    docType: string;
     documentGroup: string;
     pageNumber: string;
     pageCount: string;
@@ -519,6 +535,7 @@ export type OcrDailyComparisonDocument = OcrFieldsBase & {
 
 export type OcrTaxReceiptExciseDocument = OcrFieldsBase & {
     type: "tax_receipt_excise";
+    docType: string;
     header: string;
     receipt_no?: string;
     doc_no?: string;
@@ -548,6 +565,7 @@ export type OcrTaxReceiptExciseDocument = OcrFieldsBase & {
 export type OcrAttachment0307Document = OcrFieldsBase & {
     type: "attachment_0307";
     id: string;
+    docType: string;
     documentGroup: string;
     header: string;
     date?: string;
@@ -565,6 +583,7 @@ export type OcrAttachment0307Document = OcrFieldsBase & {
 
 export type OcrAttachment0704Document = OcrFieldsBase & {
     type: "attachment_0704";
+    docType: string;
     form_type?: string;
     form_no?: string;
     form_date?: string;
@@ -594,6 +613,7 @@ export type OcrAttachment0704Document = OcrFieldsBase & {
 
 export type OcrTaxForm0502Document = OcrFieldsBase & {
     type: "tax_form_0502";
+    docType: string;
     address: string;
     applicant_date: string;
     applicant_name: string;
@@ -637,7 +657,7 @@ export type OcrIncomeNExpenseDocument = OcrFieldsBase & {
     type: "oil-income-expense";
     id: string;
     documentGroup: string;
-    docTypes: string;
+    docType: string;
     company: string;
     date: string;
     oil: string;

@@ -20,9 +20,9 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
     };
 
     const value = data.detail_table_1[27]?.properties?.column_2 || {};
-    const name = data.detail_table_1[27]?.properties?.column_1 || {};
+    // const name = data.detail_table_1[27]?.properties?.column_1 || {};
     const valueQuantity = cleanValue(value.value);
-    const nameQuantity = cleanValue(name.value);
+    // const nameQuantity = cleanValue(name.value);
 
     useEffect(() => {
         if (!data) return;
@@ -30,12 +30,12 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
         const validateFields = {
             date: cleanValue(data.date),
             product: cleanValue(data.product),
-            quality: nameQuantity,
+            quality: "LITRES @30 deg.C",
             quantity: Number(valueQuantity.replace(/,/g, "")) || 0,
         };
 
         const validateData = {
-            docType: "oil-shore-tank-1",
+            docType: data.docType,
             company: selectedCompany?.name,
             factories: factoriesNumber,
             documentGroup: data.documentGroup || "",
@@ -77,7 +77,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
         <div className="d-flex flex-column gap-2">
             {renderValidateBox("Date", "date", data.date)}
             {renderValidateBox("PRODUCT", "product_name", data.product)}
-            {nameQuantity && renderValidateBox(nameQuantity, "quality", nameQuantity)}
+            {renderValidateBox("Quantity", "quality", "LITRES @30 deg.C")}
             {valueQuantity && renderValidateBox("ปริมาณ", "quantity", valueQuantity)}
         </div>
     );

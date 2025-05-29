@@ -11,6 +11,7 @@ import { findBestMatchName } from "../../utils/function/fuzzySearchName";
 
 interface ChecklistStockOilFormattedProps {
     data: OcrStockOilDocument;
+    oilTypeFromPrevPage?: string;
 }
 
 type OCRValidationPayload = {
@@ -26,7 +27,7 @@ type OCRFieldRow = {
     properties: Record<string, { value: string }>;
 };
 
-const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) => {
+const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({ data, oilTypeFromPrevPage }) => {
     const { user } = useUser();
     const [allRowsState, setAllRowsState] = useState<Record<string, any>[]>([]);
     const [labelMap, setLabelMap] = useState<Record<string, string>>({});
@@ -45,20 +46,23 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
 
     useEffect(() => {
         const fetchMaterialType = async () => {
-            if (!data.oil_type || !selectedCompany?.name || !factoriesName) return;
+            // เลือกใช้ oilTypeFromPrevPage ถ้ามี, ถ้าไม่มีก็ใช้ data.oil_type
+            const oilType = oilTypeFromPrevPage || data.oil_type;
 
-            const response = await checkProdustType(data.oil_type);
-            const resultItems = response?.ResultItems ?? [];        
+            if (!oilType || !selectedCompany?.name || !factoriesName) return;
+
+            const response = await checkProdustType(oilType);
+            const resultItems = response?.ResultItems ?? [];
 
             const productNumber = findBestMatch(resultItems, selectedCompany.name, factoriesName);
             const productName = findBestMatchName(resultItems, selectedCompany.name, factoriesName);
-           
+
             setMaterialName(productName);
             setMaterialType(productNumber);
         };
 
         fetchMaterialType();
-    }, [data.oil_type, selectedCompany?.name, factoriesName]);
+    }, [oilTypeFromPrevPage, data.oil_type, selectedCompany?.name, factoriesName]);
 
     useEffect(() => {
         if (!materialType) return;
@@ -72,10 +76,14 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
         if (tableRows.length === 0) return;
 
         let firstDataIndex = 2;
-        const checkRow = tableRows[2]?.properties ?? {};
-        const values = Object.values(checkRow).map(cell => cell?.value ?? "");
-        const isYodyokmaRow = values.some(text => text.includes("ยอดยก") || text.includes("ยอดยกมา"));
-        if (isYodyokmaRow) firstDataIndex = 3;
+        if (data.docType === "oil-07-01-page-1-attach") {
+            firstDataIndex = 0;
+        } else {
+            const checkRow = tableRows[2]?.properties ?? {};
+            const values = Object.values(checkRow).map(cell => cell?.value ?? "");
+            const isYodyokmaRow = values.some(text => text.includes("ยอดยก") || text.includes("ยอดยกมา"));
+            if (isYodyokmaRow) firstDataIndex = 3;
+        }
 
         const rowsToRender: Record<string, any>[] = [];
         let summaryRow: Record<string, any> | null = null;
@@ -87,7 +95,11 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
             const isYodyokma = Object.values(properties).some(cell => cell?.value?.includes("ยอดยกมา"));
             if (isYodyokma) continue;
 
-            const isSummary = Object.values(properties).some(cell => cell?.value?.includes("รวมเดือน"));
+            const isSummary = Object.values(properties).some(cell => {
+                const val = (cell?.value ?? "").replace(/\s+/g, ""); 
+                return val.includes("รวมเดือน");
+            });
+
             if (isSummary) {
                 summaryRow = { __isSummary: true };
                 for (const [key, cell] of Object.entries(properties)) {
@@ -110,7 +122,7 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
         const all = [...rowsToRender];
         if (summaryRow) all.push(summaryRow);
         setAllRowsState(all);
-    }, [data.detail_table]);
+    }, [data.detail_table, data.docType]);
 
     const transformToOCRFieldRow = (row: Record<string, any>): OCRFieldRow => {
         const properties: Record<string, { value: string }> = {};
@@ -127,7 +139,7 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
             if (!selectedCompany || !materialType || allRowsState.length === 0) return;
             const transformedFields = allRowsState.map(transformToOCRFieldRow);
             const payload: OCRValidationPayload = {
-                docType: "oil-07-01-page-1",
+                docType: data.docType,
                 documentGroup: data.documentGroup,
                 materialID: materialType,
                 company: selectedCompany.name,
@@ -151,13 +163,31 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
 
     return (
         <div className="d-flex flex-column">
+
+            {data.docType !== "oil-07-01-page-1-attach" && (
+                <>
+                    <div>
+                        {renderLabel("แบบฟอร์ม")}
+                        <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>ภส.07-01</div>
+                    </div>
+                    <div>
+                        {renderLabel("ประเภทสินค้า")}
+                        <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.oil_type)}</div>
+                    </div>
+                    <div>
+                        {renderLabel("ชนิด")}
+                        <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.oil_unit)}</div>
+                    </div>
+                </>
+            )}
+
             {allRowsState.map((row, idx) => {
                 const isSummary = row.__isSummary === true;
                 const validationRow = validationResult?.data?.find((vRow: any) => vRow.row === idx);
 
                 return (
                     <div key={idx} className="d-flex flex-column gap-1 pt-1">
-                        {isSummary && <div className="fw-bold fs-5 text-primary">รวมเดือนนี้</div>}
+                        {isSummary && <div className="fw-bold" style={{ fontSize: "18px" }}>รวมเดือนนี้</div>}
 
                         {Object.entries(labelMap).flatMap(([colKey, label]) => {
                             const elements: React.ReactNode[] = [];
@@ -221,4 +251,4 @@ const ChecklistOilStock: React.FC<ChecklistStockOilFormattedProps> = ({ data }) 
     );
 };
 
-export default ChecklistOilStock;
+export default ChecklistForm0701;

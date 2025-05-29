@@ -105,3 +105,24 @@ export type ValidateReceitpPaymentResult = {
     message: string;
     data: ValidationResultData;
 };
+
+
+export type Oil0702ValidationCell = {
+    value?: string;         
+    expected?: string | number;
+    passed: boolean;
+    reason?: string;        
+};
+
+export type Oil0702ValidationRow = {
+    row: number;
+    properties: {
+        [label: string]: Oil0702ValidationCell;
+    };
+};
+
+export type Oil0702ValidationResult = {
+    status: boolean;
+    message: string;
+    data: Oil0702ValidationRow[];
+};

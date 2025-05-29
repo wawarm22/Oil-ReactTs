@@ -11,11 +11,6 @@ export type OCRFieldRow = {
     };
 };
 
-// export interface FieldCompare {
-//     properties?: { [key: string]: { value: string } };
-//     detail_table?: { [column: string]: OCRFieldProperty };
-// }
-
 export type OCRValidationPayload = {
     docType: string;
     fields: OCRFieldRow[];
@@ -315,6 +310,27 @@ export type ValidateOilCompareResponse = {
         }
         | OilCompareProductValidation
     )[];
+};
+
+export type Oil0702Property = {
+    label?: string; 
+    value: string;
+};
+
+export type Oil0702Properties = {
+    [key: string]: Oil0702Property;
+};
+
+export type Oil0702Field = {
+    properties: Oil0702Properties;
+};
+
+export type ValidateOil0702Data = {
+    docType: string;
+    documentGroup: string;
+    company: string;
+    factories: string;
+    fields: Oil0702Field[];
 };
 
 

@@ -2,17 +2,18 @@ import React, { useEffect, useState } from "react";
 import { OcrDailyProductionDocument } from "../../types/ocrFileType";
 import { cleanCellValue, renderLabel } from "../../utils/function/ocrUtils";
 import { useCompanyStore } from "../../store/companyStore";
-import { validateOil0701 } from "../../utils/api/validateApi";
+import { validateOil0702 } from "../../utils/api/validateApi";
+import { Oil0702ValidationResult } from "../../types/validateResTypes";
 
 interface Props {
     data: OcrDailyProductionDocument;
 }
 
-const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
+const ChecklistForm0702: React.FC<Props> = ({ data }) => {
     const { selectedCompany } = useCompanyStore();
     const tables = data.detail_table ?? [];
-    const factoriesNumber = localStorage.getItem("warehouse") ?? null;
-    const [_validationResult, setValidationResult] = useState<any>(null);
+    const factoriesNumber = localStorage.getItem("warehouse") ?? "";
+    const [validationResult, setValidationResult] = useState<Oil0702ValidationResult | null>(null);
 
     if (tables.length === 0) return <p className="text-muted">ไม่พบข้อมูลตาราง</p>;
 
@@ -20,11 +21,11 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
         { key: "column_1", label: "วันเดือนปี" },
         { key: "column_2", label: "รายการ" },
         { key: "column_3", label: "หลักฐานเลขที่" },
-        { key: "column_4", label: "จำนวนรับ\nผลิตได้" },
+        { key: "column_4", label: "ผลิตได้" },
         { key: "column_5", label: "รับคืนจากคลังสินค้าทัณฑ์บน" },
         { key: "column_6", label: "อื่นๆ" },
         { key: "column_7", label: "รวมรับสินค้า" },
-        { key: "column_8", label: "จำนวนจ่าย\nจำหน่ายในประเทศ" },
+        { key: "column_8", label: "จำหน่ายในประเทศ" },
         { key: "column_9", label: "จำหน่ายต่างประเทศ" },
         { key: "column_10", label: "ใช้ในโรงงานอุตสาหกรรม" },
         { key: "column_11", label: "คลังสินค้าทัณฑ์บน" },
@@ -45,13 +46,26 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
         const props = summaryRow.properties as Record<string, any>;
         fixedLabels.forEach(({ key, label }) => {
             const value = cleanCellValue(props?.[key]?.value ?? "");
-            if (value && value !== "-") {
+            if (key !== "column_1" && value && value !== "-") {
                 summaryContent.push({ label, value });
             }
         });
     }
 
-    const ocrFieldRows = tables.map((row) => {
+    let startIdx = 2;
+    const checkProps = tables[2]?.properties as Record<string, any> | undefined;
+    const checkValue = checkProps?.column_2?.value ?? "";
+
+    if (
+        checkValue
+            .replace(/\s+/g, "")
+            .toLowerCase()
+            .includes("ยอดยก")
+    ) {
+        startIdx = 3;
+    }
+
+    const ocrFieldRows = tables.slice(startIdx).map((row) => {
         const props = row.properties as Record<string, any>;
         const properties: Record<string, { value: string }> = {};
         fixedLabels.forEach(({ key, label }) => {
@@ -61,27 +75,33 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
         return { properties };
     });
 
-    useEffect(() => {
-        if (ocrFieldRows.length > 0 && selectedCompany) {
-            const payload = {
-                docType: "oil-07-02-page-1",
-                company: selectedCompany.name,
-                factories: factoriesNumber,
-                fields: ocrFieldRows
-            };
+    const extraLabelMap: Record<string, string | undefined> = {
+        column_4: "จำนวนรับ",
+        column_8: "จำนวนจ่าย",
+    };
 
-            validateOil0701(payload).then((res) => {
-                console.log("ผลลัพธ์ Validate:", res);
-                setValidationResult(res);
-            });
-        }
-    }, [ocrFieldRows, selectedCompany]);
+    useEffect(() => {
+        if (!selectedCompany?.name || ocrFieldRows.length === 0) return;
+        const payload = {
+            docType: data.docType,
+            documentGroup: data.documentGroup,
+            company: selectedCompany.name,
+            factories: factoriesNumber,
+            fields: ocrFieldRows
+        };
+
+        validateOil0702(payload).then((res) => {
+            if (JSON.stringify(res) !== JSON.stringify(validationResult)) {
+                setValidationResult(res as Oil0702ValidationResult);
+            }
+        });
+    }, [JSON.stringify(ocrFieldRows), selectedCompany?.name]);
 
     return (
         <div className="d-flex flex-column">
             <div>
                 {renderLabel("แบบฟอร์ม")}
-                <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.form_type)}</div>
+                <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>ภส.07-02</div>
             </div>
             <div>
                 {renderLabel("ประเภทสินค้า")}
@@ -104,14 +124,21 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
                 <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.product_unit)}</div>
             </div>
 
-            {tables.slice(3).map((row, idx) => {
-                const props = row.properties as Record<string, any>;
+            {ocrFieldRows.map((row, idx) => {
+                const validateRow = validationResult?.data?.find(v => v.row === idx);
                 return (
                     <div key={idx} className="d-flex flex-column gap-1 pt-3 border-top mt-3">
                         {fixedLabels.map(({ key, label }) => {
-                            const raw = cleanCellValue(props?.[key]?.value ?? "");
+                            const raw = row.properties[label]?.value ?? "";
+                            const cellValidation = validateRow?.properties?.[label];
+                            const borderColor = cellValidation?.passed === true
+                                ? "#22C659"
+                                : cellValidation?.passed === false
+                                    ? "#FF0100"
+                                    : "#CED4DA";
                             return (
                                 <React.Fragment key={`${idx}-${key}`}>
+                                    {extraLabelMap[key] && renderLabel(extraLabelMap[key]!)}
                                     {renderLabel(label)}
                                     <div
                                         className="rounded-2 shadow-sm bg-white mb-2"
@@ -120,7 +147,7 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
                                             whiteSpace: "pre-line",
                                             padding: "10px",
                                             minHeight: "42px",
-                                            border: `1.5px solid #22C659`
+                                            border: `1.5px solid ${borderColor}`,
                                         }}
                                     >
                                         {raw}
@@ -134,19 +161,36 @@ const ChecklistDailyProduction: React.FC<Props> = ({ data }) => {
 
             {summaryContent.length > 0 && (
                 <div className="pt-2 border-top mt-3">
-                    {/* <div className="fw-bold mb-1" style={{ fontSize: "18px"}}>รวมเดือนนี้</div> */}
-                    {summaryContent.map(({ label, value }, idx) => (
-                        <React.Fragment key={`summary-${idx}`}>
-                            {renderLabel(label)}
-                            <div className="rounded-2 shadow-sm bg-white mb-2" style={{ fontSize: "13px", whiteSpace: "pre-line", padding: "10px", border: `1.5px solid #22C659` }}>
-                                {value}
-                            </div>
-                        </React.Fragment>
-                    ))}
+                    <div className="fw-bold mb-1" style={{ fontSize: "18px" }}>รวมเดือนนี้</div>
+                    {summaryContent.map(({ label, value }, idx) => {
+                        const fixed = fixedLabels.find(fl => fl.label === label);
+                        // หา validation row สำหรับ summary (row สุดท้าย)
+                        const summaryValidationRow = validationResult?.data?.[validationResult.data.length - 1];
+                        const cellValidation = summaryValidationRow?.properties?.[label];
+                        const borderColor = cellValidation?.passed === true
+                            ? "#22C659"
+                            : cellValidation?.passed === false
+                                ? "#FF0100"
+                                : "#CED4DA";
+                        return (
+                            <React.Fragment key={`summary-${idx}`}>
+                                {fixed && extraLabelMap[fixed.key] && renderLabel(extraLabelMap[fixed.key]!)}
+                                <div className="mt-1">{renderLabel(label)}</div>
+                                <div className="rounded-2 shadow-sm bg-white mb-2 mt-1" style={{
+                                    fontSize: "13px",
+                                    whiteSpace: "pre-line",
+                                    padding: "10px",
+                                    border: `1.5px solid ${borderColor}`,
+                                }}>
+                                    {value}
+                                </div>
+                            </React.Fragment>
+                        );
+                    })}
                 </div>
             )}
         </div>
     );
 };
 
-export default ChecklistDailyProduction;
+export default ChecklistForm0702;
