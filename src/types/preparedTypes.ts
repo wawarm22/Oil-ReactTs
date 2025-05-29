@@ -64,11 +64,24 @@ export type PreparedFormularApprovResponse = {
     docType: string;
     documentGroup: string;
     fields: {
-        product: string;
-        materials: {
-            name: string;
-            quantity: string;
-        }[];
-        total: number;
+        items: PreparedFormularProductItem[];
     };
 };
+
+export type PreparedFormularProductItem = {
+    index: number;
+    product: {
+        name: string;
+        type: string;
+        unit: string;
+        materials: PreparedFormularMaterial[];
+    };
+    total: number;
+};
+
+export type PreparedFormularMaterial = {
+    name: string;
+    unit: string;
+    quantity: string;
+};
+
