@@ -16,8 +16,10 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
     const [loading, setLoading] = useState(true);
 
     const cleanValue = (val?: string | null): string => {
-        if (!val || val.toString().trim() === "" || val === ":unselected:") return "-";
-        return val.toString().trim();
+        if (!val || val.toString().trim() === "" || val === ":unselected:") return "";
+        let str = val.toString().trim();
+        str = str.replace(/[_\.]/g, "");
+        return str;
     };
 
     useEffect(() => {
@@ -50,7 +52,7 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
     }
 
     const getBorderColor = (fieldKey: string): string => {
-        if (!validateData || !validateData[fieldKey]) return "1px solid #dee2e6";
+        if (!validateData || !validateData[fieldKey]) return "1px solid #22C659";
         return validateData[fieldKey].passed ? "1px solid #22C659" : "1px solid #FF0100";
     };
 
@@ -67,6 +69,14 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
         { key: "zipcode", label: "รหัสไปรษณีย์", value: cleanValue(ocrData?.fields.zipcode) },
         { key: "tel_no", label: "โทรศัพท์", value: cleanValue(ocrData?.fields.tel_no) },
     ];
+
+    const formatNumber = (val: any) => {
+        if (typeof val === "number" && !isNaN(val)) return val.toLocaleString();
+        if (typeof val === "string" && val.trim() !== "" && !isNaN(Number(val))) {
+            return Number(val).toLocaleString();
+        }
+        return val;
+    };
 
     return (
         <div className="d-flex flex-column gap-2">
@@ -91,7 +101,7 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
 
                         const productFields = [
                             { label: "ลำดับที่", value: product.index.toString() },
-                            { key: "product_name", label: "รายการวัตถุดิบ", value: product.product_name.toString() },
+                            { key: "product_name", label: "รายการวัตถุดิบ", value: product.product_name },
                             { key: "quantity", label: "ปริมาณที่ใช้ผลิต", value: product.quantity.toString() },
                             { key: "tax_by_value_baht", label: "อัตราภาษีตามมูลค่า (บาท)", value: product.tax_by_value_baht.toString() },
                             { key: "tax_by_value_satang", label: "อัตราภาษีตามมูลค่า (สต.)", value: product.tax_by_value_satang.toString() },
@@ -102,9 +112,9 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
                         ];
 
                         const getProductBorderColor = (key: string): string => {
-                            if (!validateData?.products) return "1px solid #dee2e6";
+                            if (!validateData?.products) return "1px solid #22C659";
                             const product = validateData.products.find((p: any) => p[key]);
-                            if (!product || !product[key]) return "1px solid #dee2e6";
+                            if (!product || !product[key]) return "1px solid #22C659";
                             return product[key].passed ? "1px solid #22C659" : "1px solid #FF0100";
                         };
 
@@ -116,9 +126,9 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
                                         <div className="fw-bold">{label}</div>
                                         <div
                                             className={`rounded-2 shadow-sm bg-white p-2 mb-2`}
-                                            style={{ fontSize: "14px", border: key ? getProductBorderColor(key) : "1px solid #dee2e6" }}
+                                            style={{ fontSize: "14px", border: key ? getProductBorderColor(key) : "1px solid #22C659" }}
                                         >
-                                            {value}
+                                            {formatNumber(value)}
                                         </div>
                                     </div>
                                 ))}

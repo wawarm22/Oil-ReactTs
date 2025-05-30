@@ -157,3 +157,68 @@ export type ValidateFormularApprovData = {
     items: ValidateFormularApprovItem[];
 };
 
+export type Validate0503Page1Cell = {
+    value: string | number;
+    expected: string | number;
+    passed: boolean;
+};
+
+export type Validate0503Page1Product = {
+    index: number;
+    product_name: Validate0503Page1Cell;
+    quantity: Validate0503Page1Cell;
+    tax_by_value_baht: Validate0503Page1Cell;
+    tax_by_value_satang: Validate0503Page1Cell;
+    tax_by_volumn_baht: Validate0503Page1Cell;
+    tax_by_volumn_satang: Validate0503Page1Cell;
+    discount_baht: Validate0503Page1Cell;
+    discount_satang: Validate0503Page1Cell;
+};
+
+export type Validate0503Page1Result = {
+    data: {
+        form_name: Validate0503Page1Cell;
+        ref_no: Validate0503Page1Cell;
+        request_no: Validate0503Page1Cell;
+        request_date: Validate0503Page1Cell;
+        request_officer: Validate0503Page1Cell;
+        company_name: Validate0503Page1Cell;
+        factory_name: Validate0503Page1Cell;
+        excise_no: Validate0503Page1Cell;
+        address_no: Validate0503Page1Cell;
+        village_no: Validate0503Page1Cell;
+        soi: Validate0503Page1Cell;
+        street: Validate0503Page1Cell;
+        sub_district: Validate0503Page1Cell;
+        district: Validate0503Page1Cell;
+        province: Validate0503Page1Cell;
+        zipcode: Validate0503Page1Cell;
+        tel_no: Validate0503Page1Cell;
+        form_0503a_ref: Validate0503Page1Cell;
+        form_0503b_ref: Validate0503Page1Cell;
+        products: Validate0503Page1Product[];
+        total_tax: Validate0503Page1Cell;
+    };
+};
+
+export type Validate0503Page2Cell = {
+    value: string | number;
+    expected: string | number;
+    passed: boolean;
+};
+
+export type Validate0503Page2Result = {
+    data: {
+        ref_no: Validate0503Page2Cell;
+        excise_tax: Validate0503Page2Cell;
+        health_fund: Validate0503Page2Cell;
+        radio_fund: Validate0503Page2Cell;
+        sport_fund: Validate0503Page2Cell;
+        elder_fund: Validate0503Page2Cell;
+        interior_tax: Validate0503Page2Cell;
+        total_tax: Validate0503Page2Cell;
+    };
+};
+
+
+

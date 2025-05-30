@@ -170,16 +170,21 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
 
     useEffect(() => {
         if (ocrFieldRows.length > 0 && selectedCompany) {
+            const cleanRows = ocrFieldRows.map(row => ({
+                properties: Object.fromEntries(
+                    Object.entries(row.properties).map(([k, v]) => [k, { value: v.value }])
+                )
+            }));
+
             const payload = {
                 docType: data.docType,
                 company: selectedCompany.name,
                 factories: factoriesNumber ?? "",
                 documentGroup: data.documentGroup,
-                fields: ocrFieldRows,
+                fields: cleanRows, 
             };
 
             validateOil0307(payload).then((res) => {
-                console.log("ผลลัพธ์ Validate:", res);
                 setValidationResult(res);
             });
         }

@@ -40,25 +40,25 @@ const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data 
 
     return (
         <div className="d-flex flex-column gap-4">
-            {ocrData.fields.items.map((item, idx) => {                
+            {ocrData.fields.items.map((item, idx) => {
                 const itemValidate = validateResult?.items?.[idx];
                 return (
                     <div key={idx} className="d-flex flex-column gap-2 border-bottom mb-1">
-                        {item.product.name && (
+                        {item.no && (
                             <div>
-                                <div className="fw-bold">สินค้า</div>
+                                <div className="fw-bold">ลำดับ</div>
                                 <div
                                     className="rounded-2 shadow-sm bg-white p-2"
                                     style={{
                                         minHeight: "42px",
-                                        border: itemValidate?.product?.name?.passed === false
+                                        border: itemValidate?.no?.passed === false
                                             ? "1.5px solid #FF0100"
-                                            : itemValidate?.product?.name?.passed === true
+                                            : itemValidate?.no?.passed === true
                                                 ? "1.5px solid #22C659"
                                                 : "1.5px solid #CED4DA"
                                     }}
                                 >
-                                    {item.product.name}
+                                    {item.no}
                                 </div>
                             </div>
                         )}
@@ -77,6 +77,24 @@ const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data 
                                     }}
                                 >
                                     {item.product.type}
+                                </div>
+                            </div>
+                        )}
+                        {item.product.name && (
+                            <div>
+                                <div className="fw-bold">ชื่อสินค้าที่ผลิต</div>
+                                <div
+                                    className="rounded-2 shadow-sm bg-white p-2"
+                                    style={{
+                                        minHeight: "42px",
+                                        border: itemValidate?.product?.name?.passed === false
+                                            ? "1.5px solid #FF0100"
+                                            : itemValidate?.product?.name?.passed === true
+                                                ? "1.5px solid #22C659"
+                                                : "1.5px solid #CED4DA"
+                                    }}
+                                >
+                                    {item.product.name}
                                 </div>
                             </div>
                         )}
