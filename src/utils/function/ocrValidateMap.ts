@@ -1,5 +1,5 @@
-import { FieldValidation, ValidationResult0307, ValidationResultData } from "../../types/validateResTypes";
-import { validateSubmission, validateOilCompare, validateOil0701, validateOil0307, validateAttachment0307, validateOil0704, validateReceitpPayment, validateOutturn } from "../api/validateApi";
+import { FieldValidation, ValidateFormularApprovData, ValidationResult0307, ValidationResultData } from "../../types/validateResTypes";
+import { validateSubmission, validateOilCompare, validateOil0701, validateOil0307, validateAttachment0307, validateOil0704, validateReceitpPayment, validateOutturn, validateFormularApprov } from "../api/validateApi";
 import { buildOcr0307FieldRows } from "./ocrFieldRowsBuilder";
 
 const buildTaxPayload = (ocr: any) => ({
@@ -17,7 +17,7 @@ const buildTaxPayload = (ocr: any) => ({
 });
 
 const buildOilComparePayload = (ocr: any) => ({
-    docType: "oil-compare-1",
+    docType: ocr.docType,
     company: ocr.company ?? "",
     factories: ocr.depot ?? "",
     documentGroup: ocr.documentGroup ?? "",
@@ -28,7 +28,7 @@ const buildOilComparePayload = (ocr: any) => ({
 });
 
 const buildOil0701Payload = (ocr: any, context: { materialID: string; company: string; factories: string }) => ({
-    docType: "oil-07-01-page-1",
+    docType: ocr.docType,
     documentGroup: ocr.documentGroup ?? "",
     materialID: context.materialID ?? "",
     company: context.company ?? "",
@@ -36,16 +36,16 @@ const buildOil0701Payload = (ocr: any, context: { materialID: string; company: s
     fields: ocr.detail_table ?? [],
 });
 
-export const buildAttachment0307Payload = (_page1: any, context: any) => ({
-    docType: "oil-formular-2",
+export const buildAttachment0307Payload = (page1: any, context: any) => ({
+    docType: page1.docType,
     company: context.company ?? "",
     factories: context.factories ?? "",
     documentGroup: context.documentGroup ?? "",
     fields: context.preparedData,
 });
 
-const buildOil0704Payload = (_ocr: any, context: any) => ({
-    docType: "oil-07-04-page-1",
+const buildOil0704Payload = (ocr: any, context: any) => ({
+    docType: ocr.docType,
     documentGroup: context.documentGroup,
     fields: {
         ...context.genFields,
@@ -54,8 +54,14 @@ const buildOil0704Payload = (_ocr: any, context: any) => ({
     },
 });
 
-const buildIncomeExpensePayload = (_ocr: any, context: any) => ({
-    docType: "oil-income-n-expense-1",
+const buildIncomeExpensePayload = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+});
+
+const buildFormularApprovPayload = (ocr: any, context: any) => ({
+    docType: ocr.docType,
     documentGroup: context.documentGroup ?? "",
     fields: context.fields ?? {},
 });
@@ -69,7 +75,7 @@ const buildOutturnPayload = (ocr: any, context?: any) => {
     const nameQuantity = (typeof name.value === "string" ? name.value : "") ?? "";
 
     return {
-        docType: "oil-shore-tank-1",
+        docType: ocr.docType,
         company: context?.company ?? ocr.company ?? "",
         factories: context?.factories ?? ocr.factories ?? "",
         documentGroup: ocr.documentGroup ?? "",
@@ -88,27 +94,18 @@ const check0307Failed = (res: any) =>
         Object.values(row?.properties ?? {}).some((cell: any) => cell?.passed === false)
     );
 
-// const checkTaxFailed = (res: any) =>
-//     Array.isArray(res?.data) &&
-//         res.data[0]?.properties
-//         ? Object.values(res.data[0].properties).some((v: any) => v.passed === false)
-//         : false;
 const checkTaxFailed = (res: any) => {
-    // เช็คว่า res?.data เป็น Array หรือไม่
     if (Array.isArray(res?.data)) {
         return res.data.some((row: any) => {
-            // เช็คแต่ละ properties ภายใน row ว่ามี passed เป็น false หรือไม่
             return Object.values(row?.properties ?? {}).some((v: any) => v.passed === false);
         });
     }
 
-    // กรณีที่ data ไม่เป็น Array หรือมีรูปแบบต่างๆ สามารถปรับให้รองรับ
-    // ตัวอย่างกรณีแรกที่มี properties ในระดับแรก
     if (res?.data?.properties) {
         return Object.values(res?.data.properties).some((v: any) => v.passed === false);
     }
 
-    return false; // หากไม่มีข้อมูลที่ตรงตามเงื่อนไข
+    return false;
 };
 const checkOilCompareFailed = (res: any) =>
     Array.isArray(res?.data) &&
@@ -174,6 +171,33 @@ const checkIncomeExpenseFailed = (res: { data?: Partial<ValidationResultData> } 
     }
 
     return false;
+};
+
+const checkFormularApprovFailed = (res: { data?: ValidateFormularApprovData } | null | undefined): boolean => {
+    const data = res?.data;
+    if (!data || !Array.isArray(data.items)) return true;
+
+    for (const item of data.items) {
+        if (item.no && item.no.passed === false) return true;
+        if (item.total && item.total.passed === false) return true;
+
+        if (item.product) {
+            if (item.product.name && item.product.name.passed === false) return true;
+            if (item.product.type && item.product.type.passed === false) return true;
+            if (item.product.unit && item.product.unit.passed === false) return true;
+
+            if (Array.isArray(item.product.materials)) {
+                for (const mat of item.product.materials) {
+                    if (mat.name && mat.name.passed === false) return true;
+                    if (mat.quantity && mat.quantity.passed === false) return true;
+                    if (mat.unit && mat.unit.passed === false) return true;
+                    if (mat.remark && mat.remark.passed === false) return true;
+                }
+            }
+        }
+    }
+
+    return false; 
 };
 
 export const checkAttachment0307Failed = (res: { data?: ValidationResult0307 }): boolean => {
@@ -259,7 +283,7 @@ export const OCR_VALIDATE_MAP: Record<
     },
     "oil-03-07-page-1": {
         buildPayload: (ocr) => ({
-            docType: "oil-03-07-page-1",
+            docType: ocr.docType,
             company: ocr.company ?? "",
             factories: ocr.factories ?? "",
             documentGroup: ocr.documentGroup ?? "",
@@ -292,6 +316,13 @@ export const OCR_VALIDATE_MAP: Record<
         buildPayload: buildOutturnPayload,
         api: validateOutturn,
         checkFailed: checkOutturnFailed,
+    },
+    "oil-formular-5": {
+        buildPayload: buildFormularApprovPayload,
+        api: validateFormularApprov,
+        checkFailed: checkFormularApprovFailed,
+        needsContext: true,
+        needsAuth: true,
     },
 };
 

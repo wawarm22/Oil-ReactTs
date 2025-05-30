@@ -4,6 +4,7 @@ import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { AuthSchema } from "../../types/schema/auth";
 import { getPreparedFormularApprov, validateFormularApprov } from "../../utils/api/validateApi";
 import { PreparedFormularApprovResponse } from "../../types/preparedTypes";
+import { ValidateFormularApprovData } from "../../types/validateResTypes";
 
 interface ChecklistGroupedProductProps {
     data: OcrGroupedProductDocument;
@@ -13,7 +14,7 @@ const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data 
     const auth = useAuthUser<AuthSchema>();
     const [ocrData, setOcrData] = useState<PreparedFormularApprovResponse | null>(null);
     const [loading, setLoading] = useState(true);
-    const [validateResult, setValidateResult] = useState<any>(null);
+    const [validateResult, setValidateResult] = useState<ValidateFormularApprovData | null>(null);
 
     useEffect(() => {
         if (!auth || !data.id) return;
@@ -28,7 +29,7 @@ const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data 
     useEffect(() => {
         if (!ocrData) return;
         validateFormularApprov(ocrData)
-            .then(res => setValidateResult(res))
+            .then(res => setValidateResult(res.data))
             .catch(() => setValidateResult(null));
     }, [ocrData]);
 
@@ -40,7 +41,7 @@ const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data 
     return (
         <div className="d-flex flex-column gap-4">
             {ocrData.fields.items.map((item, idx) => {                
-                const itemValidate = validateResult?.data?.items?.[idx];
+                const itemValidate = validateResult?.items?.[idx];
                 return (
                     <div key={idx} className="d-flex flex-column gap-2 border-bottom mb-1">
                         {item.product.name && (
