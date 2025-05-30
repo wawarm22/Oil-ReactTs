@@ -46,7 +46,6 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({ data, oi
 
     useEffect(() => {
         const fetchMaterialType = async () => {
-            // เลือกใช้ oilTypeFromPrevPage ถ้ามี, ถ้าไม่มีก็ใช้ data.oil_type
             const oilType = oilTypeFromPrevPage || data.oil_type;
 
             if (!oilType || !selectedCompany?.name || !factoriesName) return;
@@ -96,7 +95,7 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({ data, oi
             if (isYodyokma) continue;
 
             const isSummary = Object.values(properties).some(cell => {
-                const val = (cell?.value ?? "").replace(/\s+/g, ""); 
+                const val = (cell?.value ?? "").replace(/\s+/g, "");
                 return val.includes("รวมเดือน");
             });
 
@@ -171,11 +170,11 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({ data, oi
                         <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>ภส.07-01</div>
                     </div>
                     <div>
-                        {renderLabel("ประเภทสินค้า")}
-                        <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.oil_type)}</div>
+                        {renderLabel("ประเภทวัตถุดิบ")}
+                        <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{(data.oil_type)}</div>
                     </div>
                     <div>
-                        {renderLabel("ชนิด")}
+                        {renderLabel("หน่วย")}
                         <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.oil_unit)}</div>
                     </div>
                 </>
@@ -184,7 +183,10 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({ data, oi
             {allRowsState.map((row, idx) => {
                 const isSummary = row.__isSummary === true;
                 const validationRow = validationResult?.data?.find((vRow: any) => vRow.row === idx);
-
+                const col1 = row["column_1"];
+                if (!col1 || col1 === "" || col1 === ":unselected:" || (typeof col1 === "string" && col1.trim() === "")) {
+                    if (!isSummary) return null;
+                }
                 return (
                     <div key={idx} className="d-flex flex-column gap-1 pt-1">
                         {isSummary && <div className="fw-bold" style={{ fontSize: "18px" }}>รวมเดือนนี้</div>}

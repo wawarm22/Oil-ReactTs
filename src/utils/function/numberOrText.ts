@@ -1,5 +1,7 @@
 export const numberOrText = (val: any) => {
     if (val === null || val === undefined) return "";
-    if (!isNaN(Number(val)) && val !== "") return Number(val).toLocaleString();
+    if (typeof val === "number" && !isNaN(val)) {
+        return val.toLocaleString();
+    }
     return String(val);
 };

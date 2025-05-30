@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { OcrGroupedProductDocument } from "../../types/ocrFileType";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { AuthSchema } from "../../types/schema/auth";
-import { getPreparedFormularApprov } from "../../utils/api/validateApi";
+import { getPreparedFormularApprov, validateFormularApprov } from "../../utils/api/validateApi";
 import { PreparedFormularApprovResponse } from "../../types/preparedTypes";
+import { ValidateFormularApprovData } from "../../types/validateResTypes";
 
 interface ChecklistGroupedProductProps {
     data: OcrGroupedProductDocument;
@@ -11,118 +12,181 @@ interface ChecklistGroupedProductProps {
 
 const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data }) => {
     const auth = useAuthUser<AuthSchema>();
-    const [_ocrData, setOcrData] = useState<PreparedFormularApprovResponse | null>(null);
-    const [_loading, setLoading] = useState(true);
+    const [ocrData, setOcrData] = useState<PreparedFormularApprovResponse | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [validateResult, setValidateResult] = useState<ValidateFormularApprovData | null>(null);
 
     useEffect(() => {
         if (!auth || !data.id) return;
 
         setLoading(true);
         getPreparedFormularApprov(data.id, auth)
-            .then(res => {
-                setOcrData(res.data);
-            })
-            .catch(() => {
-                setOcrData(null);
-            })
+            .then(res => setOcrData(res.data))
+            .catch(() => setOcrData(null))
             .finally(() => setLoading(false));
     }, [data.id, auth]);
 
-    const groupProducts = () => {
-        const groups: {
-            productName: string;
-            ingredients: { label: string; value?: string }[];
-        }[] = [];
+    useEffect(() => {
+        if (!ocrData) return;
+        validateFormularApprov(ocrData)
+            .then(res => setValidateResult(res.data))
+            .catch(() => setValidateResult(null));
+    }, [ocrData]);
 
-        let currentProductNames: string[] = [];
-        let currentIngredients: { label: string; value?: string }[] = [];
-        let stopGrouping = false;
-
-        // const materials = ocrData?.fields?.materials;
-        // const productName = ocrData?.fields?.product || "";
-
-        for (let idx = 0; idx < data.detail_table.length; idx++) {
-            const row = data.detail_table[idx];
-            const props = row?.properties ?? {};
-
-            const no = props.no?.value?.trim().replace(/\n/g, " ");
-            const productType = props.product_type?.value?.trim().replace(/\n/g, " ");
-            const productName = props.product_name?.value?.trim().replace(/\n/g, " ");
-            const unit = props.unit?.value?.trim().replace(/\n/g, " ");
-
-            // const materialType = materials && materials[idx] ? materials[idx].name : undefined;
-            // const materialValue = materials && materials[idx] ? materials[idx].quantity : undefined;
-
-            const materialType = props.material_type?.value?.trim().replace(/\n/g, " ");
-            const materialUnit = props.material_unit?.value?.trim().replace(/\n/g, " ");
-            const materialValue = props.material_value?.value?.trim().replace(/\n/g, " ");
-
-            if (materialType && materialType.includes("รวม")) {
-                currentIngredients.push({
-                    label: "รวม",
-                    value: materialValue || ""
-                });
-
-                groups.push({
-                    productName: currentProductNames.join(" "),
-                    ingredients: [...currentIngredients],
-                });
-                stopGrouping = true;
-                break;
-            }
-
-            if (productName) currentProductNames.push(productName);
-
-            if (no) currentIngredients.push({ label: "ลำดับ", value: no });
-            if (productType) currentIngredients.push({ label: "ประเภทสินค้า", value: productType });
-            if (productName) currentIngredients.push({ label: "ชื่อสินค้าที่ผลิต", value: productName });
-            if (unit) currentIngredients.push({ label: "แบบหรือขนาด", value: unit });
-
-            if (materialType) {
-                currentIngredients.push({ label: "รายการวัตถุดิบหรือส่วนประกอบที่นำมาใช้ในการผลิตสินค้า (ต่อสินค้า 1 หน่วย)" });
-            }
-
-            if (materialType) currentIngredients.push({ label: "ประเภท", value: materialType });
-            if (materialUnit) currentIngredients.push({ label: "แบบหรือขนาด", value: materialUnit });
-            if (materialValue) currentIngredients.push({ label: "ปริมาณหรือจำนวน", value: materialValue });
-        }
-
-        if (!stopGrouping && (currentProductNames.length || currentIngredients.length)) {
-            groups.push({
-                productName: currentProductNames.join(" "),
-                ingredients: [...currentIngredients],
-            });
-        }
-
-        return groups;
-    };
-
-    const grouped = groupProducts();
-
-    if (grouped.length === 0) {
+    if (loading) return <div>กำลังรอข้อมูล...</div>;
+    if (!ocrData || !ocrData.fields?.items?.length) {
         return <p className="text-muted">ไม่พบข้อมูลวัตถุดิบ</p>;
     }
 
     return (
         <div className="d-flex flex-column gap-4">
-            {grouped.map((group, index) => (
-                <div key={index} className="d-flex flex-column gap-2">
-
-                    {group.ingredients.map((item, i) => (
-                        <div key={i} className="d-flex flex-column gap-2">
-                            <div className="fw-bold">{item.label}</div>
-                            {item.value && (
+            {ocrData.fields.items.map((item, idx) => {                
+                const itemValidate = validateResult?.items?.[idx];
+                return (
+                    <div key={idx} className="d-flex flex-column gap-2 border-bottom mb-1">
+                        {item.product.name && (
+                            <div>
+                                <div className="fw-bold">สินค้า</div>
                                 <div
-                                    className="border rounded-2 shadow-sm bg-white"
-                                    style={{ fontSize: "14px", whiteSpace: "pre-line", padding: "10px" }}
+                                    className="rounded-2 shadow-sm bg-white p-2"
+                                    style={{
+                                        minHeight: "42px",
+                                        border: itemValidate?.product?.name?.passed === false
+                                            ? "1.5px solid #FF0100"
+                                            : itemValidate?.product?.name?.passed === true
+                                                ? "1.5px solid #22C659"
+                                                : "1.5px solid #CED4DA"
+                                    }}
                                 >
-                                    {item.value || ""}
+                                    {item.product.name}
                                 </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            ))}
+                            </div>
+                        )}
+                        {item.product.type && (
+                            <div>
+                                <div className="fw-semibold">ประเภทสินค้า</div>
+                                <div
+                                    className="rounded-2 shadow-sm bg-white p-2"
+                                    style={{
+                                        minHeight: "42px",
+                                        border: itemValidate?.product?.type?.passed === false
+                                            ? "1.5px solid #FF0100"
+                                            : itemValidate?.product?.type?.passed === true
+                                                ? "1.5px solid #22C659"
+                                                : "1.5px solid #CED4DA"
+                                    }}
+                                >
+                                    {item.product.type}
+                                </div>
+                            </div>
+                        )}
+                        {item.product.unit && (
+                            <div>
+                                <div className="fw-semibold">แบบหรือขนาด</div>
+                                <div
+                                    className="rounded-2 shadow-sm bg-white p-2"
+                                    style={{
+                                        minHeight: "42px",
+                                        border: itemValidate?.product?.unit?.passed === false
+                                            ? "1.5px solid #FF0100"
+                                            : itemValidate?.product?.unit?.passed === true
+                                                ? "1.5px solid #22C659"
+                                                : "1.5px solid #CED4DA"
+                                    }}
+                                >
+                                    {item.product.unit}
+                                </div>
+                            </div>
+                        )}
+
+                        {item.product.materials?.length > 0 && (
+                            <div className="mt-1">
+                                <div className="fw-semibold mb-2">วัตถุดิบ/ส่วนประกอบที่นำมาใช้ (ต่อสินค้า 1 หน่วย)</div>
+                                {item.product.materials.map((mat, midx) => {
+                                    const matValidate = itemValidate?.product?.materials?.[midx];
+                                    return (
+                                        <div key={midx} className="mb-0">
+                                            {mat.name && (
+                                                <div>
+                                                    <div className="fw-semibold">ประเภท</div>
+                                                    <div
+                                                        className="rounded-2 shadow-sm bg-white p-2"
+                                                        style={{
+                                                            minHeight: "42px",
+                                                            border: matValidate?.name?.passed === false
+                                                                ? "1.5px solid #FF0100"
+                                                                : matValidate?.name?.passed === true
+                                                                    ? "1.5px solid #22C659"
+                                                                    : "1.5px solid #CED4DA"
+                                                        }}
+                                                    >
+                                                        {mat.name}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {mat.unit && (
+                                                <div>
+                                                    <div className="fw-semibold">หน่วย</div>
+                                                    <div
+                                                        className="rounded-2 shadow-sm bg-white p-2"
+                                                        style={{
+                                                            minHeight: "42px",
+                                                            border: matValidate?.unit?.passed === false
+                                                                ? "1.5px solid #FF0100"
+                                                                : matValidate?.unit?.passed === true
+                                                                    ? "1.5px solid #22C659"
+                                                                    : "1.5px solid #CED4DA"
+                                                        }}
+                                                    >
+                                                        {mat.unit}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {mat.quantity && (
+                                                <div>
+                                                    <div className="fw-semibold">ปริมาณหรือจำนวน</div>
+                                                    <div
+                                                        className="rounded-2 shadow-sm bg-white p-2"
+                                                        style={{
+                                                            minHeight: "42px",
+                                                            border: matValidate?.quantity?.passed === false
+                                                                ? "1.5px solid #FF0100"
+                                                                : matValidate?.quantity?.passed === true
+                                                                    ? "1.5px solid #22C659"
+                                                                    : "1.5px solid #CED4DA"
+                                                        }}
+                                                    >
+                                                        {mat.quantity}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {idx === ocrData.fields.items.length - 1 && (item.total || item.total === 0) && (
+                            <div>
+                                <div className="fw-semibold">รวม</div>
+                                <div
+                                    className="rounded-2 shadow-sm bg-white p-2"
+                                    style={{
+                                        minHeight: "42px",
+                                        border: itemValidate?.total?.passed === false
+                                            ? "1.5px solid #FF0100"
+                                            : itemValidate?.total?.passed === true
+                                                ? "1.5px solid #22C659"
+                                                : "1.5px solid #CED4DA"
+                                    }}
+                                >
+                                    {item.total}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
         </div>
     );
 };

@@ -61,7 +61,6 @@ const ChecklistDailyComparison: React.FC<Props> = ({ data }) => {
                         );
                     }
 
-                    // ถ้าไม่เจอคำว่า รวม → แสดง row ปกติ
                     const normalFields = [
                         { label: "วันที่", value: dateVal },
                         { label: "น้ำมันพื้นฐาน", value: cleanValue(props.column_2) },

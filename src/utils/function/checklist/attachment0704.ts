@@ -243,7 +243,7 @@ export const genRequestObject = async (input: Record<string, any>) => {
     }
 
     return {
-        form_type: fields?.form_type ?? null,
+        form_type: "ภส.๐๗-๐๔",
         request_number: null,
         received_at: fields?.date ?? null,
         form_officer_name: fields?.form_officer_name ?? null,

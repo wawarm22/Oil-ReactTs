@@ -80,6 +80,12 @@ const ChecklistForm0702: React.FC<Props> = ({ data }) => {
         column_8: "จำนวนจ่าย",
     };
 
+    const stopAtIdx = ocrFieldRows.findIndex(row =>
+        Object.values(row.properties).some(cell => (cell.value ?? "").includes("รวมเดือนนี้"))
+    );
+    const rowsToDisplay =
+        stopAtIdx === -1 ? ocrFieldRows : ocrFieldRows.slice(0, stopAtIdx);
+
     useEffect(() => {
         if (!selectedCompany?.name || ocrFieldRows.length === 0) return;
         const payload = {
@@ -124,7 +130,7 @@ const ChecklistForm0702: React.FC<Props> = ({ data }) => {
                 <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.product_unit)}</div>
             </div>
 
-            {ocrFieldRows.map((row, idx) => {
+            {rowsToDisplay.map((row, idx) => {
                 const validateRow = validationResult?.data?.find(v => v.row === idx);
                 return (
                     <div key={idx} className="d-flex flex-column gap-1 pt-3 border-top mt-3">
@@ -135,7 +141,7 @@ const ChecklistForm0702: React.FC<Props> = ({ data }) => {
                                 ? "#22C659"
                                 : cellValidation?.passed === false
                                     ? "#FF0100"
-                                    : "#CED4DA";
+                                    : "#22C659";
                             return (
                                 <React.Fragment key={`${idx}-${key}`}>
                                     {extraLabelMap[key] && renderLabel(extraLabelMap[key]!)}
@@ -164,14 +170,13 @@ const ChecklistForm0702: React.FC<Props> = ({ data }) => {
                     <div className="fw-bold mb-1" style={{ fontSize: "18px" }}>รวมเดือนนี้</div>
                     {summaryContent.map(({ label, value }, idx) => {
                         const fixed = fixedLabels.find(fl => fl.label === label);
-                        // หา validation row สำหรับ summary (row สุดท้าย)
                         const summaryValidationRow = validationResult?.data?.[validationResult.data.length - 1];
                         const cellValidation = summaryValidationRow?.properties?.[label];
                         const borderColor = cellValidation?.passed === true
                             ? "#22C659"
                             : cellValidation?.passed === false
                                 ? "#FF0100"
-                                : "#CED4DA";
+                                : "#22C659";
                         return (
                             <React.Fragment key={`summary-${idx}`}>
                                 {fixed && extraLabelMap[fixed.key] && renderLabel(extraLabelMap[fixed.key]!)}

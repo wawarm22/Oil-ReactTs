@@ -23,7 +23,6 @@ const SectionRenderer: React.FC<Props> = ({ section, rows, validationRows }) => 
             {rows.map((row, idx) => (
                 <div key={idx} className="mb-2">
                     {section.columns.map(col => {
-                        // Validation
                         const validationObj = validationRows && validationRows[idx]
                             ? col.key === "transfer"
                                 ? undefined
@@ -32,7 +31,6 @@ const SectionRenderer: React.FC<Props> = ({ section, rows, validationRows }) => 
                                     : validationRows[idx][col.key]
                             : undefined;
 
-                        // Transfer Special
                         if (col.key === "transfer") {
                             if (!row.transfer || row.transfer.length === 0) return null;
                             return row.transfer.map((t: any, tIdx: number) => {
@@ -91,7 +89,7 @@ const SectionRenderer: React.FC<Props> = ({ section, rows, validationRows }) => 
 
                         // dot notation
                         const val = col.key.split('.').reduce((acc, cur) => acc?.[cur], row);
-                        if (!val || (typeof val === "string" && val.trim() === "")) return null;
+                        if (val === undefined || val === null || (typeof val === "string" && val.trim() === "")) return null;
 
                         return (
                             <div key={col.key}>

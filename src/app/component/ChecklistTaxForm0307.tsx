@@ -11,7 +11,7 @@ interface Props {
 const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
     const { selectedCompany } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse") ?? null;
-    const [_validationResult, setValidationResult] = useState<any>(null);
+    const [validationResult, setValidationResult] = useState<any>(null);
 
     const cleanValue = (val?: string | null): string => {
         if (!val || val.trim() === "" || val === ":unselected:") return "";
@@ -48,7 +48,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
     );
 
     const taxTypePassed = (() => {
-        const props = _validationResult?.data?.[0]?.properties;
+        const props = validationResult?.data?.[0]?.properties;
         if (!props) return null;
         const key = "ประเภทภาษี";
         if (typeof props[key]?.passed === "boolean") return props[key].passed;
@@ -205,8 +205,8 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                                     borderStyle: "solid",
                                     minHeight: "43px",
                                     borderColor:
-                                        typeof _validationResult?.data[0]?.properties?.[label]?.passed === "boolean"
-                                            ? _validationResult.data[0].properties[label].passed
+                                        typeof validationResult?.data[0]?.properties?.[label]?.passed === "boolean"
+                                            ? validationResult.data[0].properties[label].passed
                                                 ? "#22C659"
                                                 : "#FF0100"
                                             : "#22C659",
@@ -230,7 +230,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                         {Object.entries(columnLabelMap).map(([columnKey, label]) => {
                             const value = properties?.[columnKey]?.value ?? "";
                             const apiKey = getApiPropertyKey(columnKey, rowIndex);
-                            const passed = _validationResult?.data?.[rowIndex + 1]?.properties?.[apiKey]?.passed;
+                            const passed = validationResult?.data?.[rowIndex + 1]?.properties?.[apiKey]?.passed;
 
                             return (
                                 <div key={`${rowIndex}-${columnKey}`}>
@@ -258,6 +258,19 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                     </React.Fragment>
                 );
             })}
+            <div className="mt-0">
+                <div className="fw-bold">รวมภาษี</div>
+                <div className="fw-bold">รวมภาษีสรรพสามิต</div>
+                <div className="rounded-2 shadow-sm bg-white p-2 mb-3" style={{ fontSize: 14, border: "2px solid #22C659", minHeight: 43 }}>
+                    {data.tax_sum_1 || "-"}
+                </div>
+                <div className="fw-bold">ภาษีเก็บเพิ่มเพื่อราชการส่วนท้องถิ่นร้อยละ 10</div>
+                <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: 14, border: "2px solid #22C659", minHeight: 43 }}>
+                    {data.tax_sum_2 || "-"}
+                </div>
+            </div>
+
+
         </div>
     );
 };

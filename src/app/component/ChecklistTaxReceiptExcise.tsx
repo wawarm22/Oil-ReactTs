@@ -31,7 +31,10 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
             {fields.map(({ label, value }, idx) => (
                 <div key={idx} className="mb-1">
                     <div className="fw-bold">{label}</div>
-                    <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                    <div
+                        className="rounded-2 shadow-sm bg-white p-2"
+                        style={{ fontSize: "14px", border: `1.5px solid #22C659` }}
+                    >
                         {cleanValue(value)}
                     </div>
                 </div>
@@ -43,9 +46,8 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                     {(() => {
                         const details = [];
                         let foundSummary = false;
-                        console.log(foundSummary);
-                        
-                        for (let i = 1; i < data.detail_table.length; i++) { 
+
+                        for (let i = 1; i < data.detail_table.length; i++) {
                             const row = data.detail_table[i]?.properties || {};
                             const label = cleanValue(row.column_1);
                             const amount = cleanValue(row.column_2);
@@ -56,7 +58,7 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                                 details.push(
                                     <div key={`total-${i}`} className="mb-2">
                                         <div className="fw-bold">รวม</div>
-                                        <div className="border rounded-2 shadow-sm bg-white p-2">{amount}</div>
+                                        <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", border: `1.5px solid #22C659` }}>{amount}</div>
                                     </div>
                                 );
                                 foundSummary = true;
@@ -67,9 +69,9 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                                 <div key={`row-${i}`} className="mb-2">
                                     <div className="fw-bold">รายละเอียด</div>
                                     <span className="fw-bold">รายการ</span>
-                                    <div className="border rounded-2 shadow-sm bg-white p-2 mb-1">{label}</div>
+                                    <div className="rounded-2 shadow-sm bg-white p-2 mb-1" style={{ fontSize: "14px", border: `1.5px solid #22C659` }}>{label}</div>
                                     <div className="fw-bold">จำนวนเงิน</div>
-                                    <div className="border rounded-2 shadow-sm bg-white p-2">{amount}</div>
+                                    <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", border: `1.5px solid #22C659` }}>{amount}</div>
                                 </div>
                             );
                         }
@@ -83,7 +85,7 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                 <>
                     <hr className="border-top border-2 border-secondary mt-2 mb-2" />
                     <div className="fw-bold">ลงชื่อผู้รับเงิน</div>
-                    <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                    <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", border: `1.5px solid #22C659` }}>
                         {cleanValue(data.name)}
                     </div>
                 </>

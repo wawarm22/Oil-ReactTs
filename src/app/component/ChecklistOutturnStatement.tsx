@@ -22,6 +22,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
     const value = data.detail_table_1[27]?.properties?.column_2 || {};
     // const name = data.detail_table_1[27]?.properties?.column_1 || {};
     const valueQuantity = cleanValue(value.value);
+    const formattedQuantity = valueQuantity.includes('.') ? valueQuantity.replace(/\./g, ',') : valueQuantity;
     // const nameQuantity = cleanValue(name.value);
 
     useEffect(() => {
@@ -31,7 +32,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
             date: cleanValue(data.date),
             product: cleanValue(data.product),
             quality: "LITRES @30 deg.C",
-            quantity: Number(valueQuantity.replace(/,/g, "")) || 0,
+            quantity: Number(valueQuantity) || 0,
         };
 
         const validateData = {
@@ -78,7 +79,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
             {renderValidateBox("Date", "date", data.date)}
             {renderValidateBox("PRODUCT", "product_name", data.product)}
             {renderValidateBox("Quantity", "quality", "LITRES @30 deg.C")}
-            {valueQuantity && renderValidateBox("ปริมาณ", "quantity", valueQuantity)}
+            {valueQuantity && renderValidateBox("ปริมาณ", "quantity", formattedQuantity)}
         </div>
     );
 };

@@ -108,10 +108,10 @@ export type ValidateReceitpPaymentResult = {
 
 
 export type Oil0702ValidationCell = {
-    value?: string;         
+    value?: string;
     expected?: string | number;
     passed: boolean;
-    reason?: string;        
+    reason?: string;
 };
 
 export type Oil0702ValidationRow = {
@@ -126,3 +126,34 @@ export type Oil0702ValidationResult = {
     message: string;
     data: Oil0702ValidationRow[];
 };
+
+export type ValidateFormularApprovCell = {
+    value: string | number;
+    expected: string | number | string[];
+    passed: boolean;
+};
+
+export type ValidateFormularApprovMaterial = {
+    name: ValidateFormularApprovCell;
+    quantity: ValidateFormularApprovCell;
+    unit: ValidateFormularApprovCell;
+    remark: ValidateFormularApprovCell;
+};
+
+export type ValidateFormularApprovProduct = {
+    name: ValidateFormularApprovCell;
+    type: ValidateFormularApprovCell;
+    unit: ValidateFormularApprovCell;
+    materials: ValidateFormularApprovMaterial[];
+};
+
+export type ValidateFormularApprovItem = {
+    no: ValidateFormularApprovCell;
+    product: ValidateFormularApprovProduct;
+    total: ValidateFormularApprovCell;
+};
+
+export type ValidateFormularApprovData = {
+    items: ValidateFormularApprovItem[];
+};
+
