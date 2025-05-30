@@ -67,8 +67,6 @@ const buildFormularApprovPayload = (ocr: any, context: any) => ({
 });
 
 const buildOutturnPayload = (ocr: any, context?: any) => {
-    // ocr คือ page1 ที่ได้จาก ocrByDocId
-    // context มักไม่ต้องใช้สำหรับ shore tank (แต่รับไว้เพื่ออนาคต)
     const value = ocr.detail_table_1?.[27]?.properties?.column_2 || {};
     const name = ocr.detail_table_1?.[27]?.properties?.column_1 || {};
     const valueQuantity = (typeof value.value === "string" ? value.value : "")?.replace(/,/g, "");
@@ -268,13 +266,11 @@ export const OCR_VALIDATE_MAP: Record<
         api: validateSubmission,
         checkFailed: checkTaxFailed,
     },
-
     "oil-compare-1": {
         buildPayload: buildOilComparePayload,
         api: validateOilCompare,
         checkFailed: checkOilCompareFailed,
     },
-
     "oil-07-01-page-1": {
         buildPayload: buildOil0701Payload,
         api: validateOil0701,

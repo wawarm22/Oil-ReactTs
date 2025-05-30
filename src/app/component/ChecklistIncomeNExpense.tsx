@@ -91,7 +91,6 @@ const ChecklistIncomeNExpense: React.FC<Props> = ({ data }) => {
 
     return (
         <div className="d-flex flex-column gap-2">
-            {/* Header */}
             {header.map(({ key, label, value }, idx) => {
                 const headerValid = headerValidation?.[key as keyof ValidationHeader];
 
@@ -114,7 +113,6 @@ const ChecklistIncomeNExpense: React.FC<Props> = ({ data }) => {
                 ) : null;
             })}
 
-            {/* Sections */}
             {sectionMap.map(section => {
                 const validateSection: any[] | undefined =
                     validationResult && validationResult[section.type as keyof ValidationResultData]
@@ -130,7 +128,6 @@ const ChecklistIncomeNExpense: React.FC<Props> = ({ data }) => {
                 );
             })}
 
-            {/* End of Month */}
             {fields.endOfMonth && (
                 <EndOfMonthRenderer endOfMonth={fields.endOfMonth} validation={validationResult?.endOfMonth} />
             )}
