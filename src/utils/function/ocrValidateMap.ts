@@ -1,5 +1,5 @@
-import { FieldValidation, ValidateFormularApprovData, ValidationResult0307, ValidationResultData } from "../../types/validateResTypes";
-import { validateSubmission, validateOilCompare, validateOil0701, validateOil0307, validateAttachment0307, validateOil0704, validateReceitpPayment, validateOutturn, validateFormularApprov } from "../api/validateApi";
+import { FieldValidation, Validate0503Page1Result, Validate0503Page2Result, ValidateFormularApprovData, ValidationResult0307, ValidationResultData } from "../../types/validateResTypes";
+import { validateSubmission, validateOilCompare, validateOil0701, validateOil0307, validateAttachment0307, validateOil0704, validateReceitpPayment, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1 } from "../api/validateApi";
 import { buildOcr0307FieldRows } from "./ocrFieldRowsBuilder";
 
 const buildTaxPayload = (ocr: any) => ({
@@ -61,6 +61,18 @@ const buildIncomeExpensePayload = (ocr: any, context: any) => ({
 });
 
 const buildFormularApprovPayload = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+});
+
+const build0503Page1Payload = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+});
+
+const build0503Page2Payload = (ocr: any, context: any) => ({
     docType: ocr.docType,
     documentGroup: context.documentGroup ?? "",
     fields: context.fields ?? {},
@@ -195,7 +207,7 @@ const checkFormularApprovFailed = (res: { data?: ValidateFormularApprovData } | 
         }
     }
 
-    return false; 
+    return false;
 };
 
 export const checkAttachment0307Failed = (res: { data?: ValidationResult0307 }): boolean => {
@@ -250,6 +262,47 @@ const checkOutturnFailed = (res: any): boolean => {
     if (!d) return true;
     return Object.values(d).some((cell: any) => cell?.passed === false);
 };
+
+const check0503Page1Failed = (res: { data?: Validate0503Page1Result } | null | undefined): boolean => {
+    const data = res?.data?.data;
+    if (!data) return true;
+
+    // ตรวจทุก field (ที่ไม่ใช่ products)
+    for (const key of [
+        "form_name", "ref_no", "request_no", "request_date", "request_officer", "company_name", "factory_name",
+        "excise_no", "address_no", "village_no", "soi", "street", "sub_district", "district",
+        "province", "zipcode", "tel_no", "form_0503a_ref", "form_0503b_ref", "total_tax"
+    ] as const) {
+        if (data[key]?.passed === false) return true;
+    }
+
+    // ตรวจ products array
+    if (Array.isArray(data.products)) {
+        for (const prod of data.products) {
+            for (const prodKey of [
+                "product_name", "quantity", "tax_by_value_baht", "tax_by_value_satang",
+                "tax_by_volumn_baht", "tax_by_volumn_satang", "discount_baht", "discount_satang"
+            ] as const) {
+                if (prod[prodKey]?.passed === false) return true;
+            }
+        }
+    }
+
+    return false;
+};
+
+const check0503Page2Failed = (res: { data?: Validate0503Page2Result } | null | undefined): boolean => {
+    const data = res?.data?.data;
+    if (!data) return true;
+
+    for (const key of [
+        "ref_no", "excise_tax", "health_fund", "radio_fund", "sport_fund", "elder_fund", "interior_tax", "total_tax"
+    ] as const) {
+        if (data[key]?.passed === false) return true;
+    }
+    return false;
+};
+
 
 export const OCR_VALIDATE_MAP: Record<
     string,
@@ -317,6 +370,20 @@ export const OCR_VALIDATE_MAP: Record<
         buildPayload: buildFormularApprovPayload,
         api: validateFormularApprov,
         checkFailed: checkFormularApprovFailed,
+        needsContext: true,
+        needsAuth: true,
+    },
+    "oil-05-03-page-3": {
+        buildPayload: build0503Page1Payload,
+        api: validate0503Page1,
+        checkFailed: check0503Page1Failed,
+        needsContext: true,
+        needsAuth: true,
+    },
+    "oil-05-03-page-4": {
+        buildPayload: build0503Page2Payload,
+        api: validate0503Page2,
+        checkFailed: check0503Page2Failed,
         needsContext: true,
         needsAuth: true,
     },

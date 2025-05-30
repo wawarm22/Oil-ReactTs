@@ -39,7 +39,7 @@ const ChecklistTaxForm0502: React.FC<Props> = ({ data }) => {
         { label: "หมายเหตุ", key: "column_8" },
     ];
 
-    const detailRows = (data.detail_table || []).slice(1);
+    const detailRows = (data.detail_table || []).slice(2);
 
     return (
         <div className="d-flex flex-column gap-1">

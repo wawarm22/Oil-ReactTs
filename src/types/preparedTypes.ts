@@ -70,6 +70,7 @@ export type PreparedFormularApprovResponse = {
 
 export type PreparedFormularProductItem = {
     index: number;
+    no: string;
     product: {
         name: string;
         type: string;
