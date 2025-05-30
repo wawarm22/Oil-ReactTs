@@ -11,7 +11,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
     const [validationResult, setValidationResult] = useState<any>(null);
     const { selectedCompany } = useCompanyStore();
     const factoriesNumber = localStorage.getItem("warehouse") ?? null;
-    
+
     const cleanValue = (val?: any): string => {
         if (val === null || val === undefined) return "";
         const str = String(val);
@@ -19,11 +19,11 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
         return str.trim();
     };
 
-    const value = data.detail_table_1[27]?.properties?.column_2 || {};
-    // const name = data.detail_table_1[27]?.properties?.column_1 || {};
-    const valueQuantity = cleanValue(value.value);
-    const formattedQuantity = valueQuantity.includes('.') ? valueQuantity.replace(/\./g, ',') : valueQuantity;
-    // const nameQuantity = cleanValue(name.value);
+    const value = data.detail_table_1?.[27]?.properties?.column_2;
+    const rawQuantity = value ? cleanValue(value.value) : "";
+    const quantityWithComma = rawQuantity.replace(/\./g, ',');
+    const valueQuantityNum = quantityWithComma ? Number(quantityWithComma.replace(/,/g, "")) : 0;
+
 
     useEffect(() => {
         if (!data) return;
@@ -32,7 +32,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
             date: cleanValue(data.date),
             product: cleanValue(data.product),
             quality: "LITRES @30 deg.C",
-            quantity: Number(valueQuantity) || 0,
+            quantity: valueQuantityNum,
         };
 
         const validateData = {
@@ -47,6 +47,22 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
             setValidationResult(result);
         });
     }, [data]);
+
+    const formatWithComma = (val: string | number) => {
+        if (typeof val === "number") return val.toLocaleString();
+        if (typeof val === "string") {
+            // แทนที่ . เป็น , ก่อนแปลง
+            const withComma = val.replace(/\./g, ',');
+            // พยายามแปลงเป็นเลข
+            const num = Number(withComma.replace(/,/g, ""));
+            if (!isNaN(num)) {
+                return num.toLocaleString();
+            }
+            return withComma;
+        }
+        return val ?? "";
+    };
+
 
     const borderColor = (passed?: boolean) =>
         `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#22C659"}`;
@@ -68,7 +84,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
                     }}
                 >
                     {cleanValue(value)}
-                    
+
                 </div>
             </div>
         );
@@ -79,7 +95,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
             {renderValidateBox("Date", "date", data.date)}
             {renderValidateBox("PRODUCT", "product_name", data.product)}
             {renderValidateBox("Quantity", "quality", "LITRES @30 deg.C")}
-            {valueQuantity && renderValidateBox("ปริมาณ", "quantity", formattedQuantity)}
+            {rawQuantity && renderValidateBox("ปริมาณ", "quantity", formatWithComma(rawQuantity))}
         </div>
     );
 };

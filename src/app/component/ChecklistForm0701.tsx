@@ -123,11 +123,24 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({ data, oi
         setAllRowsState(all);
     }, [data.detail_table, data.docType]);
 
+    function cleanDateDotSpacing(text: string): string {
+        return text
+            .replace(/\s+\./g, ".")
+            .replace(/\. ?/g, ".")
+            .replace(/\.([0-9]+)/g, ". $1")
+            .replace(/\s{2,}/g, " ")
+            .trim();
+    }
+
     const transformToOCRFieldRow = (row: Record<string, any>): OCRFieldRow => {
         const properties: Record<string, { value: string }> = {};
         Object.entries(row).forEach(([key, val]) => {
             if (key.startsWith("column_")) {
-                properties[key] = { value: cleanCellValue(val) };
+                properties[key] = {
+                    value: key === "column_1"
+                        ? cleanDateDotSpacing(cleanCellValue(val))
+                        : cleanCellValue(val)
+                };
             }
         });
         return { properties };
@@ -213,6 +226,9 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({ data, oi
                             if (isSummary && isEmpty) return elements;
 
                             let display = raw?.trim?.() ?? "";
+                            if (colKey === "column_1") {
+                                display = cleanDateDotSpacing(display);
+                            }
                             if (isSummary) {
                                 display = raw.replace(/[^\d.,]/g, "").trim();
                                 if (!display) return elements;

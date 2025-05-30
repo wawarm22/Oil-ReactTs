@@ -86,3 +86,47 @@ export type PreparedFormularMaterial = {
     quantity: string;
 };
 
+export type Oil0502Material = {
+    materialType: string;
+    materialUnit: string;
+    materialQuantity: string;  
+    note: string;
+};
+
+export type Oil0502Product = {
+    itemNo: number;
+    productType: string;
+    productName: string;
+    productUnit: string;
+    materialsPerUnit: Oil0502Material[];
+};
+
+export type Oil0502Fields = {
+    formName: string;
+    forOfficer: boolean;
+    electronicRegisterNo: string;
+    documentRegisterNo: string;
+    registerDate: string;
+    receiverOfficer: string;
+    companyName: string;
+    depotName: string;
+    exciseNo: string;
+    addressNo: string;
+    alley: string;
+    road: string;
+    subdistrict: string;
+    district: string;
+    province: string;
+    zipcode: string;
+    phone1: string;
+    phone2: string;
+    products: Oil0502Product[];
+};
+
+export type Prepared0502 = {
+    docType: string;
+    documentGroup: string;
+    fields: Oil0502Fields;
+};
+
+

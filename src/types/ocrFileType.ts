@@ -614,6 +614,7 @@ export type OcrAttachment0704Document = OcrFieldsBase & {
 export type OcrTaxForm0502Document = OcrFieldsBase & {
     type: "tax_form_0502";
     docType: string;
+    id: string;
     address: string;
     applicant_date: string;
     applicant_name: string;

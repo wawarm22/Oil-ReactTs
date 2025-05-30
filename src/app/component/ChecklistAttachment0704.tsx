@@ -52,7 +52,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { key: "form_type", label: "แบบฟอร์ม", value: "ภส.07-04" },
         { key: "form_no", label: "เลขที่รับ", value: data.form_no },
         { key: "form_date", label: "วัน เดือน ปี ที่รับ", value: data.form_date },
-        { key: "form_officer_1", label: "เจ้าพนักงานผู้รับ", value: data.form_officer_name },
+        { key: "form_officer_1", label: "เจ้าหน้าที่ผู้รับ", value: data.form_officer_1 },
         { key: "company_name", label: "ชื่อโรงอุตสาหกรรม (คลัง)", value: data.company_name },
         { key: "excise_id", label: "ทะเบียนสรรพสามิตเลขที่", value: data.excise_id },
         { key: "date", label: "ประจำเดือน ปี", value: data.date },
