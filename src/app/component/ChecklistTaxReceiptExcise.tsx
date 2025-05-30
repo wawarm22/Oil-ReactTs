@@ -46,7 +46,8 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                     {(() => {
                         const details = [];
                         let foundSummary = false;
-
+                        console.log(foundSummary);
+                        
                         for (let i = 1; i < data.detail_table.length; i++) {
                             const row = data.detail_table[i]?.properties || {};
                             const label = cleanValue(row.column_1);
