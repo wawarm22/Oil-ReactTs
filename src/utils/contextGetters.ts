@@ -30,6 +30,26 @@ export const getContextForDocType: Record<
             documentGroup: page1.documentGroup ?? "",
         };
     },
+    "oil-07-01-page-1-attach": async (page1) => {
+        const companyName = useCompanyStore.getState().selectedCompany?.name ?? "";
+        const factoriesName = localStorage.getItem("nameWarehouse") ?? "";
+        const factories = localStorage.getItem("warehouse") ?? "";
+        let materialID = "";
+
+        if (page1.oil_type && companyName && factoriesName) {
+            const resp = await checkProdustType(page1.oil_type);
+            const resultItems = resp?.ResultItems ?? [];
+            materialID = findBestMatch(resultItems, companyName, factoriesName);
+        }
+
+        return {
+            materialID,
+            company: companyName,
+            factories,
+            fields: page1.detail_table,
+            documentGroup: page1.documentGroup ?? "",
+        };
+    },
     "oil-formular-2": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
