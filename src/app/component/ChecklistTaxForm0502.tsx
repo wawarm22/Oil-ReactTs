@@ -100,7 +100,7 @@ const ChecklistTaxForm0502: React.FC<Props> = ({ data }) => {
                         const productFields = [
                             { key: "productType", label: "ประเภทสินค้า", value: prod.productType },
                             { key: "productName", label: "ชื่อสินค้าที่ผลิต", value: prod.productName },
-                            { key: "productUnit", label: "หน่วย", value: prod.productUnit },
+                            { key: "productUnit", label: "เเบบหรือขนาด", value: prod.productUnit },
                         ];
                         return (
                             <div key={idx} className="mb-3">
@@ -140,14 +140,16 @@ const ChecklistTaxForm0502: React.FC<Props> = ({ data }) => {
                                                 }
                                                 if (!foundSummary) {
                                                     const materialFields = [
-                                                        { key: "materialType", label: "วัตถุดิบ", value: mat.materialType },
-                                                        { key: "materialUnit", label: "หน่วย", value: mat.materialUnit },
-                                                        { key: "materialQuantity", label: "ปริมาณ", value: mat.materialQuantity },
+                                                        { key: "materialType", label: "ประเภท", value: mat.materialType },
+                                                        { key: "materialUnit", label: "เเบบหรือขนาด", value: mat.materialUnit },
+                                                        { key: "materialQuantity", label: "ปริมาณหรือจำนวน", value: mat.materialQuantity },
                                                         { key: "note", label: "หมายเหตุ", value: mat.note }
                                                     ];
                                                     return (
                                                         <div key={mIdx}>
-                                                            <hr className="m-0 my-3" />
+                                                            <hr className="m-0 mt-3 mb-2" />
+                                                            <div className="fw-bold mb-1" style={{ fontSize: "14px" }}>รายการวัตถุดิบหรือส่วนประกอบที่นำมาใช้ในการผลิตสินค้า (ต่อสินค้า1หน่วย)(ลิตร)</div>
+
                                                             {materialFields.map(({ key, label, value }) => {
                                                                 const matFieldValid = matValid?.[key as keyof typeof matValid];
                                                                 return value ? (

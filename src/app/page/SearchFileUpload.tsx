@@ -635,7 +635,7 @@ const SearchFileUpload: React.FC = () => {
                                                         backgroundColor: "#9D9D9D",
                                                         borderRadius: "2px",
                                                         minHeight: "28px",
-                                                        marginTop: "2px" // ปรับตำแหน่งให้สูงขึ้น
+                                                        marginTop: "2px" 
                                                     }}
                                                 />
                                                 <div style={{ whiteSpace: "normal", wordBreak: "break-word", paddingTop: "1px" }}>
@@ -661,7 +661,6 @@ const SearchFileUpload: React.FC = () => {
                                             )}
                                         </div>
 
-                                        {/* แสดงไฟล์ในบรรทัดใหม่ */}
                                         {!item.subtitle && (
                                             <div style={{ marginLeft: '11px' }}>
                                                 {getFilesWithDisplayName(item.id, 0).map(({ displayName, file }, idx) => (
