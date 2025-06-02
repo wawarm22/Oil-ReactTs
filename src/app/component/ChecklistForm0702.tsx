@@ -107,7 +107,7 @@ const ChecklistForm0702: React.FC<Props> = ({ data }) => {
         <div className="d-flex flex-column">
             <div>
                 {renderLabel("แบบฟอร์ม")}
-                <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>ภส.07-02</div>
+                <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>ภส.๐๗-๐๒</div>
             </div>
             <div>
                 {renderLabel("ประเภทสินค้า")}

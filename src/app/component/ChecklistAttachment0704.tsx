@@ -50,7 +50,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
     );
 
     const fieldsToDisplay = [
-        { key: "form_type", label: "แบบฟอร์ม", value: "ภส.07-04" },
+        { key: "form_type", label: "แบบฟอร์ม", value: "ภส.๐๗-๐๔" },
         { key: "form_no", label: "เลขที่รับ", value: data.form_no },
         { key: "form_date", label: "วัน เดือน ปี ที่รับ", value: data.form_date },
         { key: "form_officer_1", label: "เจ้าหน้าที่ผู้รับ", value: data.form_officer_1 },

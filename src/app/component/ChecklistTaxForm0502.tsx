@@ -45,7 +45,7 @@ const ChecklistTaxForm0502: React.FC<Props> = ({ data }) => {
         `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#22C659"}`;
 
     const mainFields = [
-        { key: "formName", label: "แบบฟอร์ม", value: "ภส.05-02" },
+        { key: "formName", label: "แบบฟอร์ม", value: "ภส.๐๕-๐๒" },
         // { key: "electronicRegisterNo", label: "ทะเบียนรับอิเล็กทรอนิกส์เลขที่", value: ocrData.fields.electronicRegisterNo },
         // { key: "documentRegisterNo", label: "ทะเบียนรับเอกสารเลขที่", value: ocrData.fields.documentRegisterNo },
         // { key: "registerDate", label: "วัน เดือน ปี", value: ocrData.fields.registerDate },

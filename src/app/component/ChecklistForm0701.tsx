@@ -180,7 +180,7 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({ data, oi
                 <>
                     <div>
                         {renderLabel("แบบฟอร์ม")}
-                        <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>ภส.07-01</div>
+                        <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>ภส.๐๗-๐๑</div>
                     </div>
                     <div>
                         {renderLabel("ประเภทวัตถุดิบ")}
