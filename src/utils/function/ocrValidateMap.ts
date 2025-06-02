@@ -1,5 +1,5 @@
-import { FieldValidation, Validate0503Page1Result, Validate0503Page2Result, ValidateFormularApprovData, ValidationResult0307, ValidationResultData } from "../../types/validateResTypes";
-import { validateSubmission, validateOilCompare, validateOil0701, validateOil0307, validateAttachment0307, validateOil0704, validateReceitpPayment, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1 } from "../api/validateApi";
+import { FieldValidation, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, ValidateFormularApprovData, ValidationResult0307, ValidationResultData } from "../../types/validateResTypes";
+import { validateSubmission, validateOilCompare, validateOil0701, validateOil0307, validateAttachment0307, validateOil0704, validateReceitpPayment, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502 } from "../api/validateApi";
 import { buildOcr0307FieldRows } from "./ocrFieldRowsBuilder";
 
 const buildTaxPayload = (ocr: any) => ({
@@ -35,8 +35,7 @@ const buildOil0701Payload = (ocr: any, context: { materialID: string; company: s
     factories: context.factories ?? "",
     fields: ocr.detail_table ?? [],
 });
-
-export const buildAttachment0307Payload = (page1: any, context: any) => ({
+const buildAttachment0307Payload = (page1: any, context: any) => ({
     docType: page1.docType,
     company: context.company ?? "",
     factories: context.factories ?? "",
@@ -73,6 +72,12 @@ const build0503Page1Payload = (ocr: any, context: any) => ({
 });
 
 const build0503Page2Payload = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+});
+
+const build0502Payload = (ocr: any, context: any) => ({
     docType: ocr.docType,
     documentGroup: context.documentGroup ?? "",
     fields: context.fields ?? {},
@@ -210,7 +215,7 @@ const checkFormularApprovFailed = (res: { data?: ValidateFormularApprovData } | 
     return false;
 };
 
-export const checkAttachment0307Failed = (res: { data?: ValidationResult0307 }): boolean => {
+const checkAttachment0307Failed = (res: { data?: ValidationResult0307 }): boolean => {
     const data = res?.data;
     if (!data) return true;
 
@@ -267,7 +272,6 @@ const check0503Page1Failed = (res: { data?: Validate0503Page1Result } | null | u
     const data = res?.data?.data;
     if (!data) return true;
 
-    // ตรวจทุก field (ที่ไม่ใช่ products)
     for (const key of [
         "form_name", "ref_no", "request_no", "request_date", "request_officer", "company_name", "factory_name",
         "excise_no", "address_no", "village_no", "soi", "street", "sub_district", "district",
@@ -276,7 +280,6 @@ const check0503Page1Failed = (res: { data?: Validate0503Page1Result } | null | u
         if (data[key]?.passed === false) return true;
     }
 
-    // ตรวจ products array
     if (Array.isArray(data.products)) {
         for (const prod of data.products) {
             for (const prodKey of [
@@ -303,6 +306,34 @@ const check0503Page2Failed = (res: { data?: Validate0503Page2Result } | null | u
     return false;
 };
 
+const checkValidate0502Failed = (res: { data?: Validate0502Result } | Validate0502Result | null | undefined): boolean => {
+    // support ทั้งสองแบบ
+    const d = (res && 'data' in res) ? (res as any).data : res;
+    if (!d) return true;
+
+    for (const key of Object.keys(d)) {
+        if (key !== "products" && (d as any)[key]?.passed === false) {
+            return true;
+        }
+    }
+
+    if (Array.isArray(d.products)) {
+        for (const prod of d.products) {
+            for (const prodKey of ["productType", "productName", "productUnit"]) {
+                if ((prod as any)[prodKey]?.passed === false) return true;
+            }
+            if (Array.isArray(prod.materialsPerUnit)) {
+                for (const mat of prod.materialsPerUnit) {
+                    for (const matKey of ["materialType", "materialUnit", "materialQuantity", "note"]) {
+                        if ((mat as any)[matKey]?.passed === false) return true;
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
 
 export const OCR_VALIDATE_MAP: Record<
     string,
@@ -384,6 +415,13 @@ export const OCR_VALIDATE_MAP: Record<
         buildPayload: build0503Page2Payload,
         api: validate0503Page2,
         checkFailed: check0503Page2Failed,
+        needsContext: true,
+        needsAuth: true,
+    },
+    "oil-05-02-page-4": {
+        buildPayload: build0502Payload,
+        api: validateForm0502,
+        checkFailed: checkValidate0502Failed,
         needsContext: true,
         needsAuth: true,
     },

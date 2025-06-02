@@ -1,6 +1,6 @@
 import { useCompanyStore } from "../store/companyStore";
 import { checkProdustType } from "./api/apiCheckData";
-import { getPrepared0307, getPrepared0503, getPreparedFormularApprov, getPreparedReceitpPayment } from "./api/validateApi";
+import { getPrepared0307, getPrepared0502, getPrepared0503, getPreparedFormularApprov, getPreparedReceitpPayment } from "./api/validateApi";
 import { genRequestObject } from "./function/checklist/attachment0704";
 import { findBestMatch } from "./function/fuzzySearch";
 
@@ -103,6 +103,16 @@ export const getContextForDocType: Record<
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
         const resp = await getPrepared0503(page1.id, auth);
+        if (!resp?.data) return {};
+        return {
+            documentGroup: resp.data.documentGroup,
+            fields: resp.data.fields
+        };
+    },
+    "oil-05-02-page-4": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const resp = await getPrepared0502(page1.id, auth);
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
