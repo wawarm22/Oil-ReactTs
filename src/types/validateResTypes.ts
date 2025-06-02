@@ -220,5 +220,52 @@ export type Validate0503Page2Result = {
     };
 };
 
+export type Validate0502Field = {
+    value: string | number | boolean;
+    expected: string | number | boolean;
+    passed: boolean;
+};
+
+export type Validate0502Material = {
+    materialType: Validate0502Field;
+    materialUnit: Validate0502Field;
+    materialQuantity: Validate0502Field;
+    note: Validate0502Field;
+};
+
+export type Validate0502Product = {
+    productType: Validate0502Field;
+    productName: Validate0502Field;
+    productUnit: Validate0502Field;
+    materialsPerUnit: Validate0502Material[];
+};
+
+export type Validate0502Result = {
+    status: boolean;
+    message: string;
+    data: {
+        formName: Validate0502Field;
+        forOfficer: Validate0502Field;
+        electronicRegisterNo: Validate0502Field;
+        documentRegisterNo: Validate0502Field;
+        registerDate: Validate0502Field;
+        receiverOfficer: Validate0502Field;
+        companyName: Validate0502Field;
+        depotName: Validate0502Field;
+        exciseNo: Validate0502Field;
+        addressNo: Validate0502Field;
+        alley: Validate0502Field;
+        road: Validate0502Field;
+        subdistrict: Validate0502Field;
+        district: Validate0502Field;
+        province: Validate0502Field;
+        zipcode: Validate0502Field;
+        phone1: Validate0502Field;
+        phone2: Validate0502Field;
+        products: Validate0502Product[];
+    };
+};
+
+
 
 
