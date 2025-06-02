@@ -27,7 +27,14 @@ const ChecklistTaxForm0502: React.FC<Props> = ({ data }) => {
 
     useEffect(() => {
         if (!ocrData) return;
-        validateForm0502(ocrData)
+        const overrideData = {
+            ...ocrData,
+            fields: {
+                ...ocrData.fields,
+                formName: "ภส.๐๕-๐๒",
+            }
+        };
+        validateForm0502(overrideData)
             .then(res => setValidateResult(res?.data ?? null))
             .catch(() => setValidateResult(null));
     }, [ocrData]);

@@ -33,10 +33,8 @@ export const SocketListener = () => {
 
         const start = async () => {
             _socket = io(SOCKET_BASE_URL, {
-                transports: ['websocket'],     // ✅ บังคับใช้ websocket ไม่ใช้ polling
-                withCredentials: true,         // ✅ ให้ส่ง credentials เช่น cookie ถ้ามี
-                path: VITE_SOCKET_PATH || '/socket.io', // ✅ fallback path
-                reconnectionDelayMax: 10000
+                reconnectionDelayMax: 10000,
+                path: VITE_SOCKET_PATH
             });
 
             factories.map((factory) => {
@@ -79,7 +77,7 @@ export const SocketProvider: FC<PropsWithChildren> = ({ children }) => {
     return <SocketContext.Provider value={
         {
             factories, setFactories,
-            callbacks, addCallbacks, removeCallbacks
+                callbacks, addCallbacks, removeCallbacks
         }
-    }> {children} </SocketContext.Provider>
+    }> { children } </SocketContext.Provider>
 }
