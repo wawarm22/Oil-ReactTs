@@ -4,6 +4,7 @@ import { useCompanyStore } from "../../store/companyStore";
 import { genRequestObject } from "../../utils/function/checklist/attachment0704";
 import { validateOil0704 } from "../../utils/api/validateApi";
 import { ValidateOil0704Payload } from "../../types/validateTypes";
+import { cleanExciseId } from "../../utils/function/format";
 
 interface Props {
     data: OcrAttachment0704Document;
@@ -54,7 +55,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { key: "form_date", label: "วัน เดือน ปี ที่รับ", value: data.form_date },
         { key: "form_officer_1", label: "เจ้าหน้าที่ผู้รับ", value: data.form_officer_1 },
         { key: "company_name", label: "ชื่อโรงอุตสาหกรรม (คลัง)", value: data.company_name },
-        { key: "excise_id", label: "ทะเบียนสรรพสามิตเลขที่", value: data.excise_id },
+        { key: "excise_id", label: "ทะเบียนสรรพสามิตเลขที่", value: cleanExciseId(data.excise_id) },
         { key: "date", label: "ประจำเดือน ปี", value: data.date },
     ];
 
@@ -62,11 +63,15 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         if (data && selectedCompany) {
             genRequestObject({ fields: data })
                 .then((genFields) => {
+                    // แก้ไข excise_id ตรงนี้ก่อนส่ง
+                    const excise_id = cleanExciseId(data.excise_id);
+
                     const payload: ValidateOil0704Payload = {
                         docType: data.docType,
                         documentGroup: data.documentGroup,
                         fields: {
                             ...genFields,
+                            excise_id, // <<-- ส่งค่า excise_id ที่ผ่านการ clean แล้ว
                             company_name: selectedCompany.name,
                             form_officer_name: factoriesNumber || "",
                         },

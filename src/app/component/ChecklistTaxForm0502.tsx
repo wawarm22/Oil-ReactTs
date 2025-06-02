@@ -46,10 +46,10 @@ const ChecklistTaxForm0502: React.FC<Props> = ({ data }) => {
 
     const mainFields = [
         { key: "formName", label: "แบบฟอร์ม", value: "ภส.05-02" },
-        { key: "electronicRegisterNo", label: "ทะเบียนรับอิเล็กทรอนิกส์เลขที่", value: ocrData.fields.electronicRegisterNo },
-        { key: "documentRegisterNo", label: "ทะเบียนรับเอกสารเลขที่", value: ocrData.fields.documentRegisterNo },
-        { key: "registerDate", label: "วัน เดือน ปี", value: ocrData.fields.registerDate },
-        { key: "receiverOfficer", label: "เจ้าหน้าที่ผู้รับ", value: ocrData.fields.receiverOfficer },
+        // { key: "electronicRegisterNo", label: "ทะเบียนรับอิเล็กทรอนิกส์เลขที่", value: ocrData.fields.electronicRegisterNo },
+        // { key: "documentRegisterNo", label: "ทะเบียนรับเอกสารเลขที่", value: ocrData.fields.documentRegisterNo },
+        // { key: "registerDate", label: "วัน เดือน ปี", value: ocrData.fields.registerDate },
+        // { key: "receiverOfficer", label: "เจ้าหน้าที่ผู้รับ", value: ocrData.fields.receiverOfficer },
         { key: "companyName", label: "บริษัท", value: ocrData.fields.companyName },
         { key: "depotName", label: "คลัง", value: ocrData.fields.depotName },
         { key: "exciseNo", label: "ทะเบียนสรรพสามิตเลขที่", value: ocrData.fields.exciseNo ? String(ocrData.fields.exciseNo).replace(/\D/g, "") : "" },
