@@ -8,6 +8,7 @@ import { checkProdustType } from "../../utils/api/apiCheckData";
 import { getLabelMap } from "../../utils/labelMaps";
 import { findBestMatch } from "../../utils/function/fuzzySearch";
 import { findBestMatchName } from "../../utils/function/fuzzySearchName";
+import { renderYodyokmaRow } from "../../utils/renderYodyokmaRow";
 
 interface ChecklistStockOilFormattedProps {
     data: OcrStockOilDocument;
@@ -77,12 +78,13 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({ data, oi
         let firstDataIndex = 2;
         if (data.docType === "oil-07-01-page-1-attach") {
             firstDataIndex = 0;
-        } else {
-            const checkRow = tableRows[2]?.properties ?? {};
-            const values = Object.values(checkRow).map(cell => cell?.value ?? "");
-            const isYodyokmaRow = values.some(text => text.includes("ยอดยก") || text.includes("ยอดยกมา"));
-            if (isYodyokmaRow) firstDataIndex = 3;
-        }
+        } 
+        // else {
+        //     const checkRow = tableRows[2]?.properties ?? {};
+        //     const values = Object.values(checkRow).map(cell => cell?.value ?? "");
+        //     const isYodyokmaRow = values.some(text => text.includes("ยอดยก") || text.includes("ยอดยกมา"));
+        //     if (isYodyokmaRow) firstDataIndex = 3;
+        // }
 
         const rowsToRender: Record<string, any>[] = [];
         let summaryRow: Record<string, any> | null = null;
@@ -91,8 +93,8 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({ data, oi
             const properties = tableRows[i]?.properties ?? {};
             const row: Record<string, any> = {};
 
-            const isYodyokma = Object.values(properties).some(cell => cell?.value?.includes("ยอดยกมา"));
-            if (isYodyokma) continue;
+            // const isYodyokma = Object.values(properties).some(cell => cell?.value?.includes("ยอดยกมา"));
+            // if (isYodyokma) continue;
 
             const isSummary = Object.values(properties).some(cell => {
                 const val = (cell?.value ?? "").replace(/\s+/g, "");
@@ -194,6 +196,9 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({ data, oi
             )}
 
             {allRowsState.map((row, idx) => {
+                if (row["column_2"] && row["column_2"].includes("ยอดยกมา")) {
+                    return renderYodyokmaRow(row, materialName, labelMap);
+                }
                 const isSummary = row.__isSummary === true;
                 const validationRow = validationResult?.data?.find((vRow: any) => vRow.row === idx);
                 const col1 = row["column_1"];
