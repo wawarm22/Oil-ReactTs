@@ -361,6 +361,12 @@ export const OCR_VALIDATE_MAP: Record<
         checkFailed: checkOil0701Failed,
         needsContext: true,
     },
+    "oil-07-01-page-1-attach": {
+        buildPayload: buildOil0701Payload,
+        api: validateOil0701,
+        checkFailed: checkOil0701Failed,
+        needsContext: true,
+    },
     "oil-03-07-page-1": {
         buildPayload: (ocr) => ({
             docType: ocr.docType,
