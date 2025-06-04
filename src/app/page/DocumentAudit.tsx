@@ -4,7 +4,7 @@ import { StepStatus } from "../../types/enum/stepStatus";
 import { documentList } from "../../types/docList";
 import AuditDetail from "../component/AuditDetail";
 import AuditButton from "../component/AuditButton";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type UploadedFilesType = {
     [key: number]: { name: string; data: string; pageCount: number }[];
@@ -15,7 +15,10 @@ const DocumentAudit: React.FC = () => {
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [currentPage, _setCurrentPage] = useState<number>(1);
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
-    const [folders, setFolders] = useState<string[]>([]);    
+    const [folders, setFolders] = useState<string[]>([]);
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const from = searchParams.get("from");
 
     useEffect(() => {
         const localFolders = localStorage.getItem("folders");
@@ -55,7 +58,11 @@ const DocumentAudit: React.FC = () => {
         localStorage.removeItem("folders");
         localStorage.removeItem("transport");
         localStorage.removeItem("warehouse");
-        navigate('/pre-upload')
+        if (from === "search-file") {
+            navigate('/search-file');
+        } else {
+            navigate('/pre-upload');
+        }
     };
 
     const handleSaveAudit = () => {
