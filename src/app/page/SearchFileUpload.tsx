@@ -15,7 +15,7 @@ import UploadFilterPanel from "../reusable/UploadFilterPanel";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser"
 import dayjs from "dayjs";
 import buddhistEra from "dayjs/plugin/buddhistEra";
-import { apiDeleteBlobAfter, apiPreviewPdfAfterConfirm, apiSearchFiles, comfirmUpload } from "../../utils/api/uploadApi";
+import { apiDeleteBlobAfter, apiPreviewPdfAfterConfirm, apiSearchFiles } from "../../utils/api/uploadApi";
 import { useUser } from "../../hook/useUser";
 import { useCompanyStore } from "../../store/companyStore";
 import { MdCancel } from "react-icons/md";
@@ -26,6 +26,8 @@ import { PDFDocument } from "pdf-lib";
 import ConfirmUploadModal from "../modal/ConfirmUploadModal";
 import { Spinner } from "react-bootstrap";
 import CancelUploadModal from "../modal/CancelUploadModal";
+import { extractDateCodeFromFileName } from "../../utils/function/parseFileName";
+import CustomSelect from "../reusable/CustomSelect";
 dayjs.extend(buddhistEra);
 
 type UploadedFileMap = {
@@ -57,6 +59,7 @@ type ParsedFileInfo = {
     subtitleIndex: number;
     previewUrl: string;
     blobPath: string;
+    dateCode?: string;
 };
 
 const SearchFileUpload: React.FC = () => {
@@ -84,6 +87,8 @@ const SearchFileUpload: React.FC = () => {
     const [filters, setFilters] = useState<FilterState>({
         warehouse: null, transport: { value: "00", label: "ทางเรือ" }, periodType: null, dateStart: null, dateEnd: null, month: null,
     });
+    const [dateCodeFilter, setDateCodeFilter] = useState<OptionType | null>(null);
+    const [filteredParsedFiles, setFilteredParsedFiles] = useState<ParsedFileInfo[]>([]);
 
     const getUploadKey = (docId: number, subtitleIndex?: number) =>
         `${docId}-${subtitleIndex ?? 0}`;
@@ -106,6 +111,17 @@ const SearchFileUpload: React.FC = () => {
             fetchCompanyById(user.company_id);
         }
     }, [user?.company_id, fetchCompanyById]);
+
+    useEffect(() => {
+        if (!dateCodeFilter || !dateCodeFilter.value) {
+            setFilteredParsedFiles(parsedFiles); // ถ้าเลือก "ทั้งหมด" ให้โชว์ทุกไฟล์
+        } else {
+            setFilteredParsedFiles(
+                parsedFiles.filter(file => file.dateCode === dateCodeFilter.value)
+            );
+        }
+    }, [parsedFiles, dateCodeFilter]);
+
 
     const getFormattedPeriodDateStr = () => {
         if (!filters.periodType) return "";
@@ -136,6 +152,13 @@ const SearchFileUpload: React.FC = () => {
         { value: "range", label: "ช่วงวันที่" },
         { value: "month", label: "เดือน" },
     ];
+
+    const dateCodeOptions: OptionType[] = Array.from(
+        new Set(parsedFiles.map(f => f.dateCode).filter(Boolean))
+    ).map(code => ({
+        value: code!,
+        label: code!
+    }));
 
     const handleFilterChange = (field: keyof typeof filters, value: any) => {
         const resetMap: { [key in keyof typeof filters]?: (keyof typeof filters)[] } = {
@@ -198,7 +221,7 @@ const SearchFileUpload: React.FC = () => {
         }
 
         const mergedPdfBytes = await mergedPdf.save();
-        const arrayBuffer = mergedPdfBytes.buffer as ArrayBuffer; 
+        const arrayBuffer = mergedPdfBytes.buffer as ArrayBuffer;
         const mergedBlob = new Blob([arrayBuffer], { type: "application/pdf" });
         const mergedBlobUrl = URL.createObjectURL(mergedBlob);
         window.open(mergedBlobUrl, "_blank");
@@ -243,7 +266,10 @@ const SearchFileUpload: React.FC = () => {
             return;
         }
 
-        const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com';
+        const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
+            user?.email === 'ja.test006+or@gmail.com' ||
+            user?.email === 'ja.test006+bsrc@gmail.com' ||
+            user?.email === 'ja.test006+bangchak@gmail.com';
 
         const companyName = isTestEmail
             ? `${selectedCompany.name}-test`
@@ -259,6 +285,7 @@ const SearchFileUpload: React.FC = () => {
             let mainCode: string | null = null;
 
             result.files.forEach((file) => {
+                const dateCode = extractDateCodeFromFileName(file.fileName) ?? "";
                 const parts = file.fileName.split("/");
                 if (parts.length < 4) return;
 
@@ -295,6 +322,7 @@ const SearchFileUpload: React.FC = () => {
                     subtitleIndex,
                     previewUrl: file.previewUrl,
                     blobPath: file.fileName,
+                    dateCode
                 });
             });
 
@@ -351,7 +379,10 @@ const SearchFileUpload: React.FC = () => {
         }
 
         setUploadingMap((prev) => ({ ...prev, [key]: true }));
-        const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com';
+        const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
+            user?.email === 'ja.test006+or@gmail.com' ||
+            user?.email === 'ja.test006+bsrc@gmail.com' ||
+            user?.email === 'ja.test006+bangchak@gmail.com';
 
         const companyName = isTestEmail
             ? `${selectedCompany.name}-test`
@@ -479,7 +510,6 @@ const SearchFileUpload: React.FC = () => {
 
         const transportMatch = !transport || item.transport === transport;
         if (!transportMatch) return false;
-
         if (warehouse === "H401") {
             const allowedIds = [38, 39, 40, 41, 42, 49, 51];
             return allowedIds.includes(item.id);
@@ -494,6 +524,14 @@ const SearchFileUpload: React.FC = () => {
         if (item.id === 52) return warehouse === "K103";
 
         return true;
+    }).map((item) => {
+        const warehouse = filters.warehouse?.value;
+        if (warehouse === "BS11" && item.id === 43) {
+            console.log("43");
+
+            return { ...item, title: `${item.title} (ถ้ามี)` };
+        }
+        return item;
     });
 
     const isUploadedComplete = (item: DocumentItem): boolean => {
@@ -520,7 +558,6 @@ const SearchFileUpload: React.FC = () => {
         return !(isSubtitleOptional || isTitleOptional);
     });
 
-
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
 
     const handleConfirm = () => {
@@ -530,35 +567,63 @@ const SearchFileUpload: React.FC = () => {
     const handleConfirmUpload = async () => {
         try {
             setIsConfirming(true);
+
+            if (!filters.warehouse || !filters.transport || !filters.periodType) {
+                return;
+            }
+
             if (!selectedCompany?.name) {
                 toast.warning("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
                 return;
             }
-            const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' || user?.email === 'ja.test006+or@gmail.com';
 
-            const companyName = isTestEmail
+            const periodDateStr = getFormattedPeriodDateStr();
+            const baseName = buildBaseName(
+                filters.warehouse.value,
+                filters.transport.value,
+                periodDateStr
+            );
+
+            const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
+                user?.email === 'ja.test006+or@gmail.com' ||
+                user?.email === 'ja.test006+bsrc@gmail.com' ||
+                user?.email === 'ja.test006+bangchak@gmail.com';
+
+            let companyName = isTestEmail
                 ? `${selectedCompany.name}-test`
                 : selectedCompany.name;
 
-            const blobPath = `${companyName}/`;
-            console.log("blobPath", blobPath);
+            const selectedDateCode = dateCodeFilter?.value;
+            if (selectedDateCode && selectedDateCode !== "") {
+                companyName = `${companyName}/${selectedDateCode}`;
+            }
 
-            const result = await comfirmUpload(blobPath);
-            console.log("อัปโหลดเสร็จแล้ว:", result);
-            toast.success("อัปโหลดเสร็จแล้ว");
+            const response = await apiSearchFiles(companyName, baseName);
 
-            setShowConfirmModal(false);
-            navigate("/");
+            const folders = response.files.map((file: any) => {
+                const parts = file.fileName.split('/');
+                parts.pop();
+                return parts.join('/');
+            });            
+
+            localStorage.setItem("folders", JSON.stringify(folders));
+            localStorage.setItem("transport", filters.transport?.value || "");
+            localStorage.setItem("warehouse", filters.warehouse?.value || "");
+            localStorage.setItem("nameWarehouse", filters.warehouse?.label || "");
+            navigate("/audit?from=search-file");
+            // navigate("/");
+
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
             console.error(error);
         } finally {
             setIsConfirming(false);
+            setShowConfirmModal(false);
         }
     };
 
     const getFilesWithDisplayName = (docId: number, subtitleIndex: number = 0): { displayName: string, file: ParsedFileInfo }[] => {
-        const group = parsedFiles.filter(f => f.docId === docId && f.subtitleIndex === subtitleIndex);
+        const group = filteredParsedFiles.filter(f => f.docId === docId && f.subtitleIndex === subtitleIndex);
         return group.map((file, idx) => {
             const baseName = subtitleIndex === 0
                 ? documentList.find(d => d.id === docId)?.title ?? "ชื่อเอกสาร"
@@ -616,9 +681,17 @@ const SearchFileUpload: React.FC = () => {
                     <thead style={{ borderBottom: "2px solid #0000004B" }}>
                         <tr>
                             <th className="align-middle" style={{ fontSize: '22px' }}>รายการเอกสาร</th>
-                            <th className="align-middle text-center" style={{ fontSize: '22px' }}>
-                            </th>
+                            <th className="align-middle text-center" style={{ fontSize: '22px' }}></th>
                             <th className="text-end">
+                                <CustomSelect
+                                    label="วันที่อัปโหลด"
+                                    value={dateCodeFilter}
+                                    onChange={setDateCodeFilter}
+                                    options={[
+                                        { value: "", label: "เลือกวันที่ทั้งหมด" },
+                                        ...dateCodeOptions
+                                    ]}
+                                />
                             </th>
                         </tr>
                     </thead>
@@ -635,7 +708,7 @@ const SearchFileUpload: React.FC = () => {
                                                         backgroundColor: "#9D9D9D",
                                                         borderRadius: "2px",
                                                         minHeight: "28px",
-                                                        marginTop: "2px" 
+                                                        marginTop: "2px"
                                                     }}
                                                 />
                                                 <div style={{ whiteSpace: "normal", wordBreak: "break-word", paddingTop: "1px" }}>
