@@ -536,6 +536,7 @@ export type OcrDailyComparisonDocument = OcrFieldsBase & {
 export type OcrTaxReceiptExciseDocument = OcrFieldsBase & {
     type: "tax_receipt_excise";
     docType: string;
+    id: string;
     header: string;
     receipt_no?: string;
     doc_no?: string;

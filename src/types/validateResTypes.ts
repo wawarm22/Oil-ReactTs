@@ -266,6 +266,32 @@ export type Validate0502Result = {
     };
 };
 
+type ValidateField = {
+    value: string | number;
+    expected: string | number;
+    passed: boolean;
+};
+
+type ValidateItem = {
+    description: ValidateField;
+    amount: ValidateField;
+};
+
+export type ValidateReceiptExciseResult = {
+    receipt_no: ValidateField;
+    doc_no: ValidateField;
+    submit_date: ValidateField;
+    submit_time: ValidateField;
+    office: ValidateField;
+    period: ValidateField;
+    received_from: ValidateField;
+    operator: ValidateField;
+    tax_id: ValidateField;
+    excise_id: ValidateField;
+    items: ValidateItem[];
+    total_amount: ValidateField;
+};
+
 
 
 
