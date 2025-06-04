@@ -333,6 +333,39 @@ export type ValidateOil0702Data = {
     fields: Oil0702Field[];
 };
 
+export type OcrReceiptExciseItem = {
+    description: string;
+    amount: number;
+};
+
+export type OcrReceiptExciseFields = {
+    receipt_no: string;
+    doc_no: string;
+    submit_date: string;
+    submit_time: string;
+    office: string;
+    period: string;
+    received_from: string;
+    operator: string;
+    tax_id: string;
+    excise_id: string;
+    items: OcrReceiptExciseItem[];
+    total_amount: number;
+};
+
+export type OcrReceiptExciseData = {
+    docType: string;
+    documentGroup: string;
+    fields: OcrReceiptExciseFields;
+};
+
+export type OcrReceiptExciseResponse = {
+    status: boolean;
+    message: string;
+    data: OcrReceiptExciseData;
+};
+
+
 
 
 
