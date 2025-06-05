@@ -400,6 +400,55 @@ export interface OcrTaxInvoiceData {
     };
 }
 
+export interface InvoiceTaxItem {
+    no: string;
+    product_code: string;
+    product_name: string;
+    quantity: number;
+    unit: string;
+    unit_price: number;
+    amount: number;
+    quantity_received: number;
+    api: string;
+}
+
+export interface InvoiceTaxFields {
+    invoice_no: string;
+    purchase_order_no: string;
+    delivery_no: string;
+    business_place: string;
+    plant: string;
+    shipment_date: string;
+    customer_code: string;
+    customer_name: string;
+    customer_address: string;
+    delivery_place: string;
+    vehicle: string;
+    vehicle_no: string;
+    seal_no: string;
+    items: InvoiceTaxItem[];
+    subtotal: number;
+    vat: number;
+    total_vat: number;
+    fx_difference: number;
+    total_amount: number;
+    total_amount_text: string;
+    vat_rate: number;
+    fx_rate: number;
+    check_time: string;
+    check_date: string;
+    confirm_text: string;
+    confirm_date: string;
+    note: string;
+    paper_no: string;
+}
+
+export interface OcrInvoiceTaxData {
+    docType: string;
+    documentGroup: string;
+    fields: InvoiceTaxFields;
+}
+
 
 
 

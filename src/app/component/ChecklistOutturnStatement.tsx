@@ -51,9 +51,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
     const formatWithComma = (val: string | number) => {
         if (typeof val === "number") return val.toLocaleString();
         if (typeof val === "string") {
-            // แทนที่ . เป็น , ก่อนแปลง
             const withComma = val.replace(/\./g, ',');
-            // พยายามแปลงเป็นเลข
             const num = Number(withComma.replace(/,/g, ""));
             if (!isNaN(num)) {
                 return num.toLocaleString();

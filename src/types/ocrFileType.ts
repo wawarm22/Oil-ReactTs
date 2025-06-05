@@ -277,6 +277,7 @@ export type OcrOutturnStatementDocument = OcrFieldsBase & {
 export type OcrDeliveryInvoiceDocument = OcrFieldsBase & {
     type: "delivery_invoice";
     docType: string;
+    id: string;
     bill_address?: string;
     business_place?: string;
     contractor?: string;
