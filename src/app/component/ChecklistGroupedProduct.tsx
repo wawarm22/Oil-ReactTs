@@ -43,7 +43,7 @@ const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data 
             {ocrData.fields.items.map((item, idx) => {
                 const itemValidate = validateResult?.items?.[idx];
                 return (
-                    <div key={idx} className="d-flex flex-column gap-2 border-bottom mb-1">
+                    <div key={idx} className="d-flex flex-column gap-0 border-bottom mb-0">
                         {item.no && (
                             <div>
                                 <div className="fw-bold">ลำดับ</div>
@@ -98,7 +98,7 @@ const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data 
                                 </div>
                             </div>
                         )}
-                        {item.product.unit && (
+                        {(item.product.unit !== undefined) && (
                             <div>
                                 <div className="fw-semibold">แบบหรือขนาด</div>
                                 <div
@@ -112,20 +112,21 @@ const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data 
                                                 : "1.5px solid #CED4DA"
                                     }}
                                 >
-                                    {item.product.unit}
+                                    {item.product.unit && item.product.unit.trim() !== "" ? item.product.unit : "ลิตร"}
                                 </div>
                             </div>
                         )}
 
                         {item.product.materials?.length > 0 && (
-                            <div className="mt-1">
-                                <div className="fw-semibold mb-2">วัตถุดิบ/ส่วนประกอบที่นำมาใช้ (ต่อสินค้า 1 หน่วย)</div>
+                            <div className="m-0">
                                 {item.product.materials.map((mat, midx) => {
                                     const matValidate = itemValidate?.product?.materials?.[midx];
                                     return (
                                         <div key={midx} className="mb-0">
+                                            <hr className="m-0 mb-2 mt-3" />
                                             {mat.name && (
                                                 <div>
+                                                    <div className="fw-semibold mb-2">วัตถุดิบ/ส่วนประกอบที่นำมาใช้ (ต่อสินค้า 1 หน่วย)</div>
                                                     <div className="fw-semibold">ประเภท</div>
                                                     <div
                                                         className="rounded-2 shadow-sm bg-white p-2"
@@ -164,7 +165,7 @@ const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data 
                                                 <div>
                                                     <div className="fw-semibold">ปริมาณหรือจำนวน</div>
                                                     <div
-                                                        className="rounded-2 shadow-sm bg-white p-2"
+                                                        className="rounded-2 shadow-sm bg-white p-2 mb-2"
                                                         style={{
                                                             minHeight: "42px",
                                                             border: matValidate?.quantity?.passed === false

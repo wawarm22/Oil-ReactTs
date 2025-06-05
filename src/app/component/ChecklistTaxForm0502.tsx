@@ -59,7 +59,8 @@ const ChecklistTaxForm0502: React.FC<Props> = ({ data }) => {
         // { key: "receiverOfficer", label: "เจ้าหน้าที่ผู้รับ", value: ocrData.fields.receiverOfficer },
         { key: "companyName", label: "บริษัท", value: ocrData.fields.companyName },
         { key: "depotName", label: "คลัง", value: ocrData.fields.depotName },
-        { key: "exciseNo", label: "ทะเบียนสรรพสามิตเลขที่", value: ocrData.fields.exciseNo ? String(ocrData.fields.exciseNo).replace(/\D/g, "") : "" },
+        // { key: "exciseNo", label: "ทะเบียนสรรพสามิตเลขที่", value: ocrData.fields.exciseNo ? String(ocrData.fields.exciseNo).replace(/\D/g, "") : "" },
+        { key: "exciseNo", label: "ทะเบียนสรรพสามิตเลขที่", value: validateResult?.exciseNo?.value },
         { key: "addressNo", label: "สถานที่ตั้งเลขที่", value: ocrData.fields.addressNo },
         { key: "alley", label: "ตรอก/ซอย", value: ocrData.fields.alley },
         { key: "road", label: "ถนน", value: ocrData.fields.road },
@@ -100,7 +101,7 @@ const ChecklistTaxForm0502: React.FC<Props> = ({ data }) => {
                         const productFields = [
                             { key: "productType", label: "ประเภทสินค้า", value: prod.productType },
                             { key: "productName", label: "ชื่อสินค้าที่ผลิต", value: prod.productName },
-                            { key: "productUnit", label: "เเบบหรือขนาด", value: prod.productUnit },
+                            { key: "productUnit", label: "เเบบหรือขนาด", value: (prod.productUnit && prod.productUnit.trim() !== "" ? prod.productUnit : "ลิตร") },
                         ];
                         return (
                             <div key={idx} className="mb-3">
@@ -141,7 +142,8 @@ const ChecklistTaxForm0502: React.FC<Props> = ({ data }) => {
                                                 if (!foundSummary) {
                                                     const materialFields = [
                                                         { key: "materialType", label: "ประเภท", value: mat.materialType },
-                                                        { key: "materialUnit", label: "เเบบหรือขนาด", value: mat.materialUnit },
+                                                        // { key: "materialUnit", label: "เเบบหรือขนาด", value: mat.materialUnit },
+                                                        { key: "materialUnit", label: "เเบบหรือขนาด", value: (mat.materialUnit && mat.materialUnit.trim() !== "" ? mat.materialUnit : "ลิตร") },
                                                         { key: "materialQuantity", label: "ปริมาณหรือจำนวน", value: mat.materialQuantity },
                                                         { key: "note", label: "หมายเหตุ", value: mat.note }
                                                     ];
