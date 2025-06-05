@@ -313,7 +313,7 @@ export type ValidateOilCompareResponse = {
 };
 
 export type Oil0702Property = {
-    label?: string; 
+    label?: string;
     value: string;
 };
 
@@ -364,6 +364,42 @@ export type OcrReceiptExciseResponse = {
     message: string;
     data: OcrReceiptExciseData;
 };
+
+export interface TaxInvoiceItem {
+    itemNo: number;
+    description: string;
+    quantity: number;
+    unit: string;
+    unitPrice: number;
+    amount: number;
+    note: string;
+}
+
+export interface OcrTaxInvoiceData {
+    docType: string;
+    documentGroup: string;
+    fields: {
+        invoiceBranch: string;
+        customerInfo: string;
+        taxId: string;
+        shipTo: string;
+        documentNo: string;
+        date: string;
+        paymentTerm: string;
+        dueDate: string;
+        poNo: string;
+        incoTerm: string;
+        items: TaxInvoiceItem[];
+        subTotal: number;
+        vat7: number;
+        totalAmount: number;
+        inWords: string;
+        internalRef: string;
+        receiptBy: string;
+        receivedDate: string;
+    };
+}
+
 
 
 

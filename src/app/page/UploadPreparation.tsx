@@ -351,7 +351,6 @@ const UploadPreparation: React.FC = () => {
         return true;
     }).map((item) => {
         const warehouse = filters.warehouse?.value;
-        // เงื่อนไขเพิ่มเติมสำหรับ warehouse === "BS11" และ id === 43
         if (warehouse === "BS11" && item.id === 43) {
             console.log("43");
 

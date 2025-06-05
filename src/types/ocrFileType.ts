@@ -169,6 +169,7 @@ export type OcrTaxForm0307Document = OcrFieldsBase & {
 export type OcrRefineryTaxInvoiceDocument = OcrFieldsBase & {
     type: "refinery_tax_invoice";
     docType: string;
+    id: string;
     header_tax_id: string;
     issued_at: string;
     customer_name: string;

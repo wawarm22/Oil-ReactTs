@@ -63,7 +63,6 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         if (data && selectedCompany) {
             genRequestObject({ fields: data })
                 .then((genFields) => {
-                    // แก้ไข excise_id ตรงนี้ก่อนส่ง
                     const excise_id = cleanExciseId(data.excise_id);
 
                     const payload: ValidateOil0704Payload = {
@@ -71,7 +70,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                         documentGroup: data.documentGroup,
                         fields: {
                             ...genFields,
-                            excise_id, // <<-- ส่งค่า excise_id ที่ผ่านการ clean แล้ว
+                            excise_id, 
                             company_name: selectedCompany.name,
                             form_officer_name: factoriesNumber || "",
                         },
