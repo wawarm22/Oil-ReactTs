@@ -43,15 +43,11 @@ export const uploadFile = async (
     docId: number,
     subtitleIndex?: number,
     mainCode?: string,
-    dateTime: string | null = null
 ): Promise<{
     uploadedResults: { name: string; data: string; blobPath: string }[];
     baseNameWithoutDocSeq: string;
 }> => {
 
-    if (dateTime == null){
-        dateTime = Date.now().toString();
-    }
     if (!files.length) {
         alert("กรุณาเลือกไฟล์ก่อน!");
         return {
@@ -70,14 +66,9 @@ export const uploadFile = async (
             lastParamsKey = currentKey;
         }
 
-        const runningStr = dateTime
+        const runningStr = pad(currentRunning - 1, 12);
         const docSequence = getDocSequenceNumber(docId, subtitleIndex);
-        console.log("uploadDateStr", uploadDateStr);
-        console.log("mainCode", mainCode);
-        
         const prefix = mainCode ?? `${uploadDateStr}-${runningStr}`;
-        console.log("prefix", prefix);
-        
         const baseNameWithoutDocSeq = `${prefix}-${warehouseCode}-${transportCode}-${periodDateStr}`;
         const baseName = `${baseNameWithoutDocSeq}-${docSequence}`;
 

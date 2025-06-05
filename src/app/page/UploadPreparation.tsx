@@ -72,12 +72,6 @@ const UploadPreparation: React.FC = () => {
     const [filters, setFilters] = useState<FilterState>({
         warehouse: null, transport: { value: "00", label: "ทางเรือ" }, periodType: null, dateStart: null, dateEnd: null, month: null,
     });
-    const [dateTime, setDateTime] = useState<string>("");
-    const [mainCode] = useState<string | null>(null);
-    
-    useEffect(() => {
-        setDateTime(Date.now().toString())
-    }, [filters.warehouse, filters.transport, filters.periodType, filters.month, filters.dateStart, filters.dateEnd])
 
     const getUploadKey = (docId: number, subtitleIndex?: number) =>
         `${docId}-${subtitleIndex ?? 0}`;
@@ -243,7 +237,7 @@ const UploadPreparation: React.FC = () => {
         const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
             user?.email === 'ja.test006+or@gmail.com' ||
             user?.email === 'ja.test006+bsrc@gmail.com' ||
-            user?.email === 'ja.test006+bangchak@gmail.com';
+            user?.email === 'ja.test006+bangchak@gmail.com' ;
 
         const companyName = isTestEmail
             ? `${selectedCompany.name}-test`
@@ -256,9 +250,7 @@ const UploadPreparation: React.FC = () => {
             filters.transport.value,
             periodDateStr,
             docId,
-            subtitleIndex,
-            mainCode || undefined,
-            dateTime
+            subtitleIndex
         );
 
         if (!uploadedResults.length) {
@@ -717,7 +709,7 @@ const UploadPreparation: React.FC = () => {
                         bgColor="#FFCB02"
                         color="#1E2329"
                         variant="bg-hide"
-                        // disabled={isConfirmDisabled}
+                        disabled={isConfirmDisabled}
                     />
                 </div>
             </div>
