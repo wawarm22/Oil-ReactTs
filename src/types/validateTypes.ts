@@ -423,6 +423,12 @@ export interface InvoiceTaxFields {
     customer_name: string;
     customer_address: string;
     delivery_place: string;
+    excise_no: string;
+    due_date: string;
+    incoterms: string;
+    bill_place: string;
+    payment_terms: string;
+    contract_no: string;
     vehicle: string;
     vehicle_no: string;
     seal_no: string;

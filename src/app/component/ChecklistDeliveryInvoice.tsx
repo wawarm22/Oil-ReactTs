@@ -4,6 +4,8 @@ import { getPreparedInvoiceTax, validateInvoiceTax } from "../../utils/api/valid
 import { AuthSchema } from "../../types/schema/auth";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { OcrInvoiceTaxData } from "../../types/validateTypes";
+import { ValidateInvoiceTaxItem, ValidateInvoiceTaxResult } from "../../types/validateResTypes";
+import { isValidateFieldTax } from "../../utils/function/isValidateFieldTax";
 
 interface Props {
     data: OcrDeliveryInvoiceDocument;
@@ -12,7 +14,7 @@ interface Props {
 const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
     const auth = useAuthUser<AuthSchema>();
     const [ocrData, setOcrData] = useState<OcrInvoiceTaxData | null>(null);
-    const [_validateData, setValidateData] = useState<any | null>(null);
+    const [validateData, setValidateData] = useState<ValidateInvoiceTaxResult | null>(null);
     const [loading, setLoading] = useState(true);
 
     const cleanValue = (val?: string | number | null): string => {
@@ -24,170 +26,189 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
         return val.trim();
     };
 
+    const borderColor = (passed?: boolean) =>
+        `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#CED4DA"}`;
+
     useEffect(() => {
         if (!auth || !auth.accessToken || !data.id) return;
-
         setLoading(true);
         getPreparedInvoiceTax(data.id, auth)
-            .then(res => {
-                setOcrData(res.data);
-            })
-            .catch(() => {
-                setOcrData(null);
-            })
+            .then(res => setOcrData(res.data))
+            .catch(() => setOcrData(null))
             .finally(() => setLoading(false));
     }, [data.id, auth]);
 
     useEffect(() => {
         if (!ocrData) return;
-
         validateInvoiceTax(ocrData)
             .then(res => {
-                if (res?.data) {
-                    setValidateData(res.data);
-                }
+                if (res?.data) setValidateData(res.data);
             });
     }, [ocrData]);
-
-    const fields = [
-        { label: "ใบกำกับภาษีเลขที่", value: data.tax_invoice_no },
-        { label: "ใบแจ้งหนี้เลขที่", value: ocrData?.fields.invoice_no },
-        { label: "ใบอนุมัติขายเลขที่", value: data.sales_order_no },
-        { label: "ใบสั่งซื้อเลขที่", value: ocrData?.fields.purchase_order_no },
-        { label: "ใบกำกับการขนส่ง(เอกสารโอนคลัง)/ใบจัดส่งเลขที่", value: ocrData?.fields.delivery_no },
-        { label: "สาขาที่ออกใบกำกับภาษี", value: ocrData?.fields.business_place },
-        { label: "ผู้จัดทำ", value: data.created_by },
-        { label: "คลังจ่าย", value: data.loading_pot_no },
-        { label: "เลขที่ ภษ.", value: data.loading_pot_no },
-        { label: "วันครบกำหนดชำระเงิน", value: data.due_date },
-        { label: "เงื่อนไขการขาย", value: data.incoterms },
-        { label: "เลขที่สัญญา Contract no.", value: data.contact_no },
-        { label: "Shipment date", value: ocrData?.fields.shipment_date },
-        { label: "รหัสลูกค้า", value: ocrData?.fields.customer_code },
-        { label: "ชื่อลูกค้า", value: ocrData?.fields.customer_name },
-        { label: "ที่อยู่", value: ocrData?.fields.customer_address },
-        { label: "สถานที่ส่ง", value: ocrData?.fields.delivery_place },
-        { label: "สถานที่วางบิล", value: data.bill_address },
-        { label: "เงื่อนไขการชำระเงิน", value: data.term_of_payment },
-    ];
 
     if (loading) {
         return <div>กำลังโหลดข้อมูล...</div>;
     }
 
-    const shipmentDetails = data.shipment_detail ?? [];
+    const fields: { key: keyof ValidateInvoiceTaxResult, label: string, fallback?: any }[] = [
+        { key: "tax_invoice_no", label: "ใบกำกับภาษีเลขที่", fallback: data.tax_invoice_no },
+        { key: "invoice_no", label: "ใบแจ้งหนี้เลขที่", fallback: ocrData?.fields.invoice_no },
+        { key: "sales_order_no", label: "ใบอนุมัติขายเลขที่", fallback: data.sales_order_no },
+        { key: "purchase_order_no", label: "ใบสั่งซื้อเลขที่", fallback: ocrData?.fields.purchase_order_no },
+        { key: "delivery_no", label: "ใบกำกับการขนส่ง(เอกสารโอนคลัง)/ใบจัดส่งเลขที่", fallback: ocrData?.fields.delivery_no },
+        { key: "business_place", label: "สาขาที่ออกใบกำกับภาษี", fallback: ocrData?.fields.business_place },
+        { key: "created_by", label: "ผู้จัดทำ", fallback: data.created_by },
+        { key: "plant", label: "คลังจ่าย", fallback: ocrData?.fields.plant ?? data.loading_pot_no },
+        { key: "excise_no", label: "เลขที่ ภษ.", fallback: ocrData?.fields.excise_no },
+        { key: "due_date", label: "วันครบกำหนดชำระเงิน", fallback: ocrData?.fields.due_date ?? data.due_date },
+        { key: "incoterms", label: "เงื่อนไขการขาย", fallback: ocrData?.fields.incoterms ?? data.incoterms },
+        { key: "contract_no", label: "เลขที่สัญญา Contract no.", fallback: ocrData?.fields.contract_no ?? data.contact_no },
+        { key: "shipment_date", label: "Shipment date", fallback: ocrData?.fields.shipment_date },
+        { key: "customer_code", label: "รหัสลูกค้า", fallback: ocrData?.fields.customer_code },
+        { key: "customer_name", label: "ชื่อลูกค้า", fallback: ocrData?.fields.customer_name },
+        { key: "customer_address", label: "ที่อยู่", fallback: ocrData?.fields.customer_address },
+        { key: "delivery_place", label: "สถานที่ส่ง", fallback: ocrData?.fields.delivery_place },
+        { key: "bill_place", label: "สถานที่วางบิล", fallback: ocrData?.fields.bill_place ?? data.bill_address },
+        { key: "payment_terms", label: "เงื่อนไขการชำระเงิน", fallback: ocrData?.fields.payment_terms ?? data.term_of_payment },
+    ];
+
+    const itemFields: { key: keyof ValidateInvoiceTaxItem; label: string }[] = [
+        { key: "no", label: "ลำดับที่" },
+        { key: "product_code", label: "รหัสสินค้า" },
+        { key: "product_name", label: "ชื่อสินค้า" },
+        { key: "quantity", label: "ปริมาณ" },
+        { key: "unit", label: "หน่วย" },
+        { key: "unit_price", label: "ราคาต่อหน่วย (บาท)" },
+        { key: "amount", label: "จำนวนเงิน (บาท)" },
+        { key: "quantity_received", label: "ปริมาณรับปลายทาง" },
+        { key: "api", label: "API" },
+    ];
+
+    const totalFields: { key: keyof ValidateInvoiceTaxResult, label: string, fallback?: any }[] = [
+        { key: "subtotal", label: "จำนวนเงินรวมก่อนภาษีมูลค่าเพิ่ม", fallback: ocrData?.fields.subtotal },
+        { key: "vat", label: "ภาษีมูลค่าเพิ่ม", fallback: ocrData?.fields.vat },
+        { key: "total_vat", label: "จำนวนรวมภาษีมูลค่าเพิ่ม", fallback: ocrData?.fields.total_vat },
+        { key: "fx_difference", label: "เพิ่ม/(ลด)จากอัตราแลกเปลี่ยนตามสัญญา และตามคำสั่งกรมสรรพากร", fallback: ocrData?.fields.fx_difference },
+        { key: "total_amount", label: "จำนวนเงินรวมทั้งสิ้น Total amount", fallback: ocrData?.fields.total_amount }
+    ];
+
+    const extraFields: { key: keyof ValidateInvoiceTaxResult, label: string, fallback?: any }[] = [
+        { key: "total_amount_text", label: "รวมเงินทั้งสิ้นเป็นตัวอักษร", fallback: ocrData?.fields.total_amount_text ?? data.total_amount_word },
+        { key: "vat_rate", label: "อัตราภาษีมูลค่าเพิ่ม", fallback: ocrData?.fields.vat_rate ?? data.vat_rate },
+        { key: "fx_rate", label: "อัตราแลกเปลี่ยน", fallback: ocrData?.fields.fx_rate ?? data.exchange_rate },
+        { key: "check_time", label: "เวลาออก ตรวจสอบเอกสาร", fallback: ocrData?.fields.check_time ?? data.time_out },
+        { key: "confirm_date", label: "วันที่ (ผู้ออกเอกสาร)", fallback: ocrData?.fields.confirm_date ?? data.issuer_date },
+        { key: "check_date", label: "วันที่ (ตรวจสอบเอกสาร)", fallback: ocrData?.fields.check_date ?? data.verify_date },
+        { key: "note", label: "หมายเหตุ", fallback: ocrData?.fields.note ?? data.remark },
+        // { key: "paper_no", label: "No.", fallback: ocrData?.fields.paper_no ?? data.paper_no }
+    ];
+
     return (
         <div className="d-flex flex-column gap-2">
-            {fields.map(({ label, value }) => (
-                <div key={label}>
-                    <div className="fw-bold">{label}</div>
-                    <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
-                        {cleanValue(value)}
-                    </div>
-                </div>
-            ))}
 
-            {shipmentDetails.length > 0 && (
-                <>
-                    <hr />
-                    {shipmentDetails.map((item, idx) => {
-                        const props = (item.properties ?? {}) as Record<string, any>;
-                        return (
-                            <div key={idx} className="d-flex flex-column gap-2 mb-2">
-                                {[
-                                    { label: "การส่งสินค้า", value: props.shipping_condition?.value },
-                                    { label: "โดยพาหนะ", value: ocrData?.fields.vehicle ?? props.carrier_by?.value },
-                                    { label: "เลขที่/ชื่อพาหนะ", value: ocrData?.fields.vehicle_no ?? props.carrier?.value },
-                                    { label: "ชื่อผู้ขับขี่", value: props.driver_name?.value },
-                                    { label: "ซิลเลขที่ Seal no.", value: props.seal_no?.value },
-                                    { label: "เที่ยวที่ Trip no.", value: props.trip_na?.value },
-                                ].map(({ label, value }) => (
-                                    <div key={label}>
-                                        <div className="fw-bold m-o">{label}</div>
-                                        <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
-                                            {cleanValue(value)}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        );
-                    })}
-                </>
-            )}
+            {/* Main fields */}
+            {fields.map(({ key, label, fallback }) => {
+                const validField = validateData?.[key];
+                const border = isValidateFieldTax(validField)
+                    ? borderColor(validField.passed)
+                    : borderColor(undefined);
+                const showValue = isValidateFieldTax(validField)
+                    ? validField.value
+                    : fallback;
 
-            {Array.isArray(ocrData?.fields.items) && ocrData.fields.items.length > 0 && (
-                <>
-                    <hr />
-                    {ocrData.fields.items.map((item, idx) => (
-                        <div key={idx} className="d-flex flex-column gap-2 mb-3">
-                            {[
-                                { label: "ลำดับที่", value: item.no },
-                                { label: "รหัสสินค้า", value: item.product_code },
-                                { label: "ชื่อสินค้า", value: item.product_name },
-                                { label: "ปริมาณ", value: item.quantity },
-                                { label: "หน่วย", value: item.unit },
-                                { label: "ราคาต่อหน่วย (บาท)", value: item.unit_price },
-                                { label: "จำนวนเงิน (บาท)", value: item.amount },
-                                { label: "ปริมาณรับปลายทาง", value: item.quantity_received },
-                                { label: "API", value: item.api },
-                            ].map(({ label, value }) => (
-                                <div key={label}>
-                                    <div className="fw-bold">{label}</div>
-                                    <div className="rounded-2 shadow-sm bg-white p-2" style={{
-                                        fontSize: "14px",
-                                        minHeight: "40px",
-                                        border: `1.5px solid #22C659`
-                                    }}>
-                                        {cleanValue(value)}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ))}
-                </>
-            )}
-
-            {ocrData && (
-                <>
-                    <hr />
-                    {[
-                        { label: "จำนวนเงินรวมก่อนภาษีมูลค่าเพิ่ม", value: ocrData.fields.subtotal },
-                        { label: "ภาษีมูลค่าเพิ่ม", value: ocrData.fields.vat },
-                        { label: "จำนวนรวมภาษีมูลค่าเพิ่ม", value: ocrData.fields.total_vat },
-                        { label: "เพิ่ม/(ลด)จากอัตราแลกเปลี่ยนตามสัญญา และตามคำสั่งกรมสรรพากร", value: ocrData.fields.fx_difference },
-                        { label: "จำนวนเงินรวมทั้งสิ้น Total amount", value: ocrData.fields.total_amount },
-                    ].map(({ label, value }) => (
-                        <div key={label}>
-                            <div className="fw-bold">{label}</div>
-                            <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
-                                {cleanValue(value)}
-                            </div>
-                        </div>
-                    ))}
-                </>
-            )}
-
-            <>
-                <hr />
-                {[
-                    { label: "รวมเงินทั้งสิ้นเป็นตัวอักษร", value: ocrData?.fields.total_amount_text ?? data.total_amount_word },
-                    { label: "อัตราภาษีมูลค่าเพิ่ม", value: ocrData?.fields.vat_rate ?? data.vat_rate },
-                    { label: "อัตราแลกเปลี่ยน", value: ocrData?.fields.fx_rate ?? data.exchange_rate },
-                    { label: "เวลาออก ตรวจสอบเอกสาร", value: ocrData?.fields.check_time ?? data.time_out },
-                    { label: "วันที่ (ผู้ออกเอกสาร)", value: ocrData?.fields.confirm_date ?? data.issuer_date },
-                    // { label: "ตรวจรับสินค้าข้างบนนี้ในสภาพเรียบร้อยถูกต้องครบถ้วนเเล้ว", value: ocrData?.fields.confirm_text },
-                    { label: "วันที่ (ตรวจสอบเอกสาร)", value: ocrData?.fields.check_date ?? data.verify_date },
-                    { label: "หมายเหตุ", value: ocrData?.fields.note ?? data.remark },
-                    { label: "No.", value: ocrData?.fields.paper_no ?? data.paper_no },
-                ].map(({ label, value }) => (
+                return (
                     <div key={label}>
                         <div className="fw-bold">{label}</div>
-                        <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
-                            {cleanValue(value)}
+                        <div
+                            className="rounded-2 shadow-sm bg-white p-2"
+                            style={{
+                                fontSize: "14px",
+                                minHeight: "40px",
+                                border
+                            }}
+                        >
+                            {cleanValue(showValue)}
                         </div>
                     </div>
-                ))}
-            </>
+                );
+            })}
+
+            {/* รายการสินค้า */}
+            {Array.isArray(validateData?.items) && validateData.items.length > 0 && (
+                <>
+                    <hr />
+                    {validateData.items.map((item, idx) => (
+                        <div key={idx} className="d-flex flex-column gap-2 mb-3">
+                            {itemFields.map(({ key, label }) => {
+                                const validItem = item[key];
+                                return (
+                                    <div key={label}>
+                                        <div className="fw-bold">{label}</div>
+                                        <div
+                                            className="rounded-2 shadow-sm bg-white p-2"
+                                            style={{
+                                                fontSize: "14px",
+                                                minHeight: "40px",
+                                                border: borderColor(validItem?.passed)
+                                            }}
+                                        >
+                                            {cleanValue(validItem?.value)}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ))}
+                </>
+            )}
+
+            {/* ยอดรวมและอื่นๆ */}
+            <hr />
+            {totalFields.map(({ key, label, fallback }) => {
+                const validField = validateData?.[key];
+                const showValue = isValidateFieldTax(validField)
+                    ? validField.value
+                    : fallback;
+                return (
+                    <div key={label}>
+                        <div className="fw-bold">{label}</div>
+                        <div
+                            className="rounded-2 shadow-sm bg-white p-2"
+                            style={{
+                                fontSize: "14px",
+                                minHeight: "40px",
+                                border: borderColor(isValidateFieldTax(validField) ? validField.passed : undefined)
+                            }}
+                        >
+                            {cleanValue(showValue)}
+                        </div>
+                    </div>
+                );
+            })}
+
+            {/* ฟิลด์เสริม */}
+            <hr />
+            {extraFields.map(({ key, label, fallback }) => {
+                const validField = validateData?.[key];
+                const showValue = isValidateFieldTax(validField)
+                    ? validField.value
+                    : fallback;
+                return (
+                    <div key={label}>
+                        <div className="fw-bold">{label}</div>
+                        <div
+                            className="rounded-2 shadow-sm bg-white p-2"
+                            style={{
+                                fontSize: "14px",
+                                minHeight: "40px",
+                                border: borderColor(isValidateFieldTax(validField) ? validField.passed : undefined)
+                            }}
+                        >
+                            {cleanValue(showValue)}
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     );
 };
