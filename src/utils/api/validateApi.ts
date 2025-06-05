@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BASE_URL_AWS } from "./apiConfig";
-import { OcrReceiptExciseData, OCRValidationPayload, Validate0503Page1Payload, Validate0503Page2Payload, validateAttachment0307Payload, ValidateOil0307Payload, ValidateOil0702Data, ValidateOil0704Payload, validateReceitpPaymentPayload, ValidateSubmissionPayload, ValidationCompare } from "../../types/validateTypes";
+import { OcrReceiptExciseData, OcrTaxInvoiceData, OCRValidationPayload, Validate0503Page1Payload, Validate0503Page2Payload, validateAttachment0307Payload, ValidateOil0307Payload, ValidateOil0702Data, ValidateOil0704Payload, validateReceitpPaymentPayload, ValidateSubmissionPayload, ValidationCompare } from "../../types/validateTypes";
 import { AuthSchema } from "../../types/schema/auth";
 import { Prepared0502, PreparedFormularApprovResponse } from "../../types/preparedTypes";
 
@@ -176,6 +176,19 @@ export const validateForm0502 = async (validateData: Prepared0502) => {
 export const validateReceiptExcise = async (validateData: OcrReceiptExciseData) => {
     try {
         const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/receipt-excise`, validateData, {
+            headers: { "Content-Type": "application/json" },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred during the registration process", error);
+        return undefined;
+    }
+};
+
+export const validateTaxInvoice = async (validateData: OcrTaxInvoiceData) => {
+    try {
+        const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/tax-invoice`, validateData, {
             headers: { "Content-Type": "application/json" },
         });
 

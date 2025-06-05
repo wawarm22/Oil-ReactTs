@@ -292,6 +292,36 @@ export type ValidateReceiptExciseResult = {
     total_amount: ValidateField;
 };
 
+export type ValidateTaxInvoiceItem = {
+    itemNo: ValidateField;
+    description: ValidateField;
+    quantity: ValidateField;
+    unit: ValidateField;
+    unitPrice: ValidateField;
+    amount: ValidateField;
+    note: ValidateField;
+};
+
+export type ValidateTaxInvoiceResult = {
+    invoiceBranch: ValidateField;
+    customerInfo: ValidateField;
+    taxId: ValidateField;
+    shipTo: ValidateField;
+    documentNo: ValidateField;
+    date: ValidateField;
+    paymentTerm: ValidateField;
+    dueDate: ValidateField;
+    poNo: ValidateField;
+    incoTerm: ValidateField;
+    items: ValidateTaxInvoiceItem[];
+    subTotal: ValidateField;
+    vat7: ValidateField;
+    totalAmount: ValidateField;
+    inWords: ValidateField;
+    internalRef: ValidateField;
+    receiptBy: ValidateField;
+    receivedDate: ValidateField;
+};
 
 
 
