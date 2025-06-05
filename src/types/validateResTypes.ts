@@ -323,5 +323,65 @@ export type ValidateTaxInvoiceResult = {
     receivedDate: ValidateField;
 };
 
+export type ValidateFieldTax<T = string | number> = {
+    value?: T;
+    expected: T;
+    passed: boolean;
+};
 
+export type ValidateInvoiceTaxItem = {
+    no: ValidateFieldTax<string>;
+    product_code: ValidateFieldTax<string>;
+    product_name: ValidateFieldTax<string>;
+    quantity: ValidateFieldTax<number>;
+    unit: ValidateFieldTax<string>;
+    unit_price: ValidateFieldTax<number>;
+    amount: ValidateFieldTax<number>;
+    quantity_received: ValidateFieldTax<number>;
+    api: ValidateFieldTax<string>;
+};
+
+export type ValidateInvoiceTaxResult = {
+    tax_invoice_no: ValidateFieldTax<string>;
+    invoice_no: ValidateFieldTax<string>;
+    sales_order_no: ValidateFieldTax<string>;
+    purchase_order_no: ValidateFieldTax<string>;
+    delivery_no: ValidateFieldTax<string>;
+    business_place: ValidateFieldTax<string>;
+    created_by: ValidateFieldTax<string>;
+    plant: ValidateFieldTax<string>;
+    excise_no: ValidateFieldTax<string>;
+    due_date: ValidateFieldTax<string>;
+    incoterms: ValidateFieldTax<string>;
+    contract_no: ValidateFieldTax<string>;
+    shipment_date: ValidateFieldTax<string>;
+    customer_code: ValidateFieldTax<string>;
+    customer_name: ValidateFieldTax<string>;
+    customer_address: ValidateFieldTax<string>;
+    delivery_place: ValidateFieldTax<string>;
+    bill_place: ValidateFieldTax<string>;
+    payment_terms: ValidateFieldTax<string>;
+    shipping_method: ValidateFieldTax<string>;
+    vehicle: ValidateFieldTax<string>;
+    vehicle_no: ValidateFieldTax<string>;
+    driver_name: ValidateFieldTax<string>;
+    seal_no: ValidateFieldTax<string>;
+    trip_no: ValidateFieldTax<string>;
+    transporter: ValidateFieldTax<string>;
+    items: ValidateInvoiceTaxItem[];
+    subtotal: ValidateFieldTax<number>;
+    vat: ValidateFieldTax<number>;
+    total_vat: ValidateFieldTax<number>;
+    fx_difference: ValidateFieldTax<number>;
+    total_amount: ValidateFieldTax<number>;
+    total_amount_text: ValidateFieldTax<string>;
+    vat_rate: ValidateFieldTax<number>;
+    fx_rate: ValidateFieldTax<number>;
+    check_time: ValidateFieldTax<string>;
+    check_date: ValidateFieldTax<string>;
+    confirm_text: ValidateFieldTax<string>;
+    confirm_date: ValidateFieldTax<string>;
+    note: ValidateFieldTax<string>;
+    paper_no: ValidateFieldTax<string>;
+};
 

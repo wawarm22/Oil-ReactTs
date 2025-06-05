@@ -89,9 +89,13 @@ const SearchFileUpload: React.FC = () => {
     });
     const [dateCodeFilter, setDateCodeFilter] = useState<OptionType | null>(null);
     const [filteredParsedFiles, setFilteredParsedFiles] = useState<ParsedFileInfo[]>([]);
-
+    const [dateTime, setDateTime] = useState<string>("");
     const getUploadKey = (docId: number, subtitleIndex?: number) =>
         `${docId}-${subtitleIndex ?? 0}`;
+
+    useEffect(() => {
+        setDateTime(Date.now().toString())
+    }, [filters.warehouse, filters.transport, filters.periodType, filters.month, filters.dateStart, filters.dateEnd])
 
     useEffect(() => {
         apiMyFactory(auth!)
@@ -397,7 +401,8 @@ const SearchFileUpload: React.FC = () => {
             periodDateStr,
             docId,
             subtitleIndex,
-            mainCode || undefined
+            mainCode || undefined,
+            dateTime
         );
 
         if (!uploadedResults.length) {
@@ -604,7 +609,7 @@ const SearchFileUpload: React.FC = () => {
                 const parts = file.fileName.split('/');
                 parts.pop();
                 return parts.join('/');
-            });            
+            });
 
             localStorage.setItem("folders", JSON.stringify(folders));
             localStorage.setItem("transport", filters.transport?.value || "");

@@ -23,13 +23,13 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
     const rawQuantity = value ? cleanValue(value.value) : "";
     const quantityWithComma = rawQuantity.replace(/\./g, ',');
     const valueQuantityNum = quantityWithComma ? Number(quantityWithComma.replace(/,/g, "")) : 0;
-
+    const dateFormatted = typeof data.date === "string" ? data.date.replace(/,/g, ".") : data.date;
 
     useEffect(() => {
         if (!data) return;
 
         const validateFields = {
-            date: cleanValue(data.date),
+            date: cleanValue(dateFormatted),
             product: cleanValue(data.product),
             quality: "LITRES @30 deg.C",
             quantity: valueQuantityNum,
@@ -90,7 +90,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
 
     return (
         <div className="d-flex flex-column gap-2">
-            {renderValidateBox("Date", "date", data.date)}
+            {renderValidateBox("Date", "date", dateFormatted)}
             {renderValidateBox("PRODUCT", "product_name", data.product)}
             {renderValidateBox("Quantity", "quality", "LITRES @30 deg.C")}
             {rawQuantity && renderValidateBox("ปริมาณ", "quantity", formatWithComma(rawQuantity))}
