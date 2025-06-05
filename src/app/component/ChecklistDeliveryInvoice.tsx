@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { OcrDeliveryInvoiceDocument } from "../../types/ocrFileType";
-import { getPreparedInvoiceTax } from "../../utils/api/validateApi";
+import { getPreparedInvoiceTax, validateInvoiceTax } from "../../utils/api/validateApi";
 import { AuthSchema } from "../../types/schema/auth";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { OcrInvoiceTaxData } from "../../types/validateTypes";
@@ -12,7 +12,7 @@ interface Props {
 const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
     const auth = useAuthUser<AuthSchema>();
     const [ocrData, setOcrData] = useState<OcrInvoiceTaxData | null>(null);
-    const [validateData, setValidateData] = useState<any | null>(null);
+    const [_validateData, setValidateData] = useState<any | null>(null);
     const [loading, setLoading] = useState(true);
 
     const cleanValue = (val?: string | number | null): string => {
@@ -37,6 +37,17 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
             })
             .finally(() => setLoading(false));
     }, [data.id, auth]);
+
+    useEffect(() => {
+        if (!ocrData) return;
+
+        validateInvoiceTax(ocrData)
+            .then(res => {
+                if (res?.data) {
+                    setValidateData(res.data);
+                }
+            });
+    }, [ocrData]);
 
     const fields = [
         { label: "ใบกำกับภาษีเลขที่", value: data.tax_invoice_no },
