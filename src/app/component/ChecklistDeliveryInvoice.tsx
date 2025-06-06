@@ -136,9 +136,9 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
             {/* รายการสินค้า */}
             {Array.isArray(validateData?.items) && validateData.items.length > 0 && (
                 <>
-                    <hr />
+                    <hr className="m-0 mt-3 mb-2"/>
                     {validateData.items.map((item, idx) => (
-                        <div key={idx} className="d-flex flex-column gap-2 mb-3">
+                        <div key={idx} className="d-flex flex-column gap-2 mb-2">
                             {itemFields.map(({ key, label }) => {
                                 const validItem = item[key];
                                 return (
@@ -163,7 +163,7 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
             )}
 
             {/* ยอดรวมและอื่นๆ */}
-            <hr />
+            <hr className="m-0 my-2"/>
             {totalFields.map(({ key, label, fallback }) => {
                 const validField = validateData?.[key];
                 const showValue = isValidateFieldTax(validField)

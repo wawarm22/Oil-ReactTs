@@ -32,6 +32,14 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         return raw.trim();
     };
 
+    const formatThaiMonthYear = (input?: string | null): string => {
+        if (!input) return "";
+        return input
+            .replace(/\n/g, "")                    
+            .replace(/([^\d\s]+)(\d+)/, "$1 $2")   
+            .trim();
+    }
+
     const renderBox = (label: string, value: any, passed?: boolean, key?: React.Key) => (
         <div key={key || label + (typeof value === "string" ? value : "")}>
             <div className="fw-bold">{label}</div>
@@ -56,7 +64,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { key: "form_officer_1", label: "เจ้าหน้าที่ผู้รับ", value: data.form_officer_1 },
         { key: "company_name", label: "ชื่อโรงอุตสาหกรรม (คลัง)", value: data.company_name },
         { key: "excise_id", label: "ทะเบียนสรรพสามิตเลขที่", value: cleanExciseId(data.excise_id) },
-        { key: "date", label: "ประจำเดือน ปี", value: data.date },
+        { key: "date", label: "ประจำเดือน ปี", value: formatThaiMonthYear(data.date) },
     ];
 
     useEffect(() => {
@@ -64,6 +72,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
             genRequestObject({ fields: data })
                 .then((genFields) => {
                     const excise_id = cleanExciseId(data.excise_id);
+                    const date = formatThaiMonthYear(data.date)
 
                     const payload: ValidateOil0704Payload = {
                         docType: data.docType,
@@ -71,6 +80,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                         fields: {
                             ...genFields,
                             excise_id,
+                            date,
                             company_name: selectedCompany.name,
                             form_officer_name: factoriesNumber || "",
                         },
