@@ -59,7 +59,8 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
     const fields = [
         { key: "company_name", label: "ชื่อผู้ประกอบอุตสาหกรรม", value: cleanValue(ocrData?.fields.company_name) },
         { key: "factory_name", label: "ชื่อโรงอุตสาหกรรม", value: cleanValue(ocrData?.fields.factory_name) },
-        { key: "excise_no", label: "ทะเบียนสรรพสามิตเลขที่", value: cleanValue(ocrData?.fields.excise_no) },
+        // { key: "excise_no", label: "ทะเบียนสรรพสามิตเลขที่", value: cleanValue(ocrData?.fields.excise_no) },
+        { key: "excise_no", label: "ทะเบียนสรรพสามิตเลขที่", value: validateData?.excise_no.value },
         { key: "address_no", label: "สถานที่ตั้งเลขที่", value: cleanValue(ocrData?.fields.address_no) },
         { key: "soi", label: "ตรอก/ซอย", value: cleanValue(ocrData?.fields.soi) },
         { key: "street", label: "ถนน", value: cleanValue(ocrData?.fields.street) },
@@ -111,12 +112,20 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
                             { key: "discount_satang", label: "จำนวนเงินลดหย่อน (สต.)", value: product.discount_satang.toString() },
                         ];
 
-                        const getProductBorderColor = (key: string): string => {
-                            if (!validateData?.products) return "1px solid #22C659";
-                            const product = validateData.products.find((p: any) => p[key]);
-                            if (!product || !product[key]) return "1px solid #22C659";
-                            return product[key].passed ? "1px solid #22C659" : "1px solid #FF0100";
+                        // const getProductBorderColor = (key: string): string => {
+                        //     if (!validateData?.products) return "1px solid #22C659";
+                        //     const product = validateData.products.find((p: any) => p[key]);
+                        //     if (!product || !product[key]) return "1px solid #22C659";
+                        //     return product[key].passed ? "1px solid #22C659" : "1px solid #FF0100";
+                        // };
+
+                        const getProductBorderColor = (key?: string): string => {
+                            if (!validateData?.products || !key) return "1px solid #22C659";
+                            const validationProduct = validateData.products[index];
+                            if (!validationProduct || !validationProduct[key]) return "1px solid #22C659";
+                            return validationProduct[key].passed ? "1px solid #22C659" : "1px solid #FF0100";
                         };
+
 
                         const isSatangField = (key?: string) =>
                             key === "tax_by_value_satang" ||
