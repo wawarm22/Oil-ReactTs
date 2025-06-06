@@ -176,29 +176,27 @@ export type Validate0503Page1Product = {
 };
 
 export type Validate0503Page1Result = {
-    data: {
-        form_name: Validate0503Page1Cell;
-        ref_no: Validate0503Page1Cell;
-        request_no: Validate0503Page1Cell;
-        request_date: Validate0503Page1Cell;
-        request_officer: Validate0503Page1Cell;
-        company_name: Validate0503Page1Cell;
-        factory_name: Validate0503Page1Cell;
-        excise_no: Validate0503Page1Cell;
-        address_no: Validate0503Page1Cell;
-        village_no: Validate0503Page1Cell;
-        soi: Validate0503Page1Cell;
-        street: Validate0503Page1Cell;
-        sub_district: Validate0503Page1Cell;
-        district: Validate0503Page1Cell;
-        province: Validate0503Page1Cell;
-        zipcode: Validate0503Page1Cell;
-        tel_no: Validate0503Page1Cell;
-        form_0503a_ref: Validate0503Page1Cell;
-        form_0503b_ref: Validate0503Page1Cell;
-        products: Validate0503Page1Product[];
-        total_tax: Validate0503Page1Cell;
-    };
+    form_name: Validate0503Page1Cell;
+    ref_no: Validate0503Page1Cell;
+    request_no: Validate0503Page1Cell;
+    request_date: Validate0503Page1Cell;
+    request_officer: Validate0503Page1Cell;
+    company_name: Validate0503Page1Cell;
+    factory_name: Validate0503Page1Cell;
+    excise_no: Validate0503Page1Cell;
+    address_no: Validate0503Page1Cell;
+    village_no: Validate0503Page1Cell;
+    soi: Validate0503Page1Cell;
+    street: Validate0503Page1Cell;
+    sub_district: Validate0503Page1Cell;
+    district: Validate0503Page1Cell;
+    province: Validate0503Page1Cell;
+    zipcode: Validate0503Page1Cell;
+    tel_no: Validate0503Page1Cell;
+    form_0503a_ref: Validate0503Page1Cell;
+    form_0503b_ref: Validate0503Page1Cell;
+    products: Validate0503Page1Product[];
+    total_tax: Validate0503Page1Cell;
 };
 
 export type Validate0503Page2Cell = {
@@ -208,16 +206,14 @@ export type Validate0503Page2Cell = {
 };
 
 export type Validate0503Page2Result = {
-    data: {
-        ref_no: Validate0503Page2Cell;
-        excise_tax: Validate0503Page2Cell;
-        health_fund: Validate0503Page2Cell;
-        radio_fund: Validate0503Page2Cell;
-        sport_fund: Validate0503Page2Cell;
-        elder_fund: Validate0503Page2Cell;
-        interior_tax: Validate0503Page2Cell;
-        total_tax: Validate0503Page2Cell;
-    };
+    ref_no: Validate0503Page2Cell;
+    excise_tax: Validate0503Page2Cell;
+    health_fund: Validate0503Page2Cell;
+    radio_fund: Validate0503Page2Cell;
+    sport_fund: Validate0503Page2Cell;
+    elder_fund: Validate0503Page2Cell;
+    interior_tax: Validate0503Page2Cell;
+    total_tax: Validate0503Page2Cell;
 };
 
 export type Validate0502Field = {
