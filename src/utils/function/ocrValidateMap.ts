@@ -269,7 +269,7 @@ const checkOutturnFailed = (res: any): boolean => {
 };
 
 const check0503Page1Failed = (res: { data?: Validate0503Page1Result } | null | undefined): boolean => {
-    const data = res?.data?.data;
+    const data = res?.data;
     if (!data) return true;
 
     for (const key of [
@@ -295,7 +295,7 @@ const check0503Page1Failed = (res: { data?: Validate0503Page1Result } | null | u
 };
 
 const check0503Page2Failed = (res: { data?: Validate0503Page2Result } | null | undefined): boolean => {
-    const data = res?.data?.data;
+    const data = res?.data;
     if (!data) return true;
 
     for (const key of [
@@ -307,7 +307,6 @@ const check0503Page2Failed = (res: { data?: Validate0503Page2Result } | null | u
 };
 
 const checkValidate0502Failed = (res: { data?: Validate0502Result } | Validate0502Result | null | undefined): boolean => {
-    // support ทั้งสองแบบ
     const d = (res && 'data' in res) ? (res as any).data : res;
     if (!d) return true;
 
