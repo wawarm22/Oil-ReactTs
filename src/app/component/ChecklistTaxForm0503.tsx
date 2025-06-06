@@ -118,6 +118,11 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
                             return product[key].passed ? "1px solid #22C659" : "1px solid #FF0100";
                         };
 
+                        const isSatangField = (key?: string) =>
+                            key === "tax_by_value_satang" ||
+                            key === "tax_by_volumn_satang" ||
+                            key === "discount_satang";
+
                         return (
                             <div key={`product-${index}`}>
                                 <hr className="border-top border-2 border-secondary mt-2 mb-1" />
@@ -128,7 +133,7 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
                                             className={`rounded-2 shadow-sm bg-white p-2 mb-2`}
                                             style={{ fontSize: "14px", border: key ? getProductBorderColor(key) : "1px solid #22C659" }}
                                         >
-                                            {formatNumber(value)}
+                                            {isSatangField(key) ? value : formatNumber(value)}
                                         </div>
                                     </div>
                                 ))}
