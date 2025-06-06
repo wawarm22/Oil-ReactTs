@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BASE_URL_AWS } from "./apiConfig";
-import { OcrInvoiceTaxData, OcrReceiptExciseData, OcrTaxInvoiceData, OCRValidationPayload, Validate0503Page1Payload, Validate0503Page2Payload, validateAttachment0307Payload, ValidateOil0307Payload, ValidateOil0702Data, ValidateOil0704Payload, validateReceitpPaymentPayload, ValidateSubmissionPayload, ValidationCompare } from "../../types/validateTypes";
+import { InvoiceThappline, OcrInvoiceTaxData, OcrReceiptExciseData, OcrTaxInvoiceData, OCRValidationPayload, Validate0503Page1Payload, Validate0503Page2Payload, validateAttachment0307Payload, ValidateOil0307Payload, ValidateOil0702Data, ValidateOil0704Payload, validateReceitpPaymentPayload, ValidateSubmissionPayload, ValidationCompare } from "../../types/validateTypes";
 import { AuthSchema } from "../../types/schema/auth";
 import { Prepared0502, PreparedFormularApprovResponse } from "../../types/preparedTypes";
 
@@ -212,6 +212,19 @@ export const validateInvoiceTax = async (validateData: OcrInvoiceTaxData) => {
     }
 };
 
+export const validateInvoiceThappline = async (validateData: InvoiceThappline) => {
+    try {
+        const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/invoice-thappline`, validateData, {
+            headers: { "Content-Type": "application/json" },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred during the registration process", error);
+        return undefined;
+    }
+};
+
 export const getPrepared0503 = async (id: string, auth: AuthSchema): Promise<any | undefined> => {
     try {
         const response = await axios.get(`${BASE_URL_AWS}/ocr/ocr-prepared/05-03/${id}`, {
@@ -324,3 +337,16 @@ export const getPreparedInvoiceTax = async (docId: string, auth: AuthSchema): Pr
     }
 };
 
+export const getPreparedInvoiceThappline = async (docId: string, auth: AuthSchema): Promise<any | undefined> => {
+    try {
+        const response = await axios.get(`${BASE_URL_AWS}/ocr/ocr-prepared/invoice-thappline/${docId}`, {
+            headers: {
+                Authorization: `Bearer ${auth.accessToken}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred while fetching OCR prepared data", error);
+        return undefined;
+    }
+};

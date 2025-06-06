@@ -17,6 +17,9 @@ export const genRequestObject = async (input: Record<string, any>) => {
     const detail_table_1 = (fields?.detail_table_1 as any[]) || [];
     for (let i = 0; i < detail_table_1.length; i++) {
         const row = detail_table_1[i];
+
+        // console.log("row6", row.properties?.column_6?.value);
+
         const col1 = row.properties?.column_1?.value || "";
         const col2 = row.properties?.column_2?.value || "";
         const col3 = row.properties?.column_3?.value || "";
@@ -123,7 +126,7 @@ export const genRequestObject = async (input: Record<string, any>) => {
                 }
             }
         }
-    }
+    }    
 
     const detail_table_2 = (fields?.detail_table_2 as any[]) || [];
     for (let i = 0; i < detail_table_2.length; i++) {
@@ -148,7 +151,7 @@ export const genRequestObject = async (input: Record<string, any>) => {
             "ประเภทสินค้า ซนิด ตราหรือเครื่องหมาย/ แบบรุ่น/ตกรความหวาน ขนาด รายการ (หน่วย)"
         );
         const is_open = await checkProductMatchAI(col1, "(๑๓) คงเหลือยกมา");
-        const is_produced = await checkProductMatchAI(col1, "");
+        const is_produced = await checkProductMatchAI(col1, "(๑๔) รับจากการผลิต");
         const is_bonded_return = await checkProductMatchAI(
             col1,
             "(๑๕) รับคืนจากคลังสินค้าทัณฑ์บน"
