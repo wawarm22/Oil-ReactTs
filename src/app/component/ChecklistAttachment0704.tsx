@@ -32,8 +32,8 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         return raw.trim();
     };
 
-    const renderBox = (label: string, value: any, passed?: boolean) => (
-        <div key={label + (typeof value === "string" ? value : "")}>
+    const renderBox = (label: string, value: any, passed?: boolean, key?: React.Key) => (
+        <div key={key || label + (typeof value === "string" ? value : "")}>
             <div className="fw-bold">{label}</div>
             <div
                 className="rounded-2 shadow-sm bg-white p-2"
@@ -70,7 +70,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                         documentGroup: data.documentGroup,
                         fields: {
                             ...genFields,
-                            excise_id, 
+                            excise_id,
                             company_name: selectedCompany.name,
                             form_officer_name: factoriesNumber || "",
                         },
@@ -107,15 +107,15 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { label: "คงเหลือยกมา", field: "open" },
         { label: "รับจากการผลิต", field: "produced" },
         { label: "รับคืนจากคลังสินค้าทัณฑ์บน", field: "bonded_return" },
-        // { label: "อื่น ๆ", field: "etc_getted" },
+        { label: "อื่น ๆ", field: "etc_getted" },
         { label: "รวม", field: "total" },
         { label: "จำหน่ายในประเทศ", field: "domestic_sales" },
         { label: "จำหน่ายต่างประเทศ", field: "overseas_sales" },
         { label: "ใช้ในโรงอุตสาหกรรม", field: "used_in_industrial_plans" },
         { label: "คลังสินค้าทัณฑ์บน", field: "bonded" },
         { label: "เสียหาย", field: "defected" },
+        { label: "อื่น ๆ", field: "etc_used" },
         { label: "คงเหลือยกไป", field: "forward" },
-        // { label: "อื่น ๆ", field: "etc_used" },
     ];
 
     const validMaterialNames = [6, 7, 8, 9, 10, 11]
@@ -125,7 +125,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         }))
         .filter(({ name }) => name && !isBracketPattern(name));
 
-    const validProductNames = Array.from({ length: 13 }, (_, i) => i + 2)
+    const validProductNames = Array.from({ length: 14 }, (_, i) => i + 2)
         .map(colIdx => ({
             name: table2[0]?.properties?.[`column_${colIdx}`]?.value,
             colIdx
@@ -166,7 +166,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                         ? name
                         : table2[rowIdx]?.properties?.[`column_${colIdx}`]?.value;
                     const passed = validateObj?.[field]?.passed;
-                    return renderBox(label, val, passed);
+                    return renderBox(label, val, passed, `${label}-${field}-${colIdx}-${rowIdx}`);
                 });
             })}
         </div>

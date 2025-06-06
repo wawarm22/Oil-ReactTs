@@ -385,3 +385,40 @@ export type ValidateInvoiceTaxResult = {
     paper_no: ValidateFieldTax<string>;
 };
 
+// Generic type สำหรับแต่ละช่อง (สามารถรองรับ string หรือ number ตาม field)
+export type ValidationResult<T = string> = {
+    value: T;
+    expected: T;
+    passed: boolean;
+};
+
+// สำหรับ details array (แต่ละแถวใน details)
+export type ValidationDetailThappline = {
+    description: ValidationResult<string>;
+    before: ValidationResult<string>;
+    after: ValidationResult<string>;
+};
+
+// รวมทั้งหมดตามโครงสร้างที่ให้มา
+export type ValidateInvoiceThapplineData = {
+    product_name: ValidationResult<string>;
+    doc_no: ValidationResult<string>;
+    customer_tank_no: ValidationResult<string>;
+    batch_no: ValidationResult<string>;
+    depot: ValidationResult<string>;
+    date: ValidationResult<string>;
+    time: ValidationResult<string>;
+    details: ValidationDetailThappline[];
+    total_ptt_tank_receive_86f: ValidationResult<number>;
+    sump: ValidationResult<number>;
+    thappline_line_content: ValidationResult<number>;
+    customer_line: ValidationResult<number>;
+    extra_vol1: ValidationResult<number>;
+    extra_vol2: ValidationResult<number>;
+    b100_e100_volume: ValidationResult<number>;
+    net_received_volume: ValidationResult<number>;
+    note: ValidationResult<string>;
+    book_on: ValidationResult<string>;
+};
+
+

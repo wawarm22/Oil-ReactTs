@@ -1,124 +1,163 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { OcrDeliveryInvoicePipline } from "../../types/ocrFileType";
+import { AuthSchema } from "../../types/schema/auth";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { getPreparedInvoiceThappline, validateInvoiceThappline } from "../../utils/api/validateApi";
+import { InvoiceThappline } from "../../types/validateTypes";
+import { ValidateInvoiceThapplineData } from "../../types/validateResTypes";
 
 interface Props {
     data: OcrDeliveryInvoicePipline;
 }
 
 const ChecklistDeliveryInvoicePipline: React.FC<Props> = ({ data }) => {
+    const auth = useAuthUser<AuthSchema>();
+    const [ocrData, setOcrData] = useState<InvoiceThappline | null>(null);
+    const [validateData, setValidateData] = useState<ValidateInvoiceThapplineData | null>(null);
+    const [loading, setLoading] = useState(true);
+
     const cleanValue = (val?: string | null): string => {
         if (!val || val.trim() === "" || val === ":unselected:" || val === ":selected:") return "";
         return val.trim();
     };
 
+    const borderColor = (passed?: boolean) =>
+        `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#CED4DA"}`;
+
+    useEffect(() => {
+        if (!auth || !auth.accessToken || !data.id) return;
+        setLoading(true);
+        getPreparedInvoiceThappline(data.id, auth)
+            .then(res => setOcrData(res.data))
+            .catch(() => setOcrData(null))
+            .finally(() => setLoading(false));
+    }, [data.id, auth]);
+
+    useEffect(() => {
+        if (!ocrData) return;
+        validateInvoiceThappline(ocrData)
+            .then(res => {
+                if (res?.data) setValidateData(res.data);
+            });
+    }, [ocrData]);
+
     const fields = [
-        { label: "เอกสาร", value: "THAI PETROLEUM PLPLINE CO.,LTD. PRODUCT DELIVERIED TO CUSTOMER DEPOT" },
-        { label: "ชื่อผลิตภัณฑ์ (PRODUCT)", value: cleanValue(data.product) },
-        { label: "เลขที่เอกสาร (DOC NO.)", value: cleanValue(data.doc_no) },
-        { label: "หมายเลขของผู้ประกอบอุตสาหกรรม (CUSTOMER TANK NO.)", value: cleanValue(data.customer_tank_no) },
-        { label: "หมายเลขการผลิต (BATCH NO.)", value: cleanValue(data.batch_no) },
-        { label: "สถานที่เก็บสินค้า (DEPOT)", value: cleanValue(data.depot) },
-        { label: "วันที่ (DATE)", value: cleanValue(data.date) },
-        { label: "เวลา (TIME)", value: cleanValue(data.time) },
+        {
+            label: "เอกสาร",
+            value: "THAI PETROLEUM PLPLINE CO.,LTD. PRODUCT DELIVERIED TO CUSTOMER DEPOT",
+            passed: true
+        },
+        {
+            label: "ชื่อผลิตภัณฑ์ (PRODUCT)",
+            value: cleanValue(validateData?.product_name.value),
+            passed: validateData?.product_name.passed
+        },
+        {
+            label: "เลขที่เอกสาร (DOC NO.)",
+            value: cleanValue(validateData?.doc_no.value),
+            passed: validateData?.doc_no.passed
+        },
+        {
+            label: "หมายเลขของผู้ประกอบอุตสาหกรรม (CUSTOMER TANK NO.)",
+            value: cleanValue(validateData?.customer_tank_no.value),
+            passed: validateData?.customer_tank_no.passed
+        },
+        {
+            label: "หมายเลขการผลิต (BATCH NO.)",
+            value: cleanValue(validateData?.batch_no.value),
+            passed: validateData?.batch_no.passed
+        },
+        {
+            label: "สถานที่เก็บสินค้า (DEPOT)",
+            value: cleanValue(validateData?.depot.value),
+            passed: validateData?.depot.passed
+        },
+        {
+            label: "วันที่ (DATE)",
+            value: cleanValue(validateData?.date.value),
+            passed: validateData?.date.passed
+        },
+        {
+            label: "เวลา (TIME)",
+            value: cleanValue(validateData?.time.value),
+            passed: validateData?.time.passed
+        }
     ];
 
     const footer = [
-        { label: "NOTE", value: cleanValue(data.note) },
-        { label: "BOOK ON", value: cleanValue(data.book_no) },
-    ]
-
-    const table = Array.isArray(data.detail_table) ? data.detail_table.slice(1) : [];
-
-    const totalPttTankIndex = table.findIndex(item => item.properties?.column_1?.value?.includes("TOTAL PTT TANK"));
-
-    const tableBeforeTotalPttTank = totalPttTankIndex !== -1 ? table.slice(0, totalPttTankIndex) : [];
-    const tableAfterTotalPttTank = totalPttTankIndex !== -1 ? table.slice(totalPttTankIndex) : [];
-
-    const labelValuePairs = [
-        { label: "TOTAL PTT TANK RECEIVE @ 86'F", value: "column_2" },
-        { label: "SUMP", value: "column_2" },
-        { label: "THAPPLINE LINE CONTENT", value: "column_2" },
-        { label: "CUSTOMER LINE", value: "column_2" },
-        { label: "EXTRA VOL1", value: "column_2" },
-        { label: "EXTRA VOL2", value: "column_2" },
-        { label: "B100/E100 VOLUME", value: "column_2" },
-        { label: "NET RECEIVED VOLUME", value: "column_2" },
+        { label: "NOTE", value: cleanValue(validateData?.note.value), passed: validateData?.note.passed },
+        { label: "BOOK ON", value: cleanValue(validateData?.book_on.value), passed: validateData?.book_on.passed },
     ];
+
+    const table: any[] = Array.isArray(ocrData?.fields.details) ? ocrData.fields.details : [];
+    const validateDetails = Array.isArray(validateData?.details) ? validateData.details : [];
+
+    if (loading) {
+        return <div>กำลังโหลดข้อมูล...</div>;
+    }
 
     return (
         <div className="d-flex flex-column gap-2">
-            {fields.map(({ label, value }) => (
+            {fields.map(({ label, value, passed }) => (
                 <div key={label}>
                     <div className="fw-bold">{label}</div>
-                    <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
+                    <div
+                        className="rounded-2 shadow-sm bg-white p-2"
+                        style={{ fontSize: "14px", minHeight: "40px", border: borderColor(passed) }}
+                    >
                         {value}
                     </div>
                 </div>
             ))}
-            <hr className="m-0 mt-2" />
 
-            {tableBeforeTotalPttTank.length > 0 && (
+            {table.length > 1 && (
                 <>
-                    {tableBeforeTotalPttTank.map((item, idx) => {
-                        const props = (item.properties ?? {}) as Record<string, any>;
-                        return (
-                            <div key={idx} className="d-flex flex-column gap-2 mb-2">
-                                {[
-                                    { label: "รายละเอียด (DESCRIPTION)", value: props.column_1?.value },
-                                    { label: "(BEFORE)", value: props.column_2?.value },
-                                    { label: "(AFTER)", value: props.column_3?.value },
-                                ].map(({ label, value }) => (
-                                    <div key={label}>
-                                        <div className="fw-bold m-o">{label}</div>
-                                        <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
-                                            {cleanValue(value)}
-                                        </div>
-                                    </div>
-                                ))}
+                    <hr className="m-0 mt-2" />
+                    {table.slice(1).map((item, idx) => {
+                        const valDetail = validateDetails[idx + 1]; // +1 เพราะ slice(1)
+                        return [
+                            {
+                                label: "รายละเอียด (DESCRIPTION)",
+                                value: cleanValue(item.description),
+                                passed: valDetail?.description?.passed
+                            },
+                            {
+                                label: "(BEFORE)",
+                                value: cleanValue(item.before),
+                                passed: valDetail?.before?.passed
+                            },
+                            {
+                                label: "(AFTER)",
+                                value: cleanValue(item.after),
+                                passed: valDetail?.after?.passed
+                            }
+                        ].map(({ label, value, passed }) => (
+                            <div key={label + idx}>
+                                <div className="fw-bold">{label}</div>
+                                <div
+                                    className="rounded-2 shadow-sm bg-white p-2"
+                                    style={{
+                                        fontSize: "14px",
+                                        minHeight: "40px",
+                                        border: borderColor(passed)
+                                    }}
+                                >
+                                    {value}
+                                </div>
                             </div>
-                        );
+                        ));
                     })}
                 </>
             )}
 
-            {tableAfterTotalPttTank.length > 0 && (
-                <>
-                    {labelValuePairs.map(({ label, value }, idx) => {
-                        const item = tableAfterTotalPttTank[idx];
-                        const props = (item.properties ?? {}) as Record<string, any>;
-
-                        if (label === "NET RECEIVED VOLUME") {
-                            return (
-                                <div key={idx} className="d-flex flex-column gap-2 mb-2">
-                                    <div>
-                                        <div className="fw-bold m-o">{label}</div>
-                                        <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
-                                            {cleanValue(props.column_2?.value)} {cleanValue(props.column_3?.value)} {/* แสดง column_2 และ column_3 ต่อกัน */}
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        }
-
-                        return (
-                            <div key={idx} className="d-flex flex-column gap-2 mb-2">
-                                <div>
-                                    <div className="fw-bold m-o">{label}</div>
-                                    <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
-                                        {cleanValue(props[value]?.value)}
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </>
-            )}
-            
             <hr className="m-0 mt-1" />
-            {footer.map(({ label, value }) => (
+            {footer.map(({ label, value, passed }) => (
                 <div key={label}>
                     <div className="fw-bold">{label}</div>
-                    <div className="rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px", minHeight: "40px", border: `1.5px solid #22C659` }}>
+                    <div
+                        className="rounded-2 shadow-sm bg-white p-2"
+                        style={{ fontSize: "14px", minHeight: "40px", border: borderColor(passed) }}
+                    >
                         {value}
                     </div>
                 </div>

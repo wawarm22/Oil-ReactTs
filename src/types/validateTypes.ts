@@ -455,6 +455,38 @@ export interface OcrInvoiceTaxData {
     fields: InvoiceTaxFields;
 }
 
+export type InvoiceThappline = {
+    docType: string;
+    documentGroup: string;
+    fields: {
+        product_name: string;
+        doc_no: string;
+        customer_tank_no: string;
+        batch_no: string;
+        depot: string;
+        date: string;              
+        time: string;              
+        details: ThapplineDetail[];
+        total_ptt_tank_receive_86f: number;
+        sump: number;
+        thappline_line_content: number;
+        customer_line: number;
+        extra_vol1: number;
+        extra_vol2: number;
+        b100_e100_volume: number;
+        net_received_volume: number;
+        note: string;
+        book_on: string;
+    };
+};
+
+export type ThapplineDetail = {
+    description: string;
+    before: string;
+    after: string;
+};
+
+
 
 
 
