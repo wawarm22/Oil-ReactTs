@@ -110,12 +110,21 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
             <div>
                 {renderLabel("วันที่")}
                 <div
-                    className="rounded-2 shadow-sm bg-white p-2"
+                    className="rounded-2 shadow-sm bg-white p-2 mb-2"
                     style={{
                         border: `1.5px solid ${validationResult?.from_date?.passed === true ? "#22C659" : validationResult?.from_date?.passed === false ? "#FF0100" : "#22C659"}`
                     }}
                 >
-                    {cleanCellValue(preparedData?.from_date)} - {cleanCellValue(preparedData?.to_date)}
+                    {cleanCellValue(preparedData?.from_date)}
+                </div>
+                {renderLabel("ถึง")}
+                <div
+                    className="rounded-2 shadow-sm bg-white p-2"
+                    style={{
+                        border: `1.5px solid ${validationResult?.from_date?.passed === true ? "#22C659" : validationResult?.to_date?.passed === false ? "#FF0100" : "#22C659"}`
+                    }}
+                >
+                    {cleanCellValue(preparedData?.to_date)}
                 </div>
             </div>
             <div>
@@ -162,13 +171,13 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
             <hr className="border-top border-2 border-secondary my-1" />
             <div className="m-0">
                 {renderLabel("ลงชื่อ ผู้ประกอบอุตสาหกรรม")}
-                <div className="rounded-2 shadow-sm bg-white p-2" style={{border: '1.5px solid #22C659'}}>
+                <div className="rounded-2 shadow-sm bg-white p-2" style={{ border: '1.5px solid #22C659' }}>
                     {cleanCellValue(data.name)}
                 </div>
             </div>
             <div>
                 {renderLabel("ตำแหน่ง")}
-                <div className="rounded-2 shadow-sm bg-white p-2" style={{border: '1.5px solid #22C659'}}>
+                <div className="rounded-2 shadow-sm bg-white p-2" style={{ border: '1.5px solid #22C659' }}>
                     {cleanCellValue(data.position)}
                 </div>
             </div>
