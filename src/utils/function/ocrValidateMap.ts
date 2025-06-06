@@ -1,5 +1,5 @@
-import { FieldValidation, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, ValidateFormularApprovData, ValidationResult0307, ValidationResultData } from "../../types/validateResTypes";
-import { validateSubmission, validateOilCompare, validateOil0701, validateOil0307, validateAttachment0307, validateOil0704, validateReceitpPayment, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502 } from "../api/validateApi";
+import { FieldValidation, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidationResult0307, ValidationResultData } from "../../types/validateResTypes";
+import { validateSubmission, validateOilCompare, validateOil0701, validateOil0307, validateAttachment0307, validateOil0704, validateReceitpPayment, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax } from "../api/validateApi";
 import { buildOcr0307FieldRows } from "./ocrFieldRowsBuilder";
 
 const buildTaxPayload = (ocr: any) => ({
@@ -78,6 +78,12 @@ const build0503Page2Payload = (ocr: any, context: any) => ({
 });
 
 const build0502Payload = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+});
+
+const buildInvoiceTaxPayload = (ocr: any, context: any) => ({
     docType: ocr.docType,
     documentGroup: context.documentGroup ?? "",
     fields: context.fields ?? {},
@@ -334,6 +340,40 @@ const checkValidate0502Failed = (res: { data?: Validate0502Result } | Validate05
     return false;
 }
 
+const checkValidateInvoiceFailed = (
+    res: { data?: ValidateInvoiceTaxResult } | ValidateInvoiceTaxResult | null | undefined
+): boolean => {
+    const data: ValidateInvoiceTaxResult | undefined =
+        (res && "data" in res ? (res as any).data : res) as ValidateInvoiceTaxResult | undefined;
+
+    if (!data) return true; 
+
+    for (const key of Object.keys(data)) {
+        if (key === "items") continue;
+        // @ts-ignore
+        if (data[key]?.passed === false) {
+            // console.log(`Failed main field: ${key}`, data[key]);
+            return true;
+        }
+    }
+
+    if (Array.isArray(data.items)) {
+        for (let idx = 0; idx < data.items.length; idx++) {
+            const item = data.items[idx];
+            for (const itemKey of Object.keys(item)) {
+                // @ts-ignore
+                if (item[itemKey]?.passed === false) {
+                    // console.log(`Failed item[${idx}] field: ${itemKey}`, item[itemKey]);
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+};
+
+
 export const OCR_VALIDATE_MAP: Record<
     string,
     {
@@ -427,6 +467,13 @@ export const OCR_VALIDATE_MAP: Record<
         buildPayload: build0502Payload,
         api: validateForm0502,
         checkFailed: checkValidate0502Failed,
+        needsContext: true,
+        needsAuth: true,
+    },
+    "oil-tax-invoice-or-1": {
+        buildPayload: buildInvoiceTaxPayload,
+        api: validateInvoiceTax,
+        checkFailed: checkValidateInvoiceFailed,
         needsContext: true,
         needsAuth: true,
     },
