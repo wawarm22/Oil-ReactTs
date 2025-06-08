@@ -1,275 +1,210 @@
 import React, { useEffect, useState } from "react";
 import { OcrStockOilDocument } from "../../types/ocrFileType";
-import { validateOil0701 } from "../../utils/api/validateApi";
-import { cleanCellValue, renderLabel } from "../../utils/function/ocrUtils";
-import { useUser } from "../../hook/useUser";
-import { useCompanyStore } from "../../store/companyStore";
-import { checkProdustType } from "../../utils/api/apiCheckData";
-import { getLabelMap } from "../../utils/labelMaps";
-import { findBestMatch } from "../../utils/function/fuzzySearch";
-import { findBestMatchName } from "../../utils/function/fuzzySearchName";
-import { renderYodyokmaRow } from "../../utils/renderYodyokmaRow";
+import { getPrepared0701, validate0701New } from "../../utils/api/validateApi";
+import { AuthSchema } from "../../types/schema/auth";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { Prepared0701, Prepared0701Report } from "../../types/validateTypes";
+import { getFieldLabelMap } from "../../utils/fieldLabelMaps";
+import { Validate0701Result } from "../../types/validateResTypes";
 
 interface ChecklistStockOilFormattedProps {
     data: OcrStockOilDocument;
     oilTypeFromPrevPage?: string;
 }
 
-type OCRValidationPayload = {
-    docType: string;
-    documentGroup: string;
-    company?: string;
-    materialID: string;
-    factories: string | null;
-    fields: OCRFieldRow[];
+type TotalFieldKey = "bl" | "outturn" | "for_deduction" | "use" | "overall";
+
+const totalFieldMap: Record<TotalFieldKey, string> = {
+    bl: "B/L",
+    outturn: "Outturn",
+    for_deduction: "ปริมาณสิทธิ์หักลดหย่อน",
+    use: "ผลิตสินค้าพิกัด อัตราภาษีสรรพามิต",
+    overall: "รวมจ่าย",
 };
 
-type OCRFieldRow = {
-    properties: Record<string, { value: string }>;
-};
+const borderColor = (passed?: boolean) =>
+    `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#CED4DA"}`;
 
-const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({ data, oilTypeFromPrevPage }) => {
-    const { user } = useUser();
-    const [allRowsState, setAllRowsState] = useState<Record<string, any>[]>([]);
-    const [labelMap, setLabelMap] = useState<Record<string, string>>({});
-    const [materialType, setMaterialType] = useState<string>("");
-    const [materialName, setMaterialName] = useState<string>("");
-    const [validationResult, setValidationResult] = useState<any>(null);
-    const { selectedCompany, fetchCompanyById } = useCompanyStore();
-    const factoriesNumber = localStorage.getItem("warehouse");
-    const factoriesName = localStorage.getItem("nameWarehouse")
+const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
+    data,
+}) => {
+    const auth = useAuthUser<AuthSchema>();
+    const [ocrData, setOcrData] = useState<Prepared0701 | null>(null);
+    const [validateData, setValidateData] = useState<Validate0701Result | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (user?.company_id) {
-            fetchCompanyById(user.company_id);
-        }
-    }, [user?.company_id]);
+        if (!auth || !auth.accessToken || !data.id) return;
+        setLoading(true);
+        getPrepared0701(data.id, auth)
+            .then((res) => setOcrData(res.data))
+            .catch(() => setOcrData(null))
+            .finally(() => setLoading(false));
+    }, [data.id, auth]);
 
     useEffect(() => {
-        const fetchMaterialType = async () => {
-            const oilType = oilTypeFromPrevPage || data.oil_type;
-
-            if (!oilType || !selectedCompany?.name || !factoriesName) return;
-
-            const response = await checkProdustType(oilType);
-            const resultItems = response?.ResultItems ?? [];
-
-            const productNumber = findBestMatch(resultItems, selectedCompany.name, factoriesName);
-            const productName = findBestMatchName(resultItems, selectedCompany.name, factoriesName);
-
-            setMaterialName(productName);
-            setMaterialType(productNumber);
-        };
-
-        fetchMaterialType();
-    }, [oilTypeFromPrevPage, data.oil_type, selectedCompany?.name, factoriesName]);
-
-    useEffect(() => {
-        if (!materialType) return;
-
-        const newLabelMap = getLabelMap(materialName);
-        setLabelMap(newLabelMap);
-    }, [materialType, materialName]);
-
-    useEffect(() => {
-        const tableRows = data.detail_table ?? [];
-        if (tableRows.length === 0) return;
-
-        let firstDataIndex = 2;
-        if (data.docType === "oil-07-01-page-1-attach") {
-            firstDataIndex = 0;
-        } 
-        // else {
-        //     const checkRow = tableRows[2]?.properties ?? {};
-        //     const values = Object.values(checkRow).map(cell => cell?.value ?? "");
-        //     const isYodyokmaRow = values.some(text => text.includes("ยอดยก") || text.includes("ยอดยกมา"));
-        //     if (isYodyokmaRow) firstDataIndex = 3;
-        // }
-
-        const rowsToRender: Record<string, any>[] = [];
-        let summaryRow: Record<string, any> | null = null;
-
-        for (let i = firstDataIndex; i < tableRows.length; i++) {
-            const properties = tableRows[i]?.properties ?? {};
-            const row: Record<string, any> = {};
-
-            // const isYodyokma = Object.values(properties).some(cell => cell?.value?.includes("ยอดยกมา"));
-            // if (isYodyokma) continue;
-
-            const isSummary = Object.values(properties).some(cell => {
-                const val = (cell?.value ?? "").replace(/\s+/g, "");
-                return val.includes("รวมเดือน");
+        if (!ocrData) return;
+        validate0701New(ocrData)
+            .then(res => {
+                if (res) setValidateData(res.data);
             });
+    }, [ocrData]);
 
-            if (isSummary) {
-                summaryRow = { __isSummary: true };
-                for (const [key, cell] of Object.entries(properties)) {
-                    if (key.startsWith("column_")) {
-                        summaryRow[key] = cleanCellValue(cell?.value);
-                    }
-                }
-                break;
-            }
-
-            for (const [key, cell] of Object.entries(properties)) {
-                if (key.startsWith("column_")) {
-                    row[key] = cleanCellValue(cell?.value);
-                }
-            }
-
-            rowsToRender.push(row);
-        }
-
-        const all = [...rowsToRender];
-        if (summaryRow) all.push(summaryRow);
-        setAllRowsState(all);
-    }, [data.detail_table, data.docType]);
-
-    function cleanDateDotSpacing(text: string): string {
-        return text
-            .replace(/\s+\./g, ".")
-            .replace(/\. ?/g, ".")
-            .replace(/\.([0-9]+)/g, ". $1")
-            .replace(/\s{2,}/g, " ")
-            .trim();
+    if (loading) {
+        return <div>กำลังโหลดข้อมูล...</div>;
     }
 
-    const transformToOCRFieldRow = (row: Record<string, any>): OCRFieldRow => {
-        const properties: Record<string, { value: string }> = {};
-        Object.entries(row).forEach(([key, val]) => {
-            if (key.startsWith("column_")) {
-                properties[key] = {
-                    value: key === "column_1"
-                        ? cleanDateDotSpacing(cleanCellValue(val))
-                        : cleanCellValue(val)
-                };
-            }
-        });
-        return { properties };
-    };
-
-    useEffect(() => {
-        const runValidation = async () => {
-            if (!selectedCompany || !materialType || allRowsState.length === 0) return;
-            const transformedFields = allRowsState.map(transformToOCRFieldRow);
-            const payload: OCRValidationPayload = {
-                docType: data.docType,
-                documentGroup: data.documentGroup,
-                materialID: materialType,
-                company: selectedCompany.name,
-                factories: factoriesNumber,
-                fields: transformedFields,
-            };
-
-            validateOil0701(payload).then(res => {
-                setValidationResult(res);
-            });
-        };
-
-        if (allRowsState.length > 0) {
-            runValidation();
-        }
-    }, [allRowsState, selectedCompany, materialType]);
-
-    if (allRowsState.length === 0) {
-        return <p className="text-muted">ไม่พบข้อมูลตาราง</p>;
+    if (!ocrData) {
+        return <div>ไม่พบข้อมูล</div>;
     }
+
+    const fieldLabelMap = getFieldLabelMap(ocrData.fields.material_type);
+
+    // Helper สำหรับเช็ค "มีค่า"
+    const hasValue = (val: any) => val !== undefined && val !== null && val !== "" && val !== 0;
+
+    // Helper ดึงค่า passed (field บนหัวฟอร์ม)
+    const getFieldPassed = (field?: string) =>
+        field && validateData && validateData[field as keyof Validate0701Result]
+            ? (validateData[field as keyof Validate0701Result] as any).passed
+            : undefined;
+
+    // ดึงค่า passed ในแต่ละ report
+    const getReportPassed = (idx: number, field: string) =>
+        validateData?.reports &&
+        validateData.reports[idx] &&
+        validateData.reports[idx][field as keyof typeof validateData.reports[0]]
+            ? (validateData.reports[idx][field as keyof typeof validateData.reports[0]] as any).passed
+            : undefined;
+
+    // ดึงค่า passed ใน products (ใช้กรณีพิเศษกับ quantity)
+    const getReportProductsQuantityPassed = (idx: number) =>
+        validateData?.reports?.[idx]?.products?.map((prod: any) => prod.quantity?.passed);
+
+    // ดึงค่า passed ใน total
+    const getTotalPassed = (field: string) =>
+        validateData?.total && validateData.total[field as keyof typeof validateData.total]
+            ? (validateData.total[field as keyof typeof validateData.total] as any).passed
+            : undefined;
+
+    // Head fields ที่จะ filter เฉพาะ "report_open" และ "physical_open" ให้ไม่แสดงถ้าไม่มีค่า
+    const headFields = [
+        { label: "แบบฟอร์ม", value: ocrData.fields.form_type || "ภส.๐๗-๐๑", field: "form_type" },
+        { label: "ประเภทวัตถุดิบ", value: ocrData.fields.material_type, field: "material_type" },
+        { label: "หน่วย", value: ocrData.fields.unit, field: "unit" },
+        { label: "ยอดคงเหลือ", value: ocrData.fields.report_open, field: "report_open" },
+        { label: "ยอดคงเหลือตามบัญชีสิทธิ", value: ocrData.fields.physical_open, field: "physical_open" },
+    ].filter(f =>
+        !["report_open", "physical_open"].includes(f.field as string)
+            || hasValue(f.value)
+    );
+
+    // เตรียม total fields ที่มีค่ามากกว่า 0
+    const total = ocrData.fields.total as Partial<Record<TotalFieldKey, number>>;
+    const shownTotalFields = Object.entries(totalFieldMap).filter(
+        ([field]) =>
+            total && typeof total[field as TotalFieldKey] === "number" && total[field as TotalFieldKey]! > 0
+    ) as [TotalFieldKey, string][];
 
     return (
-        <div className="d-flex flex-column">
+        <div className="d-flex flex-column gap-3">
+            {/* ส่วนหัวฟอร์ม */}
+            {headFields.map((f, idx) => (
+                <div key={idx}>
+                    <div className="fw-bold">{f.label}</div>
+                    <div
+                        className="rounded-2 shadow-sm bg-white p-2 mb-1"
+                        style={{
+                            minHeight: "38px",
+                            border: borderColor(getFieldPassed(f.field)),
+                        }}
+                    >
+                        {f.value}
+                    </div>
+                </div>
+            ))}
 
-            {data.docType !== "oil-07-01-page-1-attach" && (
+            <hr className="my-2" />
+
+            {/* ส่วนรายการรายวัน */}
+            {ocrData.fields.reports && ocrData.fields.reports.length > 0 &&
+                ocrData.fields.reports.map((report, idx) =>
+                    Object.entries(fieldLabelMap).map(([field, label]) => {
+                        // ช่อง "ผลิตสินค้าพิกัด อัตราภาษีสรรพามิต" ต้องดึงจาก products[].quantity
+                        if (field === "quantity") {
+                            const prodsPassed = getReportProductsQuantityPassed(idx);
+                            // ถ้าทุกตัวผ่าน ให้ passed=true, ถ้ามี false ให้ false, ถ้า undefined หมด ให้ undefined
+                            const passed =
+                                prodsPassed && prodsPassed.length > 0
+                                    ? prodsPassed.every(Boolean)
+                                        ? true
+                                        : prodsPassed.some(v => v === false)
+                                            ? false
+                                            : undefined
+                                    : undefined;
+                            return (
+                                <div key={`${idx}-${field}`} className="mb-2">
+                                    <div className="fw-bold">{label}</div>
+                                    <div className="rounded-2 shadow-sm bg-white p-2"
+                                        style={{ minHeight: "38px", border: borderColor(passed) }}>
+                                        {report.products && report.products.length > 0
+                                            ? report.products.map((prod, pidx) =>
+                                                <div key={pidx}>{prod.quantity}</div>
+                                            )
+                                            : "-"}
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        if (field === "products") return null;
+
+                        const value = report[field as keyof Prepared0701Report];
+                        if (Array.isArray(value)) return null;
+                        const passed = getReportPassed(idx, field);
+
+                        return (
+                            <div key={`${idx}-${field}`} className="mb-2">
+                                <div className="fw-bold">{label}</div>
+                                <div
+                                    className="rounded-2 shadow-sm bg-white p-2"
+                                    style={{
+                                        minHeight: "38px",
+                                        border: borderColor(passed),
+                                    }}
+                                >
+                                    {value ?? ""}
+                                </div>
+                            </div>
+                        );
+                    })
+                )
+            }
+
+            {/* ส่วน Total */}
+            {shownTotalFields.length > 0 && (
                 <>
-                    <div>
-                        {renderLabel("แบบฟอร์ม")}
-                        <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>ภส.๐๗-๐๑</div>
-                    </div>
-                    <div>
-                        {renderLabel("ประเภทวัตถุดิบ")}
-                        <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{(data.oil_type)}</div>
-                    </div>
-                    <div>
-                        {renderLabel("หน่วย")}
-                        <div className="rounded-2 shadow-sm bg-white p-2 mb-2" style={{ minHeight: "42px", border: `1.5px solid #22C659` }}>{cleanCellValue(data.oil_unit)}</div>
-                    </div>
+                    <hr className="m-0" />
+                    <div className="fw-bold mb-2">รวมเดือนนี้</div>
+                    {shownTotalFields.map(([field, label]) => {
+                        const passed = getTotalPassed(field);
+                        return (
+                            <div key={field} className="mb-2">
+                                <div className="fw-bold">{label}</div>
+                                <div
+                                    className="rounded-2 shadow-sm bg-white p-2"
+                                    style={{
+                                        minHeight: "38px",
+                                        border: borderColor(passed),
+                                    }}
+                                >
+                                    {total[field]}
+                                </div>
+                            </div>
+                        );
+                    })}
                 </>
             )}
-
-            {allRowsState.map((row, idx) => {
-                if (row["column_2"] && row["column_2"].includes("ยอดยกมา")) {
-                    return renderYodyokmaRow(row, materialName, labelMap);
-                }
-                const isSummary = row.__isSummary === true;
-                const validationRow = validationResult?.data?.find((vRow: any) => vRow.row === idx);
-                const col1 = row["column_1"];
-                if (!col1 || col1 === "" || col1 === ":unselected:" || (typeof col1 === "string" && col1.trim() === "")) {
-                    if (!isSummary) return null;
-                }
-                return (
-                    <div key={idx} className="d-flex flex-column gap-1 pt-1">
-                        {isSummary && <div className="fw-bold" style={{ fontSize: "18px" }}>รวมเดือนนี้</div>}
-
-                        {Object.entries(labelMap).flatMap(([colKey, label]) => {
-                            const elements: React.ReactNode[] = [];
-
-                            if (label === "B/L") {
-                                elements.push(
-                                    <div key={`${idx}-${colKey}-label-จำนวนรับ`} className="fw-semibold">จำนวนรับ</div>
-                                );
-                            }
-                            if (label === "ผลิตสินค้าพิกัด อัตราภาษีสรรพามิต") {
-                                elements.push(
-                                    <div key={`${idx}-${colKey}-label-จำนวนจ่าย`} className="fw-semibold">จำนวนจ่าย</div>
-                                );
-                            }
-
-                            if (isSummary && (colKey === "column_1" || colKey === "column_2")) return elements;
-
-                            const raw = row[colKey];
-                            const isEmpty = !raw || raw === "" || raw === ":unselected:" || raw.trim?.() === "";
-
-                            if (isSummary && isEmpty) return elements;
-
-                            let display = raw?.trim?.() ?? "";
-                            if (colKey === "column_1") {
-                                display = cleanDateDotSpacing(display);
-                            }
-                            if (isSummary) {
-                                display = raw.replace(/[^\d.,]/g, "").trim();
-                                if (!display) return elements;
-                            } else if (!raw || raw === ":unselected:" || raw.trim() === "") {
-                                display = "";
-                            }
-
-                            const passed = validationRow?.properties?.[colKey]?.passed;
-
-                            elements.push(
-                                <React.Fragment key={`${idx}-${colKey}`}>
-                                    {renderLabel(label)}
-                                    <div
-                                        className="rounded-2 shadow-sm bg-white mb-2"
-                                        style={{
-                                            fontSize: "14px",
-                                            whiteSpace: "pre-line",
-                                            padding: "10px",
-                                            minHeight: "42px",
-                                            borderColor: passed === true ? "#22C659" : passed === false ? "#FF0100" : "#22C659",
-                                            borderWidth: "2px",
-                                            borderStyle: "solid",
-                                        }}
-                                    >
-                                        {display}
-                                    </div>
-                                </React.Fragment>
-                            );
-
-                            return elements;
-                        })}
-
-                        {idx < allRowsState.length - 1 && <hr className="my-2" />}
-                    </div>
-                );
-            })}
         </div>
     );
 };

@@ -417,4 +417,59 @@ export type ValidateInvoiceThapplineData = {
     book_on: ValidationResult<string>;
 };
 
+// Cell พื้นฐานสำหรับแต่ละฟิลด์
+export type Validate0701Cell<T = string | number> = {
+    value: T;
+    expected: T;
+    passed: boolean;
+};
+
+// สินค้าในแต่ละวัน
+export type Validate0701ProductCell = {
+    product_id: number;
+    product_name: Validate0701Cell<string>;
+    quantity: Validate0701Cell<number>;
+};
+
+// รายการประจำวัน
+export type Validate0701ReportCell = {
+    date: Validate0701Cell<string>;
+    evidence_number: Validate0701Cell<number>;
+    bl: Validate0701Cell<number>;
+    outturn: Validate0701Cell<number>;
+    discount: Validate0701Cell<number>;
+    products: Validate0701ProductCell[];
+    main_product: Validate0701Cell<string>;
+    other_product: Validate0701Cell<number>;
+    other_loss: Validate0701Cell<number>;
+    tax_rate: Validate0701Cell<number>;
+    broken: Validate0701Cell<number>;
+    total: Validate0701Cell<number>;
+    remains_physical: Validate0701Cell<number>;
+    remains_report: Validate0701Cell<number>;
+    diff: Validate0701Cell<number>;
+};
+
+// ผลรวมของแต่ละเดือน
+export type Validate0701TotalCell = {
+    bl: Validate0701Cell<number>;
+    outturn: Validate0701Cell<number>;
+    for_deduction: Validate0701Cell<number>;
+    use?: Validate0701Cell<number>;
+    overall?: Validate0701Cell<number>;
+};
+
+// Type หลักที่อยู่ใน data ทันที
+export type Validate0701Result = {
+    form_type: Validate0701Cell<string>;
+    material_type: Validate0701Cell<string>;
+    material_id: Validate0701Cell<number>;
+    unit: Validate0701Cell<string>;
+    physical_open: Validate0701Cell<number>;
+    report_open: Validate0701Cell<number>;
+    reports: Validate0701ReportCell[];
+    total: Validate0701TotalCell;
+};
+
+
 

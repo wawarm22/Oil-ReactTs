@@ -486,6 +486,62 @@ export type ThapplineDetail = {
     after: string;
 };
 
+// ชื่อ type หลัก
+export type Prepared0701 = {
+    docType: string;
+    documentGroup: string;
+    transport: string;
+    fields: Prepared0701Fields;
+};
+
+// โครงสร้าง fields
+export type Prepared0701Fields = {
+    form_type: string;
+    material_type: string;
+    material_id: number;
+    unit: string;
+    physical_open: number;
+    report_open: number;
+    reports: Prepared0701Report[];
+    total: Prepared0701Total;
+};
+
+// แต่ละ report ใน fields.reports
+export type Prepared0701Report = {
+    date: string;
+    main_product: string;
+    evidence_number: number;
+    outturn: number;
+    bl: number;
+    discount: number;
+    other_product: number;
+    other_loss: number;
+    tax_rate: number;
+    broken: number;
+    total: number;
+    remains_physical: number;
+    remains_report: number;
+    diff: number;
+    products: Prepared0701Product[];
+};
+
+// สินค้าในแต่ละ report
+export type Prepared0701Product = {
+    product_name: string;
+    product_id: number;
+    quantity: number;
+};
+
+// total summary ใน fields
+export type Prepared0701Total = {
+    bl?: number;
+    outturn?: number;
+    for_deduction?: number;
+    use?: number;
+    overall?: number;
+};
+
+
 
 
 
