@@ -74,6 +74,7 @@ export type OcrOilProductDocument = OcrFieldsBase & {
 export type OcrStockOilDocument = OcrFieldsBase & {
     type: "stock_oil";
     docType: string;
+    id: string;
     form_type?: string;
     oil_type: string;
     oil_unit?: string;
