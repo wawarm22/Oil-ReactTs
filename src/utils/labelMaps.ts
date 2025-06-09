@@ -53,7 +53,6 @@ const labelMapsByMaterialType: { [key: string]: LabelMap } = {
     },
 
     "Diesel RE-901J (100991)": {
-        // ซ้ำกับไบโอดีเซล 500038
         column_1: "วัน เดือน ปี",
         column_2: "รายการ",
         column_3: "หลักฐานเลขที่",

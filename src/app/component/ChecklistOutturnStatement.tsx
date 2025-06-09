@@ -23,7 +23,10 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
     const rawQuantity = value ? cleanValue(value.value) : "";
     const quantityWithComma = rawQuantity.replace(/\./g, ',');
     const valueQuantityNum = quantityWithComma ? Number(quantityWithComma.replace(/,/g, "")) : 0;
-    const dateFormatted = typeof data.date === "string" ? data.date.replace(/,/g, ".") : data.date;
+    const dateFormatted = typeof data.date === "string"
+        ? data.date.replace(/[:,;]/g, ".")
+        : data.date;
+
 
     useEffect(() => {
         if (!data) return;

@@ -153,13 +153,11 @@ const checkOilCompareFailed = (res: any) =>
 export const checkOil0701Failed = (
     res: { data?: Validate0701Result } | Validate0701Result | null | undefined
 ): boolean => {
-    // รับข้อมูล .data ถ้ามี, หรือ res ตรง ๆ
     const data: Validate0701Result | undefined =
         (res && "data" in res ? (res as any).data : res) as Validate0701Result | undefined;
 
     if (!data) return true;
 
-    // เช็ค field หลัก (ที่ไม่ใช่ reports หรือ total)
     for (const key of Object.keys(data)) {
         if (key === "reports" || key === "total") continue;
         // @ts-ignore
@@ -168,7 +166,6 @@ export const checkOil0701Failed = (
         }
     }
 
-    // เช็คแต่ละ report
     if (Array.isArray(data.reports)) {
         for (let i = 0; i < data.reports.length; i++) {
             const report = data.reports[i];
@@ -179,7 +176,6 @@ export const checkOil0701Failed = (
                     return true;
                 }
             }
-            // products ในแต่ละ report
             if (Array.isArray(report.products)) {
                 for (let p = 0; p < report.products.length; p++) {
                     const prod = report.products[p];
@@ -194,7 +190,6 @@ export const checkOil0701Failed = (
         }
     }
 
-    // เช็ค total
     if (data.total) {
         for (const tKey of Object.keys(data.total)) {
             // @ts-ignore
@@ -294,16 +289,11 @@ const checkAttachment0307Failed = (res: { data?: ValidationResult0307 }): boolea
         return true;
     }
 
-    console.log("data", data);
-    
-
-    // Header fields
     if (data.header?.passed === false) failedFields.push("header");
     if (data.from_date?.passed === false) failedFields.push("from_date");
     if (data.to_date?.passed === false) failedFields.push("to_date");
     if (data.product_name?.passed === false) failedFields.push("product_name");
 
-    // Details
     if (Array.isArray(data.details)) {
         data.details.forEach((detail, idx) => {
             if (detail.date?.passed === false) failedFields.push(`details[${idx}].date`);
@@ -315,7 +305,6 @@ const checkAttachment0307Failed = (res: { data?: ValidationResult0307 }): boolea
             if (detail.total_tax?.paid?.passed === false) failedFields.push(`details[${idx}].total_tax.paid`);
             if (detail.total_tax?.retrived?.passed === false) failedFields.push(`details[${idx}].total_tax.retrived`);
 
-            // Materials ในแต่ละ detail
             if (Array.isArray(detail.materials)) {
                 detail.materials.forEach((mat, matIdx) => {
                     if (mat.material_name?.passed === false) failedFields.push(`details[${idx}].materials[${matIdx}].material_name`);
@@ -325,7 +314,6 @@ const checkAttachment0307Failed = (res: { data?: ValidationResult0307 }): boolea
         });
     }
 
-    // Taxes
     if (data.taxes) {
         Object.keys(data.taxes).forEach((tKey) => {
             const tax = (data.taxes as any)[tKey];
@@ -556,6 +544,3 @@ export const OCR_VALIDATE_MAP: Record<
         needsAuth: true,
     },
 };
-
-
-
