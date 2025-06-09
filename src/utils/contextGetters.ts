@@ -58,17 +58,12 @@ export const getContextForDocType: Record<
     //     };
     // },
     "oil-07-01-page-1": async (page1, options) => {
-        console.log("options", options);
-
         const auth = options?.auth;
-        console.log("page1.id", page1.id);
-        console.log("auth", auth);
-
         if (!page1.id || !auth) return {};
-        const resp = await getPrepared0701(page1.id, auth);
-        console.log("resp?.data", resp?.data);
 
+        const resp = await getPrepared0701(page1.id, auth);
         if (!resp?.data) return {};
+        
         return {
             documentGroup: resp.data.documentGroup,
             fields: resp.data.fields,

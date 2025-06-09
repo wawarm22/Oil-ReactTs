@@ -2,6 +2,13 @@ import { FieldValidation, Validate0502Result, Validate0503Page1Result, Validate0
 import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateReceitpPayment, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New } from "../api/validateApi";
 import { buildOcr0307FieldRows } from "./ocrFieldRowsBuilder";
 
+const cleanValue = (val?: any): string => {
+    if (val === null || val === undefined) return "";
+    const str = String(val);
+    if (str.trim() === "" || str === ":unselected:") return "";
+    return str.trim();
+};
+
 const buildTaxPayload = (ocr: any) => ({
     docType: ocr.docType,
     company: ocr.company_name ?? "",
@@ -97,10 +104,23 @@ const buildInvoiceTaxPayload = (ocr: any, context: any) => ({
 });
 
 const buildOutturnPayload = (ocr: any, context?: any) => {
-    const value = ocr.detail_table_1?.[27]?.properties?.column_2 || {};
-    const name = ocr.detail_table_1?.[27]?.properties?.column_1 || {};
-    const valueQuantity = (typeof value.value === "string" ? value.value : "")?.replace(/,/g, "");
-    const nameQuantity = (typeof name.value === "string" ? name.value : "") ?? "";
+    // quantity
+    const value = ocr.detail_table_1?.[27]?.properties?.column_2;
+    const rawQuantity = value ? cleanValue(value.value) : "";
+    const quantityWithComma = rawQuantity.replace(/\./g, ',');
+    const valueQuantityNum = quantityWithComma ? Number(quantityWithComma.replace(/,/g, "")) : 0;
+
+    // date
+    const dateFormatted = typeof ocr.date === "string"
+        ? ocr.date.replace(/[:,;]/g, ".")
+        : ocr.date;
+
+    // product
+    const product = cleanValue(ocr.product);
+
+    // quality
+    const name = ocr.detail_table_1?.[27]?.properties?.column_1;
+    const nameQuantity = name ? cleanValue(name.value) : "";
 
     return {
         docType: ocr.docType,
@@ -108,10 +128,10 @@ const buildOutturnPayload = (ocr: any, context?: any) => {
         factories: context?.factories ?? ocr.factories ?? "",
         documentGroup: ocr.documentGroup ?? "",
         fields: {
-            date: ocr.date ?? "",
-            product: ocr.product ?? "",
-            quality: nameQuantity,
-            quantity: Number(valueQuantity) || 0,
+            date: cleanValue(dateFormatted),
+            product,
+            quality: nameQuantity || "LITRES @30 deg.C", // fallback
+            quantity: valueQuantityNum,
         },
     };
 };
