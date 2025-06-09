@@ -43,14 +43,11 @@ const ChecklistTax: React.FC<ChecklistTaxProps> = ({
             if (res?.status && Array.isArray(res.data) && res.data[0]?.properties) {
                 setValidationResults(res.data[0].properties);
 
-                // ตรวจสอบ field ใด ๆ ที่ failed (passed === false)
                 const hasFailed = Object.values(res.data[0].properties).some(
                     (v: any) => v.passed === false
                 );
-                // แจ้งผลพร้อม docId/subIdx กลับขึ้นไป
                 onValidationStatusChange?.({ docId, subIdx, failed: hasFailed });
             } else {
-                // หากไม่มีข้อมูล validation ถือว่าไม่ fail
                 onValidationStatusChange?.({ docId, subIdx, failed: false });
             }
         });
@@ -76,7 +73,7 @@ const ChecklistTax: React.FC<ChecklistTaxProps> = ({
                     ? isValid
                         ? "#22C659"
                         : "#FF0100"
-                    : "#22C659";
+                    : "#CED4DA";
 
                 return (
                     <React.Fragment key={index}>
@@ -87,7 +84,8 @@ const ChecklistTax: React.FC<ChecklistTaxProps> = ({
                                 fontSize: "14px",
                                 whiteSpace: "pre-line",
                                 padding: "10px 10px",
-                                border: `2px solid ${borderColor}`,
+                                minHeight: "42px",
+                                border: `1.5px solid ${borderColor}`,
                             }}
                         >
                             {field.value}

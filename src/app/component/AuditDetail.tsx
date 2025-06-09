@@ -115,9 +115,9 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
             if (!ocrByDocId || Object.keys(ocrByDocId).length === 0) return;
 
             const validatePromises: Promise<{ docId: number, subIdx: number, failed: boolean } | null>[] = [];
-            
+
             for (const doc of documentList) {
-                
+
                 const docId = doc.id;
                 const subtitleLength = doc.subtitle?.length ?? 1;
 
@@ -127,46 +127,59 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
 
                     const fileKeys = Object.keys(docGroup);
                     if (fileKeys.length === 0) continue;
-                    const firstFileKey = fileKeys[0];
-                    const page1 = docGroup[firstFileKey]?.pages[1];
-                    if (!page1) continue;
-                    if (!('docType' in page1) || typeof page1.docType !== 'string') continue;
-                    const docType = page1.docType as string;
 
-                    if (!OCR_VALIDATE_MAP[docType]) continue;
-                    const validateConfig = OCR_VALIDATE_MAP[docType];
-                    const getContext = getContextForDocType[docType] ?? getContextForDocType["default"];
+                    const allPages: OcrFields[] = [];
+                    for (const fileKey of fileKeys) {
+                        const pagesObj = docGroup[fileKey]?.pages;
+                        if (!pagesObj) continue;
+                        Object.values(pagesObj).forEach(page => {
+                            if (page && page.docType) allPages.push(page);
+                        });
+                    }
+                    if (allPages.length === 0) continue;
 
                     validatePromises.push(
                         (async () => {
                             try {
-                                let context;
-                                if (validateConfig.needsAuth) {
-                                    context = await getContext(page1, { auth });
-                                } else {
-                                    context = await getContext(page1);
-                                }
-                                const payload = await validateConfig.buildPayload(page1, context);
-                                const res = await validateConfig.api(payload);
+                                let hasFailed = false;
+                                for (const page of allPages) {
+                                    const docType = page.docType as string;
+                                    if (!OCR_VALIDATE_MAP[docType]) continue;
+                                    const validateConfig = OCR_VALIDATE_MAP[docType];
+                                    const getContext = getContextForDocType[docType] ?? getContextForDocType["default"];
 
-                                const hasFailed = validateConfig.checkFailed(res);
+                                    let context;
+                                    if (validateConfig.needsAuth) {
+                                        context = await getContext(page, { auth });
+                                    } else {
+                                        context = await getContext(page);
+                                    }
+                                    const payload = await validateConfig.buildPayload(page, context);
+                                    const res = await validateConfig.api(payload);
+
+                                    if (validateConfig.checkFailed(res)) {
+                                        hasFailed = true;
+                                        break;
+                                    }
+                                }
                                 return { docId, subIdx, failed: hasFailed };
                             } catch (e) {
                                 return { docId, subIdx, failed: true };
                             }
                         })()
                     );
+
                 }
             }
 
             const results = await Promise.all(validatePromises);
             let statusMap: Record<string, boolean> = {};
-            
-            for (const r of results) {                
+
+            for (const r of results) {
                 if (!r) continue;
                 statusMap[`${r.docId}-${r.subIdx}`] = r.failed;
             }
-            
+
             setValidationFailStatus(statusMap);
         }
 

@@ -35,7 +35,7 @@ const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data 
 
     if (loading) return <div>กำลังรอข้อมูล...</div>;
     if (!ocrData || !ocrData.fields?.items?.length) {
-        return <p className="text-muted">ไม่พบข้อมูลวัตถุดิบ</p>;
+        return <p className="text-muted">ไม่พบข้อมูล</p>;
     }
 
     return (
