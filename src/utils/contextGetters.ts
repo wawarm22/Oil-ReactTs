@@ -1,8 +1,17 @@
 import { useCompanyStore } from "../store/companyStore";
 import { getPrepared0307, getPrepared0502, getPrepared0503, getPrepared0701, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedReceitpPayment } from "./api/validateApi";
 import { genRequestObject } from "./function/checklist/attachment0704";
+import { cleanExciseId } from "./function/format";
 
 export type ContextOptions = { auth?: any };
+
+const formatThaiMonthYear = (input?: string | null): string => {
+    if (!input) return "";
+    return input
+        .replace(/\n/g, "")
+        .replace(/([^\d\s]+)(\d+)/, "$1 $2")
+        .trim();
+}
 
 export const getContextForDocType: Record<
     string,
@@ -50,15 +59,15 @@ export const getContextForDocType: Record<
     // },
     "oil-07-01-page-1": async (page1, options) => {
         console.log("options", options);
-        
+
         const auth = options?.auth;
         console.log("page1.id", page1.id);
         console.log("auth", auth);
-        
+
         if (!page1.id || !auth) return {};
         const resp = await getPrepared0701(page1.id, auth);
         console.log("resp?.data", resp?.data);
-        
+
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
@@ -97,15 +106,26 @@ export const getContextForDocType: Record<
         const factories = localStorage.getItem("warehouse") ?? "";
         const documentGroup = page1.documentGroup ?? "";
 
-        // genFields = await genRequestObject({ fields: page1 })
         const genFields = await genRequestObject({ fields: page1 });
+
+        // เพิ่มการแปลง excise_id และ date ตรงนี้
+        const excise_id = cleanExciseId(page1.excise_id);
+        const date = formatThaiMonthYear(page1.date);
+
         return {
             company,
             factories,
             documentGroup,
-            genFields,
+            genFields: {
+                ...genFields,
+                excise_id,
+                date,
+                company_name: company,
+                form_officer_name: factories,
+            },
         };
     },
+
     "oil-income-n-expense-1": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
