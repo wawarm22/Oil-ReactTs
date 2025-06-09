@@ -287,50 +287,62 @@ const checkFormularApprovFailed = (res: { data?: ValidateFormularApprovData } | 
 
 const checkAttachment0307Failed = (res: { data?: ValidationResult0307 }): boolean => {
     const data = res?.data;
-    if (!data) return true;
+    const failedFields: string[] = [];
 
-    if (
-        data.header?.passed === false ||
-        data.from_date?.passed === false ||
-        data.to_date?.passed === false ||
-        data.product_name?.passed === false
-    ) return true;
-
-    if (Array.isArray(data.details)) {
-        for (const detail of data.details) {
-            if (
-                detail.date?.passed === false ||
-                detail.total?.passed === false ||
-                detail.tax_rate?.passed === false ||
-                detail.tax_discount_rate?.passed === false ||
-                detail.raw_tax?.passed === false ||
-                detail.discount_105?.passed === false
-            ) return true;
-            if (
-                detail.total_tax?.paid?.passed === false ||
-                detail.total_tax?.retrived?.passed === false
-            ) return true;
-            if (Array.isArray(detail.materials)) {
-                for (const mat of detail.materials) {
-                    if (mat.material_name?.passed === false || mat.quantity?.passed === false) return true;
-                }
-            }
-        }
+    if (!data) {
+        console.log("Failed: ไม่พบข้อมูล data");
+        return true;
     }
 
+    console.log("data", data);
+    
+
+    // Header fields
+    if (data.header?.passed === false) failedFields.push("header");
+    if (data.from_date?.passed === false) failedFields.push("from_date");
+    if (data.to_date?.passed === false) failedFields.push("to_date");
+    if (data.product_name?.passed === false) failedFields.push("product_name");
+
+    // Details
+    if (Array.isArray(data.details)) {
+        data.details.forEach((detail, idx) => {
+            if (detail.date?.passed === false) failedFields.push(`details[${idx}].date`);
+            if (detail.total?.passed === false) failedFields.push(`details[${idx}].total`);
+            if (detail.tax_rate?.passed === false) failedFields.push(`details[${idx}].tax_rate`);
+            if (detail.tax_discount_rate?.passed === false) failedFields.push(`details[${idx}].tax_discount_rate`);
+            if (detail.raw_tax?.passed === false) failedFields.push(`details[${idx}].raw_tax`);
+            if (detail.discount_105?.passed === false) failedFields.push(`details[${idx}].discount_105`);
+            if (detail.total_tax?.paid?.passed === false) failedFields.push(`details[${idx}].total_tax.paid`);
+            if (detail.total_tax?.retrived?.passed === false) failedFields.push(`details[${idx}].total_tax.retrived`);
+
+            // Materials ในแต่ละ detail
+            if (Array.isArray(detail.materials)) {
+                detail.materials.forEach((mat, matIdx) => {
+                    if (mat.material_name?.passed === false) failedFields.push(`details[${idx}].materials[${matIdx}].material_name`);
+                    if (mat.quantity?.passed === false) failedFields.push(`details[${idx}].materials[${matIdx}].quantity`);
+                });
+            }
+        });
+    }
+
+    // Taxes
     if (data.taxes) {
-        for (const tKey of Object.keys(data.taxes)) {
+        Object.keys(data.taxes).forEach((tKey) => {
             const tax = (data.taxes as any)[tKey];
-            if (
-                tax.raw_tax?.passed === false ||
-                tax.discount_105?.passed === false ||
-                tax.total_tax?.paid?.passed === false ||
-                tax.total_tax?.retrived?.passed === false
-            ) return true;
-        }
+            if (tax.raw_tax?.passed === false) failedFields.push(`taxes[${tKey}].raw_tax`);
+            if (tax.discount_105?.passed === false) failedFields.push(`taxes[${tKey}].discount_105`);
+            if (tax.total_tax?.paid?.passed === false) failedFields.push(`taxes[${tKey}].total_tax.paid`);
+            if (tax.total_tax?.retrived?.passed === false) failedFields.push(`taxes[${tKey}].total_tax.retrived`);
+        });
+    }
+
+    if (failedFields.length > 0) {
+        console.log("Fields failed:", failedFields);
+        return true;
     }
     return false;
 };
+
 
 const checkOutturnFailed = (res: any): boolean => {
     const d = res?.data;

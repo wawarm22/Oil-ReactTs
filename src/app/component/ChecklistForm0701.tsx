@@ -60,16 +60,13 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
 
     const fieldLabelMap = getFieldLabelMap(ocrData.fields.material_type);
 
-    // Helper สำหรับเช็ค "มีค่า"
     const hasValue = (val: any) => val !== undefined && val !== null && val !== "" && val !== 0;
 
-    // Helper ดึงค่า passed (field บนหัวฟอร์ม)
     const getFieldPassed = (field?: string) =>
         field && validateData && validateData[field as keyof Validate0701Result]
             ? (validateData[field as keyof Validate0701Result] as any).passed
             : undefined;
 
-    // ดึงค่า passed ในแต่ละ report
     const getReportPassed = (idx: number, field: string) =>
         validateData?.reports &&
         validateData.reports[idx] &&
@@ -77,17 +74,14 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
             ? (validateData.reports[idx][field as keyof typeof validateData.reports[0]] as any).passed
             : undefined;
 
-    // ดึงค่า passed ใน products (ใช้กรณีพิเศษกับ quantity)
     const getReportProductsQuantityPassed = (idx: number) =>
         validateData?.reports?.[idx]?.products?.map((prod: any) => prod.quantity?.passed);
 
-    // ดึงค่า passed ใน total
     const getTotalPassed = (field: string) =>
         validateData?.total && validateData.total[field as keyof typeof validateData.total]
             ? (validateData.total[field as keyof typeof validateData.total] as any).passed
             : undefined;
 
-    // Head fields ที่จะ filter เฉพาะ "report_open" และ "physical_open" ให้ไม่แสดงถ้าไม่มีค่า
     const headFields = [
         { label: "แบบฟอร์ม", value: ocrData.fields.form_type || "ภส.๐๗-๐๑", field: "form_type" },
         { label: "ประเภทวัตถุดิบ", value: ocrData.fields.material_type, field: "material_type" },
@@ -99,7 +93,6 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
             || hasValue(f.value)
     );
 
-    // เตรียม total fields ที่มีค่ามากกว่า 0
     const total = ocrData.fields.total as Partial<Record<TotalFieldKey, number>>;
     const shownTotalFields = Object.entries(totalFieldMap).filter(
         ([field]) =>
@@ -130,10 +123,8 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
             {ocrData.fields.reports && ocrData.fields.reports.length > 0 &&
                 ocrData.fields.reports.map((report, idx) =>
                     Object.entries(fieldLabelMap).map(([field, label]) => {
-                        // ช่อง "ผลิตสินค้าพิกัด อัตราภาษีสรรพามิต" ต้องดึงจาก products[].quantity
                         if (field === "quantity") {
                             const prodsPassed = getReportProductsQuantityPassed(idx);
-                            // ถ้าทุกตัวผ่าน ให้ passed=true, ถ้ามี false ให้ false, ถ้า undefined หมด ให้ undefined
                             const passed =
                                 prodsPassed && prodsPassed.length > 0
                                     ? prodsPassed.every(Boolean)
