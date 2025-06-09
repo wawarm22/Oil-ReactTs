@@ -176,6 +176,8 @@ export const checkOil0701Failed = (
     const data: Validate0701Result | undefined =
         (res && "data" in res ? (res as any).data : res) as Validate0701Result | undefined;
 
+    console.log("data 0701", data);
+    
     if (!data) return true;
 
     for (const key of Object.keys(data)) {

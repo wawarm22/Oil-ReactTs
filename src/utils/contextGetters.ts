@@ -63,6 +63,8 @@ export const getContextForDocType: Record<
 
         const resp = await getPrepared0701(page1.id, auth);
         if (!resp?.data) return {};
+
+        console.log("resp", resp);
         
         return {
             documentGroup: resp.data.documentGroup,
@@ -77,7 +79,8 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
-            fields: resp.data.fields
+            fields: resp.data.fields,
+            transport: resp.data.transport,
         };
     },
     "oil-formular-2": async (page1, options) => {
