@@ -67,12 +67,14 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
             ? (validateData[field as keyof Validate0701Result] as any).passed
             : undefined;
 
-    const getReportPassed = (idx: number, field: string) =>
-        validateData?.reports &&
-        validateData.reports[idx] &&
-        validateData.reports[idx][field as keyof typeof validateData.reports[0]]
+    const getReportPassed = (idx: number, field: string) => {
+        if (field === "main_product") return true;
+        return validateData?.reports &&
+            validateData.reports[idx] &&
+            validateData.reports[idx][field as keyof typeof validateData.reports[0]]
             ? (validateData.reports[idx][field as keyof typeof validateData.reports[0]] as any).passed
             : undefined;
+    };
 
     const getReportProductsQuantityPassed = (idx: number) =>
         validateData?.reports?.[idx]?.products?.map((prod: any) => prod.quantity?.passed);
@@ -90,7 +92,7 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
         { label: "ยอดคงเหลือตามบัญชีสิทธิ", value: ocrData.fields.physical_open, field: "physical_open" },
     ].filter(f =>
         !["report_open", "physical_open"].includes(f.field as string)
-            || hasValue(f.value)
+        || hasValue(f.value)
     );
 
     const total = ocrData.fields.total as Partial<Record<TotalFieldKey, number>>;
