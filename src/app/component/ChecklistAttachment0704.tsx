@@ -49,7 +49,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                     fontSize: "14px",
                     whiteSpace: "pre-line",
                     minHeight: "43px",
-                    border: `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#22C659"}`,
+                    border: `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#CED4DA"}`,
                 }}
             >
                 {cleanValue(value)}
@@ -59,9 +59,12 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
 
     const fieldsToDisplay = [
         { key: "form_type", label: "แบบฟอร์ม", value: "ภส.๐๗-๐๔" },
-        { key: "form_no", label: "เลขที่รับ", value: data.form_no },
-        { key: "form_date", label: "วัน เดือน ปี ที่รับ", value: data.form_date },
-        { key: "form_officer_1", label: "เจ้าหน้าที่ผู้รับ", value: data.form_officer_1 },
+        // { key: "form_no", label: "เลขที่รับ", value: data.form_no },
+        // { key: "form_date", label: "วัน เดือน ปี ที่รับ", value: data.form_date },
+        // { key: "form_officer_1", label: "เจ้าหน้าที่ผู้รับ", value: data.form_officer_1 },
+        { key: "form_type", label: "เลขที่รับ", value: data.form_no },
+        { key: "form_type", label: "วัน เดือน ปี ที่รับ", value: data.form_date },
+        { key: "form_type", label: "เจ้าหน้าที่ผู้รับ", value: data.form_officer_1 },
         { key: "company_name", label: "ชื่อโรงอุตสาหกรรม (คลัง)", value: data.company_name },
         { key: "excise_id", label: "ทะเบียนสรรพสามิตเลขที่", value: cleanExciseId(data.excise_id) },
         { key: "date", label: "ประจำเดือน ปี", value: formatThaiMonthYear(data.date) },
