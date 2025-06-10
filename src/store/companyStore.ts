@@ -10,7 +10,7 @@ interface CompanyState {
 
   fetchCompanies: () => Promise<void>;
   fetchCompanyById: (id: number) => Promise<void>;
-  reset: () => void; // ✅ เพิ่ม type
+  reset: () => void;
 }
 
 export const useCompanyStore = create<CompanyState>((set) => ({
