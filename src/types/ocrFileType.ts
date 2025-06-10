@@ -252,6 +252,8 @@ export type OcrOutturnStatementDocument = OcrFieldsBase & {
     approve_signature: string;
     calculated_signature: string;
     date: string;
+    from: string;
+    original_signed_by: string;
     detail_table: {
         kind: string;
         properties: Record<string, any>;
@@ -267,12 +269,32 @@ export type OcrOutturnStatementDocument = OcrFieldsBase & {
         properties: Record<string, any>;
         confidence?: number;
     }[];
+    particulars_table: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    distribution_table: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    supplier_table: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
     dip_number: string;
+    posting_date: string;
+    product_owner: string;
     page: string;
     pageCount: string;
     pageNumber: string;
     product: string;
     surveyor_signature: string;
+    shore_officer: string;
+    tank_no: string;
+    trip: string;
 };
 
 export type OcrDeliveryInvoiceDocument = OcrFieldsBase & {
@@ -412,9 +434,12 @@ export type OcrTaxForm0503Page2Document = OcrFieldsBase & {
 
 export type OcrComparison0503And0307Document = OcrFieldsBase & {
     type: "comparison_0503_0307";
+    id: string
     date: string;
     docType: string;
-    header: string;
+    company: string;
+    depot: string;
+    oil: string;
     pageCount: string;
     pageNumber: string;
     documentGroup: string;

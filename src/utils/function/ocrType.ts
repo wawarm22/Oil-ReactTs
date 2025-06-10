@@ -28,7 +28,7 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
             return "daily_production";
         }
 
-        if (docType === "oil-shore-tank-1") {
+        if (docType === "oil-shore-tank-1" || docType === "oil-outturn-report-2") {
             return "outturn_statement";
         }
 
@@ -56,30 +56,22 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
             return "stock_oil"
         }
 
-        if (docType === "oil-tax-invoice-2") {
+        if (docType === "oil-tax-invoice-2" || docType === "oil-tax-invoice-4" || docType === "oil-tax-invoice-7" || docType === "oil-tax-invoice-9 ") {
             return "refinery_tax_invoice"
         }
-        if (docType === "oil-tax-invoice-or-1") {
+        if (docType === "oil-tax-invoice-or-1" || docType === "oil-tax-invoice-irpc-1") {
             return "delivery_invoice"
         }        
         if (docType === "oil-formular-4") {
             return "grouped_product"
         }
-    }
-    
-    if ("form_type" in fields && typeof fields.form_type === "string") {
-        const formType = fields.form_type.trim();
-        if (formType.includes("ภส.03-07") || formType.includes("ภส.๐๓-๐๗")) {
-            return "tax_form_0307";
+        if ( docType === "oil-07-04-page-1"){
+            return "attachment_0704"
         }
-        
-        if (formType.includes("ภส.๐๗-๐๑") || formType.includes("ภส.07-01")) {
-            return "stock_oil";
+        if ( docType === "oil-compare-05-03-n-03-07-1") {
+            return "comparison_0503_0307"
         }
-        
-        if (formType.includes("ภส.05-02") || formType.includes("ภส.๐๕-๐๒") || formType.includes("กส.๐๕-๐๒")) {
-            return "tax_form_0502";
-        }    }
+    }    
 
     if (
         fields.header?.includes("สรุปภาษีสรรพสามิต") &&
