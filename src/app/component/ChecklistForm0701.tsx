@@ -136,17 +136,16 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
                                             : undefined
                                     : undefined;
                             return (
-                                <div key={`${idx}-${field}`} className="mb-2">
-                                    <div className="fw-bold">{label}</div>
-                                    <div className="rounded-2 shadow-sm bg-white p-2"
-                                        style={{ minHeight: "38px", border: borderColor(passed) }}>
-                                        {report.products && report.products.length > 0
-                                            ? report.products.map((prod, pidx) =>
+                                report.products && report.products.length > 0
+                                    ? report.products.map((prod, pidx) =>
+                                        <div key={`${idx}-${field}`} className="mb-2">
+                                            <div className="fw-bold">{label} : {prod.product_name}</div>
+                                            <div className="rounded-2 shadow-sm bg-white p-2"
+                                                style={{ minHeight: "38px", border: borderColor(passed) }}>
                                                 <div key={pidx}>{prod.quantity}</div>
-                                            )
-                                            : "-"}
-                                    </div>
-                                </div>
+                                            </div>
+                                        </div>
+                                    ) : null
                             );
                         }
 

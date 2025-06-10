@@ -29,7 +29,7 @@ export const commonFieldLabelMap: FieldLabelMap = {
     evidence_number: "หลักฐานเลขที่",
     bl: "B/L",
     outturn: "Outturn",
-    quantity: "ผลิตสินค้าพิกัด อัตราภาษีสรรพามิต",
+    quantity: "ผลิตสินค้า",
     other_product: "ผลิตสินค้าอื่น",
     broken: "เสียหาย",
     other_loss: "อื่นๆ",

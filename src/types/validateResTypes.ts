@@ -381,21 +381,18 @@ export type ValidateInvoiceTaxResult = {
     paper_no: ValidateFieldTax<string>;
 };
 
-// Generic type สำหรับแต่ละช่อง (สามารถรองรับ string หรือ number ตาม field)
 export type ValidationResult<T = string> = {
     value: T;
     expected: T;
     passed: boolean;
 };
 
-// สำหรับ details array (แต่ละแถวใน details)
 export type ValidationDetailThappline = {
     description: ValidationResult<string>;
     before: ValidationResult<string>;
     after: ValidationResult<string>;
 };
 
-// รวมทั้งหมดตามโครงสร้างที่ให้มา
 export type ValidateInvoiceThapplineData = {
     product_name: ValidationResult<string>;
     doc_no: ValidationResult<string>;
@@ -417,21 +414,18 @@ export type ValidateInvoiceThapplineData = {
     book_on: ValidationResult<string>;
 };
 
-// Cell พื้นฐานสำหรับแต่ละฟิลด์
 export type Validate0701Cell<T = string | number> = {
     value: T;
     expected: T;
     passed: boolean;
 };
 
-// สินค้าในแต่ละวัน
 export type Validate0701ProductCell = {
     product_id: number;
     product_name: Validate0701Cell<string>;
     quantity: Validate0701Cell<number>;
 };
 
-// รายการประจำวัน
 export type Validate0701ReportCell = {
     date: Validate0701Cell<string>;
     evidence_number: Validate0701Cell<number>;
@@ -450,7 +444,6 @@ export type Validate0701ReportCell = {
     diff: Validate0701Cell<number>;
 };
 
-// ผลรวมของแต่ละเดือน
 export type Validate0701TotalCell = {
     bl: Validate0701Cell<number>;
     outturn: Validate0701Cell<number>;
@@ -459,7 +452,6 @@ export type Validate0701TotalCell = {
     overall?: Validate0701Cell<number>;
 };
 
-// Type หลักที่อยู่ใน data ทันที
 export type Validate0701Result = {
     form_type: Validate0701Cell<string>;
     material_type: Validate0701Cell<string>;

@@ -19,7 +19,7 @@ const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
                 pages.push(i);
             }
         } else {
-            pages.push(1); // Always show page 1
+            pages.push(1);
 
             if (currentPage <= 3) {
                 for (let i = 2; i <= 4; i++) {
@@ -33,12 +33,13 @@ const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
                 }
             } else {
                 pages.push("...");
+                pages.push(currentPage - 1);
                 pages.push(currentPage);
                 pages.push(currentPage + 1);
                 pages.push("...");
             }
 
-            pages.push(totalPages); // Always show last page
+            pages.push(totalPages);
         }
 
         return pages.map((page, idx) =>
@@ -69,15 +70,19 @@ const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
 
     return (
         <div
-            className="d-flex align-items-center justify-content-start shadow-sm bg-white ps-4 rounded-2 w-100"
+            className="d-flex align-items-center justify-content-start shadow-sm bg-white rounded-2 w-100"
             style={{
-                maxWidth: '730px',
+                maxWidth: '100%',
                 height: customHeight ? `${customHeight - 16}px` : '90px',
-                fontFamily: "Sarabun"
+                fontFamily: "Sarabun",
+                overflowX: 'auto', 
+                whiteSpace: 'nowrap',
+                paddingLeft: '14px',
+                minHeight: '64px'
             }}
         >
-            <p className="fw-bold m-0 me-2" style={{ fontSize: "20px" }}>หน้า</p>
-            <div className="d-flex">
+            <p className="fw-bold m-0 me-2" style={{ fontSize: "20px", minWidth: '44px' }}>หน้า</p>
+            <div className="d-flex flex-row" style={{ gap: '4px' }}>
                 {renderPageNumbers()}
             </div>
         </div>

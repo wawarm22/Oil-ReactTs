@@ -98,29 +98,69 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
         { label: "ชำระภาษีสำหรับ", value: "" },
     ];
 
-    const columnLabelMap: Record<string, string> = {
-        column_1: "ลำดับ",
-        column_2: "ประเภทที่",
-        column_3: "รายการสินค้า / ชื่อสินค้า",
-        column_4: "เเบบ/รุ่น/ดีกรี/CO2/ความหวาน",
-        column_5: "ขนาด",
-        column_6: "ปริมาณสินค้าที่เสียภาษี",
-        column_7: "ราคาขายปลีกแนะนำไม่รวมภาษีมูลค่าเพิ่ม",
-        column_8: "ภาษีสรรพสามิต (บาท) ตามมูลค่า",
-        column_9: "ภาษีสรรพสามิต (บาท) ตามปริมาณ",
-        column_10: "ภาษีต่อปริมาณสินค้าทั้งหมด ตามมูลค่า",
-        column_11: "ภาษีต่อปริมาณสินค้าทั้งหมด ตามปริมาณ",
-        column_12: "รวมภาษีสรรพสามิต (บาท)",
-        column_13: "รวมภาษีสรรพสามิต (สต.)",
-        column_14: "ภาษีเก็บเพิ่มฯ (บาท)",
-        column_15: "ภาษีเก็บเพิ่มฯ (สต.)",
-    };
+    const columnLabelMap: Partial<Record<string, string>> = useMemo(() => {
+        if (selectedCompany?.name?.toLowerCase() === "shell") {
+            // กรณี shell — ใส่เฉพาะ key ที่ต้องการ
+            return {
+                column_1: "ลำดับ",
+                column_2: "ประเภทที่",
+                column_3: "รายการสินค้า / ชื่อสินค้า",
+                column_4: "เเบบ/รุ่น/ดีกรี/CO2/ความหวาน",
+                column_5: "ขนาด",
+                column_6: "ปริมาณสินค้าที่เสียภาษี",
+                column_7: "ราคาขายปลีกแนะนำไม่รวมภาษีมูลค่าเพิ่ม",
+                column_8: "ภาษีสรรพสามิต (บาท) ตามมูลค่า",
+                column_9: "ภาษีสรรพสามิต (บาท) ตามปริมาณ",
+                column_10: "ภาษีต่อปริมาณสินค้าทั้งหมด ตามมูลค่า",
+                column_11: "ภาษีต่อปริมาณสินค้าทั้งหมด ตามปริมาณ",
+                column_12: "รวมภาษีสรรพสามิต (บาท)",
+                column_13: "ภาษีเก็บเพิ่มฯ (บาท)",
+                // *** ไม่ต้องใส่ column_14, column_15 เลย ***
+            };
+        }
+        // default
+        return {
+            column_1: "ลำดับ",
+            column_2: "ประเภทที่",
+            column_3: "รายการสินค้า / ชื่อสินค้า",
+            column_4: "เเบบ/รุ่น/ดีกรี/CO2/ความหวาน",
+            column_5: "ขนาด",
+            column_6: "ปริมาณสินค้าที่เสียภาษี",
+            column_7: "ราคาขายปลีกแนะนำไม่รวมภาษีมูลค่าเพิ่ม",
+            column_8: "ภาษีสรรพสามิต (บาท) ตามมูลค่า",
+            column_9: "ภาษีสรรพสามิต (บาท) ตามปริมาณ",
+            column_10: "ภาษีต่อปริมาณสินค้าทั้งหมด ตามมูลค่า",
+            column_11: "ภาษีต่อปริมาณสินค้าทั้งหมด ตามปริมาณ",
+            column_12: "รวมภาษีสรรพสามิต (บาท)",
+            column_13: "รวมภาษีสรรพสามิต (สต.)",
+            column_14: "ภาษีเก็บเพิ่มฯ (บาท)",
+            column_15: "ภาษีเก็บเพิ่มฯ (สต.)",
+        };
+    }, [selectedCompany?.name]);
 
     const getApiPropertyKey = (columnKey: string, rowIndex: number) => {
         const actualRow = rowIndex + 4;
         const baseLabel = columnLabelMap[columnKey];
         return `${baseLabel} (แถว ${actualRow})`;
     };
+
+    function extractProperties(row: any) {
+        if (!row) return {};
+        if (Array.isArray(row.properties)) {
+            return row.properties[0] || {};
+        }
+        if (typeof row.properties === "object" && row.properties !== null) {
+            return row.properties;
+        }
+        return {};
+    }
+
+    const detailRows = useMemo(() => {
+        const d = data.detail_table;
+        const props = extractProperties(d[3]);
+        if (!props.column_1?.value) return d.slice(4);
+        return d.slice(3);
+    }, [data.detail_table]);
 
     const ocrFieldRows = useMemo(() => {
         const rows: { properties: Record<string, { value: string; passed: boolean }> }[] = [];
@@ -147,7 +187,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
 
         rows.push({ properties: headerProps });
 
-        data.detail_table.slice(3).forEach((row, rowIndex) => {
+        detailRows.forEach((row, rowIndex) => {
             const rawProps = row.properties;
             const properties: Record<string, any> =
                 Array.isArray(rawProps) ? rawProps[0] : typeof rawProps === "object" && rawProps !== null ? rawProps : {};
@@ -166,7 +206,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
         });
 
         return rows;
-    }, [data]);
+    }, [data, detailRows]);
 
     useEffect(() => {
         if (ocrFieldRows.length > 0 && selectedCompany) {
@@ -181,7 +221,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                 company: selectedCompany.name,
                 factories: factoriesNumber ?? "",
                 documentGroup: data.documentGroup,
-                fields: cleanRows, 
+                fields: cleanRows,
             };
 
             validateOil0307(payload).then((res) => {
@@ -224,7 +264,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                 </React.Fragment>
             ))}
 
-            {data.detail_table.slice(3).map((row, rowIndex) => {
+            {detailRows.map((row, rowIndex) => {
                 const rawProps = row.properties;
                 const properties: Record<string, any> =
                     Array.isArray(rawProps) ? rawProps[0] : typeof rawProps === "object" && rawProps !== null ? rawProps : {};
@@ -274,8 +314,6 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                     {data.tax_sum_2 || "-"}
                 </div>
             </div>
-
-
         </div>
     );
 };

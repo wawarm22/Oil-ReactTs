@@ -49,13 +49,15 @@ const ChecklistPanel: React.FC<Props> = ({
     onValidationStatusChange
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
-    if (!ocrDocument) return <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
-        <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>
-            <p className="text-muted">
-                กำลังประมวลผล OCR กรุณารอ...
-            </p>
+    if (!ocrDocument) return (
+        <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0">
+            <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>
+                <p className="text-muted">
+                    กำลังประมวลผล OCR กรุณารอ...
+                </p>
+            </div>
         </div>
-    </div>
+    );
 
     const { pages, pageFileKeyMap } = ocrDocument;
     const selectedFields = pages[currentPage];
@@ -85,7 +87,8 @@ const ChecklistPanel: React.FC<Props> = ({
     }
 
     return (
-        <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
+        <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0 d-flex flex-column gap-2"
+            style={{ minWidth: 0 /* สำคัญสำหรับ flex shrink */, width: '25%' }}>
             <AuditPagination
                 totalPages={ocrDocument.pageCount}
                 currentPage={currentPage}
