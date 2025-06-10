@@ -1,3 +1,4 @@
+import { useCompanyStore } from "../../store/companyStore";
 import { FieldValidation, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidationResult0307, ValidationResultData } from "../../types/validateResTypes";
 import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateReceitpPayment, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New } from "../api/validateApi";
 import { buildOcr0307FieldRows } from "./ocrFieldRowsBuilder";
@@ -177,7 +178,7 @@ export const checkOil0701Failed = (
         (res && "data" in res ? (res as any).data : res) as Validate0701Result | undefined;
 
     console.log("data 0701", data);
-    
+
     if (!data) return true;
 
     for (const key of Object.keys(data)) {
@@ -495,13 +496,19 @@ export const OCR_VALIDATE_MAP: Record<
         needsAuth: true,
     },
     "oil-03-07-page-1": {
-        buildPayload: (ocr) => ({
-            docType: ocr.docType,
-            company: ocr.company ?? "",
-            factories: ocr.factories ?? "",
-            documentGroup: ocr.documentGroup ?? "",
-            fields: buildOcr0307FieldRows(ocr)
-        }),
+        buildPayload: (ocr: any) => {
+            // ✅ safe to call outside React
+            const { selectedCompany } = useCompanyStore.getState();
+            const factoriesNumber = localStorage.getItem("warehouse") ?? "";
+
+            return {
+                docType: ocr.docType,
+                company: selectedCompany?.name ?? "",
+                factories: factoriesNumber,
+                documentGroup: ocr.documentGroup ?? "",
+                fields: buildOcr0307FieldRows(ocr),
+            };
+        },
         api: validateOil0307,
         checkFailed: check0307Failed,
     },
