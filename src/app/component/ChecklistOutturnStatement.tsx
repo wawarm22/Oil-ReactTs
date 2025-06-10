@@ -27,7 +27,6 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
         ? data.date.replace(/[:,;]/g, ".")
         : data.date;
 
-
     useEffect(() => {
         if (!data) return;
 
@@ -49,7 +48,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
         validateOutturn(validateData).then((result) => {
             setValidationResult(result);
         });
-    }, [data]);
+    }, [data, selectedCompany, factoriesNumber]);
 
     const formatWithComma = (val: string | number) => {
         if (typeof val === "number") return val.toLocaleString();
@@ -64,9 +63,17 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
         return val ?? "";
     };
 
-
     const borderColor = (passed?: boolean) =>
-        `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#22C659"}`;
+        `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#CED4DA"}`;
+
+    const quality = data.supplier_table?.[2]?.properties?.column_7?.value;
+
+    const outtrunShell = [
+        { label: "วันที่", value: data.posting_date },
+        { label: "ชื่อผลิตภัณฑ์", value: data.product },
+        { label: "ปริมาณสำหรับการวัด Quantity", value: "LITRES @30 deg.C" },
+        { label: "ปริมาณน้ำมัน", value: quality },
+    ];
 
     const renderValidateBox = (
         label: string,
@@ -85,11 +92,25 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
                     }}
                 >
                     {cleanValue(value)}
-
                 </div>
             </div>
         );
     };
+
+    if (selectedCompany?.name?.toLowerCase() === "shell") {
+        return (
+            <div className="d-flex flex-column gap-2">
+                {outtrunShell.map((item, idx) => (
+                    <div className="mb-2" key={idx}>
+                        <div className="fw-bold">{item.label}</div>
+                        <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                            {cleanValue(item.value)}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
 
     return (
         <div className="d-flex flex-column gap-2">

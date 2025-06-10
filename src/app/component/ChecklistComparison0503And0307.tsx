@@ -12,54 +12,64 @@ const ChecklistComparison0503And0307: React.FC<Props> = ({ data }) => {
         return v.trim();
     };
 
-    const labelMap: { [key: string]: { label1: string; label2: string } } = {};
-    const colCount = 11;
+    const header = [
+        { label: "สำหรับสินค้า", value: data.oil },
+        { label: "บริษัท", value: data.company },
+        { label: "คลัง", value: data.depot },
+        { label: "สำหรับน้ำมันออกจากคลังวันที่ เดือน ปี", value: data.date },
+    ];
 
-    for (let col = 1; col <= colCount; col++) {
-        const key = `column_${col}`;
-        const label1 = cleanValue(data.detail_table[0]?.properties?.[key]);
-        const label2 = cleanValue(data.detail_table[1]?.properties?.[key]);
-
-        if (label1 || label2) {
-            labelMap[key] = { label1, label2 };
-        }
-    }
+    const detailLabels = [
+        { type: "group-header", label: "แบบ ภส.03-07", col: "" },
+        { label: "วันที่", col: "column_1" },
+        { label: "น้ำมันสำเร็จรูป (ลิตร)", col: "column_2" },
+        { label: "อัตราภาษี", col: "column_3" },
+        { label: "ภาษีสรรพสามิต (บาท)", col: "column_4" },
+        { label: "ภาษีส่วนท้องถิ่น (บาท)", col: "column_5" },
+        { type: "group-header", label: "แบบ ภส.05-03", col: "" },
+        { label: "น้ำมันสำเร็จรูป (ลิตร)", col: "column_6" },
+        { label: "อัตราภาษี", col: "column_7" },
+        { label: "ภาษีสรรพสามิต (บาท)", col: "column_8" },
+        { label: "ภาษีส่วนท้องถิ่น (บาท)", col: "column_9" }
+    ];
 
     return (
-        <div className="d-flex flex-column gap-2">
+        <div className="d-flex flex-column gap-0">
+            {header.map(({ label, value }) => (
+                <div key={label}>
+                    <div className="fw-bold">{label}</div>
+                    <div className="border rounded-2 shadow-sm bg-white p-2 mb-1" style={{ fontSize: "14px" }}>
+                        {value}
+                    </div>
+                </div>
+            ))}
             {data.detail_table.slice(2).map((row, idx) => {
                 const col1Value = cleanValue(row.properties?.["column_1"]);
                 const isTotalRow = col1Value.includes("รวม");
 
                 return (
-                    <div key={`data-row-${idx}`} className="mb-3 pb-2 border-bottom border-2">
-                        {Object.entries(labelMap).map(([colKey, { label1, label2 }]) => {
-                            const value = cleanValue(row.properties?.[colKey]);
-
-                            // ถ้าเป็น column_1 และเป็นแถวรวม → ไม่ต้องแสดงค่า column_1
-                            if (colKey === "column_1" && isTotalRow) {
+                    <div key={`data-row-${idx}`} className="mb-0 pb-0 border-2">
+                        {detailLabels.map(({ label, col, type }, i) => {
+                            if (type === "group-header") {
                                 return (
-                                    <div key={`${colKey}-${idx}`} className="mb-2">
-                                        <div className="fw-bold text-danger">ผลรวม</div>
-                                        <div className="fw-bold">{label1}</div>
+                                    <div key={`group-header-${i}`} className="mb-2 mt-3">
+                                        <div className="fw-bold" style={{ fontSize: 16 }}>{label}</div>
                                     </div>
                                 );
                             }
-
-                            // ถ้าไม่มี value ใน cell นี้ → ไม่ต้องแสดง
+                            const value = cleanValue(row.properties?.[col]);
                             if (!value) return null;
-
-                            return (
-                                <div key={`${colKey}-${idx}`} className="mb-2">
-                                    <div className="fw-bold">
-                                        {/* ถ้าเป็น column_1 ของผลรวม → label2 ไม่ต้องแสดง */}
-                                        {isTotalRow && colKey === "column_1" ? null : (
-                                            <>
-                                                {label1 && <div>{label1}</div>}
-                                                {label2 && <div style={{ fontSize: "14px", color: "#555" }}>{label2}</div>}
-                                            </>
-                                        )}
+                            if (col === "column_1" && isTotalRow) {
+                                return (
+                                    <div key={`${col}-${idx}`} className="mb-2">
+                                        <div className="fw-bold text-danger">ผลรวม</div>
+                                        <div className="fw-bold">{value}</div>
                                     </div>
+                                );
+                            }
+                            return (
+                                <div key={`${col}-${idx}`} className="mb-2">
+                                    <div className="fw-bold">{label}</div>
                                     <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
                                         {value}
                                     </div>
