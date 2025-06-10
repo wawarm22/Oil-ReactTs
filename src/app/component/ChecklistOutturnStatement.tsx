@@ -27,6 +27,8 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
         ? data.date.replace(/[:,;]/g, ".")
         : data.date;
 
+    const quality = data.supplier_table?.[2]?.properties?.column_7?.value;
+
     useEffect(() => {
         if (!data) return;
 
@@ -36,6 +38,13 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
             quality: "LITRES @30 deg.C",
             quantity: valueQuantityNum,
         };
+
+        // const validateFieldsShell = {
+        //     date: cleanValue(data.posting_date),
+        //     product: cleanValue(data.product),
+        //     quality: "LITRES @30 deg.C",
+        //     quantity: quality,
+        // };
 
         const validateData = {
             docType: data.docType,
@@ -65,8 +74,6 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
 
     const borderColor = (passed?: boolean) =>
         `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#CED4DA"}`;
-
-    const quality = data.supplier_table?.[2]?.properties?.column_7?.value;
 
     const outtrunShell = [
         { label: "วันที่", value: data.posting_date },
