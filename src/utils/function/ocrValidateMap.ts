@@ -1,5 +1,5 @@
 import { useCompanyStore } from "../../store/companyStore";
-import { FieldValidation, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidationResult0307, ValidationResultData } from "../../types/validateResTypes";
+import { FieldValidation, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidationResult0307 } from "../../types/validateResTypes";
 import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateReceitpPayment, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New } from "../api/validateApi";
 import { buildOcr0307FieldRows } from "./ocrFieldRowsBuilder";
 
@@ -245,32 +245,48 @@ const checkOil0704Failed = (res: any) => {
     return false;
 };
 
-const checkIncomeExpenseFailed = (res: { data?: Partial<ValidationResultData> } | null | undefined): boolean => {
+export const checkIncomeExpenseFailed = (
+    res: { data?: ReceiptPaymentValidateResult } | null | undefined
+): boolean => {
     const d = res?.data;
     if (!d) return true;
 
-    if (d.header && Object.values(d.header).some((h: FieldValidation<any>) => h?.passed === false)) return true;
+    // เช็คฟิลด์ header (FieldValidation ทั้งหลาย)
+    const headerFields: Array<FieldValidation<any> | undefined> = [
+        d.materialName,
+        d.factoryName,
+        d.period
+    ];
 
-    for (const sectionKey of ["openingBalance", "receipt", "disbursement"] as const) {
-        const rows = d[sectionKey];
-        if (Array.isArray(rows)) {
-            for (const row of rows) {
-                if (row && Object.values(row).some((cell: any) => {
-                    if (typeof cell === "object" && cell !== null && "passed" in cell) {
-                        return cell.passed === false;
-                    }
-                    if (Array.isArray(cell)) {
-                        return cell.some((item: any) => item?.passed === false ||
-                            (typeof item === "object" && "passed" in item && item.passed === false));
-                    }
-                    return false;
-                })) return true;
-            }
-        }
+    if (headerFields.some(field => field && field.passed === false)) {
+        return true;
     }
 
-    if (d.endOfMonth && Object.values(d.endOfMonth).some((cell: FieldValidation<any>) => cell?.passed === false)) {
-        return true;
+    // เช็ค transactions (FieldValidation เฉพาะ field, ข้าม boolean/number)
+    for (const tx of d.transactions ?? []) {
+        // กำหนดคีย์ที่เป็น FieldValidation
+        const keysToCheck: (keyof ReceiptPaymentTransactionValidation)[] = [
+            "date",
+            "recieptFromFactoryLabel",
+            "recieptInvoice",
+            "recieptQuantity",
+            "consumeQuantity",
+            "consumeInvoice",
+            "transferToFactoryLabel",
+            "transferInvoice",
+            "transferQuantity",
+            "totalInvoiceQuantity",
+            "totalQuantity"
+        ];
+
+        for (const key of keysToCheck) {
+            const cell = tx[key];
+            if (cell && typeof cell === "object" && "passed" in cell) {
+                if (cell.passed === false) {
+                    return true;
+                }
+            }
+        }
     }
 
     return false;
@@ -497,7 +513,6 @@ export const OCR_VALIDATE_MAP: Record<
     },
     "oil-03-07-page-1": {
         buildPayload: (ocr: any) => {
-            // ✅ safe to call outside React
             const { selectedCompany } = useCompanyStore.getState();
             const factoriesNumber = localStorage.getItem("warehouse") ?? "";
 
