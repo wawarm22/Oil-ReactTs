@@ -2,7 +2,7 @@ import axios from "axios";
 import { BASE_URL_AWS } from "./apiConfig";
 import { InvoiceThappline, OcrInvoiceTaxData, OcrReceiptExciseData, OcrTaxInvoiceData, OCRValidationPayload, Prepared0701, Validate0503Page1Payload, Validate0503Page2Payload, validateAttachment0307Payload, ValidateOil0307Payload, ValidateOil0702Data, ValidateOil0704Payload, validateReceitpPaymentPayload, ValidateSubmissionPayload, ValidationCompare } from "../../types/validateTypes";
 import { AuthSchema } from "../../types/schema/auth";
-import { Prepared0502, PreparedFormularApprovResponse } from "../../types/preparedTypes";
+import { OcrReceiptPaymentPreparedData, Prepared0502, PreparedFormularApprovResponse } from "../../types/preparedTypes";
 
 export const validateOilCompare = async (validateData: ValidationCompare) => {
     try {
@@ -147,6 +147,19 @@ export const validateReceitpPayment = async (validateData: validateReceitpPaymen
     }
 };
 
+export const validateReceitpPaymentNew = async (validateData: OcrReceiptPaymentPreparedData) => {
+    try {
+        const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/receitp-payment-new`, validateData, {
+            headers: { "Content-Type": "application/json" },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred during the registration process", error);
+        return undefined;
+    }
+};
+
 export const validateFormularApprov = async (validateData: PreparedFormularApprovResponse) => {
     try {
         const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/formular-approv`, validateData, {
@@ -269,6 +282,20 @@ export const getPrepared0307 = async (documentId: string, auth: AuthSchema): Pro
 export const getPreparedReceitpPayment = async (docId: string, auth: AuthSchema): Promise<any | undefined> => {
     try {
         const response = await axios.get(`${BASE_URL_AWS}/ocr/ocr-prepared/receitp-payment/${docId}`, {
+            headers: {
+                Authorization: `Bearer ${auth.accessToken}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred while fetching OCR prepared data", error);
+        return undefined;
+    }
+};
+
+export const getPreparedReceitpPaymentNew = async (docId: string, auth: AuthSchema): Promise<any | undefined> => {
+    try {
+        const response = await axios.get(`${BASE_URL_AWS}/ocr/ocr-prepared/receitp-payment-new/${docId}`, {
             headers: {
                 Authorization: `Bearer ${auth.accessToken}`,
             },

@@ -463,5 +463,33 @@ export type Validate0701Result = {
     total: Validate0701TotalCell;
 };
 
+export type ReceiptPaymentTransactionValidation = {
+    date: FieldValidation<string>;
+    isRecieptFromOtherMonth: boolean;
+    isReciept: boolean;
+    isConsume: boolean;
+    recieptFromFactoryLabel: FieldValidation<string>;
+    recieptFromFactoryId: number;
+    recieptInvoice: FieldValidation<string>;
+    recieptQuantity: FieldValidation<number>;
+    consumeQuantity: FieldValidation<number>;
+    consumeInvoice: FieldValidation<string>;
+    transferToFactoryLabel: FieldValidation<string>;
+    transferToFactoryId: number;
+    transferInvoice: FieldValidation<string>;
+    transferQuantity: FieldValidation<number>;
+    totalInvoiceQuantity: FieldValidation<number>;
+    totalQuantity: FieldValidation<number>;
+}
+
+export type ReceiptPaymentValidateResult = {
+    materialName: FieldValidation<string>;
+    materialId: number;
+    factoryName: FieldValidation<string>;
+    factoryId: number;
+    period: FieldValidation<string>;
+    transactions: ReceiptPaymentTransactionValidation[];
+}
+
 
 
