@@ -7,9 +7,14 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
 
     if ("docType" in fields && typeof fields.docType === "string") {
         const docType = fields.docType.trim();
+        console.log("docType", docType);
         
         if (docType === "oil-05-03-page-3" || docType === "oil-05-03-page-1") {
             return "tax_form_0503";
+        }
+
+        if (docType === "oil-tax-invoice-2" || docType === "oil-tax-invoice-4" || docType === "oil-tax-invoice-7" || docType === "oil-tax-invoice-9") {
+            return "refinery_tax_invoice"
         }
 
         if (docType === "oil-tax-request-st-page-1") {
@@ -20,7 +25,7 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
             return "tax_form_0307";
         }
 
-        if (docType === "oil-05-03-page-4" || docType === "oil-05-03-page-2" || docType === "oil-attach-1") {
+        if (docType === "oil-05-03-page-4" || docType === "oil-05-03-page-2") {
             return "tax_form_0503_page2";
         }
 
@@ -54,11 +59,8 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
 
         if (docType === "oil-07-01-page-1-attach" || docType === "oil-07-01-page-1") {
             return "stock_oil"
-        }
+        }        
 
-        if (docType === "oil-tax-invoice-2" || docType === "oil-tax-invoice-4" || docType === "oil-tax-invoice-7" || docType === "oil-tax-invoice-9 ") {
-            return "refinery_tax_invoice"
-        }
         if (docType === "oil-tax-invoice-or-1" || docType === "oil-tax-invoice-irpc-1") {
             return "delivery_invoice"
         }        

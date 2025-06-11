@@ -89,7 +89,7 @@ export type PreparedFormularMaterial = {
 export type Oil0502Material = {
     materialType: string;
     materialUnit: string;
-    materialQuantity: string;  
+    materialQuantity: string;
     note: string;
 };
 
@@ -128,5 +128,40 @@ export type Prepared0502 = {
     documentGroup: string;
     fields: Oil0502Fields;
 };
+
+export type ReceiptPaymentTransaction = {
+    date: string;
+    isRecieptFromOtherMonth: boolean;
+    isReciept: boolean;
+    isConsume: boolean;
+    recieptFromFactoryLabel: string;
+    recieptFromFactoryId: number;
+    recieptInvoice: string;
+    recieptQuantity: number;
+    consumeQuantity: number;
+    consumeInvoice: string;
+    transferToFactoryLabel: string;
+    transferToFactoryId: number;
+    transferInvoice: string;
+    transferQuantity: number;
+    totalInvoiceQuantity: number;
+    totalQuantity: number;
+};
+
+export type OcrReceiptPaymentFields = {
+    materialName: string;
+    materialId: number;
+    factoryName: string;
+    factoryId: number;
+    period: string;
+    transactions: ReceiptPaymentTransaction[];
+};
+
+export type OcrReceiptPaymentPreparedData = {
+    docType: string;
+    documentGroup: string;
+    fields: OcrReceiptPaymentFields;
+};
+
 
 

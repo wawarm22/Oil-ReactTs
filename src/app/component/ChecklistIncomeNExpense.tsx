@@ -2,135 +2,167 @@ import React, { useEffect, useState } from "react";
 import { OcrIncomeNExpenseDocument } from "../../types/ocrFileType";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { AuthSchema } from "../../types/schema/auth";
-import { getPreparedReceitpPayment, validateReceitpPayment } from "../../utils/api/validateApi";
-import { PreparedData } from "../../types/preparedTypes";
-import { validateReceitpPaymentPayload } from "../../types/validateTypes";
-import { ValidationHeader, ValidationResultData } from "../../types/validateResTypes";
-import SectionRenderer from "./SectionRenderer";
-import EndOfMonthRenderer from "./EndOfMonthRenderer";
-import { getBorderColor } from "../../utils/function/getBorderColor";
+import { getPreparedReceitpPaymentNew, validateReceitpPaymentNew } from "../../utils/api/validateApi";
+import { OcrReceiptPaymentPreparedData } from "../../types/preparedTypes";
+import { ReceiptPaymentValidateResult } from "../../types/validateResTypes";
+import { borderColor } from "../../utils/function/getBorderColor";
 
 interface Props {
     data: OcrIncomeNExpenseDocument;
 }
-const sectionMap = [
-    {
-        title: "ยอดคงเหลือยกมา",
-        type: "openingBalance",
-        columns: [
-            { key: "receivedDate", label: "วันที่รับ" },
-            { key: "sourceDepot", label: "โรงกลั่น / คลังต้นทาง" },
-            { key: "invoiceNo", label: "เลขที่ใบกำกับภาษี" },
-            { key: "quantity", label: "ปริมาณ" },
-            { key: "invoiceBalance", label: "ยอดคงเหลือตามใบกำกับภาษี" },
-            { key: "totalBalance", label: "ยอดคงเหลือรวม" },
-        ],
-    },
-    {
-        title: "การรับ",
-        type: "receipt",
-        columns: [
-            { key: "receivedDate", label: "วันที่รับ" },
-            { key: "sourceDepot", label: "โรงกลั่น / คลังต้นทาง" },
-            { key: "invoiceNo", label: "เลขที่ใบกำกับภาษี" },
-            { key: "quantity", label: "ปริมาณ" },
-            { key: "invoiceBalance", label: "ยอดคงเหลือตามใบกำกับภาษี" },
-            { key: "totalBalance", label: "ยอดคงเหลือรวม" },
-        ],
-    },
-    {
-        title: "การจ่าย",
-        type: "disbursement",
-        columns: [
-            { key: "paidDate", label: "วันที่จ่าย" },
-            { key: "localSale.quantity", label: "จ่ายขายในประเทศ (ปริมาณ)" },
-            { key: "localSale.invoiceNo", label: "เลขที่ใบกำกับภาษี (ขายในประเทศ)" },
-            { key: "transfer", label: "โอนคลัง" },
-            { key: "invoiceBalance", label: "ยอดคงเหลือตามใบกำกับภาษี" },
-            { key: "totalBalance", label: "ยอดคงเหลือรวม" },
-        ],
-    },
-];
 
 const ChecklistIncomeNExpense: React.FC<Props> = ({ data }) => {
     const auth = useAuthUser<AuthSchema>();
-    const [preparedData, setPreparedData] = useState<PreparedData | null>(null);
-    const [validationResult, setValidationResult] = useState<ValidationResultData | null>(null);
+    const [ocrData, setOcrData] = useState<OcrReceiptPaymentPreparedData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [validateResult, setValidateResult] = useState<ReceiptPaymentValidateResult | null>(null);
 
     useEffect(() => {
-        if (data.id && auth) {
-            getPreparedReceitpPayment(data.id, auth).then((res) => {
-                if (res && res.data) {
-                    setPreparedData(res.data);
-
-                    const payload: validateReceitpPaymentPayload = {
-                        docType: data.docType,
-                        documentGroup: res.data.documentGroup,
-                        fields: res.data.fields,
-                    };
-                    validateReceitpPayment(payload).then(result => {
-                        setValidationResult(result.data);
-                    });
-                } else {
-                    setPreparedData(null);
-                    setValidationResult(null);
-                }
-            });
-        }
+        if (!auth || !data.id) return;
+        setLoading(true);
+        getPreparedReceitpPaymentNew(data.id, auth)
+            .then(res => setOcrData(res.data))
+            .catch(() => setOcrData(null))
+            .finally(() => setLoading(false));
     }, [data.id, auth]);
 
-    if (!preparedData) return <div>กำลังโหลดข้อมูล...</div>;
+    useEffect(() => {
+        if (!ocrData) return;
+        validateReceitpPaymentNew(ocrData)
+            .then(res => setValidateResult(res.data))
+            .catch(() => setValidateResult(null));
+    }, [ocrData]);
 
-    const fields = preparedData.fields;
+    if (loading) return <div>กำลังรอข้อมูล...</div>;
+    if (!ocrData || !validateResult) return <div className="text-muted">ไม่พบข้อมูล</div>;
+
+    const { materialName, factoryName, period, transactions = [] } = validateResult;
+
     const header = [
-        { key: "productName", label: "บัญชีรับ-จ่ายน้ำมันที่นำมาใช้เป็นวัตถุดิบในการผลิต", value: fields.header.productName },
-        { key: "factories", label: "ผู้ประกอบการอุตสาหกรรม", value: fields.header.factories },
-        { key: "period", label: "ประจำเดือน/ปี", value: fields.header.period },
+        { label: "บัญชีรับ-จ่ายน้ำมันที่นำมาใช้เป็นวัตถุดิบในการผลิต", value: materialName.value, passed: materialName.passed },
+        { label: "คลัง", value: factoryName.value, passed: factoryName.passed },
+        { label: "ประจำเดือน/ปี", value: period.value, passed: period.passed },
     ];
-    const headerValidation = validationResult?.header;
+
+    const typeMap: {
+        [key: string]: {
+            label: string;
+            fields: Array<{ key: keyof (typeof transactions)[number], label: string }>;
+        };
+    } = {
+        isRecieptFromOtherMonth: {
+            label: "ยอดคงเหลือยกมา",
+            fields: [
+                { key: "date", label: "วันที่" },
+                { key: "recieptFromFactoryLabel", label: "โรงกลั่น/คลังต้นทาง" },
+                { key: "recieptInvoice", label: "เลขที่ใบกำกับภาษี" },
+                { key: "recieptQuantity", label: "ปริมาณ" },
+                { key: "totalInvoiceQuantity", label: "ยอดคงเหลือตามใบกำกับภาษี" },
+                { key: "totalQuantity", label: "ยอดคงเหลือรวม" },
+            ]
+        },
+        isReciept: {
+            label: "การรับ",
+            fields: [
+                { key: "date", label: "วันที่" },
+                { key: "recieptFromFactoryLabel", label: "โรงกลั่น/คลังต้นทาง" },
+                { key: "recieptInvoice", label: "เลขที่ใบกำกับภาษี" },
+                { key: "recieptQuantity", label: "ปริมาณ" },
+                { key: "totalInvoiceQuantity", label: "ยอดคงเหลือตามใบกำกับภาษี" },
+                { key: "totalQuantity", label: "ยอดคงเหลือรวม" },
+            ]
+        },
+        isConsume: {
+            label: "การจ่าย",
+            fields: [
+                { key: "date", label: "วันที่" },
+                { key: "consumeQuantity", label: "ปริมาณ" },
+                { key: "consumeInvoice", label: "เลขที่ใบจ่าย" },
+                { key: "totalInvoiceQuantity", label: "ยอดคงเหลือตามใบกำกับภาษี" },
+                { key: "totalQuantity", label: "ยอดคงเหลือรวม" },
+            ]
+        },
+    };
+
+    const getTransactionType = (row: typeof transactions[number]) => {
+        return Object.keys(typeMap).find(type => (row as any)[type] === true);
+    };
+
+    function getValueAndPassed(val: any): { value: string | number, passed?: boolean } {
+        if (val && typeof val === "object" && "value" in val && "passed" in val) {
+            return { value: val.value, passed: val.passed };
+        }
+        return { value: val };
+    }    
 
     return (
         <div className="d-flex flex-column gap-2">
-            {header.map(({ key, label, value }, idx) => {
-                const headerValid = headerValidation?.[key as keyof ValidationHeader];
-
-                return value ? (
-                    <div key={idx} className="mb-1">
-                        <div className="fw-bold">{label}</div>
-                        <div
-                            style={{
-                                fontSize: "14px",
-                                border: getBorderColor(headerValid),
-                                borderRadius: "0.375rem",
-                                boxShadow: "0 .5rem 1rem rgba(33,37,41,.03)",
-                                background: "#fff",
-                                padding: "0.5rem 1rem"
-                            }}
-                        >
-                            {value || ""}
-                        </div>
+            {/* Header */}
+            {header.map(({ label, value, passed }) => (
+                <div key={label} className="mb-1">
+                    <div className="fw-bold">{label}</div>
+                    <div
+                        style={{
+                            fontSize: "14px",
+                            border: borderColor(passed),
+                            borderRadius: "0.375rem",
+                            boxShadow: "0 .5rem 1rem rgba(33,37,41,.03)",
+                            background: "#fff",
+                            padding: "0.5rem 1rem"
+                        }}
+                    >
+                        {value ?? "-"}
                     </div>
-                ) : null;
-            })}
+                </div>
+            ))}
 
-            {sectionMap.map(section => {
-                const validateSection: any[] | undefined =
-                    validationResult && validationResult[section.type as keyof ValidationResultData]
-                        ? (validationResult[section.type as keyof ValidationResultData] as any[])
-                        : undefined;
+            <hr className="m-0" />
+            {/* Transaction blocks */}
+            {transactions.map((row, idx) => {
+                const type = getTransactionType(row);
+                if (!type || !typeMap[type]) return null;
+
                 return (
-                    <SectionRenderer
-                        key={section.type}
-                        section={section}
-                        rows={fields[section.type as keyof typeof fields] as any[]}
-                        validationRows={validateSection}
-                    />
+                    <div key={idx} className="mb-1">
+                        <div className="fw-bold mb-2" style={{ fontSize: "16px" }}>
+                            {typeMap[type].label}
+                        </div>
+                        {typeMap[type].fields.map(({ key, label }) => {
+                            const raw = (row as any)[key];
+                            if (
+                                raw === undefined ||
+                                raw === null ||
+                                raw === "" ||
+                                raw === false
+                            ) {
+                                return null;
+                            }
+                            const { value, passed } = getValueAndPassed(raw);
+                            let showValue: React.ReactNode = value;
+                            if (typeof value === "number") {
+                                showValue = value.toLocaleString();
+                            }
+                            return (
+                                <div key={String(key)} className="mb-2">
+                                    <div className="fw-bold">{label}</div>
+                                    <div
+                                        style={{
+                                            fontSize: "14px",
+                                            border: borderColor(passed),
+                                            borderRadius: "0.375rem",
+                                            background: "#fff",
+                                            padding: "0.5rem 1rem"
+                                        }}
+                                    >
+                                        {showValue}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        <hr className="m-0 mt-3" />
+                    </div>
                 );
             })}
-
-            {fields.endOfMonth && (
-                <EndOfMonthRenderer endOfMonth={fields.endOfMonth} validation={validationResult?.endOfMonth} />
-            )}
         </div>
     );
 };
