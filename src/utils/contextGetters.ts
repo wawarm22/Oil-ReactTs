@@ -1,5 +1,5 @@
 import { useCompanyStore } from "../store/companyStore";
-import { getPrepared0307, getPrepared0502, getPrepared0503, getPrepared0701, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedReceitpPayment } from "./api/validateApi";
+import { getPrepared0307, getPrepared0502, getPrepared0503, getPrepared0701, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedReceitpPaymentNew } from "./api/validateApi";
 import { genRequestObject } from "./function/checklist/attachment0704";
 import { cleanExciseId } from "./function/format";
 
@@ -127,7 +127,7 @@ export const getContextForDocType: Record<
     "oil-income-n-expense-1": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
-        const resp = await getPreparedReceitpPayment(page1.id, auth);
+        const resp = await getPreparedReceitpPaymentNew(page1.id, auth);
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
