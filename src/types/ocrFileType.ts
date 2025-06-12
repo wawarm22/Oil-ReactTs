@@ -613,6 +613,7 @@ export type OcrAttachment0307Document = OcrFieldsBase & {
 export type OcrAttachment0704Document = OcrFieldsBase & {
     type: "attachment_0704";
     docType: string;
+    id: string;
     form_type?: string;
     form_no?: string;
     form_date?: string;

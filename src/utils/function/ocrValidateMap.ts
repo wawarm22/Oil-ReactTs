@@ -105,21 +105,17 @@ const buildInvoiceTaxPayload = (ocr: any, context: any) => ({
 });
 
 const buildOutturnPayload = (ocr: any, context?: any) => {
-    // quantity
     const value = ocr.detail_table_1?.[27]?.properties?.column_2;
     const rawQuantity = value ? cleanValue(value.value) : "";
     const quantityWithComma = rawQuantity.replace(/\./g, ',');
     const valueQuantityNum = quantityWithComma ? Number(quantityWithComma.replace(/,/g, "")) : 0;
 
-    // date
     const dateFormatted = typeof ocr.date === "string"
         ? ocr.date.replace(/[:,;]/g, ".")
         : ocr.date;
 
-    // product
     const product = cleanValue(ocr.product);
 
-    // quality
     const name = ocr.detail_table_1?.[27]?.properties?.column_1;
     const nameQuantity = name ? cleanValue(name.value) : "";
 
@@ -176,8 +172,6 @@ export const checkOil0701Failed = (
 ): boolean => {
     const data: Validate0701Result | undefined =
         (res && "data" in res ? (res as any).data : res) as Validate0701Result | undefined;
-
-    console.log("data 0701", data);
 
     if (!data) return true;
 
