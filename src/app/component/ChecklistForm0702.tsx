@@ -53,16 +53,22 @@ const ChecklistForm0702: React.FC<Props> = ({ data }) => {
     }
 
     let startIdx = 2;
-    const checkProps = tables[2]?.properties as Record<string, any> | undefined;
-    const checkValue = checkProps?.column_2?.value ?? "";
 
-    if (
-        checkValue
-            .replace(/\s+/g, "")
-            .toLowerCase()
-            .includes("ยอดยก")
-    ) {
-        startIdx = 3;
+    // วนหา index ถัดไปจนกว่าไม่เข้าเงื่อนไข
+    while (true) {
+        const props = tables[startIdx]?.properties as Record<string, any> | undefined;
+        const col1 = props?.column_1?.value ?? "";
+        const col2 = props?.column_2?.value ?? "";
+        const isCol1Empty = !col1 || col1.trim() === "";
+        const hasYodyok =
+            (col1 && col1.replace(/\s+/g, "").toLowerCase().includes("ยอดยก")) ||
+            (col2 && col2.replace(/\s+/g, "").toLowerCase().includes("ยอดยก"));
+
+        if (isCol1Empty || hasYodyok) {
+            startIdx++;
+        } else {
+            break;
+        }
     }
 
     const ocrFieldRows = tables.slice(startIdx).map((row) => {

@@ -101,6 +101,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                 <div
                     className="rounded-2 shadow-sm bg-white p-2"
                     style={{
+                        minHeight: "42px",
                         border: `1.5px solid ${validationResult?.header?.passed === true ? "#22C659" : validationResult?.header?.passed === false ? "#FF0100" : "#22C659"}`
                     }}
                 >
@@ -112,6 +113,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                 <div
                     className="rounded-2 shadow-sm bg-white p-2 mb-2"
                     style={{
+                        minHeight: "42px",
                         border: `1.5px solid ${validationResult?.from_date?.passed === true ? "#22C659" : validationResult?.from_date?.passed === false ? "#FF0100" : "#22C659"}`
                     }}
                 >
@@ -121,6 +123,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                 <div
                     className="rounded-2 shadow-sm bg-white p-2"
                     style={{
+                        minHeight: "42px",
                         border: `1.5px solid ${validationResult?.from_date?.passed === true ? "#22C659" : validationResult?.to_date?.passed === false ? "#FF0100" : "#22C659"}`
                     }}
                 >
@@ -132,6 +135,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                 <div
                     className="rounded-2 shadow-sm bg-white p-2"
                     style={{
+                        minHeight: "42px",
                         border: `1.5px solid ${validationResult?.product_name?.passed === true ? "#22C659" : validationResult?.product_name?.passed === false ? "#FF0100" : "#22C659"}`
                     }}
                 >
