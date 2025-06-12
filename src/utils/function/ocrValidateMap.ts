@@ -1,6 +1,6 @@
 import { useCompanyStore } from "../../store/companyStore";
 import { FieldValidation, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidationResult0307 } from "../../types/validateResTypes";
-import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateReceitpPayment, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New } from "../api/validateApi";
+import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New, validateReceitpPaymentNew } from "../api/validateApi";
 import { buildOcr0307FieldRows } from "./ocrFieldRowsBuilder";
 
 const cleanValue = (val?: any): string => {
@@ -24,16 +24,52 @@ const buildTaxPayload = (ocr: any) => ({
     }
 });
 
-const buildOilComparePayload = (ocr: any) => ({
-    docType: ocr.docType,
-    company: ocr.company ?? "",
-    factories: ocr.depot ?? "",
-    documentGroup: ocr.documentGroup ?? "",
-    fields: [
-        { data: { company: ocr.company ?? "", warehouse: ocr.depot ?? "", date: ocr.date ?? "" } },
-        { detail_table: ocr.detail_table ?? [] }
-    ]
-});
+// const buildOilComparePayload = (ocr: any, context: any) => ({
+//     docType: ocr.docType,
+//     company: context.company ?? "",
+//     factories: context.factories ?? "",
+//     documentGroup: ocr.documentGroup ?? "",
+//     fields: [
+//         { data: { company: ocr.company ?? "", warehouse: ocr.depot ?? "", date: ocr.date ?? "" } },
+//         { detail_table: ocr.detail_table ?? [] }
+//     ]
+// });
+
+const buildOilComparePayload = (ocr: any, context: any) => {
+    // Field 0: Header (ข้อมูลหัวตาราง)
+    const data: Record<string, { value: string }> = {
+        "บริษัท": { value: ocr.company ?? "" },
+        "คลัง": { value: ocr.depot ?? "" },
+        "วันที่": { value: ocr.date ?? "" }
+    };
+
+    // Field 1: detail_table (วนแต่ละแถว properties)
+    const detail_table: Record<string, { value: string }>[] = Array.isArray(ocr.detail_table)
+        ? ocr.detail_table.map((row: any) => {
+            const props = row.properties || {};
+            const cleanedRow: Record<string, { value: string }> = {};
+            // เอาแค่ column_1 ถึง column_7
+            for (let i = 1; i <= 7; i++) {
+                const key = `column_${i}`;
+                const value = props[key]?.value;
+                cleanedRow[key] = { value: typeof value === "string" ? value.trim() : "" };
+            }
+            return cleanedRow;
+        })
+        : [];
+
+    return {
+        docType: ocr.docType,
+        company: context.company ?? "",
+        factories: context.factories ?? "",
+        documentGroup: ocr.documentGroup ?? "",
+        fields: [
+            { data },
+            { detail_table }
+        ]
+    };
+};
+
 
 // const buildOil0701Payload = (ocr: any, context: { materialID: string; company: string; factories: string }) => ({
 //     docType: ocr.docType,
@@ -358,7 +394,7 @@ const checkAttachment0307Failed = (res: { data?: ValidationResult0307 }): boolea
     }
 
     if (failedFields.length > 0) {
-        console.log("Fields failed:", failedFields);
+        // console.log("Fields failed:", failedFields);
         return true;
     }
     return false;
@@ -490,6 +526,8 @@ export const OCR_VALIDATE_MAP: Record<
         buildPayload: buildOilComparePayload,
         api: validateOilCompare,
         checkFailed: checkOilCompareFailed,
+        needsContext: true,
+        needsAuth: true,
     },
     "oil-07-01-page-1": {
         buildPayload: buildOil0701Payload,
@@ -536,7 +574,7 @@ export const OCR_VALIDATE_MAP: Record<
     },
     "oil-income-n-expense-1": {
         buildPayload: buildIncomeExpensePayload,
-        api: validateReceitpPayment,
+        api: validateReceitpPaymentNew,
         checkFailed: checkIncomeExpenseFailed,
         needsContext: true,
         needsAuth: true,

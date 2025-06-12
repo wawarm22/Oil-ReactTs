@@ -127,8 +127,8 @@ export const getContextForDocType: Record<
     "oil-income-n-expense-1": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
-        const resp = await getPreparedReceitpPaymentNew(page1.id, auth);
-        if (!resp?.data) return {};
+        const resp = await getPreparedReceitpPaymentNew(page1.id, auth);        
+        if (!resp?.data) return {};        
         return {
             documentGroup: resp.data.documentGroup,
             fields: resp.data.fields
@@ -137,6 +137,18 @@ export const getContextForDocType: Record<
     "oil-shore-tank-1": async (page1) => {
         const company = useCompanyStore.getState().selectedCompany?.name ?? "";
         const factories = localStorage.getItem("warehouse") ?? "";
+        return {
+            company,
+            factories,
+            documentGroup: page1.documentGroup ?? "",
+        };
+    },
+    "oil-compare-1": async (page1) => {
+        const company = useCompanyStore.getState().selectedCompany?.name ?? "";
+        const factories = localStorage.getItem("warehouse") ?? "";
+        console.log("company", company);
+        console.log("factories", factories);
+        
         return {
             company,
             factories,
