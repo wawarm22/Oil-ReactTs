@@ -108,6 +108,7 @@ const ChecklistIncomeNExpense: React.FC<Props> = ({ data }) => {
                             borderRadius: "0.375rem",
                             boxShadow: "0 .5rem 1rem rgba(33,37,41,.03)",
                             background: "#fff",
+                            minHeight: "42px",
                             padding: "0.5rem 1rem"
                         }}
                     >
@@ -151,7 +152,8 @@ const ChecklistIncomeNExpense: React.FC<Props> = ({ data }) => {
                                             border: borderColor(passed),
                                             borderRadius: "0.375rem",
                                             background: "#fff",
-                                            padding: "0.5rem 1rem"
+                                            padding: "0.5rem 1rem",
+                                            minHeight: "42px",
                                         }}
                                     >
                                         {showValue}
