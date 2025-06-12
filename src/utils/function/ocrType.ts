@@ -7,7 +7,6 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
 
     if ("docType" in fields && typeof fields.docType === "string") {
         const docType = fields.docType.trim();
-        console.log("docType", docType);
         
         if (docType === "oil-05-03-page-3" || docType === "oil-05-03-page-1") {
             return "tax_form_0503";

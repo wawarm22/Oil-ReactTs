@@ -59,7 +59,7 @@ const ChecklistTax: React.FC<ChecklistTaxProps> = ({
         { key: "tax_date", label: "วันที่", value: data.tax_date },
         {
             key: "amount",
-            label: "สำหรับสินค้าที่ผลิตขึ้นจากสินค้าที่ได้เสียภาษีไว้แล้วรวมเป็นเงิน",
+            label: "จำนวนเงินขอคืนภาษี",
             value: data.amount,
         },
     ];

@@ -40,11 +40,14 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
 
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
+
+    // เก็บ OCR ทั้งหมดไว้ตรงนี้ เพื่อส่ง prop ให้ DocumentChecklist
     const [ocrByDocId, setOcrByDocId] = useState<OcrByDocIdType>({});
     const [validationFailStatus, setValidationFailStatus] = useState<Record<string, boolean>>({});
     const auth = useAuthUser<AuthSchema>();
     const validationRanRef = useRef(false);
 
+    // ดึง OCR จากทุก folder
     const fetchOcrData = async () => {
         const results: OcrByDocIdType = {};
 
@@ -91,6 +94,8 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                 console.error("OCR fetch failed:", err);
             }
         }
+        console.log("results", results);
+        
         setOcrByDocId(results);
     };
 
@@ -117,7 +122,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
             const validatePromises: Promise<{ docId: number, subIdx: number, failed: boolean } | null>[] = [];
 
             for (const doc of documentList) {
-
                 const docId = doc.id;
                 const subtitleLength = doc.subtitle?.length ?? 1;
 
@@ -168,7 +172,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                             }
                         })()
                     );
-
                 }
             }
 
@@ -199,6 +202,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                     setSelectedDocId(docId);
                     setSelectedSubtitleIdx(subtitleIdx);
                 }}
+                ocrByDocId={ocrByDocId}  // <-- ส่งไปเป็น prop
             />
 
             <PdfPreview

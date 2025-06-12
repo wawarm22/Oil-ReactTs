@@ -1,47 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { OcrAttachment0704Document } from "../../types/ocrFileType";
-import { useCompanyStore } from "../../store/companyStore";
-import { genRequestObject } from "../../utils/function/checklist/attachment0704";
-import { validateOil0704 } from "../../utils/api/validateApi";
-import { ValidateOil0704Payload } from "../../types/validateTypes";
-import { cleanExciseId } from "../../utils/function/format";
+import { getPrepared0704, validateOil0704 } from "../../utils/api/validateApi";
+import { AuthSchema } from "../../types/schema/auth";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { Prepared0704 } from "../../types/preparedTypes";
+import { ValidateOil0704Result } from "../../types/validateResTypes";
+import { borderColor } from "../../utils/function/getBorderColor";
 
 interface Props {
     data: OcrAttachment0704Document;
 }
 
 const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
-    const { selectedCompany } = useCompanyStore();
-    const factoriesNumber = localStorage.getItem("warehouse") ?? null;
-    const [validationResult, setValidationResult] = useState<any>(null);
+    const auth = useAuthUser<AuthSchema>();
+    const [ocrData, setOcrData] = useState<Prepared0704 | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [validateResult, setValidateResult] = useState<ValidateOil0704Result | null>(null);
 
-    const normalize = (str: any) => {
-        if (!str) return '';
-        if (typeof str === 'string') return str.trim().replace(/\s+/g, '').toLowerCase();
-        if (typeof str === 'object' && typeof str.value === 'string')
-            return str.value.trim().replace(/\s+/g, '').toLowerCase();
-        return String(str).trim().replace(/\s+/g, '').toLowerCase();
-    };
+    useEffect(() => {
+        if (!auth || !data.id) return;
+        setLoading(true);
+        getPrepared0704(data.id, auth)
+            .then(res => setOcrData(res.data))
+            .catch(() => setOcrData(null))
+            .finally(() => setLoading(false));
+    }, [data.id, auth]);
 
-    const isBracketPattern = (str: string | undefined | null) =>
-        !!str && /^\(.*\)$/.test(str.trim());
+    useEffect(() => {
+        if (!ocrData) return;
+        validateOil0704(ocrData)
+            .then(res => setValidateResult(res.data))
+            .catch(() => setValidateResult(null));
+    }, [ocrData]);
 
-    const cleanValue = (val?: string | { value: string } | null): string => {
-        const raw = typeof val === "object" ? val?.value : val;
-        if (!raw || raw.trim() === "" || raw === ":unselected:") return "";
-        return raw.trim();
-    };
-
-    const formatThaiMonthYear = (input?: string | null): string => {
-        if (!input) return "";
-        return input
-            .replace(/\n/g, "")                    
-            .replace(/([^\d\s]+)(\d+)/, "$1 $2")   
-            .trim();
-    }
-
+    // แก้ renderBox ให้รับ borderColor
     const renderBox = (label: string, value: any, passed?: boolean, key?: React.Key) => (
-        <div key={key || label + (typeof value === "string" ? value : "")}>
+        <div key={key || label}>
             <div className="fw-bold">{label}</div>
             <div
                 className="rounded-2 shadow-sm bg-white p-2"
@@ -49,139 +43,108 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
                     fontSize: "14px",
                     whiteSpace: "pre-line",
                     minHeight: "43px",
-                    border: `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#CED4DA"}`,
+                    border: borderColor(passed),
                 }}
             >
-                {cleanValue(value)}
+                {value === undefined || value === null || value === "" ? "" : value}
             </div>
         </div>
     );
 
-    const fieldsToDisplay = [
-        { key: "form_type", label: "แบบฟอร์ม", value: "ภส.๐๗-๐๔" },
-        // { key: "form_no", label: "เลขที่รับ", value: data.form_no },
-        // { key: "form_date", label: "วัน เดือน ปี ที่รับ", value: data.form_date },
-        // { key: "form_officer_1", label: "เจ้าหน้าที่ผู้รับ", value: data.form_officer_1 },
-        { key: "form_type", label: "เลขที่รับ", value: data.form_no },
-        { key: "form_type", label: "วัน เดือน ปี ที่รับ", value: data.form_date },
-        { key: "form_type", label: "เจ้าหน้าที่ผู้รับ", value: data.form_officer_1 },
-        { key: "company_name", label: "ชื่อโรงอุตสาหกรรม (คลัง)", value: data.company_name },
-        { key: "excise_id", label: "ทะเบียนสรรพสามิตเลขที่", value: cleanExciseId(data.excise_id) },
-        { key: "date", label: "ประจำเดือน ปี", value: formatThaiMonthYear(data.date) },
+    if (loading) return <div>กำลังรอข้อมูล...</div>;
+    if (!ocrData) return <div className="text-muted">ไม่พบข้อมูล</div>;
+
+    const { fields } = ocrData;
+
+    const infoFields = [
+        { label: "แบบฟอร์ม", key: "formType" },
+        { label: "เลขที่รับ", key: "requestNumber" },
+        { label: "วัน เดือน ปี ที่รับ", key: "receivedAt" },
+        { label: "เจ้าหน้าที่ผู้รับ", key: "formOfficerName" },
+        { label: "ชื่อโรงอุตสาหกรรม (คลัง)", key: "companyName" },
+        { label: "ทะเบียนสรรพสามิตเลขที่", key: "exciseId" },
+        { label: "ประจำเดือน ปี", key: "period" },
     ];
 
-    useEffect(() => {
-        if (data && selectedCompany) {
-            genRequestObject({ fields: data })
-                .then((genFields) => {
-                    const excise_id = cleanExciseId(data.excise_id);
-                    const date = formatThaiMonthYear(data.date)
-
-                    const payload: ValidateOil0704Payload = {
-                        docType: data.docType,
-                        documentGroup: data.documentGroup,
-                        fields: {
-                            ...genFields,
-                            excise_id,
-                            date,
-                            company_name: selectedCompany.name,
-                            form_officer_name: factoriesNumber || "",
-                        },
-                    };
-                    return validateOil0704(payload);
-                })
-                .then((res) => {
-                    if (res) {
-                        setValidationResult(res);
-                    }
-                })
-                .catch((err) => console.error("Error generating payload or validating:", err));
-        }
-    }, [data, selectedCompany]);
-
-    const table1 = data.detail_table_1 ?? [];
-    const table2 = data.detail_table_2 ?? [];
-
-    const tableMap1 = [
-        { label: "รายการ/วัตถุดิบ (หน่วย)", field: "material_name" },
-        { label: "คงเหลือยกมา", field: "open" },
-        { label: "รับเดือนนี้", field: "getted" },
-        { label: "รวม", field: "total" },
-        { label: "ผลิตสินค้าตามพิกัด ฯ", field: "produce" },
-        { label: "ผลิตสินค้าอื่น", field: "produce_other" },
-        { label: "เสียหาย", field: "defected" },
-        { label: "อื่น ๆ (จ่ายโอนคลัง)", field: "etc" },
-        { label: "ยอดคงเหลือตามบัญชี", field: "loss_gain" },
-        { label: "คงเหลือยกไป", field: "forward" },
+    const materialFields = [
+        { label: "รายการ/วัตถุดิบ (หน่วย)", key: "materialName" },
+        { label: "คงเหลือยกมา", key: "open" },
+        { label: "รับเดือนนี้", key: "getted" },
+        { label: "รวม", key: "total" },
+        { label: "ผลิตสินค้าตามพิกัด ฯ", key: "produce" },
+        { label: "ผลิตสินค้าอื่น", key: "produceOther" },
+        { label: "เสียหาย", key: "defected" },
+        { label: "อื่น ๆ (จ่ายโอนคลัง)", key: "etc" },
+        { label: "ยอดคงเหลือตามบัญชี", key: "lossGain" },
+        { label: "คงเหลือยกไป", key: "forward" },
     ];
 
-    const tableMap2 = [
-        { label: "ชื่อสินค้า", field: "product_name" },
-        { label: "คงเหลือยกมา", field: "open" },
-        { label: "รับจากการผลิต", field: "produced" },
-        { label: "รับคืนจากคลังสินค้าทัณฑ์บน", field: "bonded_return" },
-        { label: "อื่น ๆ", field: "etc_getted" },
-        { label: "รวม", field: "total" },
-        { label: "จำหน่ายในประเทศ", field: "domestic_sales" },
-        { label: "จำหน่ายต่างประเทศ", field: "overseas_sales" },
-        { label: "ใช้ในโรงอุตสาหกรรม", field: "used_in_industrial_plans" },
-        { label: "คลังสินค้าทัณฑ์บน", field: "bonded" },
-        { label: "เสียหาย", field: "defected" },
-        { label: "อื่น ๆ", field: "etc_used" },
-        { label: "คงเหลือยกไป", field: "forward" },
+    const productFields = [
+        { label: "ชื่อสินค้า", key: "productName" },
+        { label: "คงเหลือยกมา", key: "open" },
+        { label: "รับจากการผลิต", key: "produced" },
+        { label: "รับคืนจากคลังสินค้าทัณฑ์บน", key: "bondedReturn" },
+        { label: "อื่น ๆ (รับ)", key: "etcGetted" },
+        { label: "รวม", key: "total" },
+        { label: "จำหน่ายในประเทศ", key: "domesticSales" },
+        { label: "จำหน่ายต่างประเทศ", key: "overseasSales" },
+        { label: "ใช้ในโรงอุตสาหกรรม", key: "usedInIndustrialPlants" },
+        { label: "คลังสินค้าทัณฑ์บน", key: "bonded" },
+        { label: "เสียหาย", key: "defected" },
+        { label: "อื่น ๆ (ใช้)", key: "etcUsed" },
+        { label: "คงเหลือยกไป", key: "forward" },
     ];
 
-    const validMaterialNames = [6, 7, 8, 9, 10, 11]
-        .map(colIdx => ({
-            name: table1[0]?.properties?.[`column_${colIdx}`]?.value,
-            colIdx
-        }))
-        .filter(({ name }) => name && !isBracketPattern(name));
-
-    const validProductNames = Array.from({ length: 14 }, (_, i) => i + 2)
-        .map(colIdx => ({
-            name: table2[0]?.properties?.[`column_${colIdx}`]?.value,
-            colIdx
-        }))
-        .filter(({ name }) => name && !isBracketPattern(name));
+    // ฟังก์ชันดึง value จาก FieldValidation หรือปกติ
+    const getFieldValue = (val: any) => {
+        if (val && typeof val === "object" && "value" in val) return val.value;
+        return val;
+    };
+    // ฟังก์ชันดึง passed จาก FieldValidation
+    const getPassed = (val: any) => {
+        if (val && typeof val === "object" && "passed" in val) return val.passed;
+        return undefined;
+    };
 
     return (
         <div className="d-flex flex-column gap-3">
-            {fieldsToDisplay.map(({ key, label, value }) =>
-                renderBox(label, value, validationResult?.data?.[key]?.passed)
+            {/* ข้อมูลหลัก */}
+            {infoFields.map(({ label, key }) =>
+                renderBox(
+                    label,
+                    getFieldValue(fields[key as keyof typeof fields]),
+                    getPassed(validateResult?.[key as keyof typeof validateResult]),
+                    label
+                )
             )}
-
             <hr className="border-top border-2 border-secondary my-2" />
             <div className="fw-bold">1. ข้อมูลวัตถุดิบ</div>
-            {validMaterialNames.map(({ name, colIdx }) => {
-                const validateObj = validationResult?.data?.materials?.find(
-                    (m: { material_name: string }) =>
-                        normalize(m.material_name) === normalize(name)
-                );
-                return tableMap1.map(({ label, field }, rowIdx) => {
-                    const val = field === "material_name"
-                        ? name
-                        : table1[rowIdx]?.properties?.[`column_${colIdx}`]?.value;
-                    const passed = validateObj?.[field]?.passed;
-                    return renderBox(label, val, passed);
-                });
-            })}
-
+            {(fields.materials || []).map((mat, i) => (
+                <div key={i} className="mb-2 p-2 rounded-2">
+                    {materialFields.map(({ label, key }) =>
+                        renderBox(
+                            label,
+                            getFieldValue(mat[key as keyof typeof mat]),
+                            getPassed(validateResult?.materials?.[i]?.[key as keyof typeof mat]),
+                            label + i
+                        )
+                    )}
+                </div>
+            ))}
             <hr className="border-top border-2 border-secondary my-2" />
             <div className="fw-bold">2. งบการผลิต</div>
-            {validProductNames.map(({ name, colIdx }) => {
-                const validateObj = validationResult?.data?.products?.find(
-                    (p: { product_name: string }) =>
-                        normalize(p.product_name) === normalize(name)
-                );
-                return tableMap2.map(({ label, field }, rowIdx) => {
-                    const val = field === "product_name"
-                        ? name
-                        : table2[rowIdx]?.properties?.[`column_${colIdx}`]?.value;
-                    const passed = validateObj?.[field]?.passed;
-                    return renderBox(label, val, passed, `${label}-${field}-${colIdx}-${rowIdx}`);
-                });
-            })}
+            {(fields.products || []).map((prod, i) => (
+                <div key={i} className="mb-2 p-2 rounded-2">
+                    {productFields.map(({ label, key }) =>
+                        renderBox(
+                            label,
+                            getFieldValue(prod[key as keyof typeof prod]),
+                            getPassed(validateResult?.products?.[i]?.[key as keyof typeof prod]),
+                            label + i
+                        )
+                    )}
+                </div>
+            ))}
         </div>
     );
 };

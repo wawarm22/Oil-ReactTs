@@ -1,8 +1,8 @@
 import axios from "axios";
 import { BASE_URL_AWS } from "./apiConfig";
-import { InvoiceThappline, OcrInvoiceTaxData, OcrReceiptExciseData, OcrTaxInvoiceData, OCRValidationPayload, Prepared0701, Validate0503Page1Payload, Validate0503Page2Payload, validateAttachment0307Payload, ValidateOil0307Payload, ValidateOil0702Data, ValidateOil0704Payload, validateReceitpPaymentPayload, ValidateSubmissionPayload, ValidationCompare } from "../../types/validateTypes";
+import { InvoiceThappline, OcrInvoiceTaxData, OcrReceiptExciseData, OcrTaxInvoiceData, OCRValidationPayload, Prepared0701, Validate0503Page1Payload, Validate0503Page2Payload, validateAttachment0307Payload, ValidateOil0307Payload, ValidateOil0702Data, validateReceitpPaymentPayload, ValidateSubmissionPayload, ValidationCompare } from "../../types/validateTypes";
 import { AuthSchema } from "../../types/schema/auth";
-import { OcrReceiptPaymentPreparedData, Prepared0502, PreparedFormularApprovResponse } from "../../types/preparedTypes";
+import { OcrReceiptPaymentPreparedData, Prepared0502, Prepared0704, PreparedFormularApprovResponse } from "../../types/preparedTypes";
 
 export const validateOilCompare = async (validateData: ValidationCompare) => {
     try {
@@ -43,7 +43,20 @@ export const validateOil0702 = async (validateData: ValidateOil0702Data) => {
     }
 };
 
-export const validateOil0704 = async (validateData: ValidateOil0704Payload) => {
+// export const validateOil0704 = async (validateData: ValidateOil0704Payload) => {
+//     try {
+//         const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/07-04`, validateData, {
+//             headers: { "Content-Type": "application/json" },
+//         });
+
+//         return response.data;
+//     } catch (error) {
+//         console.error("An error occurred during the registration process", error);
+//         return undefined;
+//     }
+// };
+
+export const validateOil0704 = async (validateData: Prepared0704) => {
     try {
         const response = await axios.post(`${BASE_URL_AWS}/ocr/ocr-validate/07-04`, validateData, {
             headers: { "Content-Type": "application/json" },
@@ -394,6 +407,20 @@ export const getPreparedInvoiceThappline = async (docId: string, auth: AuthSchem
 export const getPrepared0701 = async (docId: string, auth: AuthSchema): Promise<any | undefined> => {
     try {
         const response = await axios.get(`${BASE_URL_AWS}/ocr/ocr-prepared/07-01/${docId}`, {
+            headers: {
+                Authorization: `Bearer ${auth.accessToken}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred while fetching OCR prepared data", error);
+        return undefined;
+    }
+};
+
+export const getPrepared0704 = async (docId: string, auth: AuthSchema): Promise<any | undefined> => {
+    try {
+        const response = await axios.get(`${BASE_URL_AWS}/ocr/ocr-prepared/07-04/${docId}`, {
             headers: {
                 Authorization: `Bearer ${auth.accessToken}`,
             },

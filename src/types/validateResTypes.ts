@@ -491,5 +491,49 @@ export type ReceiptPaymentValidateResult = {
     transactions: ReceiptPaymentTransactionValidation[];
 }
 
+// สำหรับวัสดุ (วัตถุดิบ)
+export type Oil0704MaterialValidation = {
+    materialName: FieldValidation<string>;
+    open: FieldValidation<number>;
+    getted: FieldValidation<number>;
+    total: FieldValidation<number>;
+    produce: FieldValidation<number>;
+    produceOther: FieldValidation<number>;
+    defected: FieldValidation<number>;
+    etc: FieldValidation<number>;
+    lossGain: FieldValidation<number>;
+    forward: FieldValidation<number>;
+};
+
+// สำหรับสินค้า (งบการผลิต)
+export type Oil0704ProductValidation = {
+    productName: FieldValidation<string>;
+    open: FieldValidation<number>;
+    produced: FieldValidation<number>;
+    bondedReturn: FieldValidation<number>;
+    etcGetted: FieldValidation<number>;
+    total: FieldValidation<number>;
+    domesticSales: FieldValidation<number>;
+    overseasSales: FieldValidation<number>;
+    usedInIndustrialPlants: FieldValidation<number>;
+    bonded: FieldValidation<number>;
+    defected: FieldValidation<number>;
+    forward: FieldValidation<number>;
+    etcUsed: FieldValidation<number>;
+};
+
+// validateResult หลัก
+export type ValidateOil0704Result = {
+    formType: FieldValidation<string>;
+    requestNumber: FieldValidation<string>;
+    receivedAt: FieldValidation<string>;
+    formOfficerName: FieldValidation<string>;
+    companyName: FieldValidation<string>;
+    exciseId: FieldValidation<string>;
+    period: FieldValidation<string>;
+    materials: Oil0704MaterialValidation[];
+    products: Oil0704ProductValidation[];
+};
+
 
 

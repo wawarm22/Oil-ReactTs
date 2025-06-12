@@ -163,5 +163,52 @@ export type OcrReceiptPaymentPreparedData = {
     fields: OcrReceiptPaymentFields;
 };
 
+export type Material0704 = {
+    materialName: string;
+    open: number;
+    getted: number;
+    total: number;
+    produce: number;
+    produceOther: number;
+    defected: number;
+    etc: number;
+    lossGain: number;
+    forward: number;
+};
+
+export type Product0704 = {
+    productName: string;
+    open: number;
+    produced: number;
+    bondedReturn: number;
+    etcGetted: number;
+    total: number;
+    domesticSales: number;
+    overseasSales: number;
+    usedInIndustrialPlants: number;
+    bonded: number;
+    defected: number;
+    forward: number;
+    etcUsed: number;
+};
+
+export type Prepared0704Fields = {
+    formType: string;
+    requestNumber: string;
+    receivedAt: string;
+    formOfficerName: string;
+    companyName: string;
+    exciseId: string;
+    period: string;
+    materials: Material0704[];
+    products: Product0704[];
+};
+
+export type Prepared0704 = {
+    docType: string;
+    documentGroup: string;
+    fields: Prepared0704Fields;
+};
+
 
 
