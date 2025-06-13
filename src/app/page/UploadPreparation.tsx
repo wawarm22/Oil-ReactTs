@@ -74,7 +74,7 @@ const UploadPreparation: React.FC = () => {
     });
     const [dateTime, setDateTime] = useState<string>("");
     const [mainCode] = useState<string | null>(null);
-    
+
     useEffect(() => {
         setDateTime(Date.now().toString())
     }, [filters.warehouse, filters.transport, filters.periodType, filters.month, filters.dateStart, filters.dateEnd])
@@ -394,7 +394,7 @@ const UploadPreparation: React.FC = () => {
 
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
 
-    const handleConfirm = () => {
+    const handleConfirm = () => {        
         setShowConfirmModal(true);
     };
 
@@ -406,7 +406,7 @@ const UploadPreparation: React.FC = () => {
                 toast.warning("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
                 return;
             }
-
+            
             const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
                 user?.email === 'ja.test006+or@gmail.com' ||
                 user?.email === 'ja.test006+bsrc@gmail.com' ||
@@ -433,6 +433,8 @@ const UploadPreparation: React.FC = () => {
             localStorage.setItem("transport", filters.transport?.value || "");
             localStorage.setItem("warehouse", filters.warehouse?.value || "");
             localStorage.setItem("nameWarehouse", filters.warehouse?.label || "");
+            localStorage.setItem("periodValue", filters.periodType?.value || "");
+            
             navigate("/audit");
             // navigate("/");
 

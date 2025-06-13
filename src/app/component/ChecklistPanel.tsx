@@ -22,10 +22,10 @@ import ChecklistAttachment0307 from "./ChecklistAttachment0307";
 import ChecklistAttachment0704 from "./ChecklistAttachment0704";
 import ChecklistTaxForm0502 from "./ChecklistTaxForm0502";
 import ChecklistTaxForm0503Page2 from "./ChecklistTaxForm0503Page2";
-import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
 import ChecklistDeliveryInvoicePipline from "./ChecklistDeliveryInvoicePipline";
 import ChecklistForm0701 from "./ChecklistForm0701";
 import ChecklistForm0702 from "./ChecklistForm0702";
+import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
 
 interface Props {
     ocrDocument: {

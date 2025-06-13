@@ -615,6 +615,7 @@ const SearchFileUpload: React.FC = () => {
             localStorage.setItem("transport", filters.transport?.value || "");
             localStorage.setItem("warehouse", filters.warehouse?.value || "");
             localStorage.setItem("nameWarehouse", filters.warehouse?.label || "");
+            localStorage.setItem("periodValue", filters.periodType?.value || "");
             navigate("/audit?from=search-file");
             // navigate("/");
 
