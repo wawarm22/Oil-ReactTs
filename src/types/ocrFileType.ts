@@ -549,6 +549,7 @@ export type OcrCustomsReceiptDocument = OcrFieldsBase & {
 export type OcrDailyComparisonDocument = OcrFieldsBase & {
     type: "daily_comparison";
     docType: string;
+    id: string;
     documentGroup: string;
     pageNumber: string;
     pageCount: string;
