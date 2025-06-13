@@ -5,8 +5,6 @@ import { AuthSchema } from "../../types/schema/auth";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { OcrTaxInvoiceData, TaxInvoiceItem } from "../../types/validateTypes";
 import { ValidateTaxInvoiceResult } from "../../types/validateResTypes";
-import { useCompanyStore } from "../../store/companyStore";
-import { shellTaxInvoiceFields } from "../../utils/function/shellTaxInvoiceConfig";
 
 interface Props {
     data: OcrRefineryTaxInvoiceDocument;
@@ -15,7 +13,6 @@ interface Props {
 const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
     const auth = useAuthUser<AuthSchema>();
     const [ocrData, setOcrData] = useState<OcrTaxInvoiceData | null>(null);
-    const { selectedCompany } = useCompanyStore();
     const [validateData, setValidateData] = useState<ValidateTaxInvoiceResult | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -26,6 +23,7 @@ const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
         return String(val).trim();
     };
 
+    // Helper function for field validation coloring and value
     const getValidatedField = (key: keyof ValidateTaxInvoiceResult, fallback: string | number = "") => {
         const val = validateData?.[key];
         if (val && typeof val === "object" && "value" in val) {
@@ -34,6 +32,7 @@ const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
         return { value: cleanValue(fallback), border: "#22C659" };
     };
 
+    // Map total summary label to validateData key
     const totalKeyMap: Record<string, keyof ValidateTaxInvoiceResult> = {
         "รวมมูลค่าสินค้าหรือบริการ Amount": "subTotal",
         "ภาษีมูลค่าเพิ่ม VAT 7%": "vat7",
@@ -80,6 +79,7 @@ const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
     const f = ocrData.fields;
 
     const fields = [
+        
         { label: "สำนักงานใหญ่", key: "invoiceBranch", value: f.invoiceBranch },
         { label: "ชื่อและที่อยู่ลูกค้า Customer Name and Address", key: "customerInfo", value: cleanValue(f.customerInfo) },
         { label: "เลขที่ประจำตัวผู้เสียภาษีอากร TAX ID", key: "taxId", value: f.taxId },
@@ -112,18 +112,11 @@ const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
         { label: "วันที่ / Date", value: f.receivedDate },
     ];
 
-    const isShell = selectedCompany?.name === "SHELL";
-
     return (
         <div className="d-flex flex-column gap-3">
             {/* ข้อมูลทั่วไป */}
-            {(isShell ? shellTaxInvoiceFields : fields).map(({ label, key }) => {
-                const value = f[key as keyof typeof f];
-                const safeValue = Array.isArray(value) ? undefined : value;
-                const v = isShell
-                    ? cleanValue(safeValue)
-                    : getValidatedField(key as keyof ValidateTaxInvoiceResult, safeValue).value;
-                const border = isShell ? "#22C659" : getValidatedField(key as keyof ValidateTaxInvoiceResult, safeValue).border;
+            {fields.map(({ label, key, value }) => {
+                const { value: v, border } = getValidatedField(key as keyof ValidateTaxInvoiceResult, value);
                 return (
                     <div key={label}>
                         <div className="fw-bold">{label}</div>
