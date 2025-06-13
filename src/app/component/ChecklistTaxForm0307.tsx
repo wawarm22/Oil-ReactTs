@@ -26,12 +26,14 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
 
     const cleanTaxTypeDate = (val?: string | null): string => {
         if (!val) return "";
-        return val
+        
+        return val.replace(/^(\d+)\.(\d+)(?=\s*เดือน)/, '$1-$2')
             .replace(/_/g, " ")
             .replace(/\s*-\s*/g, "-")
             .replace(/\s+/g, " ")
             .trim();
     };
+
 
     const renderCheckbox = (checked: boolean, label: string, subtext?: string) => (
         <div className="d-flex flex-column">

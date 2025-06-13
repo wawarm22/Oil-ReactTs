@@ -72,6 +72,9 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
         if ( docType === "oil-compare-05-03-n-03-07-1") {
             return "comparison_0503_0307"
         }
+        if ( docType === "oil-compare-07-01-n-07-02-n-03-07") {
+            return "daily_comparison"
+        }
     }    
 
     if (
