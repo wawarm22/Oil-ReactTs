@@ -1,3 +1,5 @@
+// AuditDetail.tsx (Refactor: Centralized OCR Validation)
+
 import React, { useEffect, useRef, useState } from "react";
 import { documentList } from "../../types/docList";
 import DocumentChecklist from "./DocumentChecklist";
@@ -22,6 +24,17 @@ type OcrByDocIdType = {
     };
 };
 
+export type ValidateResultsByDoc = {
+    [docId: number]: {
+        [subtitleIdx: number]: {
+            [pageNum: number]: {
+                docType: string;
+                validateResult: any;
+            };
+        };
+    };
+};
+
 interface AuditDetailProps {
     selectedId: number | null;
     currentPage: number;
@@ -41,8 +54,11 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
 
-    // เก็บ OCR ทั้งหมดไว้ตรงนี้ เพื่อส่ง prop ให้ DocumentChecklist
+    // OCR data
     const [ocrByDocId, setOcrByDocId] = useState<OcrByDocIdType>({});
+    // Validate result กลาง (ใหม่)
+    const [validateResultsByDoc, setValidateResultsByDoc] = useState<ValidateResultsByDoc>({});
+    // Summary สำหรับ marker ใน Checklist
     const [validationFailStatus, setValidationFailStatus] = useState<Record<string, boolean>>({});
     const auth = useAuthUser<AuthSchema>();
     const validationRanRef = useRef(false);
@@ -94,8 +110,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                 console.error("OCR fetch failed:", err);
             }
         }
-        console.log("results", results);
-        
         setOcrByDocId(results);
     };
 
@@ -113,13 +127,15 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
         return () => removeCallbacks("ocr-refresh-checklist");
     }, [folders]);
 
+    // Batch validate (พร้อมเก็บ validate result ทั้งหมด)
     useEffect(() => {
         async function batchValidateAll() {
             if (validationRanRef.current) return;
             validationRanRef.current = true;
             if (!ocrByDocId || Object.keys(ocrByDocId).length === 0) return;
 
-            const validatePromises: Promise<{ docId: number, subIdx: number, failed: boolean } | null>[] = [];
+            const results: ValidateResultsByDoc = {};
+            const statusMap: Record<string, boolean> = {};
 
             for (const doc of documentList) {
                 const docId = doc.id;
@@ -132,61 +148,67 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                     const fileKeys = Object.keys(docGroup);
                     if (fileKeys.length === 0) continue;
 
-                    const allPages: OcrFields[] = [];
+                    // Collect all page numbers, keep docType
+                    let allPages: { pageNum: number; docType: string; page: OcrFields }[] = [];
                     for (const fileKey of fileKeys) {
                         const pagesObj = docGroup[fileKey]?.pages;
                         if (!pagesObj) continue;
-                        Object.values(pagesObj).forEach(page => {
-                            if (page && page.docType) allPages.push(page);
+                        Object.entries(pagesObj).forEach(([p, page]) => {
+                            if (page && page.docType) {
+                                allPages.push({
+                                    pageNum: Number(p),
+                                    docType: page.docType,
+                                    page
+                                });
+                            }
                         });
                     }
+
                     if (allPages.length === 0) continue;
 
-                    validatePromises.push(
-                        (async () => {
-                            try {
-                                let hasFailed = false;
-                                for (const page of allPages) {
-                                    const docType = page.docType as string;
-                                    if (!OCR_VALIDATE_MAP[docType]) continue;
-                                    const validateConfig = OCR_VALIDATE_MAP[docType];
-                                    const getContext = getContextForDocType[docType] ?? getContextForDocType["default"];
+                    // Validate ทุกหน้า
+                    for (const { pageNum, docType, page } of allPages) {
+                        if (!OCR_VALIDATE_MAP[docType]) continue;
+                        const validateConfig = OCR_VALIDATE_MAP[docType];
+                        const getContext = getContextForDocType[docType] ?? getContextForDocType["default"];
 
-                                    let context;
-                                    if (validateConfig.needsAuth) {
-                                        context = await getContext(page, { auth });
-                                    } else {
-                                        context = await getContext(page);
-                                    }
-                                    const payload = await validateConfig.buildPayload(page, context);
-                                    const res = await validateConfig.api(payload);
+                        let context;
+                        if (validateConfig.needsAuth) {
+                            context = await getContext(page, { auth });
+                        } else {
+                            context = await getContext(page);
+                        }
+                        const payload = await validateConfig.buildPayload(page, context);
+                        let res;
+                        try {
+                            res = await validateConfig.api(payload);
+                        } catch (e) {
+                            res = null;
+                        }
 
-                                    if (validateConfig.checkFailed(res)) {
-                                        hasFailed = true;
-                                        break;
-                                    }
-                                }
-                                return { docId, subIdx, failed: hasFailed };
-                            } catch (e) {
-                                return { docId, subIdx, failed: true };
-                            }
-                        })()
-                    );
+                        if (!results[docId]) results[docId] = {};
+                        if (!results[docId][subIdx]) results[docId][subIdx] = {};
+                        results[docId][subIdx][pageNum] = {
+                            docType,
+                            validateResult: res,
+                        };
+
+                        // ใช้ checkFailed สร้าง summary สำหรับ validationFailStatus (sidebar)
+                        if (validateConfig.checkFailed(res)) {
+                            statusMap[`${docId}-${subIdx}`] = true;
+                        } else if (!statusMap[`${docId}-${subIdx}`]) {
+                            statusMap[`${docId}-${subIdx}`] = false;
+                        }
+                    }
                 }
             }
 
-            const results = await Promise.all(validatePromises);
-            let statusMap: Record<string, boolean> = {};
-
-            for (const r of results) {
-                if (!r) continue;
-                statusMap[`${r.docId}-${r.subIdx}`] = r.failed;
-            }
-
+            setValidateResultsByDoc(results);
             setValidationFailStatus(statusMap);
         }
 
         if (Object.keys(ocrByDocId).length > 0) {
+            validationRanRef.current = false;
             batchValidateAll();
         }
     }, [ocrByDocId, auth]);
@@ -202,7 +224,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                     setSelectedDocId(docId);
                     setSelectedSubtitleIdx(subtitleIdx);
                 }}
-                ocrByDocId={ocrByDocId}  // <-- ส่งไปเป็น prop
+                ocrByDocId={ocrByDocId} 
             />
 
             <PdfPreview
@@ -217,6 +239,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                 setCurrentPage={setCurrentPage}
                 selectedDocId={selectedDocId}
                 selectedSubtitleIdx={selectedSubtitleIdx}
+                validateResultsByDoc={validateResultsByDoc}   
             />
         </div>
     );

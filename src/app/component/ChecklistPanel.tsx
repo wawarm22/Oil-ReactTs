@@ -26,6 +26,7 @@ import ChecklistDeliveryInvoicePipline from "./ChecklistDeliveryInvoicePipline";
 import ChecklistForm0701 from "./ChecklistForm0701";
 import ChecklistForm0702 from "./ChecklistForm0702";
 import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
+import { ValidateResultsByDoc } from "./AuditDetail";
 
 interface Props {
     ocrDocument: {
@@ -38,6 +39,7 @@ interface Props {
     selectedDocId: number | null;
     selectedSubtitleIdx: number | null;
     onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
+    validateResultsByDoc: ValidateResultsByDoc;
 }
 
 const ChecklistPanel: React.FC<Props> = ({
@@ -46,7 +48,8 @@ const ChecklistPanel: React.FC<Props> = ({
     setCurrentPage,
     selectedDocId,
     selectedSubtitleIdx,
-    onValidationStatusChange
+    onValidationStatusChange,
+    validateResultsByDoc
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
     if (!ocrDocument) return (
@@ -66,6 +69,12 @@ const ChecklistPanel: React.FC<Props> = ({
         console.warn(`No OCR data found for page ${currentPage}`);
         return <p className="text-muted">ไม่พบข้อมูล OCR ในหน้านี้</p>;
     }
+
+    if (selectedDocId == null || selectedSubtitleIdx == null) {
+        return <div>กรุณาเลือกเอกสาร</div>;
+    }
+    const validateResult = validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[currentPage]?.validateResult;
+
 
     const currentOcrFields = ocrDocument.pages[currentPage];
     const type = detectOcrType(currentOcrFields);
@@ -88,7 +97,7 @@ const ChecklistPanel: React.FC<Props> = ({
 
     return (
         <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0 d-flex flex-column gap-2"
-            style={{ minWidth: 0 /* สำคัญสำหรับ flex shrink */, width: '25%' }}>
+            style={{ minWidth: 0, width: '25%' }}>
             <AuditPagination
                 totalPages={ocrDocument.pageCount}
                 currentPage={currentPage}
@@ -112,7 +121,12 @@ const ChecklistPanel: React.FC<Props> = ({
                         onValidationStatusChange={onValidationStatusChange}
                     />
                 )}
-                {type === "table" && <ChecklistTable data={currentOcrFields as OcrDetailTableDocument} />}
+                {type === "table" &&
+                    <ChecklistTable
+                        data={currentOcrFields as OcrDetailTableDocument}
+                        validateResult={validateResult}
+                    />
+                }
                 {type === "grouped_product" && (
                     <ChecklistGroupedProduct data={currentOcrFields as OcrGroupedProductDocument} />
                 )}
