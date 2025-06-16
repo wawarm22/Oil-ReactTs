@@ -175,7 +175,10 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
                                         border: borderColor(passed),
                                     }}
                                 >
-                                    {typeof value === "number" ? formatNumber(value) : value ?? ""}
+                                    {field === "evidence_number"
+                                        ? (value ?? "")
+                                        : (typeof value === "number" ? formatNumber(value) : value ?? "")}
+
                                 </div>
                             </div>
                         );
