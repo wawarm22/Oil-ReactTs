@@ -22,10 +22,11 @@ import ChecklistAttachment0307 from "./ChecklistAttachment0307";
 import ChecklistAttachment0704 from "./ChecklistAttachment0704";
 import ChecklistTaxForm0502 from "./ChecklistTaxForm0502";
 import ChecklistTaxForm0503Page2 from "./ChecklistTaxForm0503Page2";
-import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
 import ChecklistDeliveryInvoicePipline from "./ChecklistDeliveryInvoicePipline";
 import ChecklistForm0701 from "./ChecklistForm0701";
 import ChecklistForm0702 from "./ChecklistForm0702";
+import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
+import { ValidateResultsByDoc } from "./AuditDetail";
 
 interface Props {
     ocrDocument: {
@@ -37,7 +38,8 @@ interface Props {
     setCurrentPage: (page: number) => void;
     selectedDocId?: number | null;
     selectedSubtitleIdx?: number | null;
-    onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
+    // onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
+    validateResultsByDoc?: ValidateResultsByDoc;
 }
 
 const ChecklistMatch: React.FC<Props> = ({
@@ -46,16 +48,19 @@ const ChecklistMatch: React.FC<Props> = ({
     setCurrentPage,
     selectedDocId,
     selectedSubtitleIdx,
-    onValidationStatusChange
+    // onValidationStatusChange,
+    validateResultsByDoc
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
-    if (!ocrDocument) return <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
-        <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>
-            <p className="text-muted">
-                กำลังประมวลผล OCR กรุณารอ...
-            </p>
+    if (!ocrDocument) return (
+        <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0">
+            <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>
+                <p className="text-muted">
+                    กำลังประมวลผล OCR กรุณารอ...
+                </p>
+            </div>
         </div>
-    </div>
+    );
 
     const { pages, pageFileKeyMap } = ocrDocument;
     const selectedFields = pages[currentPage];
@@ -65,15 +70,29 @@ const ChecklistMatch: React.FC<Props> = ({
         return <p className="text-muted">ไม่พบข้อมูล OCR ในหน้านี้</p>;
     }
 
+    if (selectedDocId == null || selectedSubtitleIdx == null || !validateResultsByDoc) {
+        return <div>กรุณาเลือกเอกสาร</div>;
+    }
+    const validateResult = validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[currentPage]?.validateResult;
     const currentOcrFields = ocrDocument.pages[currentPage];
     const type = detectOcrType(currentOcrFields);
     console.log("Detected OCR type:", type);
 
-    const docId = selectedDocId ?? 0;
-    const subIdx = selectedSubtitleIdx ?? 0;
+    const prevPageFields = ocrDocument.pages[currentPage - 1];
+
+    let extraOilType: string | undefined;
+
+    if (
+        currentOcrFields.docType === "oil-07-01-page-1-attach" &&
+        prevPageFields &&
+        prevPageFields.docType === "oil-07-01-page-1"
+    ) {
+        extraOilType = prevPageFields.oil_type;
+    }
 
     return (
-        <div className="d-flex flex-column gap-2" style={{ width: "25%" }}>
+        <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0 d-flex flex-column gap-2"
+            style={{ minWidth: 0, width: '25%' }}>
             <AuditPagination
                 totalPages={ocrDocument.pageCount}
                 currentPage={currentPage}
@@ -92,12 +111,16 @@ const ChecklistMatch: React.FC<Props> = ({
                 {type === "tax" && (
                     <ChecklistTax
                         data={selectedFields as OcrTaxDocument}
-                        docId={docId}
-                        subIdx={subIdx}
-                        onValidationStatusChange={onValidationStatusChange}
+                        validateResult={validateResult}
                     />
                 )}
-                {type === "table" && <ChecklistTable data={currentOcrFields as OcrDetailTableDocument} />}
+
+                {type === "table" &&
+                    <ChecklistTable
+                        data={currentOcrFields as OcrDetailTableDocument}
+                        validateResult={validateResult}
+                    />
+                }
                 {type === "grouped_product" && (
                     <ChecklistGroupedProduct data={currentOcrFields as OcrGroupedProductDocument} />
                 )}
@@ -105,7 +128,10 @@ const ChecklistMatch: React.FC<Props> = ({
                     <ChecklistOilProduct data={currentOcrFields as OcrOilProductDocument} />
                 )}
                 {type === "stock_oil" && (
-                    <ChecklistForm0701 data={currentOcrFields as OcrStockOilDocument} />
+                    <ChecklistForm0701
+                        data={currentOcrFields as OcrStockOilDocument}
+                        oilTypeFromPrevPage={extraOilType}
+                    />
                 )}
                 {type === "daily_production" && (
                     <ChecklistForm0702 data={currentOcrFields as OcrDailyProductionDocument} />
