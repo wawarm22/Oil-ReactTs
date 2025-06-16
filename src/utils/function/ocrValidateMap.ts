@@ -1,5 +1,5 @@
 import { useCompanyStore } from "../../store/companyStore";
-import { FieldValidation, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidationResult0307 } from "../../types/validateResTypes";
+import { FieldValidation, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateOil0704Result, ValidationResult0307 } from "../../types/validateResTypes";
 import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New, validateReceitpPaymentNew } from "../api/validateApi";
 import { buildOcr0307FieldRows } from "./ocrFieldRowsBuilder";
 
@@ -96,12 +96,8 @@ const buildAttachment0307Payload = (page1: any, context: any) => ({
 
 const buildOil0704Payload = (ocr: any, context: any) => ({
     docType: ocr.docType,
-    documentGroup: context.documentGroup,
-    fields: {
-        ...context.genFields,
-        company_name: context.company,
-        form_officer_name: context.factories,
-    },
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
 });
 
 const buildIncomeExpensePayload = (ocr: any, context: any) => ({
@@ -255,25 +251,52 @@ export const checkOil0701Failed = (
     return false;
 };
 
-const checkOil0704Failed = (res: any) => {
+const checkOil0704Failed = (
+    res: { data?: ValidateOil0704Result } | null | undefined
+): boolean => {
     const d = res?.data;
+    
     if (!d) return true;
-    if (
-        Object.values(d).some((f: any) => typeof f === "object" && f?.passed === false)
-    ) return true;
 
+    // ฟิลด์หลัก
+    const MAIN_FIELDS = [
+        "formType",
+        "requestNumber",
+        "receivedAt",
+        "formOfficerName",
+        "companyName",
+        "exciseId",
+        "period",
+    ] as const;
+
+    for (const key of MAIN_FIELDS) {
+        const field = d[key];
+        if (field && typeof field === "object" && field.passed === false) return true;
+    }
+
+    // เช็ค materials
     if (Array.isArray(d.materials)) {
         for (const mat of d.materials) {
-            if (Object.values(mat).some((cell: any) => cell?.passed === false)) return true;
+            for (const key in mat) {
+                const field = mat[key as keyof typeof mat];
+                if (field && typeof field === "object" && field.passed === false) return true;
+            }
         }
     }
+
+    // เช็ค products
     if (Array.isArray(d.products)) {
         for (const prod of d.products) {
-            if (Object.values(prod).some((cell: any) => cell?.passed === false)) return true;
+            for (const key in prod) {
+                const field = prod[key as keyof typeof prod];
+                if (field && typeof field === "object" && field.passed === false) return true;
+            }
         }
     }
+
     return false;
 };
+
 
 export const checkIncomeExpenseFailed = (
     res: { data?: ReceiptPaymentValidateResult } | null | undefined
@@ -571,6 +594,7 @@ export const OCR_VALIDATE_MAP: Record<
         api: validateOil0704,
         checkFailed: checkOil0704Failed,
         needsContext: true,
+        needsAuth: true,
     },
     "oil-income-n-expense-1": {
         buildPayload: buildIncomeExpensePayload,

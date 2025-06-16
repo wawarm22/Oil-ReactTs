@@ -14,18 +14,15 @@ export const buildValidationMap = (
   let currentProductValidation: OilCompareProductValidation | undefined = undefined;
 
   cleanedRows.forEach((row, rowIdx) => {
-    // Update current product
     const thisProduct = row.properties.column_1?.value?.trim() || currentProduct;
     if (thisProduct !== currentProduct && thisProduct) {
       currentProductValidation = productValidations.find(pv => pv.product === thisProduct);
       currentProduct = thisProduct;
     }
 
-    // Validate each column
     Object.keys(row.properties).forEach(colKey => {
       if (!currentProductValidation) return;
 
-      // Find matching validation for this field (colKey)
       const validations = currentProductValidation.validations.filter(v => v.field === colKey);
 
       if (validations.length > 0) {

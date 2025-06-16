@@ -1,14 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { OcrDetailTableDocument } from "../../types/ocrFileType";
-import { validateOilCompare } from "../../utils/api/validateApi";
-import { OilCompareProductValidation, ValidateOilCompareResponse } from "../../types/validateTypes";
-import { useCompanyStore } from "../../store/companyStore";
-import { buildValidationMap, ValidationStatus } from "../../utils/function/validationMap";
+import { ValidationStatus } from "../../utils/function/validationMap";
 
-type HeaderValidationMap = {
-    company?: ValidationStatus;
-    warehouse?: ValidationStatus;
-};
+interface ChecklistTableProps {
+    data: OcrDetailTableDocument;
+    validateResult?: {
+        headerValidation?: { company?: ValidationStatus; warehouse?: ValidationStatus; };
+        validationMap?: Record<string, ValidationStatus>;
+    };
+}
 
 const COLUMN_LABELS: { [key: string]: string } = {
     column_1: "ชื่อผลิตภัณฑ์",
@@ -20,11 +20,7 @@ const COLUMN_LABELS: { [key: string]: string } = {
     column_7: "หมายเหตุ",
 };
 
-const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) => {
-    const { selectedCompany } = useCompanyStore();
-    const factoriesNumber = localStorage.getItem("warehouse") ?? null;
-    const [headerValidation, setHeaderValidation] = useState<HeaderValidationMap>({});
-
+const ChecklistTable: React.FC<ChecklistTableProps> = ({ data, validateResult }) => {
     const allRows = Array.isArray(data.detail_table) ? data.detail_table : [];
     const cleanValue = (val?: string | null): string =>
         !val || val.trim() === "" || val === ":unselected:" ? "-" : val.trim();
@@ -35,86 +31,19 @@ const ChecklistTable: React.FC<{ data: OcrDetailTableDocument }> = ({ data }) =>
         { label: "วันที่", value: data.date },
     ];
 
-    const cleanedFieldsRef = useRef<
-        Array<{
-            data?: Record<string, { value: string }>;
-            detail_table?: Record<string, { value: string }>[];
-        }>
-    >([]);
-
-    const [validationMap, setValidationMap] = useState<Record<string, ValidationStatus>>({});
-
     let startIndex = 1;
     const checkRow = allRows[1]?.properties;
     const firstRowHasChue = Object.values(checkRow || {}).some((cell: any) => cell?.value?.includes("ชื่อ"));
     if (firstRowHasChue) startIndex = 2;
 
-    const cleanedDataFields: Record<string, { value: string }> = fields.reduce((acc, { label, value }) => {
-        acc[label] = { value: cleanValue(value) };
-        return acc;
-    }, {} as Record<string, { value: string }>);
-
-    const detailTableArray: Array<{ properties: Record<string, { value: string }> }> = [];
-    allRows.forEach((row, rowIdx) => {
-        if (rowIdx < startIndex) return;
-        const props = row.properties ?? {};
-        const cleanedRow: Record<string, { value: string }> = {};
-        Object.keys(COLUMN_LABELS).forEach((colKey) => {
-            const rawValue = props[colKey]?.value;
-            const cleanedVal = typeof rawValue === "string" ? rawValue.replace(/^[,<>\/]/, "").trim() : rawValue;
-            cleanedRow[colKey] = { value: cleanedVal };
-        });
-        if (Object.keys(cleanedRow).length > 0) {
-            detailTableArray.push({ properties: cleanedRow });
-        }
-    });
-
-    cleanedFieldsRef.current = [];
-    cleanedFieldsRef.current.push({ data: cleanedDataFields });
-    if (detailTableArray.length > 0) cleanedFieldsRef.current.push({ detail_table: detailTableArray.map(r => r.properties) });
-
-    useEffect(() => {
-        if (cleanedFieldsRef.current.length > 1) {
-            const payload = {
-                docType: data.docType,
-                company: selectedCompany?.name || "",
-                factories: factoriesNumber || "",
-                documentGroup: data.documentGroup,
-                fields: cleanedFieldsRef.current,
-            };
-
-            validateOilCompare(payload).then((res: ValidateOilCompareResponse) => {
-                const firstGroup = Array.isArray(res.data) && res.data.length > 0 && !("product" in res.data[0]) ? res.data[0] : undefined;
-
-                function getStatus(fieldObj: { passed?: boolean, status?: string } | undefined): ValidationStatus | undefined {
-                    if (!fieldObj) return undefined;
-                    if (typeof fieldObj.status === "string") return fieldObj.status as ValidationStatus;
-                    if (typeof fieldObj.passed === "boolean") return fieldObj.passed ? "passed" : "failed";
-                    return undefined;
-                }
-
-                setHeaderValidation({
-                    company: getStatus(firstGroup?.company),
-                    warehouse: getStatus(firstGroup?.warehouse),
-                });
-
-                const productValidationArray = res.data.filter(
-                    (item): item is OilCompareProductValidation =>
-                        "product" in item && "validations" in item
-                );
-                const map = buildValidationMap(productValidationArray, detailTableArray);
-                setValidationMap(map);
-            });
-        }
-    }, [data]);
-
-
-    if (allRows.length === 0) return <p className="text-muted">ไม่มีข้อมูลตาราง</p>;
-
     const getBorderColor = (status?: ValidationStatus) =>
         status === "failed" ? "#FF0100" :
             status === "warning" ? "#FFCA04" :
                 status === "passed" ? "#22C659" : "#22C659";
+
+    // ใช้ validateResult ที่ส่งมาจาก parent
+    const headerValidation = validateResult?.headerValidation ?? {};
+    const validationMap = validateResult?.validationMap ?? {};
 
     const headerIndexMap = { "บริษัท": "company", "คลัง": "warehouse" } as const;
     return (
