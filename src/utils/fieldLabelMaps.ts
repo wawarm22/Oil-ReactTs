@@ -2,7 +2,7 @@
 export type FieldLabelMap = Record<string, string>;
 
 export const fieldLabelMapsByMaterialType: Record<string, FieldLabelMap> = {
-    "น้ำมันดีเซลหมุนเร็วพื้นฐาน": {
+    "น้ำมันดีเซลพื้นฐาน (H-Base)": {
         date: "วัน เดือน ปี",
         main_product: "รายการ",
         evidence_number: "หลักฐานเลขที่",
