@@ -1,3 +1,5 @@
+import { OcrFields } from "./ocrFileType";
+
 export interface ChecklistItem {
     name: string;
     status: "green" | "red";
@@ -49,3 +51,25 @@ export const checklistData: ChecklistItem[] = [
         status: "green",
     },
 ];
+
+export type OcrByDocIdType = {
+    [docId: number]: {
+        [subtitleIndex: number]: {
+            [fileKey: string]: {
+                pages: { [pageNum: number]: OcrFields };
+                pageCount: number;
+            };
+        };
+    };
+};
+
+export type ValidateResultsByDoc = {
+    [docId: number]: {
+        [subtitleIdx: number]: {
+            [pageNum: number]: {
+                docType: string;
+                validateResult: any;
+            };
+        };
+    };
+};

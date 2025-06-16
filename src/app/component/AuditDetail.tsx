@@ -1,5 +1,3 @@
-// AuditDetail.tsx (Refactor: Centralized OCR Validation)
-
 import React, { useEffect, useRef, useState } from "react";
 import { documentList } from "../../types/docList";
 import DocumentChecklist from "./DocumentChecklist";
@@ -12,37 +10,17 @@ import { getContextForDocType } from "../../utils/contextGetters";
 import { AuthSchema } from "../../types/schema/auth";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { apiGetAllOcr } from "../../utils/api/OcrListApi";
-
-type OcrByDocIdType = {
-    [docId: number]: {
-        [subtitleIndex: number]: {
-            [fileKey: string]: {
-                pages: { [pageNum: number]: OcrFields };
-                pageCount: number;
-            };
-        };
-    };
-};
-
-export type ValidateResultsByDoc = {
-    [docId: number]: {
-        [subtitleIdx: number]: {
-            [pageNum: number]: {
-                docType: string;
-                validateResult: any;
-            };
-        };
-    };
-};
+import { OcrByDocIdType, ValidateResultsByDoc } from "../../types/checkList";
 
 interface AuditDetailProps {
     selectedId: number | null;
     currentPage: number;
     uploadedFiles: { [key: number]: { name: string; data: string; pageCount: number }[] };
     folders: string[];
+    onValidationStatusChange?: (status: Record<string, boolean>) => void;
 }
 
-const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
+const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusChange }) => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const { addCallbacks, removeCallbacks } = useSocket();
     const [selectedOcrDocument, setSelectedOcrDocument] = useState<{
@@ -60,6 +38,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
     const auth = useAuthUser<AuthSchema>();
     const validationRanRef = useRef(false);
 
+    // ดึง OCR
     const fetchOcrData = async () => {
         const results: OcrByDocIdType = {};
 
@@ -106,8 +85,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                 console.error("OCR fetch failed:", err);
             }
         }
-        console.log("results", results);
-        
         setOcrByDocId(results);
     };
 
@@ -125,6 +102,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
         return () => removeCallbacks("ocr-refresh-checklist");
     }, [folders]);
 
+    // Batch Validate ทีละ doc/subtitle/page → อัปเดตสถานะทีละอัน (real-time)
     useEffect(() => {
         async function batchValidateAll() {
             if (validationRanRef.current) return;
@@ -159,7 +137,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                             }
                         });
                     }
-
                     if (allPages.length === 0) continue;
 
                     for (const { pageNum, docType, page } of allPages) {
@@ -181,22 +158,25 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                             res = null;
                         }
 
-                        if (!results[docId]) results[docId] = {};
-                        if (!results[docId][subIdx]) results[docId][subIdx] = {};
-                        results[docId][subIdx][pageNum] = {
-                            docType,
-                            validateResult: res,
-                        };
+                        // -- Real-time: อัปเดต validate ทีละ doc/subtitle/page --
+                        results[docId] = results[docId] || {};
+                        results[docId][subIdx] = results[docId][subIdx] || {};
+                        results[docId][subIdx][pageNum] = { docType, validateResult: res };
 
+                        // Update validationFailStatus ทันที
                         if (validateConfig.checkFailed(res)) {
                             statusMap[`${docId}-${subIdx}`] = true;
                         } else if (!statusMap[`${docId}-${subIdx}`]) {
                             statusMap[`${docId}-${subIdx}`] = false;
                         }
+                        // Trigger React re-render
+                        setValidateResultsByDoc((prev) => ({ ...prev, [docId]: { ...prev[docId], [subIdx]: { ...prev[docId]?.[subIdx], [pageNum]: { docType, validateResult: res } } } }));
+                        setValidationFailStatus((prev) => ({ ...prev, ...statusMap }));
                     }
                 }
             }
 
+            // สุดท้าย set ค่า full map (กัน edge case)
             setValidateResultsByDoc(results);
             setValidationFailStatus(statusMap);
         }
@@ -206,6 +186,12 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
             batchValidateAll();
         }
     }, [ocrByDocId, auth]);
+
+    useEffect(() => {
+        if (typeof onValidationStatusChange === "function") {
+            onValidationStatusChange(validationFailStatus);
+        }
+    }, [validationFailStatus, onValidationStatusChange]);
 
     return (
         <div className="d-flex w-100 gap-3 mt-3" style={{ maxHeight: "800px" }}>
@@ -218,7 +204,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                     setSelectedDocId(docId);
                     setSelectedSubtitleIdx(subtitleIdx);
                 }}
-                ocrByDocId={ocrByDocId} 
+                ocrByDocId={ocrByDocId}
             />
 
             <PdfPreview
@@ -233,7 +219,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                 setCurrentPage={setCurrentPage}
                 selectedDocId={selectedDocId}
                 selectedSubtitleIdx={selectedSubtitleIdx}
-                validateResultsByDoc={validateResultsByDoc}   
+                validateResultsByDoc={validateResultsByDoc}
             />
         </div>
     );

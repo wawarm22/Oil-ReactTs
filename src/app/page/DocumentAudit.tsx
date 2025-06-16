@@ -16,6 +16,7 @@ const DocumentAudit: React.FC = () => {
     const [currentPage, _setCurrentPage] = useState<number>(1);
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
     const [folders, setFolders] = useState<string[]>([]);
+    const [disableNext, setDisableNext] = useState(true);
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const from = searchParams.get("from");
@@ -69,6 +70,15 @@ const DocumentAudit: React.FC = () => {
         console.log("บันทึกการตรวจสอบ");
     };
 
+    const handleValidationStatus = (status: Record<string, boolean>) => {
+        if (!status || Object.keys(status).length === 0) {
+            setDisableNext(true);
+            return;
+        }
+        const someFail = Object.values(status).some(Boolean);
+        setDisableNext(someFail);
+    };
+
     const handleNextStep = () => {
         // navigate('/match-list')
     };
@@ -85,6 +95,7 @@ const DocumentAudit: React.FC = () => {
                 currentPage={currentPage}
                 uploadedFiles={uploadedFiles}
                 folders={folders}
+                onValidationStatusChange={handleValidationStatus}
             />
 
             <AuditButton
@@ -92,7 +103,7 @@ const DocumentAudit: React.FC = () => {
                 onBack={handleBack}
                 onSaveAudit={handleSaveAudit}
                 onNextStep={handleNextStep}
-                disableSave={false}
+                disableSave={disableNext}
             />
         </div>
     );
