@@ -48,7 +48,7 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
             return "oil-invoice-pipline";
         }
 
-        if (docType === "oil-formular-5") {
+        if (docType === "oil-formular-5" || docType === "oil-formular-4") {
             return "grouped_product"
         }
 
@@ -63,9 +63,7 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
         if (docType === "oil-tax-invoice-or-1" || docType === "oil-tax-invoice-irpc-1") {
             return "delivery_invoice"
         }        
-        if (docType === "oil-formular-4") {
-            return "grouped_product"
-        }
+        
         if ( docType === "oil-07-04-page-1"){
             return "attachment_0704"
         }

@@ -180,14 +180,17 @@ const MatchDocument: React.FC = () => {
                     ocrDocument={selectedOcrDocument}
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}
+                    // selectedDocId={selectedDocId}
+                    // selectedSubtitleIdx={selectedSubtitleIdx}
+                    // validateResultsByDoc={validateResultsByDoc}
                 />
             </div>
 
             {currentStep === 1 && <MatchTable data={sampleTableData} />}
             {currentStep === 2 && <VolumeCompareTable data={volumeCompareData} />}
-            {currentStep === 3 && <ProductionReport/>}
+            {currentStep === 3 && <ProductionReport />}
             {currentStep === 4 && <OilReceiveTable data={oilReceiveData} />}
-            {currentStep === 5 && <TaxRefundCalculationTable data={taxRefundData}/>}
+            {currentStep === 5 && <TaxRefundCalculationTable data={taxRefundData} />}
 
             <AuditButton
                 stepStatus={StepStatus.MATCH}
