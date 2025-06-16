@@ -38,7 +38,7 @@ interface Props {
     setCurrentPage: (page: number) => void;
     selectedDocId: number | null;
     selectedSubtitleIdx: number | null;
-    onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
+    // onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
     validateResultsByDoc: ValidateResultsByDoc;
 }
 
@@ -48,7 +48,7 @@ const ChecklistPanel: React.FC<Props> = ({
     setCurrentPage,
     selectedDocId,
     selectedSubtitleIdx,
-    onValidationStatusChange,
+    // onValidationStatusChange,
     validateResultsByDoc
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
@@ -75,13 +75,14 @@ const ChecklistPanel: React.FC<Props> = ({
     }
     const validateResult = validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[currentPage]?.validateResult;
 
-
+    console.log("validateResult panel", validateResult);
+    
     const currentOcrFields = ocrDocument.pages[currentPage];
     const type = detectOcrType(currentOcrFields);
     console.log("Detected OCR type:", type);
 
-    const docId = selectedDocId ?? 0;
-    const subIdx = selectedSubtitleIdx ?? 0;
+    // const docId = selectedDocId ?? 0;
+    // const subIdx = selectedSubtitleIdx ?? 0;
 
     const prevPageFields = ocrDocument.pages[currentPage - 1];
 
@@ -116,11 +117,10 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "tax" && (
                     <ChecklistTax
                         data={selectedFields as OcrTaxDocument}
-                        docId={docId}
-                        subIdx={subIdx}
-                        onValidationStatusChange={onValidationStatusChange}
+                        validateResult={validateResult}
                     />
                 )}
+
                 {type === "table" &&
                     <ChecklistTable
                         data={currentOcrFields as OcrDetailTableDocument}

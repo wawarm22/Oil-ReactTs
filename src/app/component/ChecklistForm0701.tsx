@@ -25,6 +25,13 @@ const totalFieldMap: Record<TotalFieldKey, string> = {
 const borderColor = (passed?: boolean) =>
     `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#CED4DA"}`;
 
+// เพิ่มฟังก์ชัน formatNumber
+const formatNumber = (value: any) => {
+    if (typeof value === "number" && !isNaN(value)) return value.toLocaleString("en-US");
+    if (typeof value === "string" && !isNaN(Number(value)) && value.trim() !== "") return Number(value).toLocaleString("en-US");
+    return value ?? "";
+};
+
 const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
     data,
 }) => {
@@ -85,7 +92,7 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
             : undefined;
 
     const headFields = [
-        { label: "แบบฟอร์ม", value: ocrData.fields.form_type || "ภส.๐๗-๐๑", field: "form_type" },
+        { label: "แบบฟอร์ม", value: "ภส.๐๗-๐๑", field: "form_type" },
         { label: "ประเภทวัตถุดิบ", value: ocrData.fields.material_type, field: "material_type" },
         { label: "หน่วย", value: ocrData.fields.unit, field: "unit" },
         { label: "ยอดคงเหลือ", value: ocrData.fields.report_open, field: "report_open" },
@@ -114,7 +121,10 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
                             border: borderColor(getFieldPassed(f.field)),
                         }}
                     >
-                        {f.value}
+                        {/* ถ้าเป็น field ที่ต้องการ format number */}
+                        {["report_open", "physical_open"].includes(f.field)
+                            ? formatNumber(f.value)
+                            : f.value}
                     </div>
                 </div>
             ))}
@@ -138,11 +148,11 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
                             return (
                                 report.products && report.products.length > 0
                                     ? report.products.map((prod, pidx) =>
-                                        <div key={`${idx}-${field}`} className="mb-2">
+                                        <div key={`${idx}-${field}-${pidx}`} className="mb-2">
                                             <div className="fw-bold">{label} : {prod.product_name}</div>
                                             <div className="rounded-2 shadow-sm bg-white p-2"
                                                 style={{ minHeight: "38px", border: borderColor(passed) }}>
-                                                <div key={pidx}>{prod.quantity}</div>
+                                                {formatNumber(prod.quantity)}
                                             </div>
                                         </div>
                                     ) : null
@@ -165,7 +175,7 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
                                         border: borderColor(passed),
                                     }}
                                 >
-                                    {value ?? ""}
+                                    {typeof value === "number" ? formatNumber(value) : value ?? ""}
                                 </div>
                             </div>
                         );
@@ -190,7 +200,7 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
                                         border: borderColor(passed),
                                     }}
                                 >
-                                    {total[field]}
+                                    {formatNumber(total[field])}
                                 </div>
                             </div>
                         );

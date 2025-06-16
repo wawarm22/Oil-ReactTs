@@ -54,16 +54,12 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
 
-    // OCR data
     const [ocrByDocId, setOcrByDocId] = useState<OcrByDocIdType>({});
-    // Validate result กลาง (ใหม่)
     const [validateResultsByDoc, setValidateResultsByDoc] = useState<ValidateResultsByDoc>({});
-    // Summary สำหรับ marker ใน Checklist
     const [validationFailStatus, setValidationFailStatus] = useState<Record<string, boolean>>({});
     const auth = useAuthUser<AuthSchema>();
     const validationRanRef = useRef(false);
 
-    // ดึง OCR จากทุก folder
     const fetchOcrData = async () => {
         const results: OcrByDocIdType = {};
 
@@ -110,6 +106,8 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                 console.error("OCR fetch failed:", err);
             }
         }
+        console.log("results", results);
+        
         setOcrByDocId(results);
     };
 
@@ -127,7 +125,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
         return () => removeCallbacks("ocr-refresh-checklist");
     }, [folders]);
 
-    // Batch validate (พร้อมเก็บ validate result ทั้งหมด)
     useEffect(() => {
         async function batchValidateAll() {
             if (validationRanRef.current) return;
@@ -148,7 +145,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                     const fileKeys = Object.keys(docGroup);
                     if (fileKeys.length === 0) continue;
 
-                    // Collect all page numbers, keep docType
                     let allPages: { pageNum: number; docType: string; page: OcrFields }[] = [];
                     for (const fileKey of fileKeys) {
                         const pagesObj = docGroup[fileKey]?.pages;
@@ -166,7 +162,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
 
                     if (allPages.length === 0) continue;
 
-                    // Validate ทุกหน้า
                     for (const { pageNum, docType, page } of allPages) {
                         if (!OCR_VALIDATE_MAP[docType]) continue;
                         const validateConfig = OCR_VALIDATE_MAP[docType];
@@ -193,7 +188,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders }) => {
                             validateResult: res,
                         };
 
-                        // ใช้ checkFailed สร้าง summary สำหรับ validationFailStatus (sidebar)
                         if (validateConfig.checkFailed(res)) {
                             statusMap[`${docId}-${subIdx}`] = true;
                         } else if (!statusMap[`${docId}-${subIdx}`]) {

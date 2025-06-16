@@ -10,6 +10,13 @@ const cleanValue = (val?: any): string => {
     return str.trim();
 };
 
+export const formatAmount = (val: any) => {
+    if (!val) return "";
+    const num = parseFloat(String(val).replace(/[^\d.]/g, ""));
+    if (isNaN(num)) return "";
+    return num.toLocaleString("en-US", { maximumFractionDigits: 2 });
+};
+
 const buildTaxPayload = (ocr: any) => ({
     docType: ocr.docType,
     company: ocr.company_name ?? "",
@@ -19,7 +26,7 @@ const buildTaxPayload = (ocr: any) => ({
         company_name: ocr.company_name ?? "",
         branch_no: ocr.branch_no ?? "",
         tax_date: ocr.tax_date ?? "",
-        amount: ocr.amount ?? "",
+        amount: formatAmount(ocr.amount),
         reference_no: ocr.tax_id ?? "",
     }
 });
@@ -255,7 +262,7 @@ const checkOil0704Failed = (
     res: { data?: ValidateOil0704Result } | null | undefined
 ): boolean => {
     const d = res?.data;
-    
+
     if (!d) return true;
 
     // ฟิลด์หลัก
@@ -541,6 +548,11 @@ export const OCR_VALIDATE_MAP: Record<
     }
 > = {
     "first-page-letter-or-1": {
+        buildPayload: buildTaxPayload,
+        api: validateSubmission,
+        checkFailed: checkTaxFailed,
+    },
+    "oil-tax-request-st-page-1": {
         buildPayload: buildTaxPayload,
         api: validateSubmission,
         checkFailed: checkTaxFailed,

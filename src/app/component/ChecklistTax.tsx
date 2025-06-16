@@ -1,58 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrTaxDocument } from "../../types/ocrFileType";
-import { useCompanyStore } from "../../store/companyStore";
-import { validateSubmission } from "../../utils/api/validateApi";
+import { formatAmount } from "../../utils/function/ocrValidateMap";
 
 interface ChecklistTaxProps {
     data: OcrTaxDocument;
-    docId: number;
-    subIdx: number;
-    onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
+    validateResult?: {
+        status: boolean;
+        message: string;
+        data: Array<{
+            row?: number;
+            properties: Record<string, { value: string; expected: string; passed: boolean }>;
+        }>;
+    } | null;
 }
 
 const ChecklistTax: React.FC<ChecklistTaxProps> = ({
     data,
-    docId,
-    subIdx,
-    onValidationStatusChange
+    validateResult
 }) => {
-    const { selectedCompany } = useCompanyStore();
-    const factoriesNumber = localStorage.getItem("warehouse") ?? null;
 
-    const [validationResults, setValidationResults] = useState<
-        Record<string, { value: string; expected: string; passed: boolean }>
-        | null
-    >(null);
-
-    const payload = {
-        docType: data.docType,
-        company: selectedCompany?.name ?? "",
-        factories: factoriesNumber ?? "",
-        documentGroup: data.documentGroup,
-        fields: {
-            company_name: data.company_name,
-            branch_no: data.branch_no,
-            tax_date: data.tax_date,
-            amount: data.amount,
-            reference_no: data.tax_id,
-        },
-    };
-
-    useEffect(() => {
-        validateSubmission(payload).then((res) => {
-            if (res?.status && Array.isArray(res.data) && res.data[0]?.properties) {
-                setValidationResults(res.data[0].properties);
-
-                const hasFailed = Object.values(res.data[0].properties).some(
-                    (v: any) => v.passed === false
-                );
-                onValidationStatusChange?.({ docId, subIdx, failed: hasFailed });
-            } else {
-                onValidationStatusChange?.({ docId, subIdx, failed: false });
-            }
-        });
-    }, [data]);
-
+    console.log("validateResult tax", validateResult);
+    
     const fields = [
         { key: "company_name", label: "บริษัท", value: data.company_name },
         { key: "branch_no", label: "คลังน้ำมัน", value: data.branch_no },
@@ -60,20 +28,19 @@ const ChecklistTax: React.FC<ChecklistTaxProps> = ({
         {
             key: "amount",
             label: "จำนวนเงินขอคืนภาษี",
-            value: data.amount,
+            value: formatAmount(data.amount),
         },
     ];
+
+    const validationProperties =
+        validateResult?.data?.[0]?.properties ?? {};
 
     return (
         <div className="d-flex flex-column gap-1">
             {fields.map((field, index) => {
-                const validation = validationResults?.[field.key];
-                const isValid = validation?.passed;
-                const borderColor = validation
-                    ? isValid
-                        ? "#22C659"
-                        : "#FF0100"
-                    : "#CED4DA";
+                const validation = validationProperties[field.key];
+                const isValid = validation ? validation.passed : true;
+                const borderColor = isValid ? "#22C659" : "#FF0100";
 
                 return (
                     <React.Fragment key={index}>
