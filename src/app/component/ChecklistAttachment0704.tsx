@@ -11,6 +11,19 @@ interface Props {
     data: OcrAttachment0704Document;
 }
 
+const formatNumber = (val: any) => {
+    if (typeof val === "number" && !isNaN(val)) {
+        return val.toLocaleString("en-US");
+    }
+    if (typeof val === "string") {
+        const num = Number(val.replace(/,/g, ""));
+        if (!isNaN(num) && val.trim() !== "") {
+            return num.toLocaleString("en-US");
+        }
+    }
+    return val;
+};
+
 const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
     const auth = useAuthUser<AuthSchema>();
     const [ocrData, setOcrData] = useState<Prepared0704 | null>(null);
@@ -33,23 +46,31 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
             .catch(() => setValidateResult(null));
     }, [ocrData]);
 
-    // แก้ renderBox ให้รับ borderColor
-    const renderBox = (label: string, value: any, passed?: boolean, key?: React.Key) => (
-        <div key={key || label}>
-            <div className="fw-bold">{label}</div>
-            <div
-                className="rounded-2 shadow-sm bg-white p-2"
-                style={{
-                    fontSize: "14px",
-                    whiteSpace: "pre-line",
-                    minHeight: "43px",
-                    border: borderColor(passed),
-                }}
-            >
-                {value === undefined || value === null || value === "" ? "" : value}
+    const renderBox = (label: string, value: any, passed?: boolean, key?: React.Key) => {
+        let displayValue = value === undefined || value === null || value === "" ? "" : value;
+        if (
+            (typeof displayValue === "number" && isFinite(displayValue)) ||
+            (typeof displayValue === "string" && /^\d{1,3}(,\d{3})*(\.\d+)?$|^\d+(\.\d+)?$/.test(displayValue.replace(/,/g, "")))
+        ) {
+            displayValue = formatNumber(displayValue);
+        }
+        return (
+            <div key={key || label}>
+                <div className="fw-bold">{label}</div>
+                <div
+                    className="rounded-2 shadow-sm bg-white p-2"
+                    style={{
+                        fontSize: "14px",
+                        whiteSpace: "pre-line",
+                        minHeight: "43px",
+                        border: borderColor(passed),
+                    }}
+                >
+                    {displayValue}
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     if (loading) return <div>กำลังรอข้อมูล...</div>;
     if (!ocrData) return <div className="text-muted">ไม่พบข้อมูล</div>;

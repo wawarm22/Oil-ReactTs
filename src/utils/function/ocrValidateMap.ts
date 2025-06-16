@@ -14,7 +14,7 @@ export const formatAmount = (val: any) => {
     if (!val) return "";
     const num = parseFloat(String(val).replace(/[^\d.]/g, ""));
     if (isNaN(num)) return "";
-    return num.toLocaleString("en-US", { maximumFractionDigits: 2 });
+    return num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
 const buildTaxPayload = (ocr: any) => ({

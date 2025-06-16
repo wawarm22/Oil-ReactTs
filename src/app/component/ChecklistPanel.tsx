@@ -26,7 +26,7 @@ import ChecklistDeliveryInvoicePipline from "./ChecklistDeliveryInvoicePipline";
 import ChecklistForm0701 from "./ChecklistForm0701";
 import ChecklistForm0702 from "./ChecklistForm0702";
 import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
-import { ValidateResultsByDoc } from "./AuditDetail";
+import { ValidateResultsByDoc } from "../../types/checkList";
 
 interface Props {
     ocrDocument: {
