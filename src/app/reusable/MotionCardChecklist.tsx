@@ -4,19 +4,21 @@ import { motion } from "framer-motion";
 interface MotionCardChecklistProps {
     onClick?: () => void;
     isSelected: boolean;
+    isFailed?: boolean;
     children: React.ReactNode;
     width?: string;
     minHeight?: string;
     padding?: string;
     textSize?: string;
     container?: string;
-    margin?: string; 
-    style?: React.CSSProperties; 
+    margin?: string;
+    style?: React.CSSProperties;
 }
 
 const MotionCardChecklist: React.FC<MotionCardChecklistProps> = ({
     onClick,
     isSelected,
+    isFailed,
     children,
     width = "325px",
     minHeight = "55px",
@@ -25,15 +27,37 @@ const MotionCardChecklist: React.FC<MotionCardChecklistProps> = ({
     margin = "",
     style = {},
 }) => {
+    // Logic สี border
+    const borderStyle = isFailed
+        ? "2px solid #FF0100"
+        : isSelected
+            ? "2px solid #22C659"
+            : "2px solid #22C659";
+    
+    // Logic สีพื้นหลัง & สีตัวหนังสือ
+    let backgroundColor = "#ffffff";
+    let color = "#22C659";
+    if (isFailed && isSelected) {
+        backgroundColor = "#FF0000"; // แดงเข้ม
+        color = "#ffffff";           // ตัวหนังสือขาว
+    } else if (isFailed) {
+        backgroundColor = "#ffffff";
+        color = "#FF0000";           // ตัวหนังสือแดง
+    } else if (isSelected) {
+        backgroundColor = "#22C659";
+        color = "#ffffff";
+    }
+
     return (
         <motion.div
-            className={`${container} border ${isSelected ? "border-light" : "border-dark"} border-1 rounded-2 ${margin}`}
+            className={`${container} rounded-2 ${margin}`}
             style={{
                 width,
                 minHeight,
-                backgroundColor: isSelected ? "#3D4957" : "#ffffff",
-                color: isSelected ? "#ffffff" : "#000000",
+                backgroundColor,
+                color,
                 cursor: "pointer",
+                border: borderStyle,
                 ...style,
             }}
             whileHover={{

@@ -62,7 +62,7 @@ const ChecklistMatch: React.FC<Props> = ({
         </div>
     );
 
-    const { pages, pageFileKeyMap } = ocrDocument;
+    const { pages } = ocrDocument;
     const selectedFields = pages[currentPage];
 
     if (!selectedFields) {
@@ -96,15 +96,12 @@ const ChecklistMatch: React.FC<Props> = ({
             <AuditPagination
                 totalPages={ocrDocument.pageCount}
                 currentPage={currentPage}
-                setCurrentPage={(page) => {
-                    const fileKey = pageFileKeyMap?.[page];
-                    if (!fileKey) {
-                        // console.warn(`FileKey not found for page ${page}`);
-                    } else {
-                        console.log(`FileKey for page ${page}: ${fileKey}`);
-                    }
+                setCurrentPage={(page) => {                    
                     setCurrentPage(page);
                 }}
+                validateResultsByDoc={validateResultsByDoc}
+                selectedDocId={selectedDocId}
+                selectedSubtitleIdx={selectedSubtitleIdx}
             />
 
             <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>

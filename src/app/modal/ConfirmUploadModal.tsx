@@ -21,10 +21,11 @@ const ConfirmUploadModal: React.FC<ConfirmUploadModalProps> = ({
                 <Modal.Title>ยืนยันการอัปโหลด</Modal.Title>
             </Modal.Header> */}
             <Modal.Body>
-                <p style={{ fontSize: '24px'}}>
+                <p className="fw-bold m-0" style={{ fontSize: '23px', fontFamily: 'IBM Plex Sans Thai' }}>
                     คุณต้องการยืนยันการอัปโหลดเอกสารหรือไม่ ?
                 </p>
             </Modal.Body>
+
             <Modal.Footer className="d-flex justify-content-center">
                 <Button
                     type="button"
