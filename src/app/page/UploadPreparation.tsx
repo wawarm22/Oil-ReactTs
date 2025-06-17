@@ -391,7 +391,6 @@ const UploadPreparation: React.FC = () => {
         return !(isSubtitleOptional || isTitleOptional);
     });
 
-
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
 
     const handleConfirm = () => {        

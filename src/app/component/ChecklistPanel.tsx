@@ -62,7 +62,7 @@ const ChecklistPanel: React.FC<Props> = ({
         </div>
     );
 
-    const { pages, pageFileKeyMap } = ocrDocument;
+    const { pages } = ocrDocument;
     const selectedFields = pages[currentPage];
 
     if (!selectedFields) {
@@ -76,7 +76,7 @@ const ChecklistPanel: React.FC<Props> = ({
     const validateResult = validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[currentPage]?.validateResult;
 
     console.log("validateResult panel", validateResult);
-    
+
     const currentOcrFields = ocrDocument.pages[currentPage];
     const type = detectOcrType(currentOcrFields);
     console.log("Detected OCR type:", type);
@@ -103,14 +103,11 @@ const ChecklistPanel: React.FC<Props> = ({
                 totalPages={ocrDocument.pageCount}
                 currentPage={currentPage}
                 setCurrentPage={(page) => {
-                    const fileKey = pageFileKeyMap?.[page];
-                    if (!fileKey) {
-                        // console.warn(`FileKey not found for page ${page}`);
-                    } else {
-                        console.log(`FileKey for page ${page}: ${fileKey}`);
-                    }
                     setCurrentPage(page);
                 }}
+                validateResultsByDoc={validateResultsByDoc}
+                selectedDocId={selectedDocId}
+                selectedSubtitleIdx={selectedSubtitleIdx}
             />
 
             <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>

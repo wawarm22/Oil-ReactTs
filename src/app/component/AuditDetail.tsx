@@ -38,7 +38,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
     const auth = useAuthUser<AuthSchema>();
     const validationRanRef = useRef(false);
 
-    // ดึง OCR
     const fetchOcrData = async () => {
         const results: OcrByDocIdType = {};
 
@@ -85,6 +84,8 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                 console.error("OCR fetch failed:", err);
             }
         }
+        console.log("OCR results", results);
+        
         setOcrByDocId(results);
     };
 
@@ -102,7 +103,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
         return () => removeCallbacks("ocr-refresh-checklist");
     }, [folders]);
 
-    // Batch Validate ทีละ doc/subtitle/page → อัปเดตสถานะทีละอัน (real-time)
     useEffect(() => {
         async function batchValidateAll() {
             if (validationRanRef.current) return;
@@ -158,25 +158,23 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                             res = null;
                         }
 
-                        // -- Real-time: อัปเดต validate ทีละ doc/subtitle/page --
                         results[docId] = results[docId] || {};
                         results[docId][subIdx] = results[docId][subIdx] || {};
                         results[docId][subIdx][pageNum] = { docType, validateResult: res };
 
-                        // Update validationFailStatus ทันที
                         if (validateConfig.checkFailed(res)) {
                             statusMap[`${docId}-${subIdx}`] = true;
                         } else if (!statusMap[`${docId}-${subIdx}`]) {
                             statusMap[`${docId}-${subIdx}`] = false;
                         }
-                        // Trigger React re-render
                         setValidateResultsByDoc((prev) => ({ ...prev, [docId]: { ...prev[docId], [subIdx]: { ...prev[docId]?.[subIdx], [pageNum]: { docType, validateResult: res } } } }));
                         setValidationFailStatus((prev) => ({ ...prev, ...statusMap }));
                     }
                 }
             }
 
-            // สุดท้าย set ค่า full map (กัน edge case)
+            console.log("results", results);
+            
             setValidateResultsByDoc(results);
             setValidationFailStatus(statusMap);
         }

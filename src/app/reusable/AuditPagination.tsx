@@ -1,6 +1,5 @@
-// AuditPagination.tsx
-
-import React from "react";
+import { ValidateResultsByDoc } from "../../types/checkList";
+import { OCR_VALIDATE_MAP } from "../../utils/function/ocrValidateMap";
 import MotionCardChecklist from "./MotionCardChecklist";
 
 interface PaginationProps {
@@ -8,19 +7,45 @@ interface PaginationProps {
     currentPage: number;
     setCurrentPage: (page: number) => void;
     customHeight?: number;
+    validateResultsByDoc: ValidateResultsByDoc;
+    selectedDocId: number | null;
+    selectedSubtitleIdx: number | null;
 }
 
-const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, setCurrentPage, customHeight }) => {
+const AuditPagination: React.FC<PaginationProps> = ({
+    totalPages,
+    currentPage,
+    setCurrentPage,
+    customHeight,
+    validateResultsByDoc,
+    selectedDocId,
+    selectedSubtitleIdx
+}) => {
+    // ฟังก์ชันเช็กว่าหน้านี้ failed หรือไม่
+    function isPageFailed(pageNum: number): boolean {
+        if (
+            selectedDocId == null ||
+            selectedSubtitleIdx == null ||
+            !validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[pageNum]?.validateResult
+        ) return false;
+
+        const validateResult = validateResultsByDoc[selectedDocId][selectedSubtitleIdx][pageNum]?.validateResult;
+        const docType = validateResultsByDoc[selectedDocId][selectedSubtitleIdx][pageNum]?.docType;
+
+        if (!docType || !OCR_VALIDATE_MAP[docType]) return false;
+        const checkFailed = OCR_VALIDATE_MAP[docType].checkFailed;
+
+        return checkFailed(validateResult);
+    }
+
     const renderPageNumbers = () => {
         const pages: (number | string)[] = [];
-
         if (totalPages <= 7) {
             for (let i = 1; i <= totalPages; i++) {
                 pages.push(i);
             }
         } else {
             pages.push(1);
-
             if (currentPage <= 3) {
                 for (let i = 2; i <= 4; i++) {
                     if (i < totalPages) pages.push(i);
@@ -38,7 +63,6 @@ const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
                 pages.push(currentPage + 1);
                 pages.push("...");
             }
-
             pages.push(totalPages);
         }
 
@@ -47,6 +71,7 @@ const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
                 <MotionCardChecklist
                     key={`page-${page}`}
                     isSelected={currentPage === page}
+                    isFailed={isPageFailed(page)} // เพิ่ม prop นี้
                     onClick={() => setCurrentPage(page)}
                     width="50px"
                     minHeight="50px"
@@ -75,7 +100,7 @@ const AuditPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
                 maxWidth: '100%',
                 height: customHeight ? `${customHeight - 16}px` : '90px',
                 fontFamily: "Sarabun",
-                overflowX: 'auto', 
+                overflowX: 'auto',
                 whiteSpace: 'nowrap',
                 paddingLeft: '14px',
                 minHeight: '64px'
