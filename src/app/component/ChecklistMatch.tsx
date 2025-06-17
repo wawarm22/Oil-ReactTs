@@ -96,7 +96,7 @@ const ChecklistMatch: React.FC<Props> = ({
             <AuditPagination
                 totalPages={ocrDocument.pageCount}
                 currentPage={currentPage}
-                setCurrentPage={(page) => {                    
+                setCurrentPage={(page) => {
                     setCurrentPage(page);
                 }}
                 validateResultsByDoc={validateResultsByDoc}
@@ -119,7 +119,10 @@ const ChecklistMatch: React.FC<Props> = ({
                     />
                 }
                 {type === "grouped_product" && (
-                    <ChecklistGroupedProduct data={currentOcrFields as OcrGroupedProductDocument} />
+                    <ChecklistGroupedProduct
+                        data={currentOcrFields as OcrGroupedProductDocument}
+                        validateResult={validateResult}
+                    />
                 )}
                 {type === "product_document" && (
                     <ChecklistOilProduct data={currentOcrFields as OcrOilProductDocument} />

@@ -8,6 +8,7 @@ import { ValidateFormularApprovData } from "../../types/validateResTypes";
 
 interface ChecklistGroupedProductProps {
     data: OcrGroupedProductDocument;
+    validateResult: ValidateFormularApprovData;
 }
 
 const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data }) => {

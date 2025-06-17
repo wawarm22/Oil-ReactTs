@@ -31,6 +31,22 @@ export const getContextForDocType: Record<
             transport: resp.data.transport,
         };
     },
+    "oil-formular-1": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const res = await getPrepared0307(page1.id, auth);
+        const preparedData = res?.data ?? null;
+
+        const company = useCompanyStore.getState().selectedCompany?.name ?? "";
+        const factories = localStorage.getItem("warehouse") ?? "";
+
+        return {
+            preparedData,
+            company,
+            factories,
+            documentGroup: page1.documentGroup ?? "",
+        };
+    },    
     "oil-formular-2": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
@@ -46,30 +62,23 @@ export const getContextForDocType: Record<
             factories,
             documentGroup: page1.documentGroup ?? "",
         };
-    },
-    // "oil-07-04-page-1": async (page1) => {
-    //     const company = useCompanyStore.getState().selectedCompany?.name ?? "";
-    //     const factories = localStorage.getItem("warehouse") ?? "";
-    //     const documentGroup = page1.documentGroup ?? "";
+    },    
+    "oil-formular-3": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const res = await getPrepared0307(page1.id, auth);
+        const preparedData = res?.data ?? null;
 
-    //     const genFields = await genRequestObject({ fields: page1 });
+        const company = useCompanyStore.getState().selectedCompany?.name ?? "";
+        const factories = localStorage.getItem("warehouse") ?? "";
 
-    //     const excise_id = cleanExciseId(page1.excise_id);
-    //     const date = formatThaiMonthYear(page1.date);
-
-    //     return {
-    //         company,
-    //         factories,
-    //         documentGroup,
-    //         genFields: {
-    //             ...genFields,
-    //             excise_id,
-    //             date,
-    //             company_name: company,
-    //             form_officer_name: factories,
-    //         },
-    //     };
-    // },
+        return {
+            preparedData,
+            company,
+            factories,
+            documentGroup: page1.documentGroup ?? "",
+        };
+    },    
     "oil-07-04-page-1": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
@@ -100,6 +109,15 @@ export const getContextForDocType: Record<
             documentGroup: page1.documentGroup ?? "",
         };
     },
+    "oil-outturn-report-2": async (page1) => {
+        const company = useCompanyStore.getState().selectedCompany?.name ?? "";
+        const factories = localStorage.getItem("warehouse") ?? "";
+        return {
+            company,
+            factories,
+            documentGroup: page1.documentGroup ?? "",
+        };
+    },
     "oil-compare-1": async (page1) => {
         const company = useCompanyStore.getState().selectedCompany?.name ?? "";
         const factories = localStorage.getItem("warehouse") ?? "";
@@ -112,10 +130,40 @@ export const getContextForDocType: Record<
             documentGroup: page1.documentGroup ?? "",
         };
     },
+    "oil-formular-4": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const resp = await getPreparedFormularApprov(page1.id, auth);
+        if (!resp?.data) return {};
+        return {
+            documentGroup: resp.data.documentGroup,
+            fields: resp.data.fields
+        };
+    },
     "oil-formular-5": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
         const resp = await getPreparedFormularApprov(page1.id, auth);
+        if (!resp?.data) return {};
+        return {
+            documentGroup: resp.data.documentGroup,
+            fields: resp.data.fields
+        };
+    },
+    "oil-05-03-page-1": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const resp = await getPrepared0503(page1.id, auth);
+        if (!resp?.data) return {};
+        return {
+            documentGroup: resp.data.documentGroup,
+            fields: resp.data.fields
+        };
+    },
+    "oil-05-03-page-2": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const resp = await getPrepared0503(page1.id, auth);
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
@@ -153,6 +201,16 @@ export const getContextForDocType: Record<
         };
     },
     "oil-tax-invoice-or-1": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const resp = await getPreparedInvoiceTax(page1.id, auth);
+        if (!resp?.data) return {};
+        return {
+            documentGroup: resp.data.documentGroup,
+            fields: resp.data.fields
+        };
+    },
+    "oil-tax-invoice-irpc-1": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
         const resp = await getPreparedInvoiceTax(page1.id, auth);
