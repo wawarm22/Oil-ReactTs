@@ -31,12 +31,12 @@ const MotionCardChecklist: React.FC<MotionCardChecklistProps> = ({
     const borderStyle = isFailed
         ? "2px solid #FF0100"
         : isSelected
-            ? "2px solid #3D4957"
-            : "2px solid #1E2329";
+            ? "2px solid #22C659"
+            : "2px solid #22C659";
     
     // Logic สีพื้นหลัง & สีตัวหนังสือ
     let backgroundColor = "#ffffff";
-    let color = "#000000";
+    let color = "#22C659";
     if (isFailed && isSelected) {
         backgroundColor = "#FF0000"; // แดงเข้ม
         color = "#ffffff";           // ตัวหนังสือขาว
@@ -44,7 +44,7 @@ const MotionCardChecklist: React.FC<MotionCardChecklistProps> = ({
         backgroundColor = "#ffffff";
         color = "#FF0000";           // ตัวหนังสือแดง
     } else if (isSelected) {
-        backgroundColor = "#3D4957";
+        backgroundColor = "#22C659";
         color = "#ffffff";
     }
 
