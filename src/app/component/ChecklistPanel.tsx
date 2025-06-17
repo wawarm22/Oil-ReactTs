@@ -125,7 +125,10 @@ const ChecklistPanel: React.FC<Props> = ({
                     />
                 }
                 {type === "grouped_product" && (
-                    <ChecklistGroupedProduct data={currentOcrFields as OcrGroupedProductDocument} />
+                    <ChecklistGroupedProduct
+                        data={currentOcrFields as OcrGroupedProductDocument}
+                        validateResult={validateResult}
+                    />
                 )}
                 {type === "product_document" && (
                     <ChecklistOilProduct data={currentOcrFields as OcrOilProductDocument} />

@@ -36,7 +36,7 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
             return "outturn_statement";
         }
 
-        if (docType === "oil-formular-2" || docType === "oil-formular-3") {
+        if (docType === "oil-formular-1" || docType === "oil-formular-2" || docType === "oil-formular-3") {
             return "attachment_0307";
         }
 
