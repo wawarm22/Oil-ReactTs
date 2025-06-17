@@ -43,7 +43,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
 
         for (const folder of folders) {
             try {
-                const data = await apiGetAllOcr(folder);
+                const data = await apiGetAllOcr(folder);                
                 const documents = data?.documents ?? [];
                 for (const document of documents) {
                     const fileName = document.plainOriginalFileName ?? '';
@@ -84,8 +84,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                 console.error("OCR fetch failed:", err);
             }
         }
-        console.log("OCR results", results);
-        
+        console.log("OCR results", results);        
         setOcrByDocId(results);
     };
 
@@ -172,10 +171,8 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                     }
                 }
             }
-
-            console.log("results", results);
             
-            setValidateResultsByDoc(results);
+            setValidateResultsByDoc(results);            
             setValidationFailStatus(statusMap);
         }
 
@@ -203,6 +200,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                     setSelectedSubtitleIdx(subtitleIdx);
                 }}
                 ocrByDocId={ocrByDocId}
+                validateResultsByDoc={validateResultsByDoc}
             />
 
             <PdfPreview

@@ -27,22 +27,20 @@ const MotionCardChecklist: React.FC<MotionCardChecklistProps> = ({
     margin = "",
     style = {},
 }) => {
-    // Logic สี border
     const borderStyle = isFailed
         ? "2px solid #FF0100"
         : isSelected
             ? "2px solid #22C659"
             : "2px solid #22C659";
     
-    // Logic สีพื้นหลัง & สีตัวหนังสือ
     let backgroundColor = "#ffffff";
     let color = "#22C659";
     if (isFailed && isSelected) {
-        backgroundColor = "#FF0000"; // แดงเข้ม
-        color = "#ffffff";           // ตัวหนังสือขาว
+        backgroundColor = "#FF0000";
+        color = "#ffffff";           
     } else if (isFailed) {
         backgroundColor = "#ffffff";
-        color = "#FF0000";           // ตัวหนังสือแดง
+        color = "#FF0000";           
     } else if (isSelected) {
         backgroundColor = "#22C659";
         color = "#ffffff";

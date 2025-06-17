@@ -7,6 +7,8 @@ import { MdDownloading } from "react-icons/md";
 import { parseUploadedStatus } from "../../utils/function/parseUploadedStatus";
 import { FaCheckCircle } from "react-icons/fa";
 import { OCR_VALIDATE_MAP } from "../../utils/function/ocrValidateMap";
+import { OcrByDocIdType, ValidateResultsByDoc } from "../../types/checkList";
+import { getFirstDocType, getOverallValidateStatus } from "../../utils/function/validateStatus";
 
 interface Props {
     documentList: DocumentItem[];
@@ -22,36 +24,16 @@ interface Props {
         docId: number,
         subtitleIdx: number
     ) => void;
-    ocrByDocId: {
-        [docId: number]: {
-            [subtitleIndex: number]: {
-                [fileKey: string]: {
-                    pages: { [pageNum: number]: OcrFields };
-                    pageCount: number;
-                };
-            };
-        };
-    };
-}
-
-// Helper: ตรวจสอบ docType หน้าแรกสุด
-function getFirstDocType(docGroup: any): string | undefined {
-    if (!docGroup) return undefined;
-    const fileKeys = Object.keys(docGroup);
-    if (!fileKeys.length) return undefined;
-    const firstFile = docGroup[fileKeys[0]];
-    if (!firstFile) return undefined;
-    const pageKeys = Object.keys(firstFile.pages);
-    if (!pageKeys.length) return undefined;
-    return firstFile.pages[pageKeys[0]]?.docType;
+    ocrByDocId: OcrByDocIdType;
+    validateResultsByDoc: ValidateResultsByDoc;
 }
 
 const DocumentChecklist: React.FC<Props> = ({
     documentList,
     folders,
-    validationFailStatus = {},
     onSelectDocument,
-    ocrByDocId
+    ocrByDocId,
+    validateResultsByDoc
 }) => {
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
@@ -87,32 +69,36 @@ const DocumentChecklist: React.FC<Props> = ({
         }
     }, [ocrByDocId, filteredList]);
 
-    // แก้ getStatus
-    const getStatus = (
+    const getPageCount = (group: any) => {
+        if (!group) return 0;
+        let total = 0;
+        Object.values(group).forEach((f: any) => total += f.pageCount || 0);
+        return total;
+    };
+
+    // ส่วนของ getStatus ถูกดึง logic ไปใช้รวมกับ validate แล้ว
+    const getDisplayStatus = (
         isSelected: boolean,
         hasOcr: boolean,
         isUploaded: boolean,
-        hasValidationFailed: boolean,
-        hasValidate: boolean,
-        isValidated: boolean
+        overallValidate: "waiting" | "failed" | "passed",
+        hasValidate: boolean
     ) => {
-        // เฉพาะเอกสารที่ต้อง validate เท่านั้น
         if (hasValidate) {
-            if (hasOcr && !isValidated && isUploaded) {
-                // OCR เสร็จ, ยังไม่ validate, ยังรอ validate: แสดงเหลือง
+            if (overallValidate === "waiting") {
                 return { Icon: MdDownloading, iconColor: "#FFCA04", bg: "#ffffff", textColor: "#000000", bar: "#FFCA04" };
             }
-            if (hasValidationFailed) {
+            if (overallValidate === "failed") {
                 return { Icon: FaCircleExclamation, iconColor: "#FF0100", bg: "#fff0f0", textColor: "#FF0100", bar: "#FF0100" };
             }
-            if (isSelected && hasOcr && isValidated) {
-                return { Icon: FaCheckCircle, iconColor: "#ffffff", bg: "#22C659", textColor: "#ffffff", bar: "#22C659" };
-            }
-            if (hasOcr && isValidated) {
-                return { Icon: FaCheckCircle, iconColor: "#22C659", bg: "#ffffff", textColor: "#000000", bar: "#22C659" };
-            }
-            if (isUploaded) {
-                return { Icon: MdDownloading, iconColor: "#FFCA04", bg: "#ffffff", textColor: "#000000", bar: "#FFCA04" };
+            if (overallValidate === "passed") {
+                return {
+                    Icon: FaCheckCircle,
+                    iconColor: isSelected ? "#ffffff" : "#22C659",
+                    bg: isSelected ? "#22C659" : "#ffffff",
+                    textColor: isSelected ? "#ffffff" : "#000000",
+                    bar: "#22C659"
+                };
             }
         } else {
             // ไม่มี validate config: พฤติกรรมเหมือนเดิม
@@ -140,7 +126,6 @@ const DocumentChecklist: React.FC<Props> = ({
             setSelectedSubtitleIdx(subtitleIndex);
             return;
         }
-
         const fileKeys = Object.keys(docGroup).sort((a, b) => {
             const numA = parseInt(a.match(/-(\d+)$/)?.[1] || "0", 10);
             const numB = parseInt(b.match(/-(\d+)$/)?.[1] || "0", 10);
@@ -161,7 +146,6 @@ const DocumentChecklist: React.FC<Props> = ({
                 combinedPages[logicalPage] = pages[p];
                 pageFileKeyMap[logicalPage] = fileKey;
             }
-
             pageOffset += pageCount;
         });
 
@@ -178,7 +162,6 @@ const DocumentChecklist: React.FC<Props> = ({
             docId,
             subtitleIndex
         );
-
         setSelectedDocId(docId);
         setSelectedSubtitleIdx(subtitleIndex);
     };
@@ -191,21 +174,19 @@ const DocumentChecklist: React.FC<Props> = ({
                 const hasOcr = group && Object.values(group).some(file => Object.keys(file.pages || {}).length > 0);
                 const isSelected = selectedDocId === item.id && selectedSubtitleIdx === 0;
                 const isUploaded = uploadedStatus[item.id]?.has(defaultSubIdx) ?? false;
-                const hasValidationFailed = validationFailStatus?.[`${item.id}-0`] ?? false;
 
-                // --- แก้ไขส่วนนี้ ---
                 const docType = getFirstDocType(group);
                 const hasValidate = !!(docType && OCR_VALIDATE_MAP[docType]);
-                const key = `${item.id}-${defaultSubIdx}`;
-                const isValidated = key in validationFailStatus;
+                const pageCount = getPageCount(group);
+                let overallValidate: "waiting" | "failed" | "passed" = "waiting";
+                if (hasValidate && hasOcr) {
+                    overallValidate = getOverallValidateStatus(
+                        item.id, defaultSubIdx, pageCount, validateResultsByDoc
+                    );
+                }
 
-                const { Icon, iconColor, bg, textColor, bar } = getStatus(
-                    isSelected,
-                    !!hasOcr,
-                    isUploaded,
-                    !!hasValidationFailed,
-                    hasValidate,
-                    isValidated
+                const { Icon, iconColor, bg, textColor, bar } = getDisplayStatus(
+                    isSelected, !!hasOcr, isUploaded, overallValidate, hasValidate
                 );
 
                 return (
@@ -247,20 +228,17 @@ const DocumentChecklist: React.FC<Props> = ({
                                         const hasOcrSub = subGroup && Object.values(subGroup).some(file => Object.keys(file.pages || {}).length > 0);
                                         const isSelectedSub = selectedDocId === item.id && selectedSubtitleIdx === subIdx;
                                         const isUploadedSub = uploadedStatus[item.id]?.has(subIdx) ?? false;
-                                        const hasValidationFailedSub = validationFailStatus?.[`${item.id}-${subIdx}`] ?? false;
 
                                         const docTypeSub = getFirstDocType(subGroup);
                                         const hasValidateSub = !!(docTypeSub && OCR_VALIDATE_MAP[docTypeSub]);
-                                        const keySub = `${item.id}-${subIdx}`;
-                                        const isValidatedSub = keySub in validationFailStatus;
+                                        const pageCountSub = getPageCount(subGroup);
+                                        let overallValidateSub: "waiting" | "failed" | "passed" = "waiting";
+                                        if (hasValidateSub && hasOcrSub) {
+                                            overallValidateSub = getOverallValidateStatus(item.id, subIdx, pageCountSub, validateResultsByDoc);
+                                        }
 
-                                        const { Icon, iconColor, bg, textColor, bar } = getStatus(
-                                            isSelectedSub,
-                                            !!hasOcrSub,
-                                            isUploadedSub,
-                                            !!hasValidationFailedSub,
-                                            hasValidateSub,
-                                            isValidatedSub
+                                        const { Icon, iconColor, bg, textColor, bar } = getDisplayStatus(
+                                            isSelectedSub, !!hasOcrSub, isUploadedSub, overallValidateSub, hasValidateSub
                                         );
 
                                         return (
