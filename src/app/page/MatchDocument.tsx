@@ -156,7 +156,7 @@ const MatchDocument: React.FC = () => {
                 ]}
             />
 
-            <div className="d-flex justify-content-between align-items-stretch gap-2 w-100">
+            <div className="d-flex w-100 gap-2 mt-2">
                 <div className="flex-grow-1">
                     <AuditList
                         selectedId={selectedId}
@@ -167,7 +167,7 @@ const MatchDocument: React.FC = () => {
                         setSelectedDocIndex={setSelectedDocIndex}
                     />
                 </div>
-                <div style={{ width: "39.5%" }} className="d-flex flex-column flex-grow-1">
+                <div className="d-flex flex-column flex-grow-1" style={{ width: "38.5%" }}>
                     <MatchPagination
                         totalPages={totalPages}
                         currentPage={currentPage}
@@ -193,8 +193,8 @@ const MatchDocument: React.FC = () => {
             </div>
 
             {currentStep === 1 && stepData?.step === 1 && stepData.data && (
-                    <MatchTable data={mapAllProductFormulas(stepData.data)} />
-                )}
+                <MatchTable data={mapAllProductFormulas(stepData.data)} />
+            )}
 
             {currentStep === 2 && stepData?.step === 2 && stepData.data && (
                 <VolumeCompareTable data={mapRawMaterialPayments(stepData.data)} />

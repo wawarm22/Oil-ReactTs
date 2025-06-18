@@ -21,7 +21,6 @@ const AuditPagination: React.FC<PaginationProps> = ({
     selectedDocId,
     selectedSubtitleIdx
 }) => {
-    // ฟังก์ชันเช็กว่าหน้านี้ failed หรือไม่
     function isPageFailed(pageNum: number): boolean {
         if (
             selectedDocId == null ||
@@ -36,6 +35,17 @@ const AuditPagination: React.FC<PaginationProps> = ({
         const checkFailed = OCR_VALIDATE_MAP[docType].checkFailed;
 
         return checkFailed(validateResult);
+    }
+
+    function isPageInitial(pageNum: number): boolean {
+        if (
+            selectedDocId == null ||
+            selectedSubtitleIdx == null ||
+            !validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[pageNum]
+        ) {
+            return true; // ยังไม่ได้ validate
+        }
+        return false;
     }
 
     const renderPageNumbers = () => {
@@ -71,7 +81,8 @@ const AuditPagination: React.FC<PaginationProps> = ({
                 <MotionCardChecklist
                     key={`page-${page}`}
                     isSelected={currentPage === page}
-                    isFailed={isPageFailed(page)} // เพิ่ม prop นี้
+                    isFailed={isPageFailed(page)} 
+                    isInitial={isPageInitial(page)}
                     onClick={() => setCurrentPage(page)}
                     width="50px"
                     minHeight="50px"

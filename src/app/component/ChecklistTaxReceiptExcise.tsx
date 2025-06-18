@@ -62,27 +62,31 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
         { label: "เลขทะเบียนสรรพสามิต", key: "excise_id" },
     ];
 
-    const getFieldColor = (key: string) => {
-        const value = validateData?.[key as keyof ValidateReceiptExciseResult];
-        if (Array.isArray(value)) {
-            return "#22C659";
-        }
-        if (value && typeof value === "object" && "passed" in value) {
-            if (value.passed === true) return "#22C659";
-            if (value.passed === false) return "#FF0100";
-        }
-        return "#22C659";
-    };
+    const getItemColor = (field?: { passed?: boolean }) =>
+        field?.passed === false
+            ? "#FF0100"
+            : field?.passed === true
+                ? "#22C659"
+                : "#CED4DA";
 
     return (
         <div className="d-flex flex-column gap-2">
             {fieldDefs.map(({ label, key }, idx) => {
                 const value = ocrData?.fields[key as keyof OcrReceiptExciseData["fields"]];
                 const validateField = validateData?.[key as keyof ValidateReceiptExciseResult];
-                const borderColor = getFieldColor(key);
+                const borderColor = getItemColor(
+                    !Array.isArray(validateField) && typeof validateField === "object"
+                        ? (validateField as { passed?: boolean })
+                        : undefined
+                );
 
                 let showValue: any = value;
-                if (validateField && !Array.isArray(validateField) && typeof validateField === "object" && "value" in validateField) {
+                if (
+                    validateField &&
+                    !Array.isArray(validateField) &&
+                    typeof validateField === "object" &&
+                    "value" in validateField
+                ) {
                     showValue = validateField.value;
                 }
 
@@ -109,13 +113,13 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                         <div key={`item-${i}`} className="mb-2">
                             <div className="fw-bold">รายละเอียด</div>
                             <span className="fw-bold">รายการ</span>
-                            <div className="rounded-2 shadow-sm bg-white p-2 mb-1" style={{
-                                fontSize: "14px",
-                                border: `1.5px solid ${Array.isArray(validateData?.items) && validateData.items[i]?.description?.passed === false
-                                    ? "#FF0100"
-                                    : "#22C659"
-                                    }`
-                            }}>
+                            <div
+                                className="rounded-2 shadow-sm bg-white p-2 mb-1"
+                                style={{
+                                    fontSize: "14px",
+                                    border: `1.5px solid ${getItemColor(validateData?.items?.[i]?.description)}`
+                                }}
+                            >
                                 {cleanValue(
                                     Array.isArray(validateData?.items)
                                         ? validateData.items[i]?.description?.value
@@ -123,13 +127,13 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                                 )}
                             </div>
                             <div className="fw-bold">จำนวนเงิน</div>
-                            <div className="rounded-2 shadow-sm bg-white p-2" style={{
-                                fontSize: "14px",
-                                border: `1.5px solid ${Array.isArray(validateData?.items) && validateData.items[i]?.amount?.passed === false
-                                    ? "#FF0100"
-                                    : "#22C659"
-                                    }`
-                            }}>
+                            <div
+                                className="rounded-2 shadow-sm bg-white p-2"
+                                style={{
+                                    fontSize: "14px",
+                                    border: `1.5px solid ${getItemColor(validateData?.items?.[i]?.amount)}`
+                                }}
+                            >
                                 {Array.isArray(validateData?.items)
                                     ? validateData.items[i]?.amount?.value
                                     : item.amount}
@@ -138,14 +142,21 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                     ))}
                     <div className="mb-2">
                         <div className="fw-bold">รวม</div>
-                        <div className="rounded-2 shadow-sm bg-white p-2" style={{
-                            fontSize: "14px",
-                            border: `1.5px solid ${validateData?.total_amount && !Array.isArray(validateData.total_amount) && validateData.total_amount.passed === false
-                                ? "#FF0100"
-                                : "#22C659"
-                                }`
-                        }}>
-                            {validateData?.total_amount && !Array.isArray(validateData.total_amount)
+                        <div
+                            className="rounded-2 shadow-sm bg-white p-2"
+                            style={{
+                                fontSize: "14px",
+                                border: `1.5px solid ${getItemColor(
+                                    !Array.isArray(validateData?.total_amount) &&
+                                    typeof validateData?.total_amount === "object"
+                                        ? validateData?.total_amount
+                                        : undefined
+                                )}`
+                            }}
+                        >
+                            {validateData?.total_amount &&
+                            !Array.isArray(validateData.total_amount) &&
+                            "value" in validateData.total_amount
                                 ? validateData.total_amount.value
                                 : ocrData.fields.total_amount}
                         </div>
@@ -155,6 +166,5 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
         </div>
     );
 };
-
 
 export default ChecklistTaxReceiptExcise;
