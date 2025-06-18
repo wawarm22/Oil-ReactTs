@@ -1,6 +1,7 @@
 import React from "react";
 import { OcrTaxDocument } from "../../types/ocrFileType";
 import { formatAmount } from "../../utils/function/ocrValidateMap";
+import { useCompanyStore } from "../../store/companyStore";
 
 interface ChecklistTaxProps {
     data: OcrTaxDocument;
@@ -18,19 +19,21 @@ const ChecklistTax: React.FC<ChecklistTaxProps> = ({
     data,
     validateResult
 }) => {
+    const { selectedCompany } = useCompanyStore();
 
-    console.log("validateResult tax", validateResult);
-    
+    const isShell = String(selectedCompany?.name ?? '').toLowerCase() === 'shell';
+
     const fields = [
         { key: "company_name", label: "บริษัท", value: data.company_name },
-        { key: "branch_no", label: "คลังน้ำมัน", value: data.branch_no },
+        !isShell ? { key: "branch_no", label: "คลังน้ำมัน", value: data.branch_no } : undefined,
         { key: "tax_date", label: "วันที่", value: data.tax_date },
         {
             key: "amount",
             label: "จำนวนเงินขอคืนภาษี",
             value: formatAmount(data.amount),
         },
-    ];
+    ].filter((f): f is { key: string; label: string; value: string } => !!f);
+
 
     const validationProperties =
         validateResult?.data?.[0]?.properties ?? {};

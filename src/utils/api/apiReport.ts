@@ -1,7 +1,8 @@
 import axios from "axios";
 import { BASE_URL_AWS } from "./apiConfig";
+import { ProductFormulaResponse } from "../../types/reportTypes";
 
-export const getProductRatiosAndFormular = async (): Promise<any | undefined> => {
+export const getProductRatiosAndFormular = async (): Promise<ProductFormulaResponse  | undefined> => {
     try {
         const response = await axios.get(`${BASE_URL_AWS}/report/product-ratios-and-formular`);
         return response.data;

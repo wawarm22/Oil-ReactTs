@@ -6,9 +6,7 @@ import { documentList } from "../../types/docList";
 import AuditButton from "../component/AuditButton";
 import { useNavigate } from "react-router-dom";
 import MatchTable from "../component/MatchTable";
-import { sampleTableData } from "../../types/tableTypes";
 import VolumeCompareTable from "../component/VolumeCompareTable";
-import { volumeCompareData } from "../../types/volumeTableTypes";
 import DocumentCompareProgress from "../reusable/DocumentCompareProgress";
 import { DocumentCompareStep } from "../../types/enum/docCompare";
 import { OcrFields } from "../../types/ocrFileType";
@@ -20,6 +18,8 @@ import OilReceiveTable from "../component/OilReceiveTable";
 import { oilReceiveData } from "../../types/oilReceiveTypes";
 import TaxRefundCalculationTable from "../component/TaxRefundCalculationTable";
 import { taxRefundData } from "../../types/taxRefundTypes";
+import { loadMatchStepData, MatchStepData } from "../../utils/dataLoader/matchDataLoader";
+import { mapAllProductFormulas, mapRawMaterialPayments } from "../../utils/dataLoader/matchTableMapper";
 
 type UploadedFilesType = {
     [key: number]: { name: string; data: string; pageCount: number }[];
@@ -37,6 +37,7 @@ const MatchDocument: React.FC = () => {
     const [totalPages, setTotalPages] = useState<number>(1);
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
     const [selectedDocIndex, setSelectedDocIndex] = useState<number | null>(null);
+    const [stepData, setStepData] = useState<MatchStepData | null>(null);
     const [currentStep, setCurrentStep] = useState<number>(1);
 
     useEffect(() => {
@@ -51,6 +52,10 @@ const MatchDocument: React.FC = () => {
             setUploadedFiles({});
         }
     }, []);
+
+    useEffect(() => {
+        loadMatchStepData(currentStep).then(setStepData);
+    }, [currentStep]);
 
     useEffect(() => {
         if (documentList.length > 0) {
@@ -69,6 +74,7 @@ const MatchDocument: React.FC = () => {
             setTotalPages(total || 1);
         }
     }, [selectedId, uploadedFiles]);
+
 
     const handleBack = () => {
         if (currentStep > 1) {
@@ -180,14 +186,19 @@ const MatchDocument: React.FC = () => {
                     ocrDocument={selectedOcrDocument}
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}
-                    // selectedDocId={selectedDocId}
-                    // selectedSubtitleIdx={selectedSubtitleIdx}
-                    // validateResultsByDoc={validateResultsByDoc}
+                // selectedDocId={selectedDocId}
+                // selectedSubtitleIdx={selectedSubtitleIdx}
+                // validateResultsByDoc={validateResultsByDoc}
                 />
             </div>
 
-            {currentStep === 1 && <MatchTable data={sampleTableData} />}
-            {currentStep === 2 && <VolumeCompareTable data={volumeCompareData} />}
+            {currentStep === 1 && stepData?.step === 1 && stepData.data && (
+                    <MatchTable data={mapAllProductFormulas(stepData.data)} />
+                )}
+
+            {currentStep === 2 && stepData?.step === 2 && stepData.data && (
+                <VolumeCompareTable data={mapRawMaterialPayments(stepData.data)} />
+            )}
             {currentStep === 3 && <ProductionReport />}
             {currentStep === 4 && <OilReceiveTable data={oilReceiveData} />}
             {currentStep === 5 && <TaxRefundCalculationTable data={taxRefundData} />}
