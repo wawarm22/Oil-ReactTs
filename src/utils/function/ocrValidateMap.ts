@@ -557,6 +557,11 @@ export const OCR_VALIDATE_MAP: Record<
         api: validateSubmission,
         checkFailed: checkTaxFailed,
     },
+    "oil-tax-request-st-page-2": {
+        buildPayload: buildTaxPayload,
+        api: validateSubmission,
+        checkFailed: checkTaxFailed,
+    },
     "oil-compare-1": {
         buildPayload: buildOilComparePayload,
         api: validateOilCompare,

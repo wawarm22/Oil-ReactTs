@@ -5,6 +5,7 @@ interface MotionCardChecklistProps {
     onClick?: () => void;
     isSelected: boolean;
     isFailed?: boolean;
+    isInitial?: boolean;
     children: React.ReactNode;
     width?: string;
     minHeight?: string;
@@ -19,6 +20,7 @@ const MotionCardChecklist: React.FC<MotionCardChecklistProps> = ({
     onClick,
     isSelected,
     isFailed,
+    isInitial,
     children,
     width = "325px",
     minHeight = "55px",
@@ -27,23 +29,39 @@ const MotionCardChecklist: React.FC<MotionCardChecklistProps> = ({
     margin = "",
     style = {},
 }) => {
-    const borderStyle = isFailed
-        ? "2px solid #FF0100"
-        : isSelected
-            ? "2px solid #22C659"
-            : "2px solid #22C659";
-    
-    let backgroundColor = "#ffffff";
-    let color = "#22C659";
-    if (isFailed && isSelected) {
+    const defaultBackground = "#FFFFFF";
+    const defaultColor = "#1E2329";
+    const defaultBorder = "2px solid #1E2329";
+
+    let backgroundColor = defaultBackground;
+    let color = defaultColor;
+    let borderStyle = defaultBorder;
+
+    if (isInitial && isSelected) {
+        backgroundColor = "#1E2329";
+        color = "#FFFFFF";
+        borderStyle = "2px solid #1E2329";
+    } else if (isInitial) {
+        backgroundColor = defaultBackground;
+        color = defaultColor;
+        borderStyle = defaultBorder;
+    } else if (isFailed && isSelected) {
         backgroundColor = "#FF0000";
-        color = "#ffffff";           
+        color = "#ffffff";
+        borderStyle = "2px solid #FF0000";
     } else if (isFailed) {
         backgroundColor = "#ffffff";
-        color = "#FF0000";           
+        color = "#FF0000";
+        borderStyle = "2px solid #FF0100";
     } else if (isSelected) {
         backgroundColor = "#22C659";
         color = "#ffffff";
+        borderStyle = "2px solid #22C659";
+    } else {
+        // ผ่าน แต่ไม่ได้เลือก
+        backgroundColor = "#ffffff";
+        color = "#22C659";
+        borderStyle = "2px solid #22C659";
     }
 
     return (

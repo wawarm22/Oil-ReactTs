@@ -41,12 +41,12 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
               </tr>
               {table.items.map((item, index) => (
                 <tr key={index}>
-                  <td>{item.type || '-'}</td>
                   <td className="text-start">{item.name}</td>
+                  <td className="text-center">{item.type || '-'}</td>
                   <td className="text-end">{item.quantity.toLocaleString()}</td>
                   <td className="text-end">{item.ratio ?? '-'}</td>
                   <td className="text-end">{item.productionFormula}</td>
-                  <td className="text-start">{item.approvalNumber || '-'}</td>
+                  <td className="text-center">{item.approvalNumber || '-'}</td>
                   <td className="text-start">{item.remark || '-'}</td>
                 </tr>
               ))}
