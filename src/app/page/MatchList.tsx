@@ -57,7 +57,7 @@ const MatchList: React.FC = () => {
         }
 
         const mergedPdfBytes = await mergedPdf.save();
-        const arrayBuffer = mergedPdfBytes.buffer as ArrayBuffer; 
+        const arrayBuffer = mergedPdfBytes.buffer as ArrayBuffer;
         const mergedBlob = new Blob([arrayBuffer], { type: "application/pdf" });
         const mergedBlobUrl = URL.createObjectURL(mergedBlob);
 
@@ -70,7 +70,7 @@ const MatchList: React.FC = () => {
         const byteArray = new Uint8Array(byteNumbers);
         const blob = new Blob([byteArray], { type: "application/pdf" });
         return URL.createObjectURL(blob);
-    };   
+    };
 
     return (
         <div className="container-fluid mt-3 w-100" style={{ maxWidth: '1800px' }}>
@@ -88,7 +88,6 @@ const MatchList: React.FC = () => {
                     <thead style={{ borderBottom: "2px solid #0000004B" }}>
                         <tr>
                             <th className="align-middle" style={{ fontSize: '22px' }}>รายการเอกสาร</th>
-                            <th className="align-middle text-center" style={{ fontSize: '22px' }}>จำนวนหน้า</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -112,7 +111,7 @@ const MatchList: React.FC = () => {
                                                     verticalAlign: "middle"
                                                 }}></span>
 
-                                            {item.id}. {item.title}
+                                            {item.title}
                                         </span>
 
                                         {uploadedFiles[item.id] && (
@@ -133,10 +132,7 @@ const MatchList: React.FC = () => {
                                             {/* {item.type} */}
                                         </div>
                                     </td>
-                                    <td className="text-center align-middle">
-                                        {uploadedFiles[item.id]?.reduce((sum, file) => sum + file.pageCount, 0) || 0} หน้า
-                                    </td>
-                                    <td className="text-end">
+                                    <td className="text-end w-50">
                                         {!openDropdown[item.id] && !isAnimating[item.id] && (
                                             <Button
                                                 className="w-100"
@@ -217,7 +213,7 @@ const MatchList: React.FC = () => {
                         bgColor="#FFCB02"
                         color="#1E2329"
                         variant="bg-hide"
-                        onClick={()=> navigate("/match-document")}
+                        onClick={() => navigate("/match-document")}
                     />
                 </div>
             </div>

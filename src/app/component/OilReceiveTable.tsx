@@ -9,7 +9,7 @@ const OilReceiveTable: React.FC<Props> = ({ data }) => {
     return (
         <div className="table-responsive bg-white shadow-sm rounded p-4 mt-3">
             <p className="fw-bold mb-2" style={{ fontSize: '26px', fontFamily: 'IBM Plex Sans Thai' }}>
-                ตารางเปรียบเทียบปริมาณการจ่ายวัถุดิบเปรียบเทียบกับปริมาณการผลิตและจำหน่าย
+                ตารางเปรียบเทียบอัตราส่วนกับสูตรการผลิตน้ำมัน
             </p>
             <table className="table table-bordered border-dark text-center align-middle">
                 <thead>

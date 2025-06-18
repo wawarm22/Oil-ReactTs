@@ -4,7 +4,7 @@ import { MaterialUsageData, ProductionData } from "../../types/productionTypes";
 export const MaterialUsageTable: React.FC<{ data: MaterialUsageData }> = ({ data }) => (
     <div className="table-responsive shadow-sm rounded py-3 px-5 bg-white mt-3" style={{ fontFamily: 'IBM Plex Sans Thai' }}>
         <p className="fw-bold mb-4" style={{ fontSize: "20px" }}>
-            ตารางเปรียบเทียบปริมาณการจ่ายวัถุดิบเปรียบเทียบกับปริมาณการผลิตและจำหน่าย
+            ตารางเปรียบเทียบอัตราส่วนกับสูตรการผลิตน้ำมัน
         </p>
         <p className="fw-bold mb-2" style={{ fontSize: '20px' }}>
             1. งบวัตถุดิบ 07-01
