@@ -29,7 +29,7 @@ const AuditList: React.FC<AuditListProps> = ({ selectedId, setSelectedId, docume
                                         isSelected={selectedId === doc.id}
                                         onClick={() => {
                                             setSelectedId(doc.id);
-                                            setSelectedDocIndex(doc.id); // ✅ กำหนดค่า index หรือ id ที่ต้องการ
+                                            setSelectedDocIndex(doc.id); 
                                         }}
                                         margin="mx-2 py-2 px-3 mb-2"
                                     >
