@@ -9,7 +9,7 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
     return (
         <div className="table-responsive shadow-sm rounded py-3 px-5 bg-white mt-3">
             <p className="fw-bold mb-2" style={{ fontSize: '26px', fontFamily: 'IBM Plex Sans Thai' }}>
-                ตารางเปรียบเทียบปริมาณการจ่ายวัถุดิบเปรียบเทียบกับปริมาณการผลิตและจำหน่าย
+                ตารางเปรียบเทียบอัตราส่วนกับสูตรการผลิตน้ำมัน
             </p>
             <table className="table table-bordered border-dark align-middle text-center">
                 <thead>
@@ -35,7 +35,7 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
                     </tr>
                     {data.items.map((item, index) => (
                         <tr key={index}>
-                            <td>{item.type || "-"}</td> {/* ถ้าต้องการเพิ่มประเภทวัตถุดิบ */}
+                            <td>{item.type || "-"}</td>
                             <td className="text-start">{item.name}</td>
                             <td className="text-end">{item.quantity.toLocaleString()}</td>
                             <td className="text-end">{item.unitValue.toFixed(8)}</td>

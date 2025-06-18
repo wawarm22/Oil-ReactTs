@@ -7,7 +7,7 @@ export interface StepItem {
 }
 
 export const stepList: StepItem[] = [    
-    { id: 1, label: "ตรวจสอบข้อมูล", status: StepStatus.AUDIT },
-    { id: 2, label: "ตรวจสอบการเปรียบเทียบ", status: StepStatus.MATCH },
-    { id: 3, label: "ยื่นแบบคำขอ", status: StepStatus.SUBMIT }
+    { id: 1, label: "ตรวจสอบข้อมูลแต่ละเอกสาร", status: StepStatus.AUDIT },
+    { id: 2, label: "ขั้นตอนการตรวจสอบภาษี", status: StepStatus.MATCH },
+    { id: 3, label: "ยืนยันการยื่นแบบคำขอ", status: StepStatus.SUBMIT }
 ];

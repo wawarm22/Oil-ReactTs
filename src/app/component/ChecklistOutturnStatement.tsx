@@ -75,13 +75,6 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
     const borderColor = (passed?: boolean) =>
         `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#CED4DA"}`;
 
-    const outtrunShell = [
-        { label: "วันที่", value: data.posting_date },
-        { label: "ชื่อผลิตภัณฑ์", value: data.product },
-        { label: "ปริมาณสำหรับการวัด Quantity", value: "LITRES @30 deg.C" },
-        { label: "ปริมาณน้ำมัน", value: quality },
-    ];
-
     const renderValidateBox = (
         label: string,
         fieldKey: string,
@@ -105,12 +98,25 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
     };
 
     if (selectedCompany?.name?.toLowerCase() === "shell") {
+        const shellFields = [
+            { label: "วันที่", key: "date", value: data.posting_date },
+            { label: "ชื่อผลิตภัณฑ์", key: "product_name", value: data.product },
+            { label: "ปริมาณสำหรับการวัด Quantity", key: "quality", value: "LITRES @30 deg.C" },
+            { label: "ปริมาณน้ำมัน", key: "quantity", value: quality },
+        ];
+
         return (
             <div className="d-flex flex-column gap-2">
-                {outtrunShell.map((item, idx) => (
+                {shellFields.map((item, idx) => (
                     <div className="mb-2" key={idx}>
                         <div className="fw-bold">{item.label}</div>
-                        <div className="border rounded-2 shadow-sm bg-white p-2" style={{ fontSize: "14px" }}>
+                        <div
+                            className="rounded-2 shadow-sm bg-white p-2"
+                            style={{
+                                fontSize: "14px",
+                                border: borderColor(validationResult?.data?.[item.key]?.passed),
+                            }}
+                        >
                             {cleanValue(item.value)}
                         </div>
                     </div>
