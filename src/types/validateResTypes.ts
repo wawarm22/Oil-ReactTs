@@ -262,7 +262,7 @@ export type Validate0502Result = {
     };
 };
 
-type ValidateField = {
+export type ValidateField = {
     value: string | number;
     expected: string | number;
     passed: boolean;

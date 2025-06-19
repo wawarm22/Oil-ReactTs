@@ -103,7 +103,7 @@ const DocumentAudit: React.FC = () => {
                 onBack={handleBack}
                 onSaveAudit={handleSaveAudit}
                 onNextStep={handleNextStep}
-                // disableSave={disableNext}
+                disableSave={disableNext}
             />
         </div>
     );

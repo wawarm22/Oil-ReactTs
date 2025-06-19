@@ -1,6 +1,6 @@
 import { useCompanyStore } from "../../store/companyStore";
-import { FieldValidation, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateOil0704Result, ValidationResult0307 } from "../../types/validateResTypes";
-import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New, validateReceitpPaymentNew } from "../api/validateApi";
+import { FieldValidation, Oil0702ValidationResult, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateField, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateOil0704Result, ValidateTaxInvoiceResult, ValidationResult0307 } from "../../types/validateResTypes";
+import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New, validateReceitpPaymentNew, validateOil0702, validateTaxInvoice } from "../api/validateApi";
 import { buildOcr0307FieldRows } from "./ocrFieldRowsBuilder";
 
 const cleanValue = (val?: any): string => {
@@ -9,6 +9,9 @@ const cleanValue = (val?: any): string => {
     if (str.trim() === "" || str === ":unselected:") return "";
     return str.trim();
 };
+
+const isFailedField = (field: ValidateField | undefined): boolean =>
+    !!field && field.passed === false;
 
 export const formatAmount = (val: any) => {
     if (!val) return "";
@@ -31,31 +34,17 @@ const buildTaxPayload = (ocr: any) => ({
     }
 });
 
-// const buildOilComparePayload = (ocr: any, context: any) => ({
-//     docType: ocr.docType,
-//     company: context.company ?? "",
-//     factories: context.factories ?? "",
-//     documentGroup: ocr.documentGroup ?? "",
-//     fields: [
-//         { data: { company: ocr.company ?? "", warehouse: ocr.depot ?? "", date: ocr.date ?? "" } },
-//         { detail_table: ocr.detail_table ?? [] }
-//     ]
-// });
-
 const buildOilComparePayload = (ocr: any, context: any) => {
-    // Field 0: Header (ข้อมูลหัวตาราง)
     const data: Record<string, { value: string }> = {
         "บริษัท": { value: ocr.company ?? "" },
         "คลัง": { value: ocr.depot ?? "" },
         "วันที่": { value: ocr.date ?? "" }
     };
 
-    // Field 1: detail_table (วนแต่ละแถว properties)
     const detail_table: Record<string, { value: string }>[] = Array.isArray(ocr.detail_table)
         ? ocr.detail_table.map((row: any) => {
             const props = row.properties || {};
             const cleanedRow: Record<string, { value: string }> = {};
-            // เอาแค่ column_1 ถึง column_7
             for (let i = 1; i <= 7; i++) {
                 const key = `column_${i}`;
                 const value = props[key]?.value;
@@ -77,21 +66,19 @@ const buildOilComparePayload = (ocr: any, context: any) => {
     };
 };
 
-
-// const buildOil0701Payload = (ocr: any, context: { materialID: string; company: string; factories: string }) => ({
-//     docType: ocr.docType,
-//     documentGroup: ocr.documentGroup ?? "",
-//     materialID: context.materialID ?? "",
-//     company: context.company ?? "",
-//     factories: context.factories ?? "",
-//     fields: ocr.detail_table ?? [],
-// });
-
 const buildOil0701Payload = (ocr: any, context: any) => ({
     docType: ocr.docType,
     documentGroup: context.documentGroup ?? "",
     fields: context.fields ?? {},
     transport: context.transport ?? "",
+});
+
+const buildOil0702Payload = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: ocr.documentGroup,
+    company: context.company,
+    factories: context.factories,
+    fields: context.fields,
 });
 const buildAttachment0307Payload = (page1: any, context: any) => ({
     docType: page1.docType,
@@ -102,6 +89,12 @@ const buildAttachment0307Payload = (page1: any, context: any) => ({
 });
 
 const buildOil0704Payload = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+});
+
+const buildTaxInvoice = (ocr: any, context: any) => ({
     docType: ocr.docType,
     documentGroup: context.documentGroup ?? "",
     fields: context.fields ?? {},
@@ -258,6 +251,31 @@ export const checkOil0701Failed = (
     return false;
 };
 
+const checkOil0702Failed = (
+    res: { data?: Oil0702ValidationResult } | Oil0702ValidationResult | any[] | null | undefined
+): boolean => {
+    let arr: any[] | undefined = undefined;
+
+    if (Array.isArray(res)) {
+        arr = res;
+    } else if (res && Array.isArray((res as any).data)) {
+        arr = (res as any).data;
+    }
+
+    if (!arr || arr.length === 0) return false;
+
+    for (const row of arr) {
+        for (const cellKey in row.properties) {
+            const cell = row.properties[cellKey];
+            if (cell && typeof cell === "object" && cell.passed === false) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
+
 const checkOil0704Failed = (
     res: { data?: ValidateOil0704Result } | null | undefined
 ): boolean => {
@@ -265,7 +283,6 @@ const checkOil0704Failed = (
 
     if (!d) return true;
 
-    // ฟิลด์หลัก
     const MAIN_FIELDS = [
         "formType",
         "requestNumber",
@@ -281,7 +298,6 @@ const checkOil0704Failed = (
         if (field && typeof field === "object" && field.passed === false) return true;
     }
 
-    // เช็ค materials
     if (Array.isArray(d.materials)) {
         for (const mat of d.materials) {
             for (const key in mat) {
@@ -291,7 +307,6 @@ const checkOil0704Failed = (
         }
     }
 
-    // เช็ค products
     if (Array.isArray(d.products)) {
         for (const prod of d.products) {
             for (const key in prod) {
@@ -311,7 +326,6 @@ export const checkIncomeExpenseFailed = (
     const d = res?.data;
     if (!d) return true;
 
-    // เช็คฟิลด์ header (FieldValidation ทั้งหลาย)
     const headerFields: Array<FieldValidation<any> | undefined> = [
         d.materialName,
         d.factoryName,
@@ -322,9 +336,7 @@ export const checkIncomeExpenseFailed = (
         return true;
     }
 
-    // เช็ค transactions (FieldValidation เฉพาะ field, ข้าม boolean/number)
     for (const tx of d.transactions ?? []) {
-        // กำหนดคีย์ที่เป็น FieldValidation
         const keysToCheck: (keyof ReceiptPaymentTransactionValidation)[] = [
             "date",
             "recieptFromFactoryLabel",
@@ -427,6 +439,39 @@ const checkAttachment0307Failed = (res: { data?: ValidationResult0307 }): boolea
         // console.log("Fields failed:", failedFields);
         return true;
     }
+    return false;
+};
+
+const checkTaxInvoiceFailed = (
+    res: { data?: ValidateTaxInvoiceResult } | ValidateTaxInvoiceResult | null | undefined
+): boolean => {
+    const data: ValidateTaxInvoiceResult | undefined =
+        res && "data" in (res as any) ? (res as any).data : (res as ValidateTaxInvoiceResult);
+
+    if (!data) return true;
+
+    const fieldsToCheck: (keyof ValidateTaxInvoiceResult)[] = [
+        "invoiceBranch", "customerInfo", "taxId", "shipTo",
+        "documentNo", "date", "paymentTerm", "dueDate", "poNo", "incoTerm",
+        "subTotal", "vat7", "totalAmount", "inWords", "internalRef", "receiptBy", "receivedDate"
+    ];
+
+    for (const key of fieldsToCheck) {
+        if (isFailedField(data[key] as ValidateField)) {
+            return true;
+        }
+    }
+
+    if (Array.isArray(data.items)) {
+        for (const item of data.items) {
+            for (const field of Object.values(item)) {
+                if (isFailedField(field as ValidateField)) {
+                    return true;
+                }
+            }
+        }
+    }
+
     return false;
 };
 
@@ -583,6 +628,13 @@ export const OCR_VALIDATE_MAP: Record<
         needsContext: true,
         needsAuth: true,
     },
+    "oil-07-02-page-1": {
+        buildPayload: buildOil0702Payload,
+        api: validateOil0702,
+        checkFailed: checkOil0702Failed,
+        needsContext: true,
+        needsAuth: true,
+    },
     "oil-03-07-page-1": {
         buildPayload: (ocr: any) => {
             const { selectedCompany } = useCompanyStore.getState();
@@ -598,6 +650,13 @@ export const OCR_VALIDATE_MAP: Record<
         },
         api: validateOil0307,
         checkFailed: check0307Failed,
+    },
+    "oil-refinery_tax_invoice-1": {
+        buildPayload: buildTaxInvoice,
+        api: validateTaxInvoice,
+        checkFailed: checkTaxInvoiceFailed,
+        needsContext: true,
+        needsAuth: true,
     },
     "oil-formular-1": {
         buildPayload: buildAttachment0307Payload,
