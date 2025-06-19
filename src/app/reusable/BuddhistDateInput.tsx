@@ -67,7 +67,7 @@ const BuddhistDateInput: React.FC<BuddhistDateInputProps> = ({
             borderRadius: '6px',
             boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
           }}
-          onMouseDown={(e) => e.preventDefault()} // กัน blur ทันที
+          onMouseDown={(e) => e.preventDefault()} 
         >
           <DayPicker
             mode="single"

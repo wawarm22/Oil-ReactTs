@@ -1,19 +1,20 @@
 import { useCompanyStore } from "../store/companyStore";
-import { getPrepared0307, getPrepared0502, getPrepared0503, getPrepared0701, getPrepared0704, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedReceitpPaymentNew } from "./api/validateApi";
+import { getPrepared0307, getPrepared0502, getPrepared0503, getPrepared0701, getPrepared0704, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedReceitpPaymentNew, getPreparedTaxInvoice } from "./api/validateApi";
+import { cleanCellValue } from "./function/ocrUtils";
 
 export type ContextOptions = { auth?: any };
 
 export const getContextForDocType: Record<
     string,
     (page1: any, options?: ContextOptions) => Promise<any>
-> = {    
+> = {
     "oil-07-01-page-1": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
 
         const resp = await getPrepared0701(page1.id, auth);
         if (!resp?.data) return {};
-        
+
         return {
             documentGroup: resp.data.documentGroup,
             fields: resp.data.fields,
@@ -31,6 +32,72 @@ export const getContextForDocType: Record<
             transport: resp.data.transport,
         };
     },
+    "oil-07-02-page-1": async (page1) => {
+        const company = useCompanyStore.getState().selectedCompany?.name ?? "";
+        const factories = localStorage.getItem("warehouse") ?? "";
+        const fixedLabels = [
+            { key: "column_1", label: "วันเดือนปี" },
+            { key: "column_2", label: "รายการ" },
+            { key: "column_3", label: "หลักฐานเลขที่" },
+            { key: "column_4", label: "ผลิตได้" },
+            { key: "column_5", label: "รับคืนจากคลังสินค้าทัณฑ์บน" },
+            { key: "column_6", label: "อื่นๆ" },
+            { key: "column_7", label: "รวมรับสินค้า" },
+            { key: "column_8", label: "จำหน่ายในประเทศ" },
+            { key: "column_9", label: "จำหน่ายต่างประเทศ" },
+            { key: "column_10", label: "ใช้ในโรงงานอุตสาหกรรม" },
+            { key: "column_11", label: "คลังสินค้าทัณฑ์บน" },
+            { key: "column_12", label: "เสียหาย" },
+            { key: "column_13", label: "อื่นๆ" },
+            { key: "column_14", label: "รวมจ่ายสินค้า" },
+            { key: "column_15", label: "ยอดคงเหลือ" },
+            { key: "column_16", label: "หมายเหตุ" },
+        ];
+        let tables = page1.detail_table ?? [];
+
+        let startIdx = 2;
+        while (true) {
+            const props = tables[startIdx]?.properties as Record<string, any> | undefined;
+            const col1 = props?.column_1?.value ?? "";
+            const col2 = props?.column_2?.value ?? "";
+            const isCol1Empty = !col1 || col1.trim() === "";
+            const hasYodyok =
+                (col1 && col1.replace(/\s+/g, "").toLowerCase().includes("ยอดยก")) ||
+                (col2 && col2.replace(/\s+/g, "").toLowerCase().includes("ยอดยก"));
+
+            if (isCol1Empty || hasYodyok) {
+                startIdx++;
+            } else {
+                break;
+            }
+        }
+
+        // ใส่ cleanCellValue ให้ value
+        const ocrFieldRows = tables.slice(startIdx).map((row: any) => {
+            const props = row.properties as Record<string, any>;
+            const properties: Record<string, { value: string }> = {};
+            fixedLabels.forEach(({ key, label }) => {
+                const value = cleanCellValue(props?.[key]?.value ?? "");
+                properties[label] = { value };
+            });
+            return { properties };
+        });
+
+        return {
+            company,
+            factories,
+            fields: ocrFieldRows,
+        };
+    },
+
+    "refinery_tax_invoice": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const resp = await getPreparedTaxInvoice(page1.id, auth);
+        if (!resp?.data) return {};
+        return resp.data;
+    },
+
     "oil-formular-1": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
@@ -46,7 +113,7 @@ export const getContextForDocType: Record<
             factories,
             documentGroup: page1.documentGroup ?? "",
         };
-    },    
+    },
     "oil-formular-2": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
@@ -62,7 +129,7 @@ export const getContextForDocType: Record<
             factories,
             documentGroup: page1.documentGroup ?? "",
         };
-    },    
+    },
     "oil-formular-3": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
@@ -78,12 +145,12 @@ export const getContextForDocType: Record<
             factories,
             documentGroup: page1.documentGroup ?? "",
         };
-    },    
+    },
     "oil-07-04-page-1": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
-        const resp = await getPrepared0704(page1.id, auth);        
-        if (!resp?.data) return {};        
+        const resp = await getPrepared0704(page1.id, auth);
+        if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
             fields: resp.data.fields
@@ -93,8 +160,8 @@ export const getContextForDocType: Record<
     "oil-income-n-expense-1": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
-        const resp = await getPreparedReceitpPaymentNew(page1.id, auth);        
-        if (!resp?.data) return {};        
+        const resp = await getPreparedReceitpPaymentNew(page1.id, auth);
+        if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
             fields: resp.data.fields
@@ -123,7 +190,7 @@ export const getContextForDocType: Record<
         const factories = localStorage.getItem("warehouse") ?? "";
         console.log("company", company);
         console.log("factories", factories);
-        
+
         return {
             company,
             factories,

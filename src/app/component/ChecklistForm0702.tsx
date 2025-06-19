@@ -176,7 +176,9 @@ const ChecklistForm0702: React.FC<Props> = ({ data }) => {
                     <div className="fw-bold mb-1" style={{ fontSize: "18px" }}>รวมเดือนนี้</div>
                     {summaryContent.map(({ label, value }, idx) => {
                         const fixed = fixedLabels.find(fl => fl.label === label);
-                        const summaryValidationRow = validationResult?.data?.[validationResult.data.length - 1];
+                        const summaryValidationRow = validationResult?.data?.[validationResult.data.length - 2];
+                        console.log("summaryValidationRow", summaryValidationRow);
+                        
                         const cellValidation = summaryValidationRow?.properties?.[label];
                         const borderColor = cellValidation?.passed === true
                             ? "#22C659"
