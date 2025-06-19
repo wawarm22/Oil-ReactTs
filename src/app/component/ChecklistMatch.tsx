@@ -1,31 +1,34 @@
 import React, { } from "react";
 import AuditPagination from "../reusable/AuditPagination";
-import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument, OcrDeliveryInvoicePipline } from "../../types/ocrFileType";
+import {
+    OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument,
+    // OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument, OcrDeliveryInvoicePipline
+} from "../../types/ocrFileType";
 import { detectOcrType } from "../../utils/function/ocrType";
 import ChecklistTax from "./ChecklistTax";
 import ChecklistTable from "./ChecklistTable";
 import ChecklistGroupedProduct from "./ChecklistGroupedProduct";
 import ChecklistOilProduct from "./ChecklistOilProduct";
-import ChecklistTaxForm0307 from "./ChecklistTaxForm0307";
-import ChecklistRefineryTaxInvoice from "./ChecklistRefineryTaxInvoice";
-import ChecklistImportEntry0409 from "./ChecklistImportEntry0409";
-import ChecklistOutturnStatement from "./ChecklistOutturnStatement";
-import ChecklistDeliveryInvoice from "./ChecklistDeliveryInvoice";
-import ChecklistTaxForm0503 from "./ChecklistTaxForm0503";
-import ChecklistComparison0503And0307 from "./ChecklistComparison0503And0307";
-import ChecklistTaxPaymentCertificate from "./ChecklistTaxPaymentCertificate";
-import ChecklistOilPurchaseSummary from "./ChecklistOilPurchaseSummary";
-import ChecklistCustomsReceipt from "./ChecklistCustomsReceipt";
-import ChecklistDailyComparison from "./ChecklistDailyComparison";
-import ChecklistTaxReceiptExcise from "./ChecklistTaxReceiptExcise";
-import ChecklistAttachment0307 from "./ChecklistAttachment0307";
-import ChecklistAttachment0704 from "./ChecklistAttachment0704";
-import ChecklistTaxForm0502 from "./ChecklistTaxForm0502";
-import ChecklistTaxForm0503Page2 from "./ChecklistTaxForm0503Page2";
-import ChecklistDeliveryInvoicePipline from "./ChecklistDeliveryInvoicePipline";
-import ChecklistForm0701 from "./ChecklistForm0701";
-import ChecklistForm0702 from "./ChecklistForm0702";
-import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
+// import ChecklistTaxForm0307 from "./ChecklistTaxForm0307";
+// import ChecklistRefineryTaxInvoice from "./ChecklistRefineryTaxInvoice";
+// import ChecklistImportEntry0409 from "./ChecklistImportEntry0409";
+// import ChecklistOutturnStatement from "./ChecklistOutturnStatement";
+// import ChecklistDeliveryInvoice from "./ChecklistDeliveryInvoice";
+// import ChecklistTaxForm0503 from "./ChecklistTaxForm0503";
+// import ChecklistComparison0503And0307 from "./ChecklistComparison0503And0307";
+// import ChecklistTaxPaymentCertificate from "./ChecklistTaxPaymentCertificate";
+// import ChecklistOilPurchaseSummary from "./ChecklistOilPurchaseSummary";
+// import ChecklistCustomsReceipt from "./ChecklistCustomsReceipt";
+// import ChecklistDailyComparison from "./ChecklistDailyComparison";
+// import ChecklistTaxReceiptExcise from "./ChecklistTaxReceiptExcise";
+// import ChecklistAttachment0307 from "./ChecklistAttachment0307";
+// import ChecklistAttachment0704 from "./ChecklistAttachment0704";
+// import ChecklistTaxForm0502 from "./ChecklistTaxForm0502";
+// import ChecklistTaxForm0503Page2 from "./ChecklistTaxForm0503Page2";
+// import ChecklistDeliveryInvoicePipline from "./ChecklistDeliveryInvoicePipline";
+// import ChecklistForm0701 from "./ChecklistForm0701";
+// import ChecklistForm0702 from "./ChecklistForm0702";
+// import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
 import { ValidateResultsByDoc } from "../../types/checkList";
 
 interface Props {
@@ -78,17 +81,17 @@ const ChecklistMatch: React.FC<Props> = ({
     const type = detectOcrType(currentOcrFields);
     console.log("Detected OCR type:", type);
 
-    const prevPageFields = ocrDocument.pages[currentPage - 1];
+    // const prevPageFields = ocrDocument.pages[currentPage - 1];
 
-    let extraOilType: string | undefined;
+    // let extraOilType: string | undefined;
 
-    if (
-        currentOcrFields.docType === "oil-07-01-page-1-attach" &&
-        prevPageFields &&
-        prevPageFields.docType === "oil-07-01-page-1"
-    ) {
-        extraOilType = prevPageFields.oil_type;
-    }
+    // if (
+    //     currentOcrFields.docType === "oil-07-01-page-1-attach" &&
+    //     prevPageFields &&
+    //     prevPageFields.docType === "oil-07-01-page-1"
+    // ) {
+    //     extraOilType = prevPageFields.oil_type;
+    // }
 
     return (
         <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0 d-flex flex-column gap-2"
@@ -127,7 +130,7 @@ const ChecklistMatch: React.FC<Props> = ({
                 {type === "product_document" && (
                     <ChecklistOilProduct data={currentOcrFields as OcrOilProductDocument} />
                 )}
-                {type === "stock_oil" && (
+                {/* {type === "stock_oil" && (
                     <ChecklistForm0701
                         data={currentOcrFields as OcrStockOilDocument}
                         oilTypeFromPrevPage={extraOilType}
@@ -185,7 +188,7 @@ const ChecklistMatch: React.FC<Props> = ({
                 )}
                 {type === "oil-invoice-pipline" && (
                     <ChecklistDeliveryInvoicePipline data={currentOcrFields as OcrDeliveryInvoicePipline} />
-                )}
+                )} */}
             </div>
         </div>
     );
