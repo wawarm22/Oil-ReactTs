@@ -10,6 +10,8 @@ import { shellTaxInvoiceFields } from "../../utils/function/shellTaxInvoiceConfi
 
 interface Props {
     data: OcrRefineryTaxInvoiceDocument;
+    validateResult: ValidateTaxInvoiceResult | null;
+    context: OcrTaxInvoiceData | null
 }
 
 const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {

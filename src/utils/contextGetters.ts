@@ -1,5 +1,5 @@
 import { useCompanyStore } from "../store/companyStore";
-import { getPrepared0307, getPrepared0502, getPrepared0503, getPrepared0701, getPrepared0704, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedReceitpPaymentNew, getPreparedTaxInvoice } from "./api/validateApi";
+import { getPrepared0307, getPrepared0502, getPrepared0503, getPrepared0701, getPrepared0704, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedInvoiceThappline, getPreparedReceiptExcise, getPreparedReceitpPaymentNew, getPreparedTaxInvoice } from "./api/validateApi";
 import { cleanCellValue } from "./function/ocrUtils";
 
 export type ContextOptions = { auth?: any };
@@ -90,7 +90,28 @@ export const getContextForDocType: Record<
         };
     },
 
-    "refinery_tax_invoice": async (page1, options) => {
+    "oil-tax-invoice-2": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const resp = await getPreparedTaxInvoice(page1.id, auth);
+        if (!resp?.data) return {};
+        return resp.data;
+    },
+    "oil-tax-invoice-4": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const resp = await getPreparedTaxInvoice(page1.id, auth);
+        if (!resp?.data) return {};
+        return resp.data;
+    },
+    "oil-tax-invoice-7": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const resp = await getPreparedTaxInvoice(page1.id, auth);
+        if (!resp?.data) return {};
+        return resp.data;
+    },
+    "oil-tax-invoice-9": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
         const resp = await getPreparedTaxInvoice(page1.id, auth);
@@ -204,7 +225,8 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
-            fields: resp.data.fields
+            fields: resp.data.fields,
+            ocrData: resp.data
         };
     },
     "oil-formular-5": async (page1, options) => {
@@ -214,7 +236,8 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
-            fields: resp.data.fields
+            fields: resp.data.fields,
+            ocrData: resp.data
         };
     },
     "oil-05-03-page-1": async (page1, options) => {
@@ -287,5 +310,25 @@ export const getContextForDocType: Record<
             fields: resp.data.fields
         };
     },
+    "oil-receipt-1": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const resp = await getPreparedReceiptExcise(page1.id, auth);
+        if (!resp?.data) return {};
+        return {
+            documentGroup: resp.data.documentGroup,
+            fields: resp.data.fields
+        };
+    },
+    "oil-pipline-delivery-customer": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const resp = await getPreparedInvoiceThappline(page1.id, auth);
+        if (!resp?.data) return {};
+        return {
+            documentGroup: resp.data.documentGroup,
+            fields: resp.data.fields
+        };
+    },    
     "default": async (_page1) => ({}),
 };

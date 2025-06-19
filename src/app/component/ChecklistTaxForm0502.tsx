@@ -1,46 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrTaxForm0502Document } from "../../types/ocrFileType";
-import { AuthSchema } from "../../types/schema/auth";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { getPrepared0502, validateForm0502 } from "../../utils/api/validateApi";
 import { Prepared0502 } from "../../types/preparedTypes";
 import { Validate0502Result } from "../../types/validateResTypes";
 
 interface Props {
     data: OcrTaxForm0502Document;
+    validateResult: Validate0502Result["data"] | null;
+    context: Prepared0502 | null;
 }
 
-const ChecklistTaxForm0502: React.FC<Props> = ({ data }) => {
-    const auth = useAuthUser<AuthSchema>();
-    const [ocrData, setOcrData] = useState<Prepared0502 | null>(null);
-    const [validateResult, setValidateResult] = useState<Validate0502Result["data"] | null>(null);
-    const [loading, setLoading] = useState(true);
+const ChecklistTaxForm0502: React.FC<Props> = ({ validateResult, context }) => {    
+    const ocrData = context; 
 
-    useEffect(() => {
-        if (!auth || !auth.accessToken || !data.id) return;
-        setLoading(true);
-        getPrepared0502(data.id, auth)
-            .then(res => setOcrData(res.data))
-            .catch(() => setOcrData(null))
-            .finally(() => setLoading(false));
-    }, [data.id, auth]);
-
-    useEffect(() => {
-        if (!ocrData) return;
-        const overrideData = {
-            ...ocrData,
-            fields: {
-                ...ocrData.fields,
-                formName: "ภส.๐๕-๐๒",
-            }
-        };
-        validateForm0502(overrideData)
-            .then(res => setValidateResult(res?.data ?? null))
-            .catch(() => setValidateResult(null));
-    }, [ocrData]);
-
-    if (loading || !ocrData) {
-        return <div>กำลังโหลดข้อมูล...</div>;
+    if (!ocrData) {
+        return <div>ไม่พบข้อมูล</div>;
     }
 
     const getFieldValidation = (key: string) =>
@@ -49,7 +22,7 @@ const ChecklistTaxForm0502: React.FC<Props> = ({ data }) => {
             : null;
 
     const borderColor = (passed?: boolean) =>
-        `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#22C659"}`;
+        `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#CED4DA"}`;
 
     const mainFields = [
         { key: "formName", label: "แบบฟอร์ม", value: "ภส.๐๕-๐๒" },

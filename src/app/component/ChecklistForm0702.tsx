@@ -1,19 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrDailyProductionDocument } from "../../types/ocrFileType";
 import { cleanCellValue, renderLabel } from "../../utils/function/ocrUtils";
-import { useCompanyStore } from "../../store/companyStore";
-import { validateOil0702 } from "../../utils/api/validateApi";
 import { Oil0702ValidationResult } from "../../types/validateResTypes";
 
 interface Props {
     data: OcrDailyProductionDocument;
+    validateResult: Oil0702ValidationResult | null
 }
 
-const ChecklistForm0702: React.FC<Props> = ({ data }) => {
-    const { selectedCompany } = useCompanyStore();
+const ChecklistForm0702: React.FC<Props> = ({ data, validateResult }) => {
     const tables = data.detail_table ?? [];
-    const factoriesNumber = localStorage.getItem("warehouse") ?? "";
-    const [validationResult, setValidationResult] = useState<Oil0702ValidationResult | null>(null);
 
     if (tables.length === 0) return <p className="text-muted">ไม่พบข้อมูลตาราง</p>;
 
@@ -90,24 +86,7 @@ const ChecklistForm0702: React.FC<Props> = ({ data }) => {
         Object.values(row.properties).some(cell => (cell.value ?? "").includes("รวมเดือนนี้"))
     );
     const rowsToDisplay =
-        stopAtIdx === -1 ? ocrFieldRows : ocrFieldRows.slice(0, stopAtIdx);
-
-    useEffect(() => {
-        if (!selectedCompany?.name || ocrFieldRows.length === 0) return;
-        const payload = {
-            docType: data.docType,
-            documentGroup: data.documentGroup,
-            company: selectedCompany.name,
-            factories: factoriesNumber,
-            fields: ocrFieldRows
-        };
-
-        validateOil0702(payload).then((res) => {
-            if (JSON.stringify(res) !== JSON.stringify(validationResult)) {
-                setValidationResult(res as Oil0702ValidationResult);
-            }
-        });
-    }, [JSON.stringify(ocrFieldRows), selectedCompany?.name]);
+        stopAtIdx === -1 ? ocrFieldRows : ocrFieldRows.slice(0, stopAtIdx);    
 
     return (
         <div className="d-flex flex-column">
@@ -137,7 +116,7 @@ const ChecklistForm0702: React.FC<Props> = ({ data }) => {
             </div>
 
             {rowsToDisplay.map((row, idx) => {
-                const validateRow = validationResult?.data?.find(v => v.row === idx);
+                const validateRow = validateResult?.data?.find(v => v.row === idx);
                 return (
                     <div key={idx} className="d-flex flex-column gap-1 pt-3 border-top mt-3">
                         {fixedLabels.map(({ key, label }) => {
@@ -176,7 +155,7 @@ const ChecklistForm0702: React.FC<Props> = ({ data }) => {
                     <div className="fw-bold mb-1" style={{ fontSize: "18px" }}>รวมเดือนนี้</div>
                     {summaryContent.map(({ label, value }, idx) => {
                         const fixed = fixedLabels.find(fl => fl.label === label);
-                        const summaryValidationRow = validationResult?.data?.[validationResult.data.length - 2];
+                        const summaryValidationRow = validateResult?.data?.[validateResult.data.length - 2];
                         console.log("summaryValidationRow", summaryValidationRow);
                         
                         const cellValidation = summaryValidationRow?.properties?.[label];

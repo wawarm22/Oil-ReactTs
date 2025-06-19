@@ -1,57 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrTaxForm0503Page2Document } from "../../types/ocrFileType";
-import { AuthSchema } from "../../types/schema/auth";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { getPrepared0503, validate0503Page2 } from "../../utils/api/validateApi";
 import { Validate0503Page2Payload } from "../../types/validateTypes";
 
 interface Props {
     data: OcrTaxForm0503Page2Document;
+    validateResult: any;
+    context: Validate0503Page2Payload | null;
 }
 
-const ChecklistTaxForm0503Page2: React.FC<Props> = ({ data }) => {
-    const auth = useAuthUser<AuthSchema>();
-    const [ocrData, setOcrData] = useState<Validate0503Page2Payload | null>(null);
-    const [validateData, setValidateData] = useState<any | null>(null);
-    const [loading, setLoading] = useState(true);
+const ChecklistTaxForm0503Page2: React.FC<Props> = ({ data, validateResult, context }) => {
+    const ocrData = context;
+
+    if (!ocrData) {
+        return <div>ไม่พบข้อมูล</div>;
+    }
 
     const cleanValue = (val?: string | null): string => {
         if (!val || val.trim() === "" || val === ":unselected:") return "-";
         return val.trim();
     };
 
-    useEffect(() => {
-        if (!auth || !auth.accessToken || !data.id) return;
-
-        setLoading(true);
-        getPrepared0503(data.id, auth)
-            .then(res => {
-                setOcrData(res.data);
-            })
-            .catch(() => {
-                setOcrData(null);
-            })
-            .finally(() => setLoading(false));
-    }, [data.id, auth]);
-
-    useEffect(() => {
-        if (!ocrData) return;
-
-        validate0503Page2(ocrData)
-            .then(res => {
-                if (res?.data) {
-                    setValidateData(res.data);
-                }
-            });
-    }, [ocrData]);
-
-    if (loading) {
-        return <div>กำลังโหลดข้อมูล...</div>;
-    }
-
     const getBorderColor = (fieldKey: string): string => {
-        if (!validateData || !validateData[fieldKey]) return "1px solid #22C659";
-        return validateData[fieldKey].passed ? "1px solid #22C659" : "1px solid #FF0100";
+        if (!validateResult || !validateResult[fieldKey]) return "1px solid #22C659";
+        return validateResult[fieldKey].passed ? "1px solid #22C659" : "1px solid #FF0100";
     };
 
     const fields = [

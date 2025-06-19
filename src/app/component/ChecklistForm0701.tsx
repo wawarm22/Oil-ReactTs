@@ -1,8 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrStockOilDocument } from "../../types/ocrFileType";
-import { getPrepared0701, validate0701New } from "../../utils/api/validateApi";
-import { AuthSchema } from "../../types/schema/auth";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { Prepared0701, Prepared0701Report } from "../../types/validateTypes";
 import { getFieldLabelMap } from "../../utils/fieldLabelMaps";
 import { Validate0701Result } from "../../types/validateResTypes";
@@ -10,6 +7,8 @@ import { Validate0701Result } from "../../types/validateResTypes";
 interface ChecklistStockOilFormattedProps {
     data: OcrStockOilDocument;
     oilTypeFromPrevPage?: string;
+    validateResult: Validate0701Result | null;
+    context?: Prepared0701 | null
 }
 
 type TotalFieldKey = "bl" | "outturn" | "for_deduction" | "use" | "overall";
@@ -33,62 +32,39 @@ const formatNumber = (value: any) => {
 };
 
 const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
-    data,
+    validateResult,
+    context
 }) => {
-    const auth = useAuthUser<AuthSchema>();
-    const [ocrData, setOcrData] = useState<Prepared0701 | null>(null);
-    const [validateData, setValidateData] = useState<Validate0701Result | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (!auth || !auth.accessToken || !data.id) return;
-        setLoading(true);
-        getPrepared0701(data.id, auth)
-            .then((res) => setOcrData(res.data))
-            .catch(() => setOcrData(null))
-            .finally(() => setLoading(false));
-    }, [data.id, auth]);
-
-    useEffect(() => {
-        if (!ocrData) return;
-        validate0701New(ocrData)
-            .then(res => {
-                if (res) setValidateData(res.data);
-            });
-    }, [ocrData]);
-
-    if (loading) {
-        return <div>กำลังโหลดข้อมูล...</div>;
-    }
+    const ocrData = context;
 
     if (!ocrData) {
         return <div>ไม่พบข้อมูล</div>;
-    }
+    }    
 
     const fieldLabelMap = getFieldLabelMap(ocrData.fields.material_type);
 
     const hasValue = (val: any) => val !== undefined && val !== null && val !== "" && val !== 0;
 
     const getFieldPassed = (field?: string) =>
-        field && validateData && validateData[field as keyof Validate0701Result]
-            ? (validateData[field as keyof Validate0701Result] as any).passed
+        field && validateResult && validateResult[field as keyof Validate0701Result]
+            ? (validateResult[field as keyof Validate0701Result] as any).passed
             : undefined;
 
     const getReportPassed = (idx: number, field: string) => {
         if (field === "main_product") return true;
-        return validateData?.reports &&
-            validateData.reports[idx] &&
-            validateData.reports[idx][field as keyof typeof validateData.reports[0]]
-            ? (validateData.reports[idx][field as keyof typeof validateData.reports[0]] as any).passed
+        return validateResult?.reports &&
+            validateResult.reports[idx] &&
+            validateResult.reports[idx][field as keyof typeof validateResult.reports[0]]
+            ? (validateResult.reports[idx][field as keyof typeof validateResult.reports[0]] as any).passed
             : undefined;
     };
 
     const getReportProductsQuantityPassed = (idx: number) =>
-        validateData?.reports?.[idx]?.products?.map((prod: any) => prod.quantity?.passed);
+        validateResult?.reports?.[idx]?.products?.map((prod: any) => prod.quantity?.passed);
 
     const getTotalPassed = (field: string) =>
-        validateData?.total && validateData.total[field as keyof typeof validateData.total]
-            ? (validateData.total[field as keyof typeof validateData.total] as any).passed
+        validateResult?.total && validateResult.total[field as keyof typeof validateResult.total]
+            ? (validateResult.total[field as keyof typeof validateResult.total] as any).passed
             : undefined;
 
     const headFields = [

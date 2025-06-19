@@ -1,17 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { OcrTaxForm0307Document } from "../../types/ocrFileType";
 import { FaRegCheckSquare, FaRegSquare } from "react-icons/fa";
-import { validateOil0307 } from "../../utils/api/validateApi";
 import { useCompanyStore } from "../../store/companyStore";
 
 interface Props {
     data: OcrTaxForm0307Document;
+    validateResult: any;
 }
 
-const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
+const ChecklistTaxForm0307: React.FC<Props> = ({ data, validateResult }) => {
     const { selectedCompany } = useCompanyStore();
-    const factoriesNumber = localStorage.getItem("warehouse") ?? null;
-    const [validationResult, setValidationResult] = useState<any>(null);
 
     const cleanValue = (val?: string | null): string => {
         if (!val || val.trim() === "" || val === ":unselected:") return "";
@@ -50,7 +48,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
     );
 
     const taxTypePassed = (() => {
-        const props = validationResult?.data?.[0]?.properties;
+        const props = validateResult?.data?.[0]?.properties;
         if (!props) return null;
         const key = "ประเภทภาษี";
         if (typeof props[key]?.passed === "boolean") return props[key].passed;
@@ -102,7 +100,6 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
 
     const columnLabelMap: Partial<Record<string, string>> = useMemo(() => {
         if (selectedCompany?.name?.toLowerCase() === "shell") {
-            // กรณี shell — ใส่เฉพาะ key ที่ต้องการ
             return {
                 column_1: "ลำดับ",
                 column_2: "ประเภทที่",
@@ -117,10 +114,8 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                 column_11: "ภาษีต่อปริมาณสินค้าทั้งหมด ตามปริมาณ",
                 column_12: "รวมภาษีสรรพสามิต (บาท)",
                 column_13: "ภาษีเก็บเพิ่มฯ (บาท)",
-                // *** ไม่ต้องใส่ column_14, column_15 เลย ***
             };
         }
-        // default
         return {
             column_1: "ลำดับ",
             column_2: "ประเภทที่",
@@ -162,76 +157,8 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
         const props = extractProperties(d[3]);
         if (!props.column_1?.value) return d.slice(4);
         return d.slice(3);
-    }, [data.detail_table]);
-
-    const ocrFieldRows = useMemo(() => {
-        const rows: { properties: Record<string, { value: string; passed: boolean }> }[] = [];
-        const headerProps: Record<string, { value: string; passed: boolean }> = {};
-
-        fields.forEach(({ label, value }) => {
-            if (label === "ชำระภาษีสำหรับ") {
-                if (data.tax_type_1_check === ":selected:") {
-                    headerProps["ประเภทภาษี"] = { value: "แสตมป์สรรพสามิต/เครื่องหมายแสดงการเสียภาษี", passed: true };
-                }
-                if (data.tax_type_2_check === ":selected:") {
-                    headerProps["ประเภทภาษี"] = { value: `สินค้านำออกตั้งแต่ ${cleanTaxTypeDate(data.tax_type_date)}`, passed: true };
-                }
-                if (data.tax_type_3_check === ":selected:") {
-                    headerProps["ประเภทภาษี"] = { value: "ชำระเพิ่มเติม สำหรับใบเสร็จ", passed: true };
-                }
-                if (data.tax_type_4_check === ":selected:") {
-                    headerProps["ประเภทภาษี"] = { value: "อื่น", passed: true };
-                }
-            } else {
-                headerProps[label] = { value: cleanValue(value), passed: true };
-            }
-        });
-
-        rows.push({ properties: headerProps });
-
-        detailRows.forEach((row, rowIndex) => {
-            const rawProps = row.properties;
-            const properties: Record<string, any> =
-                Array.isArray(rawProps) ? rawProps[0] : typeof rawProps === "object" && rawProps !== null ? rawProps : {};
-
-            const rowProps: Record<string, { value: string; passed: boolean }> = {};
-
-            Object.entries(columnLabelMap).forEach(([key, colLabel]) => {
-                const value = cleanValue(properties?.[key]?.value ?? "");
-                rowProps[`${colLabel} (แถว ${rowIndex + 4})`] = {
-                    value,
-                    passed: properties?.[key]?.passed ?? false,
-                };
-            });
-
-            rows.push({ properties: rowProps });
-        });
-
-        return rows;
-    }, [data, detailRows]);
-
-    useEffect(() => {
-        if (ocrFieldRows.length > 0 && selectedCompany) {
-            const cleanRows = ocrFieldRows.map(row => ({
-                properties: Object.fromEntries(
-                    Object.entries(row.properties).map(([k, v]) => [k, { value: v.value }])
-                )
-            }));
-
-            const payload = {
-                docType: data.docType,
-                company: selectedCompany.name,
-                factories: factoriesNumber ?? "",
-                documentGroup: data.documentGroup,
-                fields: cleanRows,
-            };
-
-            validateOil0307(payload).then((res) => {
-                setValidationResult(res);
-            });
-        }
-    }, [ocrFieldRows, selectedCompany]);
-
+    }, [data.detail_table]);    
+    
     return (
         <div className="d-flex flex-column gap-3">
             {fields.map(({ label, value }) => (
@@ -252,8 +179,8 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                                     borderStyle: "solid",
                                     minHeight: "43px",
                                     borderColor:
-                                        typeof validationResult?.data[0]?.properties?.[label]?.passed === "boolean"
-                                            ? validationResult.data[0].properties[label].passed
+                                        typeof validateResult?.data[0]?.properties?.[label]?.passed === "boolean"
+                                            ? validateResult.data[0].properties[label].passed
                                                 ? "#22C659"
                                                 : "#FF0100"
                                             : "#22C659",
@@ -277,7 +204,7 @@ const ChecklistTaxForm0307: React.FC<Props> = ({ data }) => {
                         {Object.entries(columnLabelMap).map(([columnKey, label]) => {
                             const value = properties?.[columnKey]?.value ?? "";
                             const apiKey = getApiPropertyKey(columnKey, rowIndex);
-                            const passed = validationResult?.data?.[rowIndex + 1]?.properties?.[apiKey]?.passed;
+                            const passed = validateResult?.data?.[rowIndex + 1]?.properties?.[apiKey]?.passed;
 
                             return (
                                 <div key={`${rowIndex}-${columnKey}`}>

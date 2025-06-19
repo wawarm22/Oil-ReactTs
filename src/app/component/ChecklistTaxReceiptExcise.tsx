@@ -1,53 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrTaxReceiptExciseDocument } from "../../types/ocrFileType";
-import { getPreparedReceiptExcise, validateReceiptExcise } from "../../utils/api/validateApi";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { AuthSchema } from "../../types/schema/auth";
 import { OcrReceiptExciseData } from "../../types/validateTypes";
 import { ValidateReceiptExciseResult } from "../../types/validateResTypes";
 
 interface Props {
     data: OcrTaxReceiptExciseDocument;
+    validateResult: ValidateReceiptExciseResult | null;
+    context: OcrReceiptExciseData | null;
 }
 
-const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
-    const auth = useAuthUser<AuthSchema>();
-    const [ocrData, setOcrData] = useState<OcrReceiptExciseData | null>(null);
-    const [validateData, setValidateData] = useState<ValidateReceiptExciseResult | null>(null);
-    const [loading, setLoading] = useState(true);
-
+const ChecklistTaxReceiptExcise: React.FC<Props> = ({ validateResult, context }) => {
+    const ocrData = context; 
+    
     const cleanValue = (val?: any): string => {
         const v = typeof val === "object" && val !== null ? val.value : val;
         if (!v || typeof v !== "string" || v.trim() === "" || v === ":unselected:") return "";
         return v.trim();
     };
-
-    useEffect(() => {
-        if (!auth || !auth.accessToken || !data.id) return;
-        setLoading(true);
-        getPreparedReceiptExcise(data.id, auth)
-            .then(res => {
-                setOcrData(res.data);
-            })
-            .catch(() => {
-                setOcrData(null);
-            })
-            .finally(() => setLoading(false));
-    }, [data.id, auth]);
-
-    useEffect(() => {
-        if (!ocrData) return;
-        validateReceiptExcise(ocrData)
-            .then(res => {
-                if (res?.data) {
-                    setValidateData(res.data);
-                }
-            });
-    }, [ocrData]);
-
-    if (loading) {
-        return <div>กำลังโหลดข้อมูล...</div>;
-    }
 
     const fieldDefs = [
         { label: "เลขที่ใบเสร็จ", key: "receipt_no" },
@@ -73,7 +42,7 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
         <div className="d-flex flex-column gap-2">
             {fieldDefs.map(({ label, key }, idx) => {
                 const value = ocrData?.fields[key as keyof OcrReceiptExciseData["fields"]];
-                const validateField = validateData?.[key as keyof ValidateReceiptExciseResult];
+                const validateField = validateResult?.[key as keyof ValidateReceiptExciseResult];
                 const borderColor = getItemColor(
                     !Array.isArray(validateField) && typeof validateField === "object"
                         ? (validateField as { passed?: boolean })
@@ -117,12 +86,12 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                                 className="rounded-2 shadow-sm bg-white p-2 mb-1"
                                 style={{
                                     fontSize: "14px",
-                                    border: `1.5px solid ${getItemColor(validateData?.items?.[i]?.description)}`
+                                    border: `1.5px solid ${getItemColor(validateResult?.items?.[i]?.description)}`
                                 }}
                             >
                                 {cleanValue(
-                                    Array.isArray(validateData?.items)
-                                        ? validateData.items[i]?.description?.value
+                                    Array.isArray(validateResult?.items)
+                                        ? validateResult.items[i]?.description?.value
                                         : item.description
                                 )}
                             </div>
@@ -131,11 +100,11 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                                 className="rounded-2 shadow-sm bg-white p-2"
                                 style={{
                                     fontSize: "14px",
-                                    border: `1.5px solid ${getItemColor(validateData?.items?.[i]?.amount)}`
+                                    border: `1.5px solid ${getItemColor(validateResult?.items?.[i]?.amount)}`
                                 }}
                             >
-                                {Array.isArray(validateData?.items)
-                                    ? validateData.items[i]?.amount?.value
+                                {Array.isArray(validateResult?.items)
+                                    ? validateResult.items[i]?.amount?.value
                                     : item.amount}
                             </div>
                         </div>
@@ -147,17 +116,17 @@ const ChecklistTaxReceiptExcise: React.FC<Props> = ({ data }) => {
                             style={{
                                 fontSize: "14px",
                                 border: `1.5px solid ${getItemColor(
-                                    !Array.isArray(validateData?.total_amount) &&
-                                    typeof validateData?.total_amount === "object"
-                                        ? validateData?.total_amount
+                                    !Array.isArray(validateResult?.total_amount) &&
+                                        typeof validateResult?.total_amount === "object"
+                                        ? validateResult?.total_amount
                                         : undefined
                                 )}`
                             }}
                         >
-                            {validateData?.total_amount &&
-                            !Array.isArray(validateData.total_amount) &&
-                            "value" in validateData.total_amount
-                                ? validateData.total_amount.value
+                            {validateResult?.total_amount &&
+                                !Array.isArray(validateResult.total_amount) &&
+                                "value" in validateResult.total_amount
+                                ? validateResult.total_amount.value
                                 : ocrData.fields.total_amount}
                         </div>
                     </div>

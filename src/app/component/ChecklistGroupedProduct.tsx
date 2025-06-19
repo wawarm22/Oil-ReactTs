@@ -1,43 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrGroupedProductDocument } from "../../types/ocrFileType";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { AuthSchema } from "../../types/schema/auth";
-import { getPreparedFormularApprov, validateFormularApprov } from "../../utils/api/validateApi";
 import { PreparedFormularApprovResponse } from "../../types/preparedTypes";
 import { ValidateFormularApprovData } from "../../types/validateResTypes";
 
 interface ChecklistGroupedProductProps {
     data: OcrGroupedProductDocument;
-    validateResult: ValidateFormularApprovData;
+    validateResult: ValidateFormularApprovData | null;
+    context?: PreparedFormularApprovResponse | null;
 }
 
-const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({ data }) => {
-    const auth = useAuthUser<AuthSchema>();
-    const [ocrData, setOcrData] = useState<PreparedFormularApprovResponse | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [validateResult, setValidateResult] = useState<ValidateFormularApprovData | null>(null);
-
-    useEffect(() => {
-        if (!auth || !data.id) return;
-
-        setLoading(true);
-        getPreparedFormularApprov(data.id, auth)
-            .then(res => setOcrData(res.data))
-            .catch(() => setOcrData(null))
-            .finally(() => setLoading(false));
-    }, [data.id, auth]);
-
-    useEffect(() => {
-        if (!ocrData) return;
-        validateFormularApprov(ocrData)
-            .then(res => setValidateResult(res.data))
-            .catch(() => setValidateResult(null));
-    }, [ocrData]);
-
-    if (loading) return <div>กำลังรอข้อมูล...</div>;
+const ChecklistGroupedProduct: React.FC<ChecklistGroupedProductProps> = ({
+    validateResult,
+    context,
+}) => {
+    const ocrData = context;  
     if (!ocrData || !ocrData.fields?.items?.length) {
         return <p className="text-muted">ไม่พบข้อมูล</p>;
-    }
+    }    
 
     return (
         <div className="d-flex flex-column gap-4">

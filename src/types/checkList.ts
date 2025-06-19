@@ -73,3 +73,11 @@ export type ValidateResultsByDoc = {
         };
     };
 };
+
+export type ContextByDocType = {
+  [docId: number]: {
+    [subIdx: number]: {
+      [pageNum: number]: any; 
+    }
+  }
+};
