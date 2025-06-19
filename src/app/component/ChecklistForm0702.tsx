@@ -37,6 +37,12 @@ const ChecklistForm0702: React.FC<Props> = ({ data, validateResult }) => {
         return values.some((cell) => cleanCellValue(cell?.value).includes("รวมเดือนนี้"));
     });
 
+    const replacements: [RegExp, string][] = [
+        [/2 # # 63/g, "2 ส.ค. 63"],
+        [/6 m\.A\. 63/gi, "6 ส.ค. 63"],
+        [/31 A\.A\. 63/gi, "31 ส.ค. 63"],
+    ];
+
     const summaryContent: { label: string; value: string }[] = [];
     if (summaryRow) {
         const props = summaryRow.properties as Record<string, any>;
@@ -86,7 +92,7 @@ const ChecklistForm0702: React.FC<Props> = ({ data, validateResult }) => {
         Object.values(row.properties).some(cell => (cell.value ?? "").includes("รวมเดือนนี้"))
     );
     const rowsToDisplay =
-        stopAtIdx === -1 ? ocrFieldRows : ocrFieldRows.slice(0, stopAtIdx);    
+        stopAtIdx === -1 ? ocrFieldRows : ocrFieldRows.slice(0, stopAtIdx);
 
     return (
         <div className="d-flex flex-column">
@@ -120,6 +126,8 @@ const ChecklistForm0702: React.FC<Props> = ({ data, validateResult }) => {
                 return (
                     <div key={idx} className="d-flex flex-column gap-1 pt-3 border-top mt-3">
                         {fixedLabels.map(({ key, label }) => {
+                            const formatRawValue = (value: string) =>
+                                replacements.reduce((acc, [pattern, replacement]) => acc.replace(pattern, replacement), value);
                             const raw = row.properties[label]?.value ?? "";
                             const cellValidation = validateRow?.properties?.[label];
                             const borderColor = cellValidation?.passed === true
@@ -141,7 +149,7 @@ const ChecklistForm0702: React.FC<Props> = ({ data, validateResult }) => {
                                             border: `1.5px solid ${borderColor}`,
                                         }}
                                     >
-                                        {raw}
+                                        {formatRawValue(raw)}
                                     </div>
                                 </React.Fragment>
                             );
@@ -157,7 +165,7 @@ const ChecklistForm0702: React.FC<Props> = ({ data, validateResult }) => {
                         const fixed = fixedLabels.find(fl => fl.label === label);
                         const summaryValidationRow = validateResult?.data?.[validateResult.data.length - 2];
                         console.log("summaryValidationRow", summaryValidationRow);
-                        
+
                         const cellValidation = summaryValidationRow?.properties?.[label];
                         const borderColor = cellValidation?.passed === true
                             ? "#22C659"

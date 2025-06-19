@@ -11,6 +11,10 @@ interface Props {
 
 const ChecklistTaxReceiptExcise: React.FC<Props> = ({ validateResult, context }) => {
     const ocrData = context; 
+
+    if (!ocrData) {
+        return <div>ไม่พบข้อมูล</div>;
+    }
     
     const cleanValue = (val?: any): string => {
         const v = typeof val === "object" && val !== null ? val.value : val;
