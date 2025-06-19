@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrTaxForm0503Document } from "../../types/ocrFileType";
-import { AuthSchema } from "../../types/schema/auth";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { getPrepared0503, validate0503Page1 } from "../../utils/api/validateApi";
 import { Validate0503Page1Payload } from "../../types/validateTypes";
 
 interface Props {
     data: OcrTaxForm0503Document;
+    validateResult: any;
+    context: Validate0503Page1Payload | null;
 }
 
-const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
-    const auth = useAuthUser<AuthSchema>();
-    const [ocrData, setOcrData] = useState<Validate0503Page1Payload | null>(null);
-    const [validateData, setValidateData] = useState<any | null>(null);
-    const [loading, setLoading] = useState(true);
+const ChecklistTaxForm0503: React.FC<Props> = ({ validateResult, context }) => {
+
+    const ocrData = context;
+
+    if (!ocrData) {
+        return <div>ไม่พบข้อมูล</div>;
+    }
 
     const cleanValue = (val?: string | null): string => {
         if (!val || val.toString().trim() === "" || val === ":unselected:") return "";
@@ -22,45 +23,16 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
         return str;
     };
 
-    useEffect(() => {
-        if (!auth || !auth.accessToken || !data.id) return;
-
-        setLoading(true);
-        getPrepared0503(data.id, auth)
-            .then(res => {
-                setOcrData(res.data);
-            })
-            .catch(() => {
-                setOcrData(null);
-            })
-            .finally(() => setLoading(false));
-    }, [data.id, auth]);
-
-    useEffect(() => {
-        if (!ocrData) return;
-
-        validate0503Page1(ocrData)
-            .then(res => {
-                if (res?.data) {
-                    setValidateData(res.data);
-                }
-            });
-    }, [ocrData]);
-
-    if (loading) {
-        return <div>กำลังโหลดข้อมูล...</div>;
-    }
-
     const getBorderColor = (fieldKey: string): string => {
-        if (!validateData || !validateData[fieldKey]) return "1px solid #22C659";
-        return validateData[fieldKey].passed ? "1px solid #22C659" : "1px solid #FF0100";
+        if (!validateResult || !validateResult[fieldKey]) return "1px solid #22C659";
+        return validateResult[fieldKey].passed ? "1px solid #22C659" : "1px solid #FF0100";
     };
 
     const fields = [
         { key: "company_name", label: "ชื่อผู้ประกอบอุตสาหกรรม", value: cleanValue(ocrData?.fields.company_name) },
         { key: "factory_name", label: "ชื่อโรงอุตสาหกรรม", value: cleanValue(ocrData?.fields.factory_name) },
         // { key: "excise_no", label: "ทะเบียนสรรพสามิตเลขที่", value: cleanValue(ocrData?.fields.excise_no) },
-        { key: "excise_no", label: "ทะเบียนสรรพสามิตเลขที่", value: validateData?.excise_no.value },
+        { key: "excise_no", label: "ทะเบียนสรรพสามิตเลขที่", value: validateResult?.excise_no.value },
         { key: "address_no", label: "สถานที่ตั้งเลขที่", value: cleanValue(ocrData?.fields.address_no) },
         { key: "soi", label: "ตรอก/ซอย", value: cleanValue(ocrData?.fields.soi) },
         { key: "street", label: "ถนน", value: cleanValue(ocrData?.fields.street) },
@@ -95,7 +67,7 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
                 ) : null
             )}
 
-            {ocrData?.fields?.products && validateData?.products && (
+            {ocrData?.fields?.products && validateResult?.products && (
                 <>
                     {ocrData.fields.products.map((product, index) => {
                         // const validationProduct = validateData.products[index];
@@ -110,18 +82,11 @@ const ChecklistTaxForm0503: React.FC<Props> = ({ data }) => {
                             { key: "tax_by_volumn_satang", label: "อัตราภาษีตามปริมาณ (สต.)", value: product.tax_by_volumn_satang.toString() },
                             { key: "discount_baht", label: "จำนวนเงินลดหย่อน (บาท)", value: product.discount_baht.toString() },
                             { key: "discount_satang", label: "จำนวนเงินลดหย่อน (สต.)", value: product.discount_satang.toString() },
-                        ];
-
-                        // const getProductBorderColor = (key: string): string => {
-                        //     if (!validateData?.products) return "1px solid #22C659";
-                        //     const product = validateData.products.find((p: any) => p[key]);
-                        //     if (!product || !product[key]) return "1px solid #22C659";
-                        //     return product[key].passed ? "1px solid #22C659" : "1px solid #FF0100";
-                        // };
+                        ];                        
 
                         const getProductBorderColor = (key?: string): string => {
-                            if (!validateData?.products || !key) return "1px solid #22C659";
-                            const validationProduct = validateData.products[index];
+                            if (!validateResult?.products || !key) return "1px solid #22C659";
+                            const validationProduct = validateResult.products[index];
                             if (!validationProduct || !validationProduct[key]) return "1px solid #22C659";
                             return validationProduct[key].passed ? "1px solid #22C659" : "1px solid #FF0100";
                         };

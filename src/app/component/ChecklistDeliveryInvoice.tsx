@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrDeliveryInvoiceDocument } from "../../types/ocrFileType";
-import { getPreparedInvoiceTax, validateInvoiceTax } from "../../utils/api/validateApi";
-import { AuthSchema } from "../../types/schema/auth";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { OcrInvoiceTaxData } from "../../types/validateTypes";
 import { ValidateInvoiceTaxItem, ValidateInvoiceTaxResult } from "../../types/validateResTypes";
 import { isValidateFieldTax } from "../../utils/function/isValidateFieldTax";
 
 interface Props {
     data: OcrDeliveryInvoiceDocument;
+    validateResult: ValidateInvoiceTaxResult | null;
+    context: OcrInvoiceTaxData | null;
 }
 
-const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
-    const auth = useAuthUser<AuthSchema>();
-    const [ocrData, setOcrData] = useState<OcrInvoiceTaxData | null>(null);
-    const [validateData, setValidateData] = useState<ValidateInvoiceTaxResult | null>(null);
-    const [loading, setLoading] = useState(true);
+const ChecklistDeliveryInvoice: React.FC<Props> = ({ data, context, validateResult }) => {
+    const ocrData = context;
+
+    if (!ocrData) {
+        return <div>ไม่พบข้อมูล</div>;
+    }
 
     const cleanValue = (val?: string | number | null): string => {
         if (val === null || val === undefined) return "";
@@ -28,27 +28,6 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
 
     const borderColor = (passed?: boolean) =>
         `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#CED4DA"}`;
-
-    useEffect(() => {
-        if (!auth || !auth.accessToken || !data.id) return;
-        setLoading(true);
-        getPreparedInvoiceTax(data.id, auth)
-            .then(res => setOcrData(res.data))
-            .catch(() => setOcrData(null))
-            .finally(() => setLoading(false));
-    }, [data.id, auth]);
-
-    useEffect(() => {
-        if (!ocrData) return;
-        validateInvoiceTax(ocrData)
-            .then(res => {
-                if (res?.data) setValidateData(res.data);
-            });
-    }, [ocrData]);
-
-    if (loading) {
-        return <div>กำลังโหลดข้อมูล...</div>;
-    }
 
     const fields: { key: keyof ValidateInvoiceTaxResult, label: string, fallback?: any }[] = [
         { key: "tax_invoice_no", label: "ใบกำกับภาษีเลขที่", fallback: data.tax_invoice_no },
@@ -108,7 +87,7 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
 
             {/* Main fields */}
             {fields.map(({ key, label, fallback }) => {
-                const validField = validateData?.[key];
+                const validField = validateResult?.[key];
                 const border = isValidateFieldTax(validField)
                     ? borderColor(validField.passed)
                     : borderColor(undefined);
@@ -134,10 +113,10 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
             })}
 
             {/* รายการสินค้า */}
-            {Array.isArray(validateData?.items) && validateData.items.length > 0 && (
+            {Array.isArray(validateResult?.items) && validateResult.items.length > 0 && (
                 <>
-                    <hr className="m-0 mt-3 mb-2"/>
-                    {validateData.items.map((item, idx) => (
+                    <hr className="m-0 mt-3 mb-2" />
+                    {validateResult.items.map((item, idx) => (
                         <div key={idx} className="d-flex flex-column gap-2 mb-2">
                             {itemFields.map(({ key, label }) => {
                                 const validItem = item[key];
@@ -163,9 +142,9 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
             )}
 
             {/* ยอดรวมและอื่นๆ */}
-            <hr className="m-0 my-2"/>
+            <hr className="m-0 my-2" />
             {totalFields.map(({ key, label, fallback }) => {
-                const validField = validateData?.[key];
+                const validField = validateResult?.[key];
                 const showValue = isValidateFieldTax(validField)
                     ? validField.value
                     : fallback;
@@ -189,7 +168,7 @@ const ChecklistDeliveryInvoice: React.FC<Props> = ({ data }) => {
             {/* ฟิลด์เสริม */}
             <hr />
             {extraFields.map(({ key, label, fallback }) => {
-                const validField = validateData?.[key];
+                const validField = validateResult?.[key];
                 const showValue = isValidateFieldTax(validField)
                     ? validField.value
                     : fallback;

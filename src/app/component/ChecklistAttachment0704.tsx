@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrAttachment0704Document } from "../../types/ocrFileType";
-import { getPrepared0704, validateOil0704 } from "../../utils/api/validateApi";
-import { AuthSchema } from "../../types/schema/auth";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { Prepared0704 } from "../../types/preparedTypes";
 import { ValidateOil0704Result } from "../../types/validateResTypes";
 import { borderColor } from "../../utils/function/getBorderColor";
 
 interface Props {
     data: OcrAttachment0704Document;
+    validateResult: ValidateOil0704Result | null;
+    context: Prepared0704 | null;
 }
 
 const formatNumber = (val: any) => {
@@ -24,28 +23,8 @@ const formatNumber = (val: any) => {
     return val;
 };
 
-const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
-    const auth = useAuthUser<AuthSchema>();
-    const [ocrData, setOcrData] = useState<Prepared0704 | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [validateResult, setValidateResult] = useState<ValidateOil0704Result | null>(null);
-
-    useEffect(() => {
-        if (!auth || !data.id) return;
-        setLoading(true);
-        getPrepared0704(data.id, auth)
-            .then(res => setOcrData(res.data))
-            .catch(() => setOcrData(null))
-            .finally(() => setLoading(false));
-    }, [data.id, auth]);
-
-    useEffect(() => {
-        if (!ocrData) return;
-        validateOil0704(ocrData)
-            .then(res => setValidateResult(res.data))
-            .catch(() => setValidateResult(null));
-    }, [ocrData]);
-
+const ChecklistAttachment0704: React.FC<Props> = ({ validateResult, context }) => {
+   
     const renderBox = (label: string, value: any, passed?: boolean, key?: React.Key) => {
         let displayValue = value === undefined || value === null || value === "" ? "" : value;
         if (
@@ -72,7 +51,7 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         );
     };
 
-    if (loading) return <div>กำลังรอข้อมูล...</div>;
+    const ocrData = context;
     if (!ocrData) return <div className="text-muted">ไม่พบข้อมูล</div>;
 
     const { fields } = ocrData;
@@ -116,12 +95,10 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
         { label: "คงเหลือยกไป", key: "forward" },
     ];
 
-    // ฟังก์ชันดึง value จาก FieldValidation หรือปกติ
     const getFieldValue = (val: any) => {
         if (val && typeof val === "object" && "value" in val) return val.value;
         return val;
     };
-    // ฟังก์ชันดึง passed จาก FieldValidation
     const getPassed = (val: any) => {
         if (val && typeof val === "object" && "passed" in val) return val.passed;
         return undefined;
@@ -129,7 +106,6 @@ const ChecklistAttachment0704: React.FC<Props> = ({ data }) => {
 
     return (
         <div className="d-flex flex-column gap-3">
-            {/* ข้อมูลหลัก */}
             {infoFields.map(({ label, key }) =>
                 renderBox(
                     label,

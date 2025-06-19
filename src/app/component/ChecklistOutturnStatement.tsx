@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrOutturnStatementDocument } from "../../types/ocrFileType";
-import { validateOutturn } from "../../utils/api/validateApi";
 import { useCompanyStore } from "../../store/companyStore";
 
 interface Props {
     data: OcrOutturnStatementDocument;
+    validateResult: any;
 }
 
-const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
-    const [validationResult, setValidationResult] = useState<any>(null);
+const ChecklistOutturnStatement: React.FC<Props> = ({ data, validateResult }) => {
     const { selectedCompany } = useCompanyStore();
-    const factoriesNumber = localStorage.getItem("warehouse") ?? null;
 
     const cleanValue = (val?: any): string => {
         if (val === null || val === undefined) return "";
@@ -21,43 +19,11 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
 
     const value = data.detail_table_1?.[27]?.properties?.column_2;
     const rawQuantity = value ? cleanValue(value.value) : "";
-    const quantityWithComma = rawQuantity.replace(/\./g, ',');
-    const valueQuantityNum = quantityWithComma ? Number(quantityWithComma.replace(/,/g, "")) : 0;
     const dateFormatted = typeof data.date === "string"
         ? data.date.replace(/[:,;]/g, ".")
         : data.date;
 
-    const quality = data.supplier_table?.[2]?.properties?.column_7?.value;
-
-    useEffect(() => {
-        if (!data) return;
-
-        const validateFields = {
-            date: cleanValue(dateFormatted),
-            product: cleanValue(data.product),
-            quality: "LITRES @30 deg.C",
-            quantity: valueQuantityNum,
-        };
-
-        // const validateFieldsShell = {
-        //     date: cleanValue(data.posting_date),
-        //     product: cleanValue(data.product),
-        //     quality: "LITRES @30 deg.C",
-        //     quantity: quality,
-        // };
-
-        const validateData = {
-            docType: data.docType,
-            company: selectedCompany?.name,
-            factories: factoriesNumber,
-            documentGroup: data.documentGroup || "",
-            fields: validateFields,
-        };
-
-        validateOutturn(validateData).then((result) => {
-            setValidationResult(result);
-        });
-    }, [data, selectedCompany, factoriesNumber]);
+    const quality = data.supplier_table?.[2]?.properties?.column_7?.value;    
 
     const formatWithComma = (val: string | number) => {
         if (typeof val === "number") return val.toLocaleString();
@@ -80,7 +46,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
         fieldKey: string,
         value: any
     ) => {
-        const v = validationResult?.data?.[fieldKey];
+        const v = validateResult?.data?.[fieldKey];
         return (
             <div className="mb-2" key={fieldKey}>
                 <div className="fw-bold">{label}</div>
@@ -114,7 +80,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data }) => {
                             className="rounded-2 shadow-sm bg-white p-2"
                             style={{
                                 fontSize: "14px",
-                                border: borderColor(validationResult?.data?.[item.key]?.passed),
+                                border: borderColor(validateResult?.data?.[item.key]?.passed),
                             }}
                         >
                             {cleanValue(item.value)}

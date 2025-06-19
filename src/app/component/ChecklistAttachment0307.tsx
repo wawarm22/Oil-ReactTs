@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrAttachment0307Document } from "../../types/ocrFileType";
 import { cleanCellValue, renderLabel } from "../../utils/function/ocrUtils";
-import { getPrepared0307, validateAttachment0307 } from "../../utils/api/validateApi";
-import { useCompanyStore } from "../../store/companyStore";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { AuthSchema } from "../../types/schema/auth";
-import { PreparedTaxData, validateAttachment0307Payload } from "../../types/validateTypes";
+import { PreparedTaxData } from "../../types/validateTypes";
 import { ValidationResult0307 } from "../../types/validateResTypes";
 import { DailyDetailSection } from "./DailyDetailSection";
 import { TaxSummarySection } from "./TaxSummarySection";
 
 interface Props {
     data: OcrAttachment0307Document;
+    validateResult: ValidationResult0307 | null;
+    context: PreparedTaxData | null;
 }
 
 type TaxSummaryFieldKey = "raw_tax" | "discount_105";
@@ -55,43 +53,12 @@ const buildDetailFields = (row: any, _idx: number) => {
     }
 };
 
-const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
-    const auth = useAuthUser<AuthSchema>();
-    const { selectedCompany } = useCompanyStore();
-    const factoriesNumber = localStorage.getItem("warehouse") ?? "";
-    const [preparedData, setPreparedData] = useState<PreparedTaxData | null>(null);
-    const [validationResult, setValidationResult] = useState<ValidationResult0307 | null>(null);
-
-    useEffect(() => {
-        if (data.id && auth) {
-            getPrepared0307(data.id, auth).then((res) => {
-                if (res && res.data) {
-                    setPreparedData(res.data);
-                } else {
-                    setPreparedData(null);
-                }
-            });
-        }
-    }, [data.id, auth]);
-
-    useEffect(() => {
-        if (
-            preparedData &&
-            selectedCompany &&
-            data.documentGroup
-        ) {
-            const payload: validateAttachment0307Payload = {
-                docType: data.docType,
-                company: selectedCompany.name,
-                factories: factoriesNumber,
-                documentGroup: data.documentGroup,
-                fields: preparedData
-            };
-            validateAttachment0307(payload).then((res) => {
-                setValidationResult(res?.data ?? null);
-            });
-        }
-    }, [preparedData, selectedCompany, data]);
+const ChecklistAttachment0307: React.FC<Props> = ({ data, validateResult, context }) => {
+    const preparedData = context;
+    
+    if (!preparedData) {
+        return <div>ไม่พบข้อมูล</div>;
+    }
 
     return (
         <div className="d-flex flex-column gap-2">
@@ -102,7 +69,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                     className="rounded-2 shadow-sm bg-white p-2"
                     style={{
                         minHeight: "42px",
-                        border: `1.5px solid ${validationResult?.header?.passed === true ? "#22C659" : validationResult?.header?.passed === false ? "#FF0100" : "#22C659"}`
+                        border: `1.5px solid ${validateResult?.header?.passed === true ? "#22C659" : validateResult?.header?.passed === false ? "#FF0100" : "#22C659"}`
                     }}
                 >
                     {preparedData?.header}
@@ -114,7 +81,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                     className="rounded-2 shadow-sm bg-white p-2 mb-2"
                     style={{
                         minHeight: "42px",
-                        border: `1.5px solid ${validationResult?.from_date?.passed === true ? "#22C659" : validationResult?.from_date?.passed === false ? "#FF0100" : "#22C659"}`
+                        border: `1.5px solid ${validateResult?.from_date?.passed === true ? "#22C659" : validateResult?.from_date?.passed === false ? "#FF0100" : "#22C659"}`
                     }}
                 >
                     {cleanCellValue(preparedData?.from_date)}
@@ -124,7 +91,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                     className="rounded-2 shadow-sm bg-white p-2"
                     style={{
                         minHeight: "42px",
-                        border: `1.5px solid ${validationResult?.from_date?.passed === true ? "#22C659" : validationResult?.to_date?.passed === false ? "#FF0100" : "#22C659"}`
+                        border: `1.5px solid ${validateResult?.from_date?.passed === true ? "#22C659" : validateResult?.to_date?.passed === false ? "#FF0100" : "#22C659"}`
                     }}
                 >
                     {cleanCellValue(preparedData?.to_date)}
@@ -136,7 +103,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                     className="rounded-2 shadow-sm bg-white p-2"
                     style={{
                         minHeight: "42px",
-                        border: `1.5px solid ${validationResult?.product_name?.passed === true ? "#22C659" : validationResult?.product_name?.passed === false ? "#FF0100" : "#22C659"}`
+                        border: `1.5px solid ${validateResult?.product_name?.passed === true ? "#22C659" : validateResult?.product_name?.passed === false ? "#FF0100" : "#22C659"}`
                     }}
                 >
                     {preparedData?.product_name}
@@ -150,7 +117,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                             key={idx}
                             row={row}
                             idx={idx}
-                            detailValidation={validationResult?.details?.[idx]}
+                            detailValidation={validateResult?.details?.[idx]}
                             buildDetailFields={buildDetailFields}
                         />
                     ))}
@@ -165,7 +132,7 @@ const ChecklistAttachment0307: React.FC<Props> = ({ data }) => {
                             taxKey={taxType.key as keyof PreparedTaxData["taxes"]}
                             taxLabel={taxType.label}
                             taxes={preparedData.taxes}
-                            validationResult={validationResult?.taxes}
+                            validationResult={validateResult?.taxes}
                             taxSubFields={taxSubFields}
                         />
                     ))}

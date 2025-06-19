@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrDeliveryInvoicePipline } from "../../types/ocrFileType";
-import { AuthSchema } from "../../types/schema/auth";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { getPreparedInvoiceThappline, validateInvoiceThappline } from "../../utils/api/validateApi";
 import { InvoiceThappline } from "../../types/validateTypes";
 import { ValidateInvoiceThapplineData } from "../../types/validateResTypes";
 
 interface Props {
     data: OcrDeliveryInvoicePipline;
+    validateResult: ValidateInvoiceThapplineData | null;
+    context: InvoiceThappline | null;
 }
 
-const ChecklistDeliveryInvoicePipline: React.FC<Props> = ({ data }) => {
-    const auth = useAuthUser<AuthSchema>();
-    const [ocrData, setOcrData] = useState<InvoiceThappline | null>(null);
-    const [validateData, setValidateData] = useState<ValidateInvoiceThapplineData | null>(null);
-    const [loading, setLoading] = useState(true);
+const ChecklistDeliveryInvoicePipline: React.FC<Props> = ({ validateResult, context }) => {
+    const ocrData = context;
+
+    if (!ocrData) {
+        return <div>ไม่พบข้อมูล</div>;
+    }
 
     const cleanValue = (val?: string | null): string => {
         if (!val || val.trim() === "" || val === ":unselected:" || val === ":selected:") return "";
@@ -24,23 +24,6 @@ const ChecklistDeliveryInvoicePipline: React.FC<Props> = ({ data }) => {
     const borderColor = (passed?: boolean) =>
         `1.5px solid ${passed === true ? "#22C659" : passed === false ? "#FF0100" : "#CED4DA"}`;
 
-    useEffect(() => {
-        if (!auth || !auth.accessToken || !data.id) return;
-        setLoading(true);
-        getPreparedInvoiceThappline(data.id, auth)
-            .then(res => setOcrData(res.data))
-            .catch(() => setOcrData(null))
-            .finally(() => setLoading(false));
-    }, [data.id, auth]);
-
-    useEffect(() => {
-        if (!ocrData) return;
-        validateInvoiceThappline(ocrData)
-            .then(res => {
-                if (res?.data) setValidateData(res.data);
-            });
-    }, [ocrData]);
-
     const fields = [
         {
             label: "เอกสาร",
@@ -49,52 +32,48 @@ const ChecklistDeliveryInvoicePipline: React.FC<Props> = ({ data }) => {
         },
         {
             label: "ชื่อผลิตภัณฑ์ (PRODUCT)",
-            value: cleanValue(validateData?.product_name.value),
-            passed: validateData?.product_name.passed
+            value: cleanValue(validateResult?.product_name.value),
+            passed: validateResult?.product_name.passed
         },
         {
             label: "เลขที่เอกสาร (DOC NO.)",
-            value: cleanValue(validateData?.doc_no.value),
-            passed: validateData?.doc_no.passed
+            value: cleanValue(validateResult?.doc_no.value),
+            passed: validateResult?.doc_no.passed
         },
         {
             label: "หมายเลขของผู้ประกอบอุตสาหกรรม (CUSTOMER TANK NO.)",
-            value: cleanValue(validateData?.customer_tank_no.value),
-            passed: validateData?.customer_tank_no.passed
+            value: cleanValue(validateResult?.customer_tank_no.value),
+            passed: validateResult?.customer_tank_no.passed
         },
         {
             label: "หมายเลขการผลิต (BATCH NO.)",
-            value: cleanValue(validateData?.batch_no.value),
-            passed: validateData?.batch_no.passed
+            value: cleanValue(validateResult?.batch_no.value),
+            passed: validateResult?.batch_no.passed
         },
         {
             label: "สถานที่เก็บสินค้า (DEPOT)",
-            value: cleanValue(validateData?.depot.value),
-            passed: validateData?.depot.passed
+            value: cleanValue(validateResult?.depot.value),
+            passed: validateResult?.depot.passed
         },
         {
             label: "วันที่ (DATE)",
-            value: cleanValue(validateData?.date.value),
-            passed: validateData?.date.passed
+            value: cleanValue(validateResult?.date.value),
+            passed: validateResult?.date.passed
         },
         {
             label: "เวลา (TIME)",
-            value: cleanValue(validateData?.time.value),
-            passed: validateData?.time.passed
+            value: cleanValue(validateResult?.time.value),
+            passed: validateResult?.time.passed
         }
     ];
 
     const footer = [
-        { label: "NOTE", value: cleanValue(validateData?.note.value), passed: validateData?.note.passed },
-        { label: "BOOK ON", value: cleanValue(validateData?.book_on.value), passed: validateData?.book_on.passed },
+        { label: "NOTE", value: cleanValue(validateResult?.note.value), passed: validateResult?.note.passed },
+        { label: "BOOK ON", value: cleanValue(validateResult?.book_on.value), passed: validateResult?.book_on.passed },
     ];
 
     const table: any[] = Array.isArray(ocrData?.fields.details) ? ocrData.fields.details : [];
-    const validateDetails = Array.isArray(validateData?.details) ? validateData.details : [];
-
-    if (loading) {
-        return <div>กำลังโหลดข้อมูล...</div>;
-    }
+    const validateDetails = Array.isArray(validateResult?.details) ? validateResult.details : [];
 
     return (
         <div className="d-flex flex-column gap-2">

@@ -26,7 +26,7 @@ import ChecklistDeliveryInvoicePipline from "./ChecklistDeliveryInvoicePipline";
 import ChecklistForm0701 from "./ChecklistForm0701";
 import ChecklistForm0702 from "./ChecklistForm0702";
 import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
-import { ValidateResultsByDoc } from "../../types/checkList";
+import { ContextByDocType, ValidateResultsByDoc } from "../../types/checkList";
 
 interface Props {
     ocrDocument: {
@@ -40,6 +40,7 @@ interface Props {
     selectedSubtitleIdx: number | null;
     // onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
     validateResultsByDoc: ValidateResultsByDoc;
+    contextByDoc: ContextByDocType;
 }
 
 const ChecklistPanel: React.FC<Props> = ({
@@ -49,7 +50,8 @@ const ChecklistPanel: React.FC<Props> = ({
     selectedDocId,
     selectedSubtitleIdx,
     // onValidationStatusChange,
-    validateResultsByDoc
+    validateResultsByDoc,
+    contextByDoc
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
     if (!ocrDocument) return (
@@ -74,9 +76,6 @@ const ChecklistPanel: React.FC<Props> = ({
         return <div>กรุณาเลือกเอกสาร</div>;
     }
     const validateResult = validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[currentPage]?.validateResult;
-
-    console.log("validateResult panel", validateResult);
-
     const currentOcrFields = ocrDocument.pages[currentPage];
     const type = detectOcrType(currentOcrFields);
     console.log("Detected OCR type:", type);
@@ -95,6 +94,8 @@ const ChecklistPanel: React.FC<Props> = ({
     ) {
         extraOilType = prevPageFields.oil_type;
     }
+
+    const context = contextByDoc?.[selectedDocId]?.[selectedSubtitleIdx]?.[currentPage];
 
     return (
         <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0 d-flex flex-column gap-2"
@@ -127,7 +128,8 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "grouped_product" && (
                     <ChecklistGroupedProduct
                         data={currentOcrFields as OcrGroupedProductDocument}
-                        validateResult={validateResult}
+                        validateResult={validateResult.data}
+                        context={context}
                     />
                 )}
                 {type === "product_document" && (
@@ -137,28 +139,59 @@ const ChecklistPanel: React.FC<Props> = ({
                     <ChecklistForm0701
                         data={currentOcrFields as OcrStockOilDocument}
                         oilTypeFromPrevPage={extraOilType}
+                        validateResult={validateResult.data}
+                        context={context}
                     />
                 )}
                 {type === "daily_production" && (
-                    <ChecklistForm0702 data={currentOcrFields as OcrDailyProductionDocument} />
+                    <ChecklistForm0702
+                        data={currentOcrFields as OcrDailyProductionDocument}
+                        validateResult={validateResult}
+                    />
                 )}
                 {type === "tax_form_0307" && (
-                    <ChecklistTaxForm0307 data={currentOcrFields as OcrTaxForm0307Document} />
+                    <ChecklistTaxForm0307
+                        data={currentOcrFields as OcrTaxForm0307Document}
+                        validateResult={validateResult}
+                    />
                 )}
                 {type === "refinery_tax_invoice" && (
-                    <ChecklistRefineryTaxInvoice data={currentOcrFields as OcrRefineryTaxInvoiceDocument} />
+                    <ChecklistRefineryTaxInvoice
+                        data={currentOcrFields as OcrRefineryTaxInvoiceDocument}
+                        validateResult={validateResult.data}
+                        context={context}
+                    />
                 )}
                 {type === "import_entry_0409" && (
                     <ChecklistImportEntry0409 data={currentOcrFields as OcrImportEntry0409Document} />
                 )}
                 {type === "outturn_statement" && (
-                    <ChecklistOutturnStatement data={currentOcrFields as OcrOutturnStatementDocument} />
+                    <ChecklistOutturnStatement
+                        data={currentOcrFields as OcrOutturnStatementDocument}
+                        validateResult={validateResult}
+                    />
                 )}
                 {type === "delivery_invoice" && (
-                    <ChecklistDeliveryInvoice data={currentOcrFields as OcrDeliveryInvoiceDocument} />
+                    <ChecklistDeliveryInvoice
+                        data={currentOcrFields as OcrDeliveryInvoiceDocument}
+                        validateResult={validateResult.data}
+                        context={context}
+                    />
                 )}
-                {type === "tax_form_0503" && <ChecklistTaxForm0503 data={currentOcrFields as OcrTaxForm0503Document} />}
-                {type === "tax_form_0503_page2" && <ChecklistTaxForm0503Page2 data={currentOcrFields as OcrTaxForm0503Page2Document} />}
+                {type === "tax_form_0503" && (
+                    <ChecklistTaxForm0503
+                        data={currentOcrFields as OcrTaxForm0503Document}
+                        validateResult={validateResult.data}
+                        context={context}
+                    />
+                )}
+                {type === "tax_form_0503_page2" && (
+                    <ChecklistTaxForm0503Page2
+                        data={currentOcrFields as OcrTaxForm0503Page2Document}
+                        validateResult={validateResult.data}
+                        context={context}
+                    />
+                )}
                 {type === "comparison_0503_0307" && (
                     <ChecklistComparison0503And0307 data={currentOcrFields as OcrComparison0503And0307Document} />
                 )}
@@ -175,22 +208,46 @@ const ChecklistPanel: React.FC<Props> = ({
                     <ChecklistDailyComparison data={currentOcrFields as OcrDailyComparisonDocument} />
                 )}
                 {type === "tax_receipt_excise" && (
-                    <ChecklistTaxReceiptExcise data={currentOcrFields as OcrTaxReceiptExciseDocument} />
+                    <ChecklistTaxReceiptExcise
+                        data={currentOcrFields as OcrTaxReceiptExciseDocument}
+                        validateResult={validateResult.data}
+                        context={context}
+                    />
                 )}
                 {type === "attachment_0307" && (
-                    <ChecklistAttachment0307 data={currentOcrFields as OcrAttachment0307Document} />
+                    <ChecklistAttachment0307
+                        data={currentOcrFields as OcrAttachment0307Document}
+                        validateResult={validateResult.data}
+                        context={context.preparedData}
+                    />
                 )}
                 {type === "attachment_0704" && (
-                    <ChecklistAttachment0704 data={currentOcrFields as OcrAttachment0704Document} />
+                    <ChecklistAttachment0704
+                        data={currentOcrFields as OcrAttachment0704Document}
+                        validateResult={validateResult.data}
+                        context={context}
+                    />
                 )}
                 {type === "tax_form_0502" && (
-                    <ChecklistTaxForm0502 data={currentOcrFields as OcrTaxForm0502Document} />
+                    <ChecklistTaxForm0502
+                        data={currentOcrFields as OcrTaxForm0502Document}
+                        validateResult={validateResult.data}
+                        context={context}
+                    />
                 )}
                 {type === "oil-income-expense" && (
-                    <ChecklistIncomeNExpense data={currentOcrFields as OcrIncomeNExpenseDocument} />
+                    <ChecklistIncomeNExpense
+                        data={currentOcrFields as OcrIncomeNExpenseDocument}
+                        validateResult={validateResult.data}
+                        context={context}
+                    />
                 )}
                 {type === "oil-invoice-pipline" && (
-                    <ChecklistDeliveryInvoicePipline data={currentOcrFields as OcrDeliveryInvoicePipline} />
+                    <ChecklistDeliveryInvoicePipline
+                        data={currentOcrFields as OcrDeliveryInvoicePipline}
+                        validateResult={validateResult.data}
+                        context={context}
+                    />
                 )}
             </div>
         </div>

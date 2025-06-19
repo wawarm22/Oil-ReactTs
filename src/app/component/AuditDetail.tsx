@@ -10,7 +10,7 @@ import { getContextForDocType } from "../../utils/contextGetters";
 import { AuthSchema } from "../../types/schema/auth";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { apiGetAllOcr } from "../../utils/api/OcrListApi";
-import { OcrByDocIdType, ValidateResultsByDoc } from "../../types/checkList";
+import { ContextByDocType, OcrByDocIdType, ValidateResultsByDoc } from "../../types/checkList";
 
 interface AuditDetailProps {
     selectedId: number | null;
@@ -21,6 +21,7 @@ interface AuditDetailProps {
 }
 
 const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusChange }) => {
+    const auth = useAuthUser<AuthSchema>();
     const [currentPage, setCurrentPage] = useState<number>(1);
     const { addCallbacks, removeCallbacks } = useSocket();
     const [selectedOcrDocument, setSelectedOcrDocument] = useState<{
@@ -31,11 +32,10 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
 
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
-
+    const [contextByDoc, setContextByDoc] = useState<ContextByDocType>({});
     const [ocrByDocId, setOcrByDocId] = useState<OcrByDocIdType>({});
     const [validateResultsByDoc, setValidateResultsByDoc] = useState<ValidateResultsByDoc>({});
     const [validationFailStatus, setValidationFailStatus] = useState<Record<string, boolean>>({});
-    const auth = useAuthUser<AuthSchema>();
     const validationRanRef = useRef(false);
 
     const fetchOcrData = async () => {
@@ -43,7 +43,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
 
         for (const folder of folders) {
             try {
-                const data = await apiGetAllOcr(folder);                
+                const data = await apiGetAllOcr(folder);
                 const documents = data?.documents ?? [];
                 for (const document of documents) {
                     const fileName = document.plainOriginalFileName ?? '';
@@ -84,7 +84,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                 console.error("OCR fetch failed:", err);
             }
         }
-        console.log("OCR results", results);        
+        console.log("OCR results", results);
         setOcrByDocId(results);
     };
 
@@ -168,11 +168,21 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                         }
                         setValidateResultsByDoc((prev) => ({ ...prev, [docId]: { ...prev[docId], [subIdx]: { ...prev[docId]?.[subIdx], [pageNum]: { docType, validateResult: res } } } }));
                         setValidationFailStatus((prev) => ({ ...prev, ...statusMap }));
+                        setContextByDoc((prev) => ({
+                            ...prev,
+                            [docId]: {
+                                ...(prev[docId] || {}),
+                                [subIdx]: {
+                                    ...(prev[docId]?.[subIdx] || {}),
+                                    [pageNum]: context
+                                }
+                            }
+                        }));
                     }
                 }
             }
-            
-            setValidateResultsByDoc(results);            
+
+            setValidateResultsByDoc(results);
             setValidationFailStatus(statusMap);
         }
 
@@ -216,6 +226,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                 selectedDocId={selectedDocId}
                 selectedSubtitleIdx={selectedSubtitleIdx}
                 validateResultsByDoc={validateResultsByDoc}
+                contextByDoc={contextByDoc}
             />
         </div>
     );

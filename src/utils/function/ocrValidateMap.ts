@@ -1,6 +1,6 @@
 import { useCompanyStore } from "../../store/companyStore";
-import { FieldValidation, Oil0702ValidationResult, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateField, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateOil0704Result, ValidateTaxInvoiceResult, ValidationResult0307 } from "../../types/validateResTypes";
-import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New, validateReceitpPaymentNew, validateOil0702, validateTaxInvoice } from "../api/validateApi";
+import { FieldValidation, Oil0702ValidationResult, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateField, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateInvoiceThapplineData, ValidateOil0704Result, ValidateReceiptExciseResult, ValidateTaxInvoiceResult, ValidationResult0307 } from "../../types/validateResTypes";
+import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New, validateReceitpPaymentNew, validateOil0702, validateTaxInvoice, validateReceiptExcise, validateInvoiceThappline } from "../api/validateApi";
 import { buildOcr0307FieldRows } from "./ocrFieldRowsBuilder";
 
 const cleanValue = (val?: any): string => {
@@ -131,6 +131,18 @@ const build0502Payload = (ocr: any, context: any) => ({
 });
 
 const buildInvoiceTaxPayload = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+});
+
+const buildReceiptExcise = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+});
+
+const buildInvoicePipline = (ocr: any, context: any) => ({
     docType: ocr.docType,
     documentGroup: context.documentGroup ?? "",
     fields: context.fields ?? {},
@@ -581,6 +593,78 @@ const checkValidateInvoiceFailed = (
     return false;
 };
 
+const checkReceiptExciseFailed = (
+    res: { data?: ValidateReceiptExciseResult } | ValidateReceiptExciseResult | null | undefined
+): boolean => {
+    const data: ValidateReceiptExciseResult | undefined =
+        (res && "data" in res ? (res as any).data : res) as ValidateReceiptExciseResult | undefined;
+
+    if (!data) return false;
+
+    const normalKeys: (keyof ValidateReceiptExciseResult)[] = [
+        "receipt_no", "doc_no", "submit_date", "submit_time",
+        "office", "period", "received_from", "operator",
+        "tax_id", "excise_id", "total_amount"
+    ];
+
+    for (const key of normalKeys) {
+        const field = data[key];
+        if (field && typeof field === "object" && "passed" in field && field.passed === false) {
+            return true;
+        }
+    }
+
+    if (Array.isArray(data.items)) {
+        for (const item of data.items) {
+            for (const key of ["description", "amount"] as const) {
+                const field = item[key];
+                if (field && typeof field === "object" && "passed" in field && field.passed === false) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+};
+
+const checkInvoicePiplineFailed = (
+    res: { data?: ValidateInvoiceThapplineData } | ValidateInvoiceThapplineData | null | undefined
+): boolean => {
+    const data: ValidateInvoiceThapplineData | undefined =
+        (res && "data" in res ? (res as any).data : res) as ValidateInvoiceThapplineData | undefined;
+
+    if (!data) return false;
+
+    // ฟิลด์ปกติ (ไม่ใช่ array)
+    const normalKeys: (keyof ValidateInvoiceThapplineData)[] = [
+        "product_name", "doc_no", "customer_tank_no", "batch_no", "depot",
+        "date", "time", "total_ptt_tank_receive_86f", "sump", "thappline_line_content",
+        "customer_line", "extra_vol1", "extra_vol2", "b100_e100_volume",
+        "net_received_volume", "note", "book_on"
+    ];
+
+    for (const key of normalKeys) {
+        const field = data[key];
+        if (field && typeof field === "object" && "passed" in field && field.passed === false) {
+            return true;
+        }
+    }
+
+    // เช็คใน details array
+    if (Array.isArray(data.details)) {
+        for (const detail of data.details) {
+            for (const key of ["description", "before", "after"] as const) {
+                const field = detail[key];
+                if (field && typeof field === "object" && "passed" in field && field.passed === false) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+};
 
 export const OCR_VALIDATE_MAP: Record<
     string,
@@ -651,7 +735,28 @@ export const OCR_VALIDATE_MAP: Record<
         api: validateOil0307,
         checkFailed: check0307Failed,
     },
-    "oil-refinery_tax_invoice-1": {
+    "oil-tax-invoice-2": {
+        buildPayload: buildTaxInvoice,
+        api: validateTaxInvoice,
+        checkFailed: checkTaxInvoiceFailed,
+        needsContext: true,
+        needsAuth: true,
+    },
+    "oil-tax-invoice-4": {
+        buildPayload: buildTaxInvoice,
+        api: validateTaxInvoice,
+        checkFailed: checkTaxInvoiceFailed,
+        needsContext: true,
+        needsAuth: true,
+    },
+    "oil-tax-invoice-7": {
+        buildPayload: buildTaxInvoice,
+        api: validateTaxInvoice,
+        checkFailed: checkTaxInvoiceFailed,
+        needsContext: true,
+        needsAuth: true,
+    },
+    "oil-tax-invoice-9": {
         buildPayload: buildTaxInvoice,
         api: validateTaxInvoice,
         checkFailed: checkTaxInvoiceFailed,
@@ -766,4 +871,18 @@ export const OCR_VALIDATE_MAP: Record<
         needsContext: true,
         needsAuth: true,
     },
+    "oil-receipt-1": {
+        buildPayload: buildReceiptExcise,
+        api: validateReceiptExcise,
+        checkFailed: checkReceiptExciseFailed,
+        needsContext: true,
+        needsAuth: true,
+    },
+    "oil-pipline-delivery-customer": {
+        buildPayload: buildInvoicePipline,
+        api: validateInvoiceThappline,
+        checkFailed: checkInvoicePiplineFailed,
+        needsContext: true,
+        needsAuth: true,
+    }    
 };
