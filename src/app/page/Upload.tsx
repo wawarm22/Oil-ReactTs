@@ -46,7 +46,8 @@ const Upload: React.FC = () => {
         }
 
         const mergedPdfBytes = await mergedPdf.save();
-        const mergedBlobUrl = URL.createObjectURL(new Blob([mergedPdfBytes], { type: "application/pdf" }));
+        const arrayBuffer = mergedPdfBytes.buffer as ArrayBuffer; 
+        const mergedBlobUrl = URL.createObjectURL(new Blob([arrayBuffer], { type: "application/pdf" }));
         window.open(mergedBlobUrl, "_blank");
     };
 

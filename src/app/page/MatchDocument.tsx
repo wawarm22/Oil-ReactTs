@@ -185,10 +185,7 @@ const MatchDocument: React.FC = () => {
                 <ChecklistMatch
                     ocrDocument={selectedOcrDocument}
                     currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
-                // selectedDocId={selectedDocId}
-                // selectedSubtitleIdx={selectedSubtitleIdx}
-                // validateResultsByDoc={validateResultsByDoc}
+                    setCurrentPage={setCurrentPage}                    
                 />
             </div>
 
