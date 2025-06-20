@@ -67,7 +67,7 @@ const ChecklistPanel: React.FC<Props> = ({
     const { pages } = ocrDocument;
     const selectedFields = pages[currentPage];
 
-    if (!selectedFields) {
+    if (!selectedFields || !validateResultsByDoc) {
         console.warn(`No OCR data found for page ${currentPage}`);
         return <p className="text-muted">ไม่พบข้อมูล OCR ในหน้านี้</p>;
     }
@@ -224,7 +224,11 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "attachment_0704" && (
                     <ChecklistAttachment0704
                         data={currentOcrFields as OcrAttachment0704Document}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}

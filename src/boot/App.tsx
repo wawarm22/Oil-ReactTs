@@ -12,7 +12,7 @@ function App() {
   return (
     <UserProvider>
       <SocketProvider>
-        <SocketListener />
+        {/* <SocketListener /> */}
         <BrowserRouter>
           <CustomToastContainer />
           <WebRoute />
