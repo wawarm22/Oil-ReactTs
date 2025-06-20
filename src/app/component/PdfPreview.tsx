@@ -21,6 +21,7 @@ interface PdfPreviewProps {
     currentPage: number;
     setCurrentPage: (page: number) => void;
     selectedDocMeta?: { docId: number; subtitleIdx: number } | null;
+    isUploaded?: boolean;
 }
 
 type CacheKey = string;
@@ -32,11 +33,14 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
     currentPage,
     setCurrentPage,
     selectedDocMeta,
+    isUploaded
 }) => {
     const [thumbnails, setThumbnails] = useState<(string | null)[]>([]);
     const [loading, setLoading] = useState(false);
 
     const thumbnailCache = useRef<ThumbnailCache>({});
+
+    console.log("ocrFields", ocrFields);
 
     const getCacheKey = (ocrFields: PdfPreviewProps["ocrFields"]) => {
         if (!ocrFields) return "";
@@ -107,7 +111,24 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
     const currentThumbnail = thumbnails[currentPage - 1];
 
     const displayTitle = getTitleAndSubtitle(documentList, selectedDocMeta?.docId, selectedDocMeta?.subtitleIdx);
-
+    let displayMsg = null;
+    if (!ocrFields) {
+        if (isUploaded) {
+            displayMsg = (
+                <p className="text-muted text-center">
+                    กำลังประมวลผล OCR กรุณารอ... <br />
+                    ("{displayTitle}")
+                </p>
+            );
+        } else {
+            displayMsg = (
+                <p className="text-muted text-center">
+                    ไม่พบข้อมูลเอกสาร "{displayTitle}" <br />
+                    เนื่องจากไม่มีการอัพโหลดเอกสาร
+                </p>
+            );
+        }
+    }
     return (
         <div
             className="shadow-sm d-flex flex-column align-items-center justify-content-center"
@@ -125,11 +146,7 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
                     alt={`Page ${currentPage}`}
                     style={{ maxWidth: "100%", height: "740px", objectFit: "contain", borderRadius: "6px" }}
                 />
-            ) : (
-                <p className="text-muted text-center">
-                    ไม่พบข้อมูลเอกสาร "{displayTitle}" <br /> เนื่องจากไม่มีการอัพโหลดเอกสาร
-                </p>
-            )}
+            ) : displayMsg}
         </div>
     );
 };

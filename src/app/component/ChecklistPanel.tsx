@@ -45,6 +45,7 @@ interface Props {
     validateResultsByDoc: ValidateResultsByDoc;
     contextByDoc: ContextByDocType;
     selectedDocMeta?: { docId: number; subtitleIdx: number } | null;
+    isUploaded?: boolean;
 }
 
 const ChecklistPanel: React.FC<Props> = ({
@@ -57,20 +58,26 @@ const ChecklistPanel: React.FC<Props> = ({
     // onValidationStatusChange,
     validateResultsByDoc,
     contextByDoc,
-    selectedDocMeta
+    selectedDocMeta,
+    isUploaded
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
     const displayTitle = getTitleAndSubtitle(documentList, selectedDocMeta?.docId, selectedDocMeta?.subtitleIdx);
 
-    if (!ocrDocument) return (
-        <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0">
-            <div className="shadow-sm bg-white rounded-2 p-5 h-100 " style={{ overflowY: "auto" }}>
-                <p className="text-muted text-center">
-                    ข้อมูลเอกสาร "{displayTitle}" <br /> ไม่สามารถประมวลผลได้
-                </p>
+    if (!ocrDocument) {
+        return (
+            <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0">
+                <div className="shadow-sm bg-white rounded-2 p-5 h-100 " style={{ overflowY: "auto" }}>
+                    <p className="text-muted text-center">
+                        {isUploaded
+                            ? <>กำลังประมวลผล OCR กรุณารอ...</>
+                            : <>ข้อมูลเอกสาร "{displayTitle}"<br />ยังไม่มีการอัปโหลดเอกสาร</>
+                        }
+                    </p>
+                </div>
             </div>
-        </div>
-    );
+        );
+    }
 
     const { pages } = ocrDocument;
     const selectedFields = pages[currentPage];
