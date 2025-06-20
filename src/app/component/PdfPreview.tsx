@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { apiListPdfAfter } from "../../utils/api/uploadApi";
 import { getPdfThumbnails } from "../../utils/function/pdfUtils";
+import { DocumentItem } from "../../types/docList";
+import { getTitleAndSubtitle } from "../../utils/function/getTitleAndSubtitle";
 
 interface OcrPageData {
     documentGroup: string;
@@ -11,18 +13,26 @@ interface OcrPageData {
 }
 
 interface PdfPreviewProps {
+    documentList: DocumentItem[];
     ocrFields: {
         pages: { [page: number]: OcrPageData };
         pageCount: number;
     } | null;
     currentPage: number;
     setCurrentPage: (page: number) => void;
+    selectedDocMeta?: { docId: number; subtitleIdx: number } | null;
 }
 
-type CacheKey = string; 
+type CacheKey = string;
 type ThumbnailCache = Record<CacheKey, (string | null)[]>;
 
-const PdfPreview: React.FC<PdfPreviewProps> = ({ ocrFields, currentPage, setCurrentPage }) => {
+const PdfPreview: React.FC<PdfPreviewProps> = ({
+    documentList,
+    ocrFields,
+    currentPage,
+    setCurrentPage,
+    selectedDocMeta,
+}) => {
     const [thumbnails, setThumbnails] = useState<(string | null)[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -91,9 +101,12 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ ocrFields, currentPage, setCurr
         };
 
         loadThumbnails();
+        // eslint-disable-next-line
     }, [ocrFields]);
 
     const currentThumbnail = thumbnails[currentPage - 1];
+
+    const displayTitle = getTitleAndSubtitle(documentList, selectedDocMeta?.docId, selectedDocMeta?.subtitleIdx);
 
     return (
         <div
@@ -113,7 +126,9 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({ ocrFields, currentPage, setCurr
                     style={{ maxWidth: "100%", height: "740px", objectFit: "contain", borderRadius: "6px" }}
                 />
             ) : (
-                <p className="text-muted">ไม่พบรูปตัวอย่างเอกสาร</p>
+                <p className="text-muted text-center">
+                    ไม่พบข้อมูลเอกสาร "{displayTitle}" <br /> เนื่องจากไม่มีการอัพโหลดเอกสาร
+                </p>
             )}
         </div>
     );

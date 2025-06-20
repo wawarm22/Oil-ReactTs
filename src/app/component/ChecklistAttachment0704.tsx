@@ -58,9 +58,9 @@ const ChecklistAttachment0704: React.FC<Props> = ({ validateResult, context }) =
 
     const infoFields = [
         { label: "แบบฟอร์ม", key: "formType" },
-        { label: "เลขที่รับ", key: "requestNumber" },
-        { label: "วัน เดือน ปี ที่รับ", key: "receivedAt" },
-        { label: "เจ้าหน้าที่ผู้รับ", key: "formOfficerName" },
+        // { label: "เลขที่รับ", key: "requestNumber" },
+        // { label: "วัน เดือน ปี ที่รับ", key: "receivedAt" },
+        // { label: "เจ้าหน้าที่ผู้รับ", key: "formOfficerName" },
         { label: "ชื่อโรงอุตสาหกรรม (คลัง)", key: "companyName" },
         { label: "ทะเบียนสรรพสามิตเลขที่", key: "exciseId" },
         { label: "ประจำเดือน ปี", key: "period" },
