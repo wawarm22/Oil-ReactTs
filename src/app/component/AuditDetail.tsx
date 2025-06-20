@@ -11,6 +11,7 @@ import { AuthSchema } from "../../types/schema/auth";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { apiGetAllOcr } from "../../utils/api/OcrListApi";
 import { ContextByDocType, OcrByDocIdType, ValidateResultsByDoc } from "../../types/checkList";
+import { parseUploadedStatus } from "../../utils/function/parseUploadedStatus";
 
 interface AuditDetailProps {
     selectedId: number | null;
@@ -24,6 +25,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
     const auth = useAuthUser<AuthSchema>();
     const [currentPage, setCurrentPage] = useState<number>(1);
     const { addCallbacks, removeCallbacks } = useSocket();
+
     const [selectedOcrDocument, setSelectedOcrDocument] = useState<{
         pages: { [page: number]: OcrFields };
         pageCount: number;
@@ -37,7 +39,9 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
     const [validateResultsByDoc, setValidateResultsByDoc] = useState<ValidateResultsByDoc>({});
     const [validationFailStatus, setValidationFailStatus] = useState<Record<string, boolean>>({});
     const [selectedDocMeta, setSelectedDocMeta] = useState<{ docId: number, subtitleIdx: number } | null>(null);
+
     const validationRanRef = useRef(false);
+    const uploadedStatus = parseUploadedStatus(folders);
 
     const fetchOcrData = async () => {
         const results: OcrByDocIdType = {};
@@ -85,7 +89,8 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                 console.error("OCR fetch failed:", err);
             }
         }
-        console.log("OCR results", results);
+        console.log("OCR Results", results);
+
         setOcrByDocId(results);
     };
 
@@ -191,6 +196,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
             validationRanRef.current = false;
             batchValidateAll();
         }
+        // eslint-disable-next-line
     }, [ocrByDocId, auth]);
 
     useEffect(() => {
@@ -198,6 +204,52 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
             onValidationStatusChange(validationFailStatus);
         }
     }, [validationFailStatus, onValidationStatusChange]);
+
+    useEffect(() => {
+        if (
+            selectedDocId !== null &&
+            selectedSubtitleIdx !== null &&
+            ocrByDocId &&
+            ocrByDocId[selectedDocId]?.[selectedSubtitleIdx]
+        ) {
+            const docGroup = ocrByDocId[selectedDocId][selectedSubtitleIdx];
+            const fileKeys = Object.keys(docGroup).sort((a, b) => {
+                const numA = parseInt(a.match(/-(\d+)$/)?.[1] || "0", 10);
+                const numB = parseInt(b.match(/-(\d+)$/)?.[1] || "0", 10);
+                return numA - numB;
+            });
+            const combinedPages: { [page: number]: OcrFields } = {};
+            const pageFileKeyMap: { [page: number]: string } = {};
+            let pageOffset = 0;
+            fileKeys.forEach((fileKey) => {
+                const fileData = docGroup[fileKey];
+                const pages = fileData.pages;
+                const pageCount = fileData.pageCount;
+                for (let p = 1; p <= pageCount; p++) {
+                    const logicalPage = pageOffset + p;
+                    combinedPages[logicalPage] = pages[p];
+                    pageFileKeyMap[logicalPage] = fileKey;
+                }
+                pageOffset += pageCount;
+            });
+            setSelectedOcrDocument({
+                pages: combinedPages,
+                pageCount: pageOffset,
+                pageFileKeyMap,
+            });
+            setCurrentPage(1); // reset page ทุกครั้ง
+        }
+    }, [ocrByDocId, selectedDocId, selectedSubtitleIdx]);
+
+    // ใน AuditDetail.tsx
+
+    const getIsUploaded = (meta?: { docId: number, subtitleIdx: number } | null) => {
+        if (!meta) return false;
+        const { docId, subtitleIdx } = meta;
+        // ต้องมี logic parseUploadedStatus เหมือนใน DocumentChecklist
+        // สมมุติว่ามี uploadedStatus จาก parseUploadedStatus แล้ว
+        return uploadedStatus[docId]?.has(subtitleIdx ?? 0) ?? false;
+    };
 
     return (
         <div className="d-flex w-100 gap-3 mt-3" style={{ maxHeight: "800px" }}>
@@ -221,6 +273,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
                 selectedDocMeta={selectedDocMeta}
+                isUploaded={getIsUploaded(selectedDocMeta)}
             />
 
             <ChecklistPanel
@@ -233,6 +286,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                 validateResultsByDoc={validateResultsByDoc}
                 contextByDoc={contextByDoc}
                 selectedDocMeta={selectedDocMeta}
+                isUploaded={getIsUploaded(selectedDocMeta)}
             />
         </div>
     );
