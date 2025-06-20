@@ -36,6 +36,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
     const [ocrByDocId, setOcrByDocId] = useState<OcrByDocIdType>({});
     const [validateResultsByDoc, setValidateResultsByDoc] = useState<ValidateResultsByDoc>({});
     const [validationFailStatus, setValidationFailStatus] = useState<Record<string, boolean>>({});
+    const [selectedDocMeta, setSelectedDocMeta] = useState<{ docId: number, subtitleIdx: number } | null>(null);
     const validationRanRef = useRef(false);
 
     const fetchOcrData = async () => {
@@ -211,15 +212,19 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                 }}
                 ocrByDocId={ocrByDocId}
                 validateResultsByDoc={validateResultsByDoc}
+                onSelectDocumentMeta={(docId, subtitleIdx) => setSelectedDocMeta({ docId, subtitleIdx })}
             />
 
             <PdfPreview
+                documentList={documentList}
                 ocrFields={selectedOcrDocument}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
+                selectedDocMeta={selectedDocMeta}
             />
 
             <ChecklistPanel
+                documentList={documentList}
                 ocrDocument={selectedOcrDocument}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
@@ -227,6 +232,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                 selectedSubtitleIdx={selectedSubtitleIdx}
                 validateResultsByDoc={validateResultsByDoc}
                 contextByDoc={contextByDoc}
+                selectedDocMeta={selectedDocMeta}
             />
         </div>
     );

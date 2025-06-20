@@ -27,8 +27,11 @@ import ChecklistForm0701 from "./ChecklistForm0701";
 import ChecklistForm0702 from "./ChecklistForm0702";
 import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
 import { ContextByDocType, ValidateResultsByDoc } from "../../types/checkList";
+import { DocumentItem } from "../../types/docList";
+import { getTitleAndSubtitle } from "../../utils/function/getTitleAndSubtitle";
 
 interface Props {
+    documentList: DocumentItem[];
     ocrDocument: {
         pages: { [page: number]: OcrFields };
         pageCount: number;
@@ -41,9 +44,11 @@ interface Props {
     // onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
     validateResultsByDoc: ValidateResultsByDoc;
     contextByDoc: ContextByDocType;
+    selectedDocMeta?: { docId: number; subtitleIdx: number } | null;
 }
 
 const ChecklistPanel: React.FC<Props> = ({
+    documentList,
     ocrDocument,
     currentPage,
     setCurrentPage,
@@ -51,14 +56,17 @@ const ChecklistPanel: React.FC<Props> = ({
     selectedSubtitleIdx,
     // onValidationStatusChange,
     validateResultsByDoc,
-    contextByDoc
+    contextByDoc,
+    selectedDocMeta
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
+    const displayTitle = getTitleAndSubtitle(documentList, selectedDocMeta?.docId, selectedDocMeta?.subtitleIdx);
+
     if (!ocrDocument) return (
         <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0">
-            <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>
-                <p className="text-muted">
-                    กำลังประมวลผล OCR กรุณารอ...
+            <div className="shadow-sm bg-white rounded-2 p-5 h-100 " style={{ overflowY: "auto" }}>
+                <p className="text-muted text-center">
+                    ข้อมูลเอกสาร "{displayTitle}" <br /> ไม่สามารถประมวลผลได้
                 </p>
             </div>
         </div>

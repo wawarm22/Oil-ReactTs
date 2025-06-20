@@ -26,6 +26,7 @@ interface Props {
     ) => void;
     ocrByDocId: OcrByDocIdType;
     validateResultsByDoc: ValidateResultsByDoc;
+    onSelectDocumentMeta?: (docId: number, subtitleIdx: number) => void;
 }
 
 const DocumentChecklist: React.FC<Props> = ({
@@ -33,7 +34,8 @@ const DocumentChecklist: React.FC<Props> = ({
     folders,
     onSelectDocument,
     ocrByDocId,
-    validateResultsByDoc
+    validateResultsByDoc,
+    onSelectDocumentMeta
 }) => {
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
@@ -115,10 +117,12 @@ const DocumentChecklist: React.FC<Props> = ({
                 return { Icon: MdDownloading, iconColor: "#FFCA04", bg: "#ffffff", textColor: "#000000", bar: "#FFCA04" };
             }
         }
-        return { Icon: MdDownloading, iconColor: "#BDBDBD", bg: "#ffffff", textColor: "#000000", bar: "#BDBDBD" };
+        return { Icon: MdDownloading, iconColor: "#BDBDBD", bg: "#ffffff", textColor: "#BDBDBD", bar: "#BDBDBD" };
     };
 
     const handleSelect = (docId: number, subtitleIndex = 0) => {
+        if (onSelectDocumentMeta) onSelectDocumentMeta(docId, subtitleIndex);
+        
         const docGroup = ocrByDocId[docId]?.[subtitleIndex];
         if (!docGroup) {
             onSelectDocument(null, null, docId, subtitleIndex);
@@ -150,7 +154,7 @@ const DocumentChecklist: React.FC<Props> = ({
         });
 
         const currentPage = 1;
-        const selectedFields = combinedPages[currentPage];
+        const selectedFields = combinedPages[currentPage];        
 
         onSelectDocument(
             selectedFields,
@@ -162,6 +166,7 @@ const DocumentChecklist: React.FC<Props> = ({
             docId,
             subtitleIndex
         );
+
         setSelectedDocId(docId);
         setSelectedSubtitleIdx(subtitleIndex);
     };
