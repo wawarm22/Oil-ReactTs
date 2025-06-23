@@ -241,13 +241,9 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
         }
     }, [ocrByDocId, selectedDocId, selectedSubtitleIdx]);
 
-    // ใน AuditDetail.tsx
-
     const getIsUploaded = (meta?: { docId: number, subtitleIdx: number } | null) => {
         if (!meta) return false;
-        const { docId, subtitleIdx } = meta;
-        // ต้องมี logic parseUploadedStatus เหมือนใน DocumentChecklist
-        // สมมุติว่ามี uploadedStatus จาก parseUploadedStatus แล้ว
+        const { docId, subtitleIdx } = meta;        
         return uploadedStatus[docId]?.has(subtitleIdx ?? 0) ?? false;
     };
 
@@ -271,6 +267,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                 documentList={documentList}
                 ocrFields={selectedOcrDocument}
                 currentPage={currentPage}
+                ocrByDocId={ocrByDocId}
                 setCurrentPage={setCurrentPage}
                 selectedDocMeta={selectedDocMeta}
                 isUploaded={getIsUploaded(selectedDocMeta)}

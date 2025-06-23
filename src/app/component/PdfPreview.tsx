@@ -3,6 +3,7 @@ import { apiListPdfAfter } from "../../utils/api/uploadApi";
 import { getPdfThumbnails } from "../../utils/function/pdfUtils";
 import { DocumentItem } from "../../types/docList";
 import { getTitleAndSubtitle } from "../../utils/function/getTitleAndSubtitle";
+import { OcrByDocIdType } from "../../types/checkList";
 
 interface OcrPageData {
     documentGroup: string;
@@ -12,107 +13,119 @@ interface OcrPageData {
     [key: string]: any;
 }
 
+type ThumbnailCache = Record<string, (string | null)[]>;
+
 interface PdfPreviewProps {
     documentList: DocumentItem[];
     ocrFields: {
         pages: { [page: number]: OcrPageData };
         pageCount: number;
     } | null;
+    ocrByDocId: OcrByDocIdType;
     currentPage: number;
     setCurrentPage: (page: number) => void;
     selectedDocMeta?: { docId: number; subtitleIdx: number } | null;
     isUploaded?: boolean;
 }
 
-type CacheKey = string;
-type ThumbnailCache = Record<CacheKey, (string | null)[]>;
-
 const PdfPreview: React.FC<PdfPreviewProps> = ({
     documentList,
-    ocrFields,
+    ocrByDocId,
     currentPage,
     setCurrentPage,
     selectedDocMeta,
-    isUploaded
+    isUploaded,
 }) => {
-    const [thumbnails, setThumbnails] = useState<(string | null)[]>([]);
     const [loading, setLoading] = useState(false);
-
+    const [cacheReady, setCacheReady] = useState(false);
     const thumbnailCache = useRef<ThumbnailCache>({});
 
-    console.log("ocrFields", ocrFields);
-
-    const getCacheKey = (ocrFields: PdfPreviewProps["ocrFields"]) => {
-        if (!ocrFields) return "";
-        const firstPage = ocrFields.pages[1];
-        return firstPage?.documentGroup + "-" + ocrFields.pageCount;
-    };
-
     useEffect(() => {
-        const loadThumbnails = async () => {
-            if (!ocrFields) {
-                setThumbnails([]);
-                return;
-            }
-            setLoading(true);
+        let isMounted = true;
+        setLoading(true);
+        setCacheReady(false);
 
-            const cacheKey = getCacheKey(ocrFields);
+        const preloadAllThumbnails = async () => {
+            const promises: Promise<void>[] = [];
+            for (const docId in ocrByDocId) {
+                for (const subIdx in ocrByDocId[docId]) {
+                    const group = ocrByDocId[docId][subIdx];
+                    for (const fileKey in group) {
+                        const ocrFields = group[fileKey];
+                        const key = `${docId}-${subIdx}-${fileKey}`;
+                        const firstPage = ocrFields.pages[1];
+                        const documentGroup = firstPage?.documentGroup;
 
-            if (cacheKey && thumbnailCache.current[cacheKey]) {
-                setThumbnails(thumbnailCache.current[cacheKey]);
-                setLoading(false);
-                return;
-            }
+                        if (documentGroup && !thumbnailCache.current[key]) {
+                            promises.push(
+                                (async () => {
+                                    try {
+                                        const response = await apiListPdfAfter(documentGroup);
+                                        const files = response.files || [];
+                                        const matched = files.find(
+                                            (f: any) => f.fileName?.replace(/\.pdf$/, "") === fileKey
+                                        );
+                                        if (!matched) {
+                                            thumbnailCache.current[key] = [];
+                                            return;
+                                        }
 
-            const collectedThumbnails: (string | null)[] = [];
-            const seenFileKeys = new Set<string>();
+                                        const res = await fetch(matched.previewUrl);
+                                        const blob = await res.blob();
+                                        const base64 = await new Promise<string>((resolve) => {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => resolve(reader.result as string);
+                                            reader.readAsDataURL(blob);
+                                        });
 
-            for (let i = 1; i <= ocrFields.pageCount; i++) {
-                const pageData = ocrFields.pages[i];
-                const docGroup = pageData.documentGroup;
-                if (!docGroup) continue;
-
-                try {
-                    const response = await apiListPdfAfter(docGroup);
-                    const files = response.files || [];
-                    for (const file of files) {
-                        const fileKey = file.fileName?.replace(/\.pdf$/, "");
-                        if (!fileKey || seenFileKeys.has(fileKey)) continue;
-
-                        seenFileKeys.add(fileKey);
-
-                        const res = await fetch(file.previewUrl);
-                        const blob = await res.blob();
-
-                        const base64 = await new Promise<string>((resolve) => {
-                            const reader = new FileReader();
-                            reader.onloadend = () => resolve(reader.result as string);
-                            reader.readAsDataURL(blob);
-                        });
-
-                        const fileThumbnails = await getPdfThumbnails(base64);
-                        collectedThumbnails.push(...fileThumbnails);
+                                        const thumbs = await getPdfThumbnails(base64);
+                                        thumbnailCache.current[key] = thumbs;
+                                    } catch (e) {
+                                        console.error("Thumbnail preload error:", e);
+                                        thumbnailCache.current[key] = [];
+                                    }
+                                })()
+                            );
+                        }
                     }
-                } catch (err) {
-                    console.error(`Failed to load thumbnails from ${docGroup}:`, err);
                 }
             }
-
-            setThumbnails(collectedThumbnails);
-            if (cacheKey) thumbnailCache.current[cacheKey] = collectedThumbnails;
-            setLoading(false);
-            setCurrentPage(1);
+            await Promise.all(promises);
+            if (isMounted) {
+                setCacheReady(true);
+                setLoading(false);
+                setCurrentPage(1);
+            }
         };
+        preloadAllThumbnails();
 
-        loadThumbnails();
+        return () => {
+            isMounted = false;
+        };
         // eslint-disable-next-line
-    }, [ocrFields]);
+    }, [ocrByDocId]);
 
-    const currentThumbnail = thumbnails[currentPage - 1];
+    let currentThumbnails: (string | null)[] = [];
+    let displayTitle = "";
 
-    const displayTitle = getTitleAndSubtitle(documentList, selectedDocMeta?.docId, selectedDocMeta?.subtitleIdx);
+    if (
+        selectedDocMeta &&
+        ocrByDocId[selectedDocMeta.docId] &&
+        ocrByDocId[selectedDocMeta.docId][selectedDocMeta.subtitleIdx]
+    ) {
+        displayTitle = getTitleAndSubtitle(documentList, selectedDocMeta.docId, selectedDocMeta.subtitleIdx);
+        const group = ocrByDocId[selectedDocMeta.docId][selectedDocMeta.subtitleIdx];
+        Object.keys(group).forEach((fileKey) => {
+            const key = `${selectedDocMeta.docId}-${selectedDocMeta.subtitleIdx}-${fileKey}`;
+            const thumbs = thumbnailCache.current[key] || [];
+            currentThumbnails = currentThumbnails.concat(thumbs);
+        });
+    }
+
+    const currentThumbnail = currentThumbnails[currentPage - 1] || null;
+
     let displayMsg = null;
-    if (!ocrFields) {
+    if (!currentThumbnails.length) {
         if (isUploaded) {
             displayMsg = (
                 <p className="text-muted text-center">
@@ -129,12 +142,13 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
             );
         }
     }
+
     return (
         <div
             className="shadow-sm d-flex flex-column align-items-center justify-content-center"
             style={{ width: "50%", background: "#E0E0E0", borderRadius: "8px", height: "800px" }}
         >
-            {loading ? (
+            {loading || !cacheReady ? (
                 <div style={{ height: 740, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <div className="spinner-border text-primary" role="status" style={{ width: "3rem", height: "3rem" }}>
                         <span className="visually-hidden">Loading...</span>
