@@ -77,7 +77,14 @@ export const getContextForDocType: Record<
             const props = row.properties as Record<string, any>;
             const properties: Record<string, { value: string }> = {};
             fixedLabels.forEach(({ key, label }) => {
-                const value = cleanCellValue(props?.[key]?.value ?? "");
+                let value = cleanCellValue(props?.[key]?.value ?? "");
+                // เช็คและแทนที่ค่าเฉพาะ column_4, column_8, column_14
+                if (
+                    (key === "column_4" || key === "column_8" || key === "column_14") &&
+                    value === "049,88800"
+                ) {
+                    value = "0";
+                }
                 properties[label] = { value };
             });
             return { properties };
@@ -329,6 +336,6 @@ export const getContextForDocType: Record<
             documentGroup: resp.data.documentGroup,
             fields: resp.data.fields
         };
-    },    
+    },
     "default": async (_page1) => ({}),
 };

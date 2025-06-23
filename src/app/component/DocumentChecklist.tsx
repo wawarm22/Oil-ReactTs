@@ -78,7 +78,6 @@ const DocumentChecklist: React.FC<Props> = ({
         return total;
     };
 
-    // ส่วนของ getStatus ถูกดึง logic ไปใช้รวมกับ validate แล้ว
     const getDisplayStatus = (
         isSelected: boolean,
         hasOcr: boolean,

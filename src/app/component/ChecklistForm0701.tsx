@@ -37,9 +37,9 @@ const ChecklistForm0701: React.FC<ChecklistStockOilFormattedProps> = ({
 }) => {
     const ocrData = context;
 
-    if (!ocrData) {
+    if (!ocrData || !ocrData.fields) {
         return <div>ไม่พบข้อมูล</div>;
-    }    
+    }
 
     const fieldLabelMap = getFieldLabelMap(ocrData.fields.material_type);
 

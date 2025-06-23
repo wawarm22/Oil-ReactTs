@@ -154,7 +154,11 @@ const ChecklistPanel: React.FC<Props> = ({
                     <ChecklistForm0701
                         data={currentOcrFields as OcrStockOilDocument}
                         oilTypeFromPrevPage={extraOilType}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}

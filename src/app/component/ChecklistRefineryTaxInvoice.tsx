@@ -1,8 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { OcrRefineryTaxInvoiceDocument } from "../../types/ocrFileType";
-import { getPreparedTaxInvoice, validateTaxInvoice } from "../../utils/api/validateApi";
-import { AuthSchema } from "../../types/schema/auth";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { OcrTaxInvoiceData, TaxInvoiceItem } from "../../types/validateTypes";
 import { ValidateTaxInvoiceResult } from "../../types/validateResTypes";
 import { useCompanyStore } from "../../store/companyStore";
@@ -14,13 +11,10 @@ interface Props {
     context: OcrTaxInvoiceData | null
 }
 
-const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
-    const auth = useAuthUser<AuthSchema>();
-    const [ocrData, setOcrData] = useState<OcrTaxInvoiceData | null>(null);
+const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ validateResult, context }) => {
+    const ocrData = context;
     const { selectedCompany } = useCompanyStore();
-    const [validateData, setValidateData] = useState<ValidateTaxInvoiceResult | null>(null);
-    const [loading, setLoading] = useState(true);
-
+    
     const cleanValue = (val?: string | number | null): string => {
         if (val === null || val === undefined) return "";
         if (typeof val === "number") return val.toLocaleString();
@@ -29,7 +23,7 @@ const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
     };
 
     const getValidatedField = (key: keyof ValidateTaxInvoiceResult, fallback: string | number = "") => {
-        const val = validateData?.[key];
+        const val = validateResult?.[key];
         if (val && typeof val === "object" && "value" in val) {
             return { value: cleanValue(val.value), border: val.passed ? "#22C659" : "#FF0100" };
         }
@@ -45,36 +39,7 @@ const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
         "ผู้รับสินค้า Received By": "receiptBy",
         "วันที่ / Date": "receivedDate"
     };
-
-    useEffect(() => {
-        if (!auth || !auth.accessToken || !data.id) return;
-
-        setLoading(true);
-        getPreparedTaxInvoice(data.id, auth)
-            .then(res => {
-                setOcrData(res.data);
-            })
-            .catch(() => {
-                setOcrData(null);
-            })
-            .finally(() => setLoading(false));
-    }, [data.id, auth]);
-
-    useEffect(() => {
-        if (!ocrData) return;
-
-        validateTaxInvoice(ocrData)
-            .then(res => {
-                if (res?.data) {
-                    setValidateData(res.data);
-                }
-            });
-    }, [ocrData]);
-
-    if (loading) {
-        return <div>กำลังโหลดข้อมูล...</div>;
-    }
-
+   
     if (!ocrData) {
         return <div>ไม่พบข้อมูล</div>;
     }
@@ -118,19 +83,41 @@ const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
 
     return (
         <div className="d-flex flex-column gap-3">
-            {/* ข้อมูลทั่วไป */}
             {(isShell ? shellTaxInvoiceFields : fields).map(({ label, key }) => {
-                const value = f[key as keyof typeof f];
-                const safeValue = Array.isArray(value) ? undefined : value;
+                let value: any = "";
+                if (Array.isArray(key)) {
+                    value = key
+                        .map(k => {
+                            const val = f[k as keyof typeof f];
+                            if (typeof val === "string" || typeof val === "number" || val == null) {
+                                return cleanValue(val);
+                            }
+                            return "";
+                        })
+                        .filter(Boolean)
+                        .join(" ");
+                } else {
+                    const val = f[key as keyof typeof f];
+                    value = (typeof val === "string" || typeof val === "number" || val == null)
+                        ? cleanValue(val)
+                        : "";
+                }
+
                 const v = isShell
-                    ? cleanValue(safeValue)
-                    : getValidatedField(key as keyof ValidateTaxInvoiceResult, safeValue).value;
-                const border = isShell ? "#22C659" : getValidatedField(key as keyof ValidateTaxInvoiceResult, safeValue).border;
+                    ? value
+                    : getValidatedField(key as keyof ValidateTaxInvoiceResult, value).value;
+
+                const border = isShell
+                    ? "#22C659"
+                    : getValidatedField(key as keyof ValidateTaxInvoiceResult, value).border;
+
                 return (
                     <div key={label}>
                         <div className="fw-bold">{label}</div>
-                        <div className="rounded-2 shadow-sm bg-white p-2"
-                            style={{ fontSize: "14px", minHeight: "42px", border: `1.5px solid ${border}` }}>
+                        <div
+                            className="rounded-2 shadow-sm bg-white p-2"
+                            style={{ fontSize: "14px", minHeight: "42px", border: `1.5px solid ${border}` }}
+                        >
                             {v}
                         </div>
                     </div>
@@ -144,7 +131,7 @@ const ChecklistRefineryTaxInvoice: React.FC<Props> = ({ data }) => {
                     {f.items.map((item, rowIndex) => (
                         <div key={`row-${rowIndex}`}>
                             {Object.entries(columnLabelMap).map(([key, label]) => {
-                                const vd = Array.isArray(validateData?.items) ? validateData.items[rowIndex] : undefined;
+                                const vd = Array.isArray(validateResult?.items) ? validateResult.items[rowIndex] : undefined;
                                 const valObj = vd && (vd as any)[key];
                                 const v = valObj && typeof valObj === "object" && "value" in valObj
                                     ? cleanValue(valObj.value)

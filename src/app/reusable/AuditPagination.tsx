@@ -25,11 +25,14 @@ const AuditPagination: React.FC<PaginationProps> = ({
         if (
             selectedDocId == null ||
             selectedSubtitleIdx == null ||
-            !validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[pageNum]?.validateResult
+            !validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[pageNum]
         ) return false;
 
         const validateResult = validateResultsByDoc[selectedDocId][selectedSubtitleIdx][pageNum]?.validateResult;
         const docType = validateResultsByDoc[selectedDocId][selectedSubtitleIdx][pageNum]?.docType;
+
+        // --- ถ้า validateResult === null คือ failed ทันที ---
+        if (validateResult === null) return true;
 
         if (!docType || !OCR_VALIDATE_MAP[docType]) return false;
         const checkFailed = OCR_VALIDATE_MAP[docType].checkFailed;
@@ -81,7 +84,7 @@ const AuditPagination: React.FC<PaginationProps> = ({
                 <MotionCardChecklist
                     key={`page-${page}`}
                     isSelected={currentPage === page}
-                    isFailed={isPageFailed(page)} 
+                    isFailed={isPageFailed(page)}
                     isInitial={isPageInitial(page)}
                     onClick={() => setCurrentPage(page)}
                     width="50px"

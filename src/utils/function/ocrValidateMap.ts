@@ -216,7 +216,8 @@ export const checkOil0701Failed = (
 ): boolean => {
     const data: Validate0701Result | undefined =
         (res && "data" in res ? (res as any).data : res) as Validate0701Result | undefined;
-
+    if (!res) return true;
+    
     if (!data) return true;
 
     for (const key of Object.keys(data)) {
@@ -884,5 +885,5 @@ export const OCR_VALIDATE_MAP: Record<
         checkFailed: checkInvoicePiplineFailed,
         needsContext: true,
         needsAuth: true,
-    }    
+    }
 };
