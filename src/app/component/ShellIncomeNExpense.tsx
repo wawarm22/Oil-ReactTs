@@ -2,8 +2,8 @@ import React from "react";
 
 const shellHeader = [
     { label: "ผู้ประกอบการอุตสาหกรรม", key: "operator" },
-    { label: "คลัง", key: "factory" },
-    { label: "ชนิดสินค้า", key: "productType" },
+    { label: "คลัง", key: "factoryName" },
+    { label: "ชนิดสินค้า", key: "materialName" },
     { label: "ประจำเดือน/ปี", key: "period" },
 ];
 

@@ -13,7 +13,9 @@ interface Props {
 }
 
 const ChecklistIncomeNExpense: React.FC<Props> = ({ validateResult, context }) => {
-    const { selectedCompany } = useCompanyStore();    
+    const { selectedCompany } = useCompanyStore();
+    console.log("context income", context);
+        
     const ocrData = context;
     if (!ocrData) return <div className="text-muted">ไม่พบข้อมูล</div>;
 
