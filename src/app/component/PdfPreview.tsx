@@ -108,18 +108,19 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
     let currentThumbnails: (string | null)[] = [];
     let displayTitle = "";
 
-    if (
-        selectedDocMeta &&
-        ocrByDocId[selectedDocMeta.docId] &&
-        ocrByDocId[selectedDocMeta.docId][selectedDocMeta.subtitleIdx]
-    ) {
+    if (selectedDocMeta) {
         displayTitle = getTitleAndSubtitle(documentList, selectedDocMeta.docId, selectedDocMeta.subtitleIdx);
-        const group = ocrByDocId[selectedDocMeta.docId][selectedDocMeta.subtitleIdx];
-        Object.keys(group).forEach((fileKey) => {
-            const key = `${selectedDocMeta.docId}-${selectedDocMeta.subtitleIdx}-${fileKey}`;
-            const thumbs = thumbnailCache.current[key] || [];
-            currentThumbnails = currentThumbnails.concat(thumbs);
-        });
+        if (
+            ocrByDocId[selectedDocMeta.docId] &&
+            ocrByDocId[selectedDocMeta.docId][selectedDocMeta.subtitleIdx]
+        ) {
+            const group = ocrByDocId[selectedDocMeta.docId][selectedDocMeta.subtitleIdx];
+            Object.keys(group).forEach((fileKey) => {
+                const key = `${selectedDocMeta.docId}-${selectedDocMeta.subtitleIdx}-${fileKey}`;
+                const thumbs = thumbnailCache.current[key] || [];
+                currentThumbnails = currentThumbnails.concat(thumbs);
+            });
+        }
     }
 
     const currentThumbnail = currentThumbnails[currentPage - 1] || null;

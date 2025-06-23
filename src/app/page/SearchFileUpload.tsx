@@ -283,7 +283,6 @@ const SearchFileUpload: React.FC = () => {
 
         try {
             const result = await apiSearchFiles(startsWith, baseName);
-            console.log("apiSearchFiles result:", result.files);
 
             const parsed: ParsedFileInfo[] = [];
             let mainCode: string | null = null;
@@ -344,10 +343,7 @@ const SearchFileUpload: React.FC = () => {
                     blobPath,
                 });
             });
-            console.log("parsed files:", parsed);
-            console.log("documentList:", documentList);
-            console.log("filteredDocuments:", filteredDocuments);
-
+            
             setUploadedFiles(tempUploaded);
 
         } catch (err) {
