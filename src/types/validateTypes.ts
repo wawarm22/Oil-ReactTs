@@ -494,6 +494,16 @@ export type Prepared0701 = {
     fields: Prepared0701Fields;
 };
 
+export type Save0701 = {
+    month: string,
+    from_date: string,
+    to_date: string,
+    periot: string,
+    factory_id: number,
+    company_id: number,
+    data: Prepared0701
+};
+
 // โครงสร้าง fields
 export type Prepared0701Fields = {
     form_type: string;
