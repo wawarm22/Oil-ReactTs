@@ -58,6 +58,13 @@ const shellFieldGroups: Array<
         { label: "ปริมาณน้ำมันที่มีสิทธิหักลดหย่อนคงเหลือ", key: "finalRemainQty" },
     ];
 
+const getBorderColor = (value: any) => {
+    if (value === undefined || value === null || value === "") return "#CED4DA";
+    if (value === false) return "#FF0100"; 
+    if (value === true) return "#22C659"; 
+    return "#CED4DA"; 
+};
+
 const getDisplayValue = (raw: any): React.ReactNode => {
     if (raw == null) return "";
     if (typeof raw === "object") {
@@ -74,11 +81,14 @@ const ShellIncomeNExpense: React.FC<{ validateResult: any }> = ({ validateResult
         {shellHeader.map(({ label, key }) => (
             <div key={key} className="mb-1">
                 <div className="fw-bold">{label}</div>
-                <div className="border rounded-2 shadow-sm bg-white p-2" style={{ minHeight: "42px" }}>
+                <div
+                    className="rounded-2 shadow-sm bg-white p-2"
+                    style={{ minHeight: "42px", border: `1.5px solid ${getBorderColor(validateResult[key])}` }}
+                >
                     {getDisplayValue(validateResult[key])}
                 </div>
             </div>
-        ))}        
+        ))}
 
         {/* Field Groups & Field เดี่ยว */}
         {shellFieldGroups.map((item, _idx) => {

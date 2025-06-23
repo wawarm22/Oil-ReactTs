@@ -12,6 +12,7 @@ import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { apiGetAllOcr } from "../../utils/api/OcrListApi";
 import { ContextByDocType, OcrByDocIdType, ValidateResultsByDoc } from "../../types/checkList";
 import { parseUploadedStatus } from "../../utils/function/parseUploadedStatus";
+import { useCompanyStore } from "../../store/companyStore";
 
 interface AuditDetailProps {
     selectedId: number | null;
@@ -42,6 +43,10 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
 
     const validationRanRef = useRef(false);
     const uploadedStatus = parseUploadedStatus(folders);
+    const { selectedCompany } = useCompanyStore();
+
+
+    console.log("selectedCompany", selectedCompany);
 
     const fetchOcrData = async () => {
         const results: OcrByDocIdType = {};
@@ -243,7 +248,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
 
     const getIsUploaded = (meta?: { docId: number, subtitleIdx: number } | null) => {
         if (!meta) return false;
-        const { docId, subtitleIdx } = meta;        
+        const { docId, subtitleIdx } = meta;
         return uploadedStatus[docId]?.has(subtitleIdx ?? 0) ?? false;
     };
 

@@ -26,6 +26,7 @@ import { PDFDocument } from "pdf-lib";
 import ConfirmUploadModal from "../modal/ConfirmUploadModal";
 import { Spinner } from "react-bootstrap";
 import CancelUploadModal from "../modal/CancelUploadModal";
+import { formatDateToThai, formatMonthToBE } from "../../utils/function/format";
 dayjs.extend(buddhistEra);
 
 type UploadedFileMap = {
@@ -393,7 +394,7 @@ const UploadPreparation: React.FC = () => {
 
     const isConfirmDisabled = currentDocuments.some(item => !isUploadedComplete(item));
 
-    const handleConfirm = () => {        
+    const handleConfirm = () => {
         setShowConfirmModal(true);
     };
 
@@ -405,7 +406,7 @@ const UploadPreparation: React.FC = () => {
                 toast.warning("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
                 return;
             }
-            
+
             const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
                 user?.email === 'ja.test006+or@gmail.com' ||
                 user?.email === 'ja.test006+bsrc@gmail.com' ||
@@ -419,6 +420,9 @@ const UploadPreparation: React.FC = () => {
 
             await comfirmUpload(blobPath);
             toast.success("อัปโหลดสำเร็จ");
+            const month = formatMonthToBE(filters.month);
+            const dateStart = formatDateToThai(filters.dateStart);
+            const dateEnd = formatDateToThai(filters.dateEnd);
 
             const response = await apiSearchFiles(companyName, baseName!);
             // console.log("response", response);            
@@ -433,9 +437,12 @@ const UploadPreparation: React.FC = () => {
             localStorage.setItem("warehouse", filters.warehouse?.value || "");
             localStorage.setItem("nameWarehouse", filters.warehouse?.label || "");
             localStorage.setItem("periodValue", filters.periodType?.value || "");
-            
+            localStorage.setItem("month", month || "");
+            localStorage.setItem("dateStart", dateStart || "");
+            localStorage.setItem("dateEnd", dateEnd || "");
+
             navigate("/audit");
-            // navigate("/");
+            navigate("/");
 
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");
@@ -718,7 +725,7 @@ const UploadPreparation: React.FC = () => {
                         bgColor="#FFCB02"
                         color="#1E2329"
                         variant="bg-hide"
-                    // disabled={isConfirmDisabled}
+                        disabled={isConfirmDisabled}
                     />
                 </div>
             </div>

@@ -28,6 +28,7 @@ import { Spinner } from "react-bootstrap";
 import CancelUploadModal from "../modal/CancelUploadModal";
 import { extractDateCodeFromFileName } from "../../utils/function/parseFileName";
 import CustomSelect from "../reusable/CustomSelect";
+import { formatDateToThai, formatMonthToBE } from "../../utils/function/format";
 dayjs.extend(buddhistEra);
 
 type UploadedFileMap = {
@@ -343,7 +344,7 @@ const SearchFileUpload: React.FC = () => {
                     blobPath,
                 });
             });
-            
+
             setUploadedFiles(tempUploaded);
 
         } catch (err) {
@@ -599,6 +600,10 @@ const SearchFileUpload: React.FC = () => {
                 companyName = `${companyName}/${selectedDateCode}`;
             }
 
+            const month = formatMonthToBE(filters.month);
+            const dateStart = formatDateToThai(filters.dateStart);
+            const dateEnd = formatDateToThai(filters.dateEnd);
+
             const response = await apiSearchFiles(companyName, baseName);
 
             const folders = response.files.map((file: any) => {
@@ -612,6 +617,9 @@ const SearchFileUpload: React.FC = () => {
             localStorage.setItem("warehouse", filters.warehouse?.value || "");
             localStorage.setItem("nameWarehouse", filters.warehouse?.label || "");
             localStorage.setItem("periodValue", filters.periodType?.value || "");
+            localStorage.setItem("month", month || "");
+            localStorage.setItem("dateStart", dateStart || "");
+            localStorage.setItem("dateEnd", dateEnd || "");
             navigate("/audit?from=search-file");
             // navigate("/");
 
