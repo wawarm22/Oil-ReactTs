@@ -63,7 +63,8 @@ const ChecklistPanel: React.FC<Props> = ({
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
     const displayTitle = getTitleAndSubtitle(documentList, selectedDocMeta?.docId, selectedDocMeta?.subtitleIdx);
-
+    console.log("contextByDoc", contextByDoc);
+    
     if (!ocrDocument) {
         return (
             <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0">

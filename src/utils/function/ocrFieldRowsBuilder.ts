@@ -81,7 +81,6 @@ export function buildOcr0307FieldRows(data: OcrTaxForm0307Document) {
 
     rows.push({ properties: headerProps });
 
-    // สร้าง row สำหรับแต่ละแถวในตาราง detail_table (เริ่มที่ row 3)
     (data.detail_table || []).slice(3).forEach((row, rowIndex) => {
         const rawProps = row.properties;
         const properties: Record<string, any> =
@@ -90,7 +89,7 @@ export function buildOcr0307FieldRows(data: OcrTaxForm0307Document) {
         const rowProps: Record<string, { value: string; passed: boolean }> = {};
 
         Object.entries(columnLabelMap).forEach(([key, colLabel]) => {
-            const value = cleanValue(properties?.[key]?.value ?? "");
+            const value = cleanValue(properties?.[key]?.value ?? "").replace(/,/g, "");
             rowProps[`${colLabel} (แถว ${rowIndex + 4})`] = {
                 value,
                 passed: properties?.[key]?.passed ?? false,

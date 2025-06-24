@@ -5,6 +5,11 @@ import { documentList } from "../../types/docList";
 import AuditDetail from "../component/AuditDetail";
 import AuditButton from "../component/AuditButton";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ContextByDocType } from "../../types/checkList";
+import { SAVE_API_MAP } from "../../utils/function/saveApiMap";
+import { useCompanyStore } from "../../store/companyStore";
+import { AuthSchema } from "../../types/schema/auth";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 
 type UploadedFilesType = {
     [key: number]: { name: string; data: string; pageCount: number }[];
@@ -12,11 +17,14 @@ type UploadedFilesType = {
 
 const DocumentAudit: React.FC = () => {
     const navigate = useNavigate();
+    const auth = useAuthUser<AuthSchema>();
+    const { selectedCompany } = useCompanyStore();
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [currentPage, _setCurrentPage] = useState<number>(1);
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
     const [folders, setFolders] = useState<string[]>([]);
     const [disableNext, setDisableNext] = useState(true);
+    const [contextByDoc, setContextByDoc] = useState<ContextByDocType>({});
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const from = searchParams.get("from");
@@ -66,8 +74,59 @@ const DocumentAudit: React.FC = () => {
         }
     };
 
-    const handleSaveAudit = () => {
-        console.log("บันทึกการตรวจสอบ");
+    const handleSaveAudit = async () => {
+        if (!auth) {
+            alert("กรุณาเข้าสู่ระบบใหม่");
+            return;
+        }
+
+        const month = localStorage.getItem("month") ?? "";
+        const from_date = localStorage.getItem("dateStart") ?? "";
+        const to_date = localStorage.getItem("dateEnd") ?? "";
+        const periot = localStorage.getItem("periodValue") ?? "";
+        const factory_slug = localStorage.getItem("warehouse") ?? "";
+        const company_id = selectedCompany?.id ?? 0;
+
+        let hasError = false;
+        for (const key in SAVE_API_MAP) {
+            const [docIdStr, subIdxStr] = key.split("-");
+            const docId = Number(docIdStr);
+            const subIdx = Number(subIdxStr);
+            const context = contextByDoc[docId]?.[subIdx];
+
+            if (!context) continue;
+
+            const pageNums = Object.keys(context).map(Number).sort((a, b) => a - b);
+
+            for (const pageNum of pageNums) {
+                const pageData = context[pageNum];
+                const docType = pageData?.docType; 
+
+                const savePayload = {
+                    month,
+                    from_date,
+                    to_date,
+                    periot,
+                    factory_slug,
+                    company_id,
+                    data: pageData,
+                };
+
+                const saveApi = SAVE_API_MAP[key];
+                try {
+                    await saveApi({ data: savePayload, auth, docType });
+                } catch (err) {
+                    hasError = true;
+                    console.error(`บันทึก ${key} (หน้า ${pageNum}) ผิดพลาด`, err);
+                }
+            }
+        }
+
+        if (hasError) {
+            alert("มีบางรายการบันทึกผิดพลาด");
+        } else {
+            alert("บันทึกสำเร็จ!");
+        }
     };
 
     const handleValidationStatus = (status: Record<string, boolean>) => {
@@ -96,6 +155,8 @@ const DocumentAudit: React.FC = () => {
                 uploadedFiles={uploadedFiles}
                 folders={folders}
                 onValidationStatusChange={handleValidationStatus}
+                contextByDoc={contextByDoc}
+                setContextByDoc={setContextByDoc}
             />
 
             <AuditButton
