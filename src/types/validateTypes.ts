@@ -486,7 +486,16 @@ export type ThapplineDetail = {
     after: string;
 };
 
-// ชื่อ type หลัก
+export type Save0701 = {
+    month: string,
+    from_date: string,
+    to_date: string,
+    periot: string,
+    factory_slug: string,
+    company_id: number,
+    data: Prepared0701
+};
+
 export type Prepared0701 = {
     docType: string;
     documentGroup: string;
@@ -494,17 +503,6 @@ export type Prepared0701 = {
     fields: Prepared0701Fields;
 };
 
-export type Save0701 = {
-    month: string,
-    from_date: string,
-    to_date: string,
-    periot: string,
-    factory_id: number,
-    company_id: number,
-    data: Prepared0701
-};
-
-// โครงสร้าง fields
 export type Prepared0701Fields = {
     form_type: string;
     material_type: string;
@@ -516,7 +514,6 @@ export type Prepared0701Fields = {
     total: Prepared0701Total;
 };
 
-// แต่ละ report ใน fields.reports
 export type Prepared0701Report = {
     date: string;
     main_product: string;
@@ -535,14 +532,12 @@ export type Prepared0701Report = {
     products: Prepared0701Product[];
 };
 
-// สินค้าในแต่ละ report
 export type Prepared0701Product = {
     product_name: string;
     product_id: number;
     quantity: number;
 };
 
-// total summary ใน fields
 export type Prepared0701Total = {
     bl?: number;
     outturn?: number;

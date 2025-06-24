@@ -17,6 +17,7 @@ export const getContextForDocType: Record<
 
         return {
             documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
             fields: resp.data.fields,
             transport: resp.data.transport,
         };
@@ -28,6 +29,7 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
             fields: resp.data.fields,
             transport: resp.data.transport,
         };
@@ -254,6 +256,7 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
             fields: resp.data.fields
         };
     },
@@ -264,6 +267,7 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
             fields: resp.data.fields
         };
     },
@@ -274,6 +278,7 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
             fields: resp.data.fields
         };
     },
@@ -284,6 +289,7 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
             fields: resp.data.fields
         };
     },
@@ -294,6 +300,7 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
             fields: resp.data.fields
         };
     },
@@ -304,6 +311,7 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
             fields: resp.data.fields
         };
     },
@@ -314,6 +322,7 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
             fields: resp.data.fields
         };
     },
@@ -324,6 +333,7 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
             fields: resp.data.fields
         };
     },
@@ -334,6 +344,7 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
             fields: resp.data.fields
         };
     },

@@ -12,7 +12,6 @@ import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { apiGetAllOcr } from "../../utils/api/OcrListApi";
 import { ContextByDocType, OcrByDocIdType, ValidateResultsByDoc } from "../../types/checkList";
 import { parseUploadedStatus } from "../../utils/function/parseUploadedStatus";
-import { useCompanyStore } from "../../store/companyStore";
 
 interface AuditDetailProps {
     selectedId: number | null;
@@ -20,9 +19,11 @@ interface AuditDetailProps {
     uploadedFiles: { [key: number]: { name: string; data: string; pageCount: number }[] };
     folders: string[];
     onValidationStatusChange?: (status: Record<string, boolean>) => void;
+    contextByDoc: ContextByDocType;
+    setContextByDoc: React.Dispatch<React.SetStateAction<ContextByDocType>>;
 }
 
-const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusChange }) => {
+const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusChange, contextByDoc, setContextByDoc }) => {
     const auth = useAuthUser<AuthSchema>();
     const [currentPage, setCurrentPage] = useState<number>(1);
     const { addCallbacks, removeCallbacks } = useSocket();
@@ -35,19 +36,14 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
 
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
-    const [contextByDoc, setContextByDoc] = useState<ContextByDocType>({});
+    // const [contextByDoc, setContextByDoc] = useState<ContextByDocType>({});
     const [ocrByDocId, setOcrByDocId] = useState<OcrByDocIdType>({});
     const [validateResultsByDoc, setValidateResultsByDoc] = useState<ValidateResultsByDoc>({});
     const [validationFailStatus, setValidationFailStatus] = useState<Record<string, boolean>>({});
     const [selectedDocMeta, setSelectedDocMeta] = useState<{ docId: number, subtitleIdx: number } | null>(null);
-
     const validationRanRef = useRef(false);
     const uploadedStatus = parseUploadedStatus(folders);
-    const { selectedCompany } = useCompanyStore();
-
-
-    console.log("selectedCompany", selectedCompany);
-
+    
     const fetchOcrData = async () => {
         const results: OcrByDocIdType = {};
 
