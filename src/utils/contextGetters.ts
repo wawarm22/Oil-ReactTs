@@ -1,5 +1,5 @@
 import { useCompanyStore } from "../store/companyStore";
-import { getPrepared0307, getPrepared0502, getPrepared0503, getPrepared0701, getPrepared0704, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedInvoiceThappline, getPreparedReceiptExcise, getPreparedReceitpPaymentNew, getPreparedTaxInvoice } from "./api/validateApi";
+import { getPrepared0307Attachment, getPrepared0502, getPrepared0503, getPrepared0701, getPrepared0704, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedInvoiceThappline, getPreparedReceiptExcise, getPreparedReceitpPaymentNew, getPreparedTaxInvoice } from "./api/validateApi";
 import { cleanCellValue } from "./function/ocrUtils";
 
 export type ContextOptions = { auth?: any };
@@ -131,7 +131,7 @@ export const getContextForDocType: Record<
     "oil-formular-1": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
-        const res = await getPrepared0307(page1.id, auth);
+        const res = await getPrepared0307Attachment(page1.id, auth);
         const preparedData = res?.data ?? null;
 
         const company = useCompanyStore.getState().selectedCompany?.name ?? "";
@@ -147,7 +147,7 @@ export const getContextForDocType: Record<
     "oil-formular-2": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
-        const res = await getPrepared0307(page1.id, auth);
+        const res = await getPrepared0307Attachment(page1.id, auth);
         const preparedData = res?.data ?? null;
 
         const company = useCompanyStore.getState().selectedCompany?.name ?? "";
@@ -163,7 +163,7 @@ export const getContextForDocType: Record<
     "oil-formular-3": async (page1, options) => {
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
-        const res = await getPrepared0307(page1.id, auth);
+        const res = await getPrepared0307Attachment(page1.id, auth);
         const preparedData = res?.data ?? null;
 
         const company = useCompanyStore.getState().selectedCompany?.name ?? "";

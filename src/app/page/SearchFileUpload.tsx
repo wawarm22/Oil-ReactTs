@@ -122,7 +122,7 @@ const SearchFileUpload: React.FC = () => {
             setFilteredParsedFiles(parsedFiles); // ถ้าเลือก "ทั้งหมด" ให้โชว์ทุกไฟล์
         } else {
             setFilteredParsedFiles(
-                parsedFiles.filter(file => file.dateCode === dateCodeFilter.value)
+                parsedFiles.filter(file => file.mainCode === dateCodeFilter.value)
             );
         }
     }, [parsedFiles, dateCodeFilter]);
@@ -159,11 +159,27 @@ const SearchFileUpload: React.FC = () => {
     ];
 
     const dateCodeOptions: OptionType[] = Array.from(
-        new Set(parsedFiles.map(f => f.dateCode).filter(Boolean))
-    ).map(code => ({
-        value: code!,
-        label: code!
-    }));
+        new Set(parsedFiles.map(f => f.mainCode).filter(Boolean))
+    ).map(code => {
+        // console.log(code);
+        let date: dayjs.Dayjs = dayjs()
+        if (code.includes("000000000000")) {
+            const dateStr = code.split("-").at(0)! // format "DDMMBB"
+            const day = dateStr.slice(0, 2);
+            const month = dateStr.slice(2, 4);
+            const year = "25" + dateStr.slice(4, 6);
+            date = dayjs(`${day}-${month}-${+year - 543}`, "MM-DD-YYYY");
+        } else {
+            const unixNanoStr = code.split("-").at(1)!
+            const unixNano = parseInt(unixNanoStr ?? "1")
+            date = dayjs(new Date(unixNano))
+        }
+        // console.log(date);
+        return {
+            value: code,
+            label: date.format("DD MMM BBBB HH:mm")
+        }
+    }).reverse();
 
     const handleFilterChange = (field: keyof typeof filters, value: any) => {
         const resetMap: { [key in keyof typeof filters]?: (keyof typeof filters)[] } = {
@@ -286,7 +302,7 @@ const SearchFileUpload: React.FC = () => {
             const result = await apiSearchFiles(startsWith, baseName);
 
             const parsed: ParsedFileInfo[] = [];
-            let mainCode: string | null = null;
+            let localMainCode: string | null = null;
 
             result.files.forEach((file) => {
                 const dateCode = extractDateCodeFromFileName(file.fileName) ?? "";
@@ -295,12 +311,13 @@ const SearchFileUpload: React.FC = () => {
 
                 const fileNameOnly = parts[parts.length - 1];
 
-                const mainCodeMatch = fileNameOnly.match(/^(\d{6}-\d{12})/);
+                const mainCodeMatch = fileNameOnly.match(/^(\d{6}-\d{12,13})/);
+
                 if (!mainCodeMatch) return;
 
+                localMainCode = mainCodeMatch[1];
                 if (!mainCode) {
-                    mainCode = mainCodeMatch[1];
-                    setMainCode(mainCode);
+                    setMainCode(localMainCode);
                 }
 
                 const docCodeMatch = parts[1].match(/DOC\d{4}/);
@@ -319,7 +336,7 @@ const SearchFileUpload: React.FC = () => {
                 }
 
                 parsed.push({
-                    mainCode,
+                    mainCode: localMainCode,
                     docCode,
                     fullFileName,
                     docId,
