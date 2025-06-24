@@ -60,9 +60,9 @@ const shellFieldGroups: Array<
 
 const getBorderColor = (value: any) => {
     if (value === undefined || value === null || value === "") return "#CED4DA";
-    if (value === false) return "#FF0100"; 
-    if (value === true) return "#22C659"; 
-    return "#CED4DA"; 
+    if (value === false) return "#FF0100";
+    if (value === true) return "#22C659";
+    return "#CED4DA";
 };
 
 const getDisplayValue = (raw: any): React.ReactNode => {
@@ -76,7 +76,6 @@ const getDisplayValue = (raw: any): React.ReactNode => {
 
 const ShellIncomeNExpense: React.FC<{ validateResult: any }> = ({ validateResult }) => (
     <div className="d-flex flex-column gap-2" style={{ fontSize: "14px" }}>
-        {/* Header */}
         <div className="fw-bold" style={{ fontSize: "16px" }}>บัญชีรับ-จ่ายน้ำมันที่นำมาใช้เป็นวัตถุดิบในการผลิต</div>
         {shellHeader.map(({ label, key }) => (
             <div key={key} className="mb-1">
@@ -90,9 +89,7 @@ const ShellIncomeNExpense: React.FC<{ validateResult: any }> = ({ validateResult
             </div>
         ))}
 
-        {/* Field Groups & Field เดี่ยว */}
         {shellFieldGroups.map((item, _idx) => {
-            // group
             if ("groupLabel" in item) {
                 return (
                     <div key={item.groupLabel}>
@@ -108,7 +105,6 @@ const ShellIncomeNExpense: React.FC<{ validateResult: any }> = ({ validateResult
                     </div>
                 );
             }
-            // field เดี่ยว
             return (
                 <div key={item.key} className="mb-2">
                     <div className="fw-bold">{item.label}</div>

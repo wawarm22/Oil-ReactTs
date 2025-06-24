@@ -71,12 +71,12 @@ const DocumentChecklist: React.FC<Props> = ({
         }
     }, [ocrByDocId, filteredList]);
 
-    const getPageCount = (group: any) => {
-        if (!group) return 0;
-        let total = 0;
-        Object.values(group).forEach((f: any) => total += f.pageCount || 0);
-        return total;
-    };
+    // const getPageCount = (group: any) => {
+    //     if (!group) return 0;
+    //     let total = 0;
+    //     Object.values(group).forEach((f: any) => total += f.pageCount || 0);
+    //     return total;
+    // };
 
     const getDisplayStatus = (
         isSelected: boolean,
@@ -181,11 +181,11 @@ const DocumentChecklist: React.FC<Props> = ({
 
                 const docType = getFirstDocType(group);
                 const hasValidate = !!(docType && OCR_VALIDATE_MAP[docType]);
-                const pageCount = getPageCount(group);
+                // const pageCount = getPageCount(group);
                 let overallValidate: "waiting" | "failed" | "passed" = "waiting";
                 if (hasValidate && hasOcr) {
                     overallValidate = getOverallValidateStatus(
-                        item.id, defaultSubIdx, pageCount, validateResultsByDoc
+                        item.id, defaultSubIdx, validateResultsByDoc, ocrByDocId
                     );
                 }
 
@@ -235,10 +235,10 @@ const DocumentChecklist: React.FC<Props> = ({
 
                                         const docTypeSub = getFirstDocType(subGroup);
                                         const hasValidateSub = !!(docTypeSub && OCR_VALIDATE_MAP[docTypeSub]);
-                                        const pageCountSub = getPageCount(subGroup);
+                                        // const pageCountSub = getPageCount(subGroup);
                                         let overallValidateSub: "waiting" | "failed" | "passed" = "waiting";
                                         if (hasValidateSub && hasOcrSub) {
-                                            overallValidateSub = getOverallValidateStatus(item.id, subIdx, pageCountSub, validateResultsByDoc);
+                                            overallValidateSub = getOverallValidateStatus(item.id, subIdx, validateResultsByDoc, ocrByDocId);
                                         }
 
                                         const { Icon, iconColor, bg, textColor, bar } = getDisplayStatus(

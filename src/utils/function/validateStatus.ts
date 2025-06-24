@@ -1,4 +1,4 @@
-import { ValidateResultsByDoc } from "../../types/checkList";
+import { OcrByDocIdType, ValidateResultsByDoc } from "../../types/checkList";
 import { OCR_VALIDATE_MAP } from "../../utils/function/ocrValidateMap";
 
 export function getFirstDocType(docGroup: any): string | undefined {
@@ -15,25 +15,46 @@ export function getFirstDocType(docGroup: any): string | undefined {
 export function getOverallValidateStatus(
     docId: number,
     subtitleIdx: number,
-    pageCount: number,
-    validateResultsByDoc: ValidateResultsByDoc
+    validateResultsByDoc: ValidateResultsByDoc,
+    ocrByDocId: OcrByDocIdType
 ): "waiting" | "failed" | "passed" {
     let validatedPages = 0;
     let hasFailed = false;
+    let totalValidatePages = 0;
     const docGroup = validateResultsByDoc[docId]?.[subtitleIdx];
-    if (!docGroup) return "waiting";
+    const ocrGroup = ocrByDocId[docId]?.[subtitleIdx];
+    if (!docGroup || !ocrGroup) return "waiting";
 
-    for (let p = 1; p <= pageCount; p++) {
-        const pageObj = docGroup[p];
-        if (!pageObj || pageObj.validateResult === undefined) continue;
-        validatedPages++;
-        const docType = pageObj.docType;
-        const checkFailed = OCR_VALIDATE_MAP[docType]?.checkFailed;
-        if (typeof checkFailed === "function" && checkFailed(pageObj.validateResult)) {
-            hasFailed = true;
+    for (const fileKey of Object.keys(ocrGroup)) {
+        const file = ocrGroup[fileKey];
+        for (const p of Object.keys(file.pages)) {
+            const page = (file.pages as Record<string, any>)[p];
+            const docType = page?.docType;
+            if (OCR_VALIDATE_MAP[docType]) {
+                totalValidatePages++;
+                const pageObj = docGroup[Number(p)];
+                if (!pageObj || pageObj.validateResult === undefined) continue;
+                validatedPages++;
+                const checkFailed = OCR_VALIDATE_MAP[docType]?.checkFailed;
+                if (typeof checkFailed === "function" && checkFailed(pageObj.validateResult)) {
+                    hasFailed = true;
+                }
+            } else {
+                // Alert dev: log warning for unknown docType
+                if (process.env.NODE_ENV === "development") {
+                    // หรือจะใช้ Sentry, toast หรือ alert dev tool อื่นๆ ก็ได้
+                    // eslint-disable-next-line no-console
+                    console.warn(`[DEV] Unrecognized docType "${docType}" for page:`, {
+                        docId,
+                        subtitleIdx,
+                        fileKey,
+                        pageNumber: p,
+                    });
+                }
+            }
         }
     }
     if (hasFailed) return "failed";
-    if (validatedPages === pageCount && pageCount > 0) return "passed";
+    if (validatedPages === totalValidatePages && totalValidatePages > 0) return "passed";
     return "waiting";
 }
