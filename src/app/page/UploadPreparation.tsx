@@ -442,7 +442,7 @@ const UploadPreparation: React.FC = () => {
             localStorage.setItem("dateEnd", dateEnd || "");
 
             navigate("/audit");
-            navigate("/");
+            // navigate("/");
 
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดระหว่างยืนยันการอัปโหลด");

@@ -3,7 +3,7 @@ import '../../assets/css/button.css'
 
 interface ButtonProps {
     type: 'button' | 'submit';
-    label: string;
+    label: React.ReactNode;
     onClick?: () => void;
     bgColor: string;
     color?: string;

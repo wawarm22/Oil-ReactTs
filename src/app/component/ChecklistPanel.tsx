@@ -63,7 +63,6 @@ const ChecklistPanel: React.FC<Props> = ({
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
     const displayTitle = getTitleAndSubtitle(documentList, selectedDocMeta?.docId, selectedDocMeta?.subtitleIdx);
-    console.log("contextByDoc", contextByDoc);
     
     if (!ocrDocument) {
         return (
