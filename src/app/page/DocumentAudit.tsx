@@ -23,8 +23,9 @@ const DocumentAudit: React.FC = () => {
     const [currentPage, _setCurrentPage] = useState<number>(1);
     const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
     const [folders, setFolders] = useState<string[]>([]);
-    const [disableNext, setDisableNext] = useState(true);
+    const [_disableNext, setDisableNext] = useState(true);
     const [contextByDoc, setContextByDoc] = useState<ContextByDocType>({});
+    const [saving, setSaving] = useState(false);
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const from = searchParams.get("from");
@@ -67,6 +68,11 @@ const DocumentAudit: React.FC = () => {
         localStorage.removeItem("folders");
         localStorage.removeItem("transport");
         localStorage.removeItem("warehouse");
+        localStorage.removeItem("nameWarehouse");
+        localStorage.removeItem("month");
+        localStorage.removeItem("dateStart");
+        localStorage.removeItem("dateEnd");
+        localStorage.removeItem("periodValue");
         if (from === "search-file") {
             navigate('/search-file');
         } else {
@@ -79,7 +85,7 @@ const DocumentAudit: React.FC = () => {
             alert("กรุณาเข้าสู่ระบบใหม่");
             return;
         }
-
+        setSaving(true);
         const month = localStorage.getItem("month") ?? "";
         const from_date = localStorage.getItem("dateStart") ?? "";
         const to_date = localStorage.getItem("dateEnd") ?? "";
@@ -100,7 +106,7 @@ const DocumentAudit: React.FC = () => {
 
             for (const pageNum of pageNums) {
                 const pageData = context[pageNum];
-                const docType = pageData?.docType; 
+                const docType = pageData?.docType;
 
                 const savePayload = {
                     month,
@@ -122,6 +128,7 @@ const DocumentAudit: React.FC = () => {
             }
         }
 
+        setSaving(false);
         if (hasError) {
             alert("มีบางรายการบันทึกผิดพลาด");
         } else {
@@ -164,7 +171,8 @@ const DocumentAudit: React.FC = () => {
                 onBack={handleBack}
                 onSaveAudit={handleSaveAudit}
                 onNextStep={handleNextStep}
-                disableSave={disableNext}
+                // disableSave={disableNext}
+                saving={saving}
             />
         </div>
     );

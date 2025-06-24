@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "../reusable/Button";
 import { StepStatus } from "../../types/enum/stepStatus";
+import { Spinner } from "react-bootstrap";
 
 interface AuditButtonContainerProps {
     stepStatus?: StepStatus;
@@ -8,7 +9,8 @@ interface AuditButtonContainerProps {
     onBack?: () => void;
     onSaveAudit?: () => void;
     onNextStep?: () => void;
-    disableSave?: boolean; 
+    disableSave?: boolean;
+    saving?: boolean;
 }
 
 const AuditButtonContainer: React.FC<AuditButtonContainerProps> = ({
@@ -18,6 +20,7 @@ const AuditButtonContainer: React.FC<AuditButtonContainerProps> = ({
     onSaveAudit,
     onNextStep,
     disableSave = false,
+    saving = false
 }) => {
     return (
         <div className="d-flex justify-content-between align-items-center shadow-sm bg-white rounded-2 p-4 mt-3 w-100">
@@ -55,7 +58,19 @@ const AuditButtonContainer: React.FC<AuditButtonContainerProps> = ({
 
                 <Button
                     type="button"
-                    label="บันทึกการตรวจสอบ"
+                    label={
+                        saving ? (
+                            <>
+                                <Spinner
+                                    animation="border"
+                                    size="sm"
+                                    className="me-2"
+                                    style={{ verticalAlign: "middle" }}
+                                />
+                                กำลังบันทึกข้อมูล...
+                            </>
+                        ) : "บันทึกการตรวจสอบ"
+                    }
                     bgColor="#FFCB02"
                     color="#1E2329"
                     hoverBgColor="#FFFF"
@@ -64,6 +79,7 @@ const AuditButtonContainer: React.FC<AuditButtonContainerProps> = ({
                     variant="bg-hide"
                     maxWidth="300px"
                     onClick={onSaveAudit}
+                    disabled={disableSave || saving}
                 />
             </div>
 
