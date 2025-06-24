@@ -189,8 +189,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                 }
             }
 
-            console.log("results", results);
-            
             setValidateResultsByDoc(results);
             setValidationFailStatus(statusMap);
         }
