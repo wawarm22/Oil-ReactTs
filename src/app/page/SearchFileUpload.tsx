@@ -161,7 +161,7 @@ const SearchFileUpload: React.FC = () => {
     const dateCodeOptions: OptionType[] = Array.from(
         new Set(parsedFiles.map(f => f.mainCode).filter(Boolean))
     ).map(code => {
-        console.log(code);
+        // console.log(code);
         let date: dayjs.Dayjs = dayjs()
         if (code.includes("000000000000")) {
             const dateStr = code.split("-").at(0)! // format "DDMMBB"
@@ -174,7 +174,7 @@ const SearchFileUpload: React.FC = () => {
             const unixNano = parseInt(unixNanoStr ?? "1")
             date = dayjs(new Date(unixNano))
         }
-        console.log(date);
+        // console.log(date);
         return {
             value: code,
             label: date.format("DD MMM BBBB HH:mm")
