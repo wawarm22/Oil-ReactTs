@@ -735,6 +735,41 @@ export type OcrDeliveryInvoicePipline = OcrFieldsBase & {
     time: string;
 }
 
+export type OcrTaxForm0129Document = OcrFieldsBase & {
+    type: "tax_form_0129";
+    address_no: string;
+    attach_1_no: string;
+    attach_2_no: string;
+    company_name: string;
+    detail_table: Array<{
+        confidence: number;
+        kind: string;
+        properties: Record<string, { value?: string; }>;
+    }>;
+    district: string;
+    docType: string;
+    documentGroup: string;
+    excise_id: string;
+    fileKey: string;
+    form_type: string;
+    form_no: string;
+    form_date: string;
+    form_officer: string;
+    id: string;
+    name: string;
+    pageCount: string;
+    pageNumber: string;
+    phone_number: string;
+    postcode: string;
+    province: string;
+    request_date: string;
+    request_name: string;
+    request_signature: string;
+    road: string;
+    sub_district: string;
+    soi: string;
+}
+
 export type OcrFields =
     | OcrTaxDocument
     | OcrDetailTableDocument
@@ -762,4 +797,5 @@ export type OcrFields =
     | OcrTaxForm0503Page2Document
     | OcrIncomeNExpenseDocument
     | OcrDeliveryInvoicePipline
+    | OcrTaxForm0129Document
     | (OcrFieldsBase & Record<string, any>); 
