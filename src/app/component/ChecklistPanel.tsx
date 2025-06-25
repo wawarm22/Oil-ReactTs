@@ -1,6 +1,6 @@
 import React, { } from "react";
 import AuditPagination from "../reusable/AuditPagination";
-import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument, OcrDeliveryInvoicePipline } from "../../types/ocrFileType";
+import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument, OcrDeliveryInvoicePipline, OcrTaxForm0129Document } from "../../types/ocrFileType";
 import { detectOcrType } from "../../utils/function/ocrType";
 import ChecklistTax from "./ChecklistTax";
 import ChecklistTable from "./ChecklistTable";
@@ -29,6 +29,7 @@ import ChecklistIncomeNExpense from "./ChecklistIncomeNExpense";
 import { ContextByDocType, ValidateResultsByDoc } from "../../types/checkList";
 import { DocumentItem } from "../../types/docList";
 import { getTitleAndSubtitle } from "../../utils/function/getTitleAndSubtitle";
+import ChecklistForm0129 from "./ChecklistForm0129";
 
 interface Props {
     documentList: DocumentItem[];
@@ -229,6 +230,9 @@ const ChecklistPanel: React.FC<Props> = ({
                 )}
                 {type === "daily_comparison" && (
                     <ChecklistDailyComparison data={currentOcrFields as OcrDailyComparisonDocument} />
+                )}
+                {type === "tax_form_0129" && (
+                    <ChecklistForm0129 data={currentOcrFields as OcrTaxForm0129Document} />
                 )}
                 {type === "tax_receipt_excise" && (
                     <ChecklistTaxReceiptExcise
