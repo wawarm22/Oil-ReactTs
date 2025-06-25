@@ -30,6 +30,7 @@ import { ContextByDocType, ValidateResultsByDoc } from "../../types/checkList";
 import { DocumentItem } from "../../types/docList";
 import { getTitleAndSubtitle } from "../../utils/function/getTitleAndSubtitle";
 import ChecklistForm0129 from "./ChecklistForm0129";
+import HourglassStackLoading from "../reusable/LoadingOCR";
 
 interface Props {
     documentList: DocumentItem[];
@@ -64,14 +65,14 @@ const ChecklistPanel: React.FC<Props> = ({
 }) => {
     // const [currentPage, setCurrentPage] = useState<number>(1);
     const displayTitle = getTitleAndSubtitle(documentList, selectedDocMeta?.docId, selectedDocMeta?.subtitleIdx);
-    
+
     if (!ocrDocument) {
         return (
             <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0">
                 <div className="shadow-sm bg-white rounded-2 p-5 h-100 " style={{ overflowY: "auto" }}>
                     <p className="text-muted text-center">
                         {isUploaded
-                            ? <>กำลังประมวลผล OCR กรุณารอ...</>
+                            ? <HourglassStackLoading />
                             : <>ข้อมูลเอกสาร "{displayTitle}"<br />ยังไม่มีการอัปโหลดเอกสาร</>
                         }
                     </p>
@@ -262,7 +263,11 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "tax_form_0502" && (
                     <ChecklistTaxForm0502
                         data={currentOcrFields as OcrTaxForm0502Document}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}

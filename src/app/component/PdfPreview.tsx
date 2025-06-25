@@ -17,6 +17,7 @@ type ThumbnailCache = Record<string, (string | null)[]>;
 
 interface PdfPreviewProps {
     documentList: DocumentItem[];
+    folders: string[];
     ocrFields: {
         pages: { [page: number]: OcrPageData };
         pageCount: number;
@@ -30,6 +31,7 @@ interface PdfPreviewProps {
 
 const PdfPreview: React.FC<PdfPreviewProps> = ({
     documentList,
+    folders,
     ocrByDocId,
     currentPage,
     setCurrentPage,
@@ -40,6 +42,9 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
     const [cacheReady, setCacheReady] = useState(false);
     const thumbnailCache = useRef<ThumbnailCache>({});
 
+    console.log("ocrByDocId", ocrByDocId);
+    console.log("folders", folders);    
+    
     useEffect(() => {
         let isMounted = true;
         setLoading(true);
@@ -129,7 +134,7 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
     if (!currentThumbnails.length) {
         if (isUploaded) {
             displayMsg = (
-                <p className="text-muted text-center">
+                <p className="text-muted text-center" style={{ fontFamily: "IBM Plex Sans Thai" }}>
                     กำลังประมวลผล OCR กรุณารอ... <br />
                     ("{displayTitle}")
                 </p>

@@ -188,7 +188,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                     }
                 }
             }
-
+            
             console.log("results", results);
             
             setValidateResultsByDoc(results);
@@ -268,6 +268,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
 
             <PdfPreview
                 documentList={documentList}
+                folders={folders}
                 ocrFields={selectedOcrDocument}
                 currentPage={currentPage}
                 ocrByDocId={ocrByDocId}
