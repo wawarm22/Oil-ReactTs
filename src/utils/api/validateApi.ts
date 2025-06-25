@@ -445,3 +445,17 @@ export const getPrepared0307 = async (docId: string, auth: AuthSchema): Promise<
         return undefined;
     }
 };
+
+export const getPrepared0702 = async (docId: string, auth: AuthSchema): Promise<any | undefined> => {
+    try {
+        const response = await axios.get(`${BASE_URL_AWS}/ocr/ocr-prepared/07-02/${docId}`, {
+            headers: {
+                Authorization: `Bearer ${auth.accessToken}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred while fetching OCR prepared data", error);
+        return undefined;
+    }
+};
