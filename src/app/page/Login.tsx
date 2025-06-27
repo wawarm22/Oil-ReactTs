@@ -49,7 +49,6 @@ const Login: React.FC = () => {
             const response = await apiLogin(email, password);
 
             const parsed = ApiLoginResponseSchema.parse(response);
-            console.log("parsed", parsed);
 
             if (parsed.data.accessToken) {
                 const isSignedIn = signIn({

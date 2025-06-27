@@ -36,7 +36,6 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
 
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(null);
-    // const [contextByDoc, setContextByDoc] = useState<ContextByDocType>({});
     const [ocrByDocId, setOcrByDocId] = useState<OcrByDocIdType>({});
     const [validateResultsByDoc, setValidateResultsByDoc] = useState<ValidateResultsByDoc>({});
     const [validationFailStatus, setValidationFailStatus] = useState<Record<string, boolean>>({});
@@ -240,7 +239,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({ folders, onValidationStatusCh
                 pageCount: pageOffset,
                 pageFileKeyMap,
             });
-            setCurrentPage(1); // reset page ทุกครั้ง
+            setCurrentPage(1);
         }
     }, [ocrByDocId, selectedDocId, selectedSubtitleIdx]);
 

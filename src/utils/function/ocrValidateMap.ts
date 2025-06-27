@@ -1,7 +1,5 @@
-import { useCompanyStore } from "../../store/companyStore";
-import { FieldValidation, Oil0702ValidationResult, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateField, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateInvoiceThapplineData, ValidateOil0704Result, ValidateReceiptExciseResult, ValidateTaxInvoiceResult, ValidationResult0307 } from "../../types/validateResTypes";
-import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New, validateReceitpPaymentNew, validateOil0702, validateTaxInvoice, validateReceiptExcise, validateInvoiceThappline } from "../api/validateApi";
-import { buildOcr0307FieldRows } from "./ocrFieldRowsBuilder";
+import { FieldValidation, Oil0702ValidationResult, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateField, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateInvoiceThapplineData, ValidateOil0704Result, ValidateReceiptExciseResult, ValidateResult0129, ValidateResult0307, ValidateTaxInvoiceResult, ValidationResult0307 } from "../../types/validateResTypes";
+import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New, validateReceitpPaymentNew, validateOil0702, validateTaxInvoice, validateReceiptExcise, validateInvoiceThappline, validateForm0129 } from "../api/validateApi";
 
 const cleanValue = (val?: any): string => {
     if (val === null || val === undefined) return "";
@@ -100,6 +98,12 @@ const buildTaxInvoice = (ocr: any, context: any) => ({
     fields: context.fields ?? {},
 });
 
+const buildForm0307 = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+});
+
 const buildIncomeExpensePayload = (ocr: any, context: any) => ({
     docType: ocr.docType,
     documentGroup: context.documentGroup ?? "",
@@ -148,6 +152,12 @@ const buildInvoicePipline = (ocr: any, context: any) => ({
     fields: context.fields ?? {},
 });
 
+const buildForm0129 = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+});
+
 const buildOutturnPayload = (ocr: any, context?: any) => {
     const value = ocr.detail_table_1?.[27]?.properties?.column_2;
     const rawQuantity = value ? cleanValue(value.value) : "";
@@ -177,11 +187,26 @@ const buildOutturnPayload = (ocr: any, context?: any) => {
     };
 };
 
-const check0307Failed = (res: any) =>
-    Array.isArray(res?.data) &&
-    res.data.some((row: any) =>
-        Object.values(row?.properties ?? {}).some((cell: any) => cell?.passed === false)
-    );
+export const check0307Failed = (res: { data?: ValidateResult0307 } | undefined): boolean => {
+    const hasFailed = (obj: any, path = ''): boolean => {
+        if (obj === null || obj === undefined) return false;
+        if (Array.isArray(obj)) {
+            return obj.some((item, idx) => hasFailed(item, `${path}[${idx}]`));
+        }
+        if (typeof obj === "object") {
+            if ("passed" in obj && typeof obj.passed === "boolean" && obj.passed === false) {
+                return true;
+            }
+            return Object.entries(obj).some(([key, val]) =>
+                hasFailed(val, path ? `${path}.${key}` : key)
+            );
+        }
+        return false;
+    };
+
+    if (!res?.data) return false;
+    return hasFailed(res.data);
+};
 
 const checkTaxFailed = (res: any) => {
     if (Array.isArray(res?.data)) {
@@ -196,6 +221,7 @@ const checkTaxFailed = (res: any) => {
 
     return false;
 };
+
 const checkOilCompareFailed = (res: any) =>
     Array.isArray(res?.data) &&
     res.data.some(
@@ -217,7 +243,7 @@ export const checkOil0701Failed = (
     const data: Validate0701Result | undefined =
         (res && "data" in res ? (res as any).data : res) as Validate0701Result | undefined;
     if (!res) return true;
-    
+
     if (!data) return true;
 
     for (const key of Object.keys(data)) {
@@ -667,6 +693,22 @@ const checkInvoicePiplineFailed = (
     return false;
 };
 
+const check0129Failed = (res: { data?: ValidateResult0129 } | undefined): boolean => {
+    if (!res?.data || typeof res.data !== "object") return false;
+
+    const hasFailed = (obj: any): boolean => {
+        if (obj === null || obj === undefined) return false;
+        if (Array.isArray(obj)) return obj.some(hasFailed);
+        if (typeof obj === "object") {
+            if ("passed" in obj && typeof obj.passed === "boolean") return obj.passed === false;
+            return Object.values(obj).some(hasFailed);
+        }
+        return false;
+    };
+
+    return hasFailed(res.data);
+};
+
 export const OCR_VALIDATE_MAP: Record<
     string,
     {
@@ -721,20 +763,11 @@ export const OCR_VALIDATE_MAP: Record<
         needsAuth: true,
     },
     "oil-03-07-page-1": {
-        buildPayload: (ocr: any) => {
-            const { selectedCompany } = useCompanyStore.getState();
-            const factoriesNumber = localStorage.getItem("warehouse") ?? "";
-
-            return {
-                docType: ocr.docType,
-                company: selectedCompany?.name ?? "",
-                factories: factoriesNumber,
-                documentGroup: ocr.documentGroup ?? "",
-                fields: buildOcr0307FieldRows(ocr),
-            };
-        },
+        buildPayload: buildForm0307,
         api: validateOil0307,
         checkFailed: check0307Failed,
+        needsContext: true,
+        needsAuth: true,
     },
     "oil-tax-invoice-2": {
         buildPayload: buildTaxInvoice,
@@ -885,5 +918,12 @@ export const OCR_VALIDATE_MAP: Record<
         checkFailed: checkInvoicePiplineFailed,
         needsContext: true,
         needsAuth: true,
-    }
+    },
+    "oil-01-29-page-1-1": {
+        buildPayload: buildForm0129,
+        api: validateForm0129,
+        checkFailed: check0129Failed,       
+        needsContext: true,
+        needsAuth: true,
+    },
 };

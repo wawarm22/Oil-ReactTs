@@ -1,5 +1,5 @@
 import { useCompanyStore } from "../store/companyStore";
-import { getPrepared0307Attachment, getPrepared0502, getPrepared0503, getPrepared0701, getPrepared0704, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedInvoiceThappline, getPreparedReceiptExcise, getPreparedReceitpPaymentNew, getPreparedTaxInvoice } from "./api/validateApi";
+import { getPrepared0129, getPrepared0307, getPrepared0307Attachment, getPrepared0502, getPrepared0503, getPrepared0701, getPrepared0704, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedInvoiceThappline, getPreparedReceiptExcise, getPreparedReceitpPaymentNew, getPreparedTaxInvoice } from "./api/validateApi";
 import { cleanCellValue } from "./function/ocrUtils";
 
 export type ContextOptions = { auth?: any };
@@ -74,13 +74,11 @@ export const getContextForDocType: Record<
             }
         }
 
-        // ใส่ cleanCellValue ให้ value
         const ocrFieldRows = tables.slice(startIdx).map((row: any) => {
             const props = row.properties as Record<string, any>;
             const properties: Record<string, { value: string }> = {};
             fixedLabels.forEach(({ key, label }) => {
                 let value = cleanCellValue(props?.[key]?.value ?? "");
-                // เช็คและแทนที่ค่าเฉพาะ column_4, column_8, column_14
                 if (
                     (key === "column_4" || key === "column_8" || key === "column_14") &&
                     value === "049,88800"
@@ -218,8 +216,6 @@ export const getContextForDocType: Record<
     "oil-compare-1": async (page1) => {
         const company = useCompanyStore.getState().selectedCompany?.name ?? "";
         const factories = localStorage.getItem("warehouse") ?? "";
-        console.log("company", company);
-        console.log("factories", factories);
 
         return {
             company,
@@ -341,6 +337,28 @@ export const getContextForDocType: Record<
         const auth = options?.auth;
         if (!page1.id || !auth) return {};
         const resp = await getPreparedInvoiceThappline(page1.id, auth);
+        if (!resp?.data) return {};
+        return {
+            documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
+            fields: resp.data.fields
+        };
+    },
+    "oil-03-07-page-1": async (page1, options) => {
+        const auth = options?.auth;        
+        if (!page1.id || !auth) return {};
+        const resp = await getPrepared0307(page1.id, auth);        
+        if (!resp?.data) return {};
+        return {
+            documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
+            fields: resp.data.fields
+        };
+    },
+    "oil-01-29-page-1-1": async (page1, options) => {
+        const auth = options?.auth;        
+        if (!page1.id || !auth) return {};
+        const resp = await getPrepared0129(page1.id, auth);        
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,

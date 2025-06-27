@@ -535,5 +535,111 @@ export type ValidateOil0704Result = {
     products: Oil0704ProductValidation[];
 };
 
+export type ValidatedField<T = any> = {
+  value: T;
+  expected: T;
+  passed: boolean;
+};
+
+export type ValidatedTaxFor = {
+  check: ValidatedField<string>;
+  description: ValidatedField<string>;
+};
+
+export type ValidatedProduct = {
+  index: ValidatedField<number>;
+  product_type: ValidatedField<string>;
+  product_name: ValidatedField<string>;
+  product_id: ValidatedField<number>;
+  quantity: ValidatedField<number>;
+  tax_rate: ValidatedField<number>;
+  excise_tax_baht: ValidatedField<number>;
+  excise_tax_satang: ValidatedField<number>;
+  interior_tax_baht: ValidatedField<number>;
+  interior_tax_satang: ValidatedField<number>;
+  // เพิ่ม field อื่นๆ ถ้ามี
+};
+
+export type ValidatedTaxGroup = {
+  excise: ValidatedField<number>;
+  interior: ValidatedField<number>;
+  description?: ValidatedField<string>;
+};
+
+export type ValidatedTaxes = {
+  base: ValidatedTaxGroup;
+  discount: ValidatedTaxGroup;
+  remains: ValidatedTaxGroup;
+  fine: ValidatedTaxGroup;
+  additional_percentage: ValidatedTaxGroup;
+  total: ValidatedTaxGroup;
+  discount_at: ValidatedTaxGroup;
+  balance: ValidatedTaxGroup;
+  should_paid: ValidatedField<number>;
+  should_paid_txt: ValidatedField<string>;
+};
+
+export type ValidateResult0307 = {
+  form_name: ValidatedField<string>;
+  ref_no: ValidatedField<string>;
+  request_no: ValidatedField<string>;
+  request_date: ValidatedField<string>;
+  request_officer: ValidatedField<string>;
+  company_name: ValidatedField<string>;
+  factory_name: ValidatedField<string>;
+  excise_no: ValidatedField<string>;
+  address_no: ValidatedField<string>;
+  village_no: ValidatedField<string>;
+  soi: ValidatedField<string>;
+  street: ValidatedField<string>;
+  sub_district: ValidatedField<string>;
+  district: ValidatedField<string>;
+  province: ValidatedField<string>;
+  zipcode: ValidatedField<string>;
+  tel_no: ValidatedField<string>;
+  tax_for: ValidatedTaxFor;
+  products: ValidatedProduct[];
+  taxes: ValidatedTaxes;
+};
+
+export type ValidatedMaterialPerUnit = {
+    materialType: ValidatedField<string>;
+    materialModel: ValidatedField<string>;
+    materialQuantity: ValidatedField<string>;
+    note: ValidatedField<string>;
+};
+
+export type ValidatedProduct0129 = {
+    productType: ValidatedField<string>;
+    productName: ValidatedField<string>;
+    productModel: ValidatedField<string>;
+    materialsPerUnit: ValidatedMaterialPerUnit[];
+};
+
+export type ValidateResult0129 = {
+    formName: ValidatedField<string>;
+    forOfficer: ValidatedField<boolean>;
+    registerNo: ValidatedField<string>;
+    registerDate: ValidatedField<string>;
+    receiverOfficer: ValidatedField<string>;
+    companyName: ValidatedField<string>;
+    depotName: ValidatedField<string>;
+    exciseNo: ValidatedField<string>;
+    addressNo: ValidatedField<string>;
+    alley: ValidatedField<string>;
+    road: ValidatedField<string>;
+    subdistrict: ValidatedField<string>;
+    district: ValidatedField<string>;
+    province: ValidatedField<string>;
+    zipcode: ValidatedField<string>;
+    phone: ValidatedField<string>;
+    products: ValidatedProduct0129[];
+    productionMethodDocuments: ValidatedField<number>;
+    otherDocuments: ValidatedField<number>;
+    operatorSignature: ValidatedField<string>;
+    operatorName: ValidatedField<string>;
+    signatureDate: ValidatedField<string>;
+};
+
 
 

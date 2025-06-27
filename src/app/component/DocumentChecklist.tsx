@@ -69,14 +69,7 @@ const DocumentChecklist: React.FC<Props> = ({
                 handleSelect(firstUploaded.docId, firstUploaded.subtitleIdx);
             }
         }
-    }, [ocrByDocId, filteredList]);
-
-    // const getPageCount = (group: any) => {
-    //     if (!group) return 0;
-    //     let total = 0;
-    //     Object.values(group).forEach((f: any) => total += f.pageCount || 0);
-    //     return total;
-    // };
+    }, [ocrByDocId, filteredList]);    
 
     const getDisplayStatus = (
         isSelected: boolean,
@@ -102,7 +95,6 @@ const DocumentChecklist: React.FC<Props> = ({
                 };
             }
         } else {
-            // ไม่มี validate config: พฤติกรรมเหมือนเดิม
             if (isSelected && !hasOcr && isUploaded) {
                 return { Icon: MdDownloading, iconColor: "#000000", bg: "#FFCA04", textColor: "#000000", bar: "#FFCA04" };
             }

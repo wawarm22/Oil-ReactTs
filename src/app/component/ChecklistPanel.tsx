@@ -43,7 +43,6 @@ interface Props {
     setCurrentPage: (page: number) => void;
     selectedDocId: number | null;
     selectedSubtitleIdx: number | null;
-    // onValidationStatusChange?: (status: { docId: number; subIdx: number; failed: boolean }) => void;
     validateResultsByDoc: ValidateResultsByDoc;
     contextByDoc: ContextByDocType;
     selectedDocMeta?: { docId: number; subtitleIdx: number } | null;
@@ -57,13 +56,11 @@ const ChecklistPanel: React.FC<Props> = ({
     setCurrentPage,
     selectedDocId,
     selectedSubtitleIdx,
-    // onValidationStatusChange,
     validateResultsByDoc,
     contextByDoc,
     selectedDocMeta,
     isUploaded
 }) => {
-    // const [currentPage, setCurrentPage] = useState<number>(1);
     const displayTitle = getTitleAndSubtitle(documentList, selectedDocMeta?.docId, selectedDocMeta?.subtitleIdx);
 
     if (!ocrDocument) {
@@ -95,13 +92,9 @@ const ChecklistPanel: React.FC<Props> = ({
     const validateResult = validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[currentPage]?.validateResult;
     const currentOcrFields = ocrDocument.pages[currentPage];
     const type = detectOcrType(currentOcrFields);
-    console.log("Detected OCR type:", type);
-
-    // const docId = selectedDocId ?? 0;
-    // const subIdx = selectedSubtitleIdx ?? 0;
+    // console.log("Detected OCR type:", type);
 
     const prevPageFields = ocrDocument.pages[currentPage - 1];
-
     let extraOilType: string | undefined;
 
     if (
@@ -177,7 +170,8 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "tax_form_0307" && (
                     <ChecklistTaxForm0307
                         data={currentOcrFields as OcrTaxForm0307Document}
-                        validateResult={validateResult}
+                        validateResult={validateResult.data}
+                        context={context}
                     />
                 )}
                 {type === "refinery_tax_invoice" && (
@@ -233,7 +227,15 @@ const ChecklistPanel: React.FC<Props> = ({
                     <ChecklistDailyComparison data={currentOcrFields as OcrDailyComparisonDocument} />
                 )}
                 {type === "tax_form_0129" && (
-                    <ChecklistForm0129 data={currentOcrFields as OcrTaxForm0129Document} />
+                    <ChecklistForm0129
+                        data={currentOcrFields as OcrTaxForm0129Document}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
+                        context={context}
+                    />
                 )}
                 {type === "tax_receipt_excise" && (
                     <ChecklistTaxReceiptExcise
