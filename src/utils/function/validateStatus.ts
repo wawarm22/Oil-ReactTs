@@ -39,19 +39,20 @@ export function getOverallValidateStatus(
                 if (typeof checkFailed === "function" && checkFailed(pageObj.validateResult)) {
                     hasFailed = true;
                 }
-            } else {
-                // Alert dev: log warning for unknown docType
-                if (process.env.NODE_ENV === "development") {
-                    // หรือจะใช้ Sentry, toast หรือ alert dev tool อื่นๆ ก็ได้
-                    // eslint-disable-next-line no-console
-                    console.warn(`[DEV] Unrecognized docType "${docType}" for page:`, {
-                        docId,
-                        subtitleIdx,
-                        fileKey,
-                        pageNumber: p,
-                    });
-                }
-            }
+            } 
+            // else {
+            //     // Alert dev: log warning for unknown docType
+            //     if (process.env.NODE_ENV === "development") {
+            //         // หรือจะใช้ Sentry, toast หรือ alert dev tool อื่นๆ ก็ได้
+            //         // eslint-disable-next-line no-console
+            //         // console.warn(`[DEV] Unrecognized docType "${docType}" for page:`, {
+            //         //     docId,
+            //         //     subtitleIdx,
+            //         //     fileKey,
+            //         //     pageNumber: p,
+            //         // });
+            //     }
+            // }
         }
     }
     if (hasFailed) return "failed";

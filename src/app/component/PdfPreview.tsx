@@ -31,7 +31,6 @@ interface PdfPreviewProps {
 
 const PdfPreview: React.FC<PdfPreviewProps> = ({
     documentList,
-    folders,
     ocrByDocId,
     currentPage,
     setCurrentPage,
@@ -41,9 +40,6 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
     const [loading, setLoading] = useState(false);
     const [cacheReady, setCacheReady] = useState(false);
     const thumbnailCache = useRef<ThumbnailCache>({});
-
-    console.log("ocrByDocId", ocrByDocId);
-    console.log("folders", folders);    
     
     useEffect(() => {
         let isMounted = true;

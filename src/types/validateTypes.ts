@@ -464,8 +464,8 @@ export type InvoiceThappline = {
         customer_tank_no: string;
         batch_no: string;
         depot: string;
-        date: string;              
-        time: string;              
+        date: string;
+        time: string;
         details: ThapplineDetail[];
         total_ptt_tank_receive_86f: number;
         sump: number;
@@ -545,6 +545,146 @@ export type Prepared0701Total = {
     use?: number;
     overall?: number;
 };
+
+export type Prepared0307Product = {
+    index: number;
+    product_type: string;
+    product_name: string;
+    product_id: number;
+    quantity: number;
+    model_info: number;
+    size: string;
+    retail_price: number;
+    excise_tax_by_value: number;
+    tax_rate: number;
+    tax_per_total_by_value: number;
+    tax_per_total_by_vol: number;
+    excise_tax_baht: number;
+    excise_tax_satang: number;
+    interior_tax_baht: number;
+    interior_tax_satang: number;
+};
+
+export type Prepared0307CheckTax = {
+    check: string;
+    description: string;
+};
+
+export type Prepared0307Taxes = {
+    base: {
+        excise: number;
+        interior: number;
+    };
+    discount: {
+        excise: number;
+        interior: number;
+    };
+    remains: {
+        excise: number;
+        interior: number;
+    };
+    fine: {
+        excise: number;
+        interior: number;
+    };
+    additional_percentage: {
+        description: string;
+        excise: number;
+        interior: number;
+    };
+    total: {
+        excise: number;
+        interior: number;
+    };
+    discount_at: {
+        description: string;
+        excise: number;
+        interior: number;
+    };
+    balance: {
+        excise: number;
+        interior: number;
+    };
+    should_paid: number;
+    should_paid_txt: string;
+};
+
+export type Prepared0307Payload = {
+    docType: string;
+    documentGroup: string;
+    fields: {
+        form_name: string;
+        ref_no: string;
+        request_no: string;
+        request_date: string;
+        request_officer: string;
+        company_name: string;
+        factory_name: string;
+        excise_no: string;
+        email: string;
+        address_no: string;
+        village_no: string;
+        soi: string;
+        street: string;
+        sub_district: string;
+        district: string;
+        province: string;
+        zipcode: string;
+        tel_no: string;
+        other_person: string;
+        products: Prepared0307Product[];
+        tax_for: Prepared0307CheckTax;
+        taxes: Prepared0307Taxes;
+    };
+};
+
+export type MaterialPerUnit0129 = {
+    materialType: string;
+    materialModel: string;
+    materialQuantity: string;
+    note: string;
+};
+
+export type Product0129 = {
+    itemNo: number;
+    productType: string;
+    productName: string;
+    productModel: string;
+    materialsPerUnit: MaterialPerUnit0129[];
+};
+
+export type Oil0129Fields = {
+    formName: string;
+    forOfficer: boolean;
+    registerNo: string;
+    registerDate: string;
+    receiverOfficer: string;
+    companyName: string;
+    depotName: string;
+    exciseNo: string;
+    addressNo: string;
+    alley: string;
+    road: string;
+    subdistrict: string;
+    district: string;
+    province: string;
+    zipcode: string;
+    phone: string;
+    products: Product0129[];
+    productionMethodDocuments: number;
+    otherDocuments: number;
+    operatorSignature: string;
+    operatorName: string;
+    signatureDate: string;
+};
+
+export type PrepaedTaxForm0129Document = {
+    docType: string;
+    documentGroup: string;
+    fields: Oil0129Fields;
+};
+
+
 
 
 
