@@ -55,7 +55,6 @@ const ChecklistForm0129: React.FC<Props> = ({ validateResult, context }) => {
         { label: "วันที่ลงนาม", key: "signatureDate", value: ocrData?.signatureDate },
     ]
 
-    // Helper สำหรับกำหนดสี border
     const getBorderColor = (passed: boolean | null | undefined) => {
         if (passed === true) return "#22C659";
         if (passed === false) return "#FF0100";
@@ -94,9 +93,7 @@ const ChecklistForm0129: React.FC<Props> = ({ validateResult, context }) => {
                 <>
                     {ocrData.products.map((prod, prodIdx) => (
                         <div key={prodIdx} className="mb-2">
-                            {/* ข้อมูลหลักของสินค้า */}
                             {productColumns.map(({ label, key }) => {
-                                // ตรวจสอบค่า validateResult
                                 let passed: boolean | null = null;
                                 if (
                                     validateResult?.products &&
@@ -124,14 +121,12 @@ const ChecklistForm0129: React.FC<Props> = ({ validateResult, context }) => {
                                     </div>
                                 );
                             })}
-                            {/* ตารางวัตถุดิบ */}
                             {prod.materialsPerUnit && prod.materialsPerUnit.length > 0 && (
                                 <div className="my-2">
                                     <div className="fw-bold">รายการวัตถุดิบหรือส่วนประกอบที่นำมาใช้ในการผลิตสินค้า (ต่อสินค้า1หน่วย)(ลิตร)</div>
                                     {prod.materialsPerUnit.map((mat, matIdx) => (
                                         <div key={matIdx} className="my-1">
                                             {materialColumns.map(({ label, key }) => {
-                                                // ตรวจสอบค่า validateResult สำหรับ materialsPerUnit
                                                 let passed: boolean | null = null;
                                                 if (
                                                     validateResult?.products &&
@@ -171,7 +166,6 @@ const ChecklistForm0129: React.FC<Props> = ({ validateResult, context }) => {
             )}
 
             {footer.map(({ label, key, value }, idx) => {
-                // map validateResult ของ footer field
                 let passed: boolean | null = null;
                 if (validateResult && key && (validateResult as any)[key]) {
                     const val = (validateResult as any)[key];

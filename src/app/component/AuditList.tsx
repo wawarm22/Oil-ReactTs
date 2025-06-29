@@ -19,8 +19,8 @@ const AuditList: React.FC<AuditListProps> = ({ selectedId, setSelectedId, docume
                 </p>
                 <div className="d-flex flex-wrap justify-content-start">
                     {documentList.map((doc) => {
-                        const showTitle = !(currentStep === 1 && doc.id === 3);
-                        const subtitlesToShow = doc.subtitle?.slice(0, 2) || [];
+                        const showTitle = !(currentStep === 1 && doc.id === 3 || doc.id === 28);
+                        const subtitlesToShow = doc.subtitle?.slice(0, 4) || [];
 
                         return (
                             <div key={doc.id} className="m-0">
@@ -29,7 +29,7 @@ const AuditList: React.FC<AuditListProps> = ({ selectedId, setSelectedId, docume
                                         isSelected={selectedId === doc.id}
                                         onClick={() => {
                                             setSelectedId(doc.id);
-                                            setSelectedDocIndex(doc.id); 
+                                            setSelectedDocIndex(0); 
                                         }}
                                         margin="mx-2 py-2 px-3 mb-2"
                                     >
@@ -45,7 +45,7 @@ const AuditList: React.FC<AuditListProps> = ({ selectedId, setSelectedId, docume
                                                 isSelected={selectedId === doc.id && selectedDocIndex === idx}
                                                 onClick={() => {
                                                     setSelectedId(doc.id);
-                                                    setSelectedDocIndex(idx);
+                                                    setSelectedDocIndex(idx ?? 0);
                                                 }}
                                                 container="mx-2 px-3 py-2 shadow-sm rounded-2"
                                                 style={{

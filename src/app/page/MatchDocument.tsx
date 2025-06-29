@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import StepProgress from "../reusable/StepProgress";
 import { StepStatus } from "../../types/enum/stepStatus";
 import AuditList from "../component/AuditList";
@@ -9,95 +9,157 @@ import MatchTable from "../component/MatchTable";
 import VolumeCompareTable from "../component/VolumeCompareTable";
 import DocumentCompareProgress from "../reusable/DocumentCompareProgress";
 import { DocumentCompareStep } from "../../types/enum/docCompare";
-import { OcrFields } from "../../types/ocrFileType";
 import PdfPreviewMatch from "../component/PdfPreviewMatch";
 import ChecklistMatch from "../component/ChecklistMatch";
 import ProductionReport from "../reusable/ProductionReport";
-import MatchPagination from "../reusable/MatchPagination";
 import OilReceiveTable from "../component/OilReceiveTable";
 import { oilReceiveData } from "../../types/oilReceiveTypes";
 import TaxRefundCalculationTable from "../component/TaxRefundCalculationTable";
 import { taxRefundData } from "../../types/taxRefundTypes";
 import { loadMatchStepData, MatchStepData } from "../../utils/dataLoader/matchDataLoader";
 import { mapAllProductFormulas, mapRawMaterialPayments } from "../../utils/dataLoader/matchTableMapper";
+import AuditPagination from "../reusable/AuditPagination";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { AuthSchema } from "../../types/schema/auth";
+import { parseUploadedStatus } from "../../utils/function/parseUploadedStatus";
+import { useOcrStore } from "../../store/useOcrStore";
 
-type UploadedFilesType = {
-    [key: number]: { name: string; data: string; pageCount: number }[];
+const folders = JSON.parse(localStorage.getItem("folders") || "[]") as string[];
+
+const stepToDocIdMapShip: { [key: number]: number[] } = {
+    1: [3, 6],
+    2: [6, 7, 8],
+    3: [6, 7, 10],
+    4: [13, 15, 17, 24],
+    5: [8, 19],
+};
+const stepToDocIdMapPipe: { [key: number]: number[] } = {
+    1: [28, 31],
+    2: [31, 32, 33],
+    3: [31, 32, 35],
+    4: [38, 40, 42],
+    5: [33, 44],
 };
 
 const MatchDocument: React.FC = () => {
     const navigate = useNavigate();
-    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const auth = useAuthUser<AuthSchema>();
+
+    const {
+        ocrByDocId,
+        validateResultsByDoc,
+        contextByDoc,
+        fetchOcrData,
+        batchValidateAll,
+        setFolders,
+    } = useOcrStore();
+
+    const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
+    const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(0);
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [selectedOcrDocument, _setSelectedOcrDocument] = useState<{
-        pages: { [page: number]: OcrFields };
-        pageCount: number;
-        pageFileKeyMap: { [page: number]: string };
-    } | null>(null);
-    const [totalPages, setTotalPages] = useState<number>(1);
-    const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
-    const [selectedDocIndex, setSelectedDocIndex] = useState<number | null>(null);
     const [stepData, setStepData] = useState<MatchStepData | null>(null);
     const [currentStep, setCurrentStep] = useState<number>(1);
+    const uploadedStatus = useMemo(() => parseUploadedStatus(folders), [folders]);
+    const prevFolders = useOcrStore(s => s.folders);
 
-    useEffect(() => {
-        try {
-            const storedFiles = localStorage.getItem("uploadedFiles");
-            if (storedFiles) {
-                const parsedFiles: UploadedFilesType = JSON.parse(storedFiles);
-                setUploadedFiles(parsedFiles);
-            }
-        } catch (error) {
-            console.error("Error parsing uploadedFiles from localStorage:", error);
-            setUploadedFiles({});
-        }
-    }, []);
+    const transport = useMemo(() => localStorage.getItem("transport") || "00", []);
+    const stepToDocIdMap = useMemo(() => {
+        return transport === "01" ? stepToDocIdMapPipe : stepToDocIdMapShip;
+    }, [transport]);
+
+    const getFilteredDocumentList = () => {
+        const docIds = stepToDocIdMap[currentStep] || [];
+        return documentList.filter(doc => docIds.includes(doc.id));
+    };
 
     useEffect(() => {
         loadMatchStepData(currentStep).then(setStepData);
     }, [currentStep]);
 
     useEffect(() => {
-        if (documentList.length > 0) {
-            setSelectedId(documentList[0].id);
+        if (
+            folders.length > 0 &&
+            (prevFolders.length !== folders.length || !prevFolders.every((f, i) => f === folders[i]))
+        ) {
+            setFolders(folders);
+            fetchOcrData(folders, auth);
         }
-    }, []);
+    }, [folders]);
 
     useEffect(() => {
-        setCurrentPage(1);
-    }, [selectedId, selectedDocIndex]);
+        if (ocrByDocId && Object.keys(ocrByDocId).length > 0) {
+            batchValidateAll(auth);
+        }
+    }, [ocrByDocId, auth]);
 
     useEffect(() => {
-        if (selectedId !== null) {
-            const selectedFiles = uploadedFiles[selectedId] || [];
-            const total = selectedFiles.reduce((sum, file) => sum + (file.pageCount || 1), 0);
-            setTotalPages(total || 1);
+        if (selectedDocId === null && Object.keys(ocrByDocId).length > 0) {
+            const filtered = getFilteredDocumentList();
+            for (const doc of filtered) {
+                const docGroup = ocrByDocId[doc.id];
+                if (!docGroup) continue;
+                const subtitleIndex = Array.isArray(doc.subtitle) && doc.subtitle.length > 0
+                    ? Number(Object.keys(docGroup)[0])
+                    : 0;
+                setSelectedDocId(doc.id);
+                setSelectedSubtitleIdx(subtitleIndex);
+                setCurrentPage(1);
+                return;
+            }
         }
-    }, [selectedId, uploadedFiles]);
+    }, [ocrByDocId, currentStep]);
 
+    let ocrDocument: {
+        pages: { [page: number]: any };
+        pageCount: number;
+        pageFileKeyMap: { [page: number]: string };
+    } | null = null;
+    if (
+        selectedDocId !== null &&
+        selectedSubtitleIdx !== null &&
+        ocrByDocId &&
+        ocrByDocId[selectedDocId]?.[selectedSubtitleIdx]
+    ) {
+        const docGroup = ocrByDocId[selectedDocId][selectedSubtitleIdx];
+        const fileKeys = Object.keys(docGroup).sort((a, b) => {
+            const numA = parseInt(a.match(/-(\d+)$/)?.[1] || "0", 10);
+            const numB = parseInt(b.match(/-(\d+)$/)?.[1] || "0", 10);
+            return numA - numB;
+        });
+        const combinedPages: { [page: number]: any } = {};
+        const pageFileKeyMap: { [page: number]: string } = {};
+        let pageOffset = 0;
+        fileKeys.forEach((fileKey) => {
+            const fileData = docGroup[fileKey];
+            const pages = fileData.pages;
+            const pageCount = fileData.pageCount;
+            for (let p = 1; p <= pageCount; p++) {
+                const logicalPage = pageOffset + p;
+                combinedPages[logicalPage] = pages[p];
+                pageFileKeyMap[logicalPage] = fileKey;
+            }
+            pageOffset += pageCount;
+        });
+        ocrDocument = {
+            pages: combinedPages,
+            pageCount: pageOffset,
+            pageFileKeyMap,
+        };
+    }
 
     const handleBack = () => {
         if (currentStep > 1) {
             setCurrentStep(prev => prev - 1);
-
-            const stepToDocIdMap: { [key: number]: number[] } = {
-                1: [3, 6],
-                2: [6, 7, 8],
-                3: [6, 7, 10],
-                4: [13, 17, 15, 24],
-                5: [8, 19],
-            };
-
             const previousStep = currentStep - 1;
             const prevDocs = stepToDocIdMap[previousStep] || [];
 
             if (prevDocs.length > 0) {
-                setSelectedId(prevDocs[0]);
+                setSelectedDocId(prevDocs[0]);
             } else {
-                setSelectedId(null);
+                setSelectedDocId(null);
             }
         } else {
-            navigate("/match-list");
+            navigate("/audit");
         }
     };
 
@@ -108,33 +170,14 @@ const MatchDocument: React.FC = () => {
     const handleNextStep = () => {
         if (currentStep < 5) {
             setCurrentStep(prev => prev + 1);
-            const stepToDocIdMap: { [key: number]: number[] } = {
-                2: [6, 7, 8],
-                3: [6, 7, 10],
-                4: [13, 17, 15, 24],
-                5: [8, 19],
-            };
             const nextStep = currentStep + 1;
             const nextDocs = stepToDocIdMap[nextStep] || [];
             if (nextDocs.length > 0) {
-                setSelectedId(nextDocs[0]);
+                setSelectedDocId(nextDocs[0]);
             } else {
-                setSelectedId(null);
+                setSelectedDocId(null);
             }
         }
-    };
-
-    const getFilteredDocumentList = () => {
-        const stepToDocIdMap: { [key: number]: number[] } = {
-            1: [3, 6],
-            2: [6, 7, 8],
-            3: [6, 7, 10],
-            4: [13, 17, 15, 24],
-            5: [8, 19],
-        };
-
-        const docIds = stepToDocIdMap[currentStep] || [];
-        return documentList.filter(doc => docIds.includes(doc.id));
     };
 
     return (
@@ -159,33 +202,60 @@ const MatchDocument: React.FC = () => {
             <div className="d-flex w-100 gap-2 mt-2">
                 <div className="flex-grow-1">
                     <AuditList
-                        selectedId={selectedId}
-                        setSelectedId={setSelectedId}
+                        selectedId={selectedDocId}
+                        setSelectedId={(id) => {
+                            setSelectedDocId(id);
+                            setSelectedSubtitleIdx(0);
+                            setCurrentPage(1);
+                        }}
                         documentList={getFilteredDocumentList()}
+                        selectedDocIndex={selectedSubtitleIdx ?? 0}
+                        setSelectedDocIndex={(idx) => setSelectedSubtitleIdx(idx ?? 0)}
                         currentStep={currentStep}
-                        selectedDocIndex={selectedDocIndex}
-                        setSelectedDocIndex={setSelectedDocIndex}
                     />
                 </div>
                 <div className="d-flex flex-column flex-grow-1" style={{ width: "38.5%" }}>
-                    <MatchPagination
-                        totalPages={totalPages}
+                    <AuditPagination
+                        totalPages={ocrDocument?.pageCount ?? 1}
                         currentPage={currentPage}
                         setCurrentPage={setCurrentPage}
+                        validateResultsByDoc={validateResultsByDoc}
+                        selectedDocId={selectedDocId}
+                        selectedSubtitleIdx={selectedSubtitleIdx}
                     />
                 </div>
             </div>
 
-            <div className="d-flex w-100 gap-2 mt-2">
+            <div className="d-flex w-100 gap-2 mt-2" style={{ maxHeight: "800px" }}>
                 <PdfPreviewMatch
-                    ocrFields={selectedOcrDocument}
+                    documentList={documentList}
+                    ocrFields={ocrDocument}
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}
+                    selectedDocMeta={
+                        selectedDocId !== null && selectedSubtitleIdx !== null
+                            ? { docId: selectedDocId, subtitleIdx: selectedSubtitleIdx }
+                            : null
+                    }
+                    isUploaded={uploadedStatus[selectedDocId ?? 0]?.has(selectedSubtitleIdx ?? 0) ?? false}
+                    ocrByDocId={ocrByDocId}
+                    folders={folders}
                 />
                 <ChecklistMatch
-                    ocrDocument={selectedOcrDocument}
+                    documentList={documentList}
+                    ocrDocument={ocrDocument}
                     currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}                    
+                    setCurrentPage={setCurrentPage}
+                    selectedDocId={selectedDocId}
+                    selectedSubtitleIdx={selectedSubtitleIdx}
+                    validateResultsByDoc={validateResultsByDoc}
+                    contextByDoc={contextByDoc}
+                    selectedDocMeta={
+                        selectedDocId !== null && selectedSubtitleIdx !== null
+                            ? { docId: selectedDocId, subtitleIdx: selectedSubtitleIdx }
+                            : null
+                    }
+                    isUploaded={uploadedStatus[selectedDocId ?? 0]?.has(selectedSubtitleIdx ?? 0) ?? false}
                 />
             </div>
 
