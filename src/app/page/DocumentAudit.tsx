@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import StepProgress from "../reusable/StepProgress";
 import { StepStatus } from "../../types/enum/stepStatus";
-import { documentList } from "../../types/docList";
 import AuditDetail from "../component/AuditDetail";
 import AuditButton from "../component/AuditButton";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ContextByDocType } from "../../types/checkList";
 import { SAVE_API_MAP } from "../../utils/function/saveApiMap";
 import { useCompanyStore } from "../../store/companyStore";
-import { AuthSchema } from "../../types/schema/auth";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { AuthSchema } from "../../types/schema/auth";
+import { useOcrStore } from "../../store/useOcrStore";
 
 type UploadedFilesType = {
     [key: number]: { name: string; data: string; pageCount: number }[];
@@ -19,16 +18,16 @@ const DocumentAudit: React.FC = () => {
     const navigate = useNavigate();
     const auth = useAuthUser<AuthSchema>();
     const { selectedCompany } = useCompanyStore();
-    const [selectedId, setSelectedId] = useState<number | null>(null);
-    const [currentPage, _setCurrentPage] = useState<number>(1);
-    const [uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
+    const [_uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
     const [folders, setFolders] = useState<string[]>([]);
-    const [_disableNext, setDisableNext] = useState(true);
-    const [contextByDoc, setContextByDoc] = useState<ContextByDocType>({});
     const [saving, setSaving] = useState(false);
+    const [_disableNext, setDisableNext] = useState(true);
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const from = searchParams.get("from");
+
+    // ดึง contextByDoc จาก store (จะถูก progressive update ตอน validate)
+    const { contextByDoc } = useOcrStore();
 
     useEffect(() => {
         const localFolders = localStorage.getItem("folders");
@@ -51,12 +50,6 @@ const DocumentAudit: React.FC = () => {
         } catch (error) {
             console.error("Error parsing uploadedFiles from localStorage:", error);
             setUploadedFiles({});
-        }
-    }, []);
-
-    useEffect(() => {
-        if (documentList.length > 0) {
-            setSelectedId(documentList[0].id);
         }
     }, []);
 
@@ -146,7 +139,7 @@ const DocumentAudit: React.FC = () => {
     };
 
     const handleNextStep = () => {
-        navigate('/match-document')
+        navigate('/match-document');
     };
 
     return (
@@ -157,13 +150,8 @@ const DocumentAudit: React.FC = () => {
             <StepProgress status={StepStatus.AUDIT} />
 
             <AuditDetail
-                selectedId={selectedId}
-                currentPage={currentPage}
-                uploadedFiles={uploadedFiles}
                 folders={folders}
                 onValidationStatusChange={handleValidationStatus}
-                contextByDoc={contextByDoc}
-                setContextByDoc={setContextByDoc}
             />
 
             <AuditButton
