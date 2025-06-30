@@ -18,11 +18,12 @@ import TaxRefundCalculationTable from "../component/TaxRefundCalculationTable";
 import { taxRefundData } from "../../types/taxRefundTypes";
 import { loadMatchStepData, MatchStepData } from "../../utils/dataLoader/matchDataLoader";
 import { mapAllProductFormulas, mapRawMaterialPayments } from "../../utils/dataLoader/matchTableMapper";
-import AuditPagination from "../reusable/AuditPagination";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { AuthSchema } from "../../types/schema/auth";
 import { parseUploadedStatus } from "../../utils/function/parseUploadedStatus";
 import { useOcrStore } from "../../store/useOcrStore";
+import MatchPagination from "../reusable/MatchPagination";
+import { getSubtitleIndexMap } from "../../utils/function/getSubtitleIndexMap";
 
 const folders = JSON.parse(localStorage.getItem("folders") || "[]") as string[];
 
@@ -60,37 +61,36 @@ const MatchDocument: React.FC = () => {
     const [stepData, setStepData] = useState<MatchStepData | null>(null);
     const [currentStep, setCurrentStep] = useState<number>(1);
     const uploadedStatus = useMemo(() => parseUploadedStatus(folders), [folders]);
-    const prevFolders = useOcrStore(s => s.folders);
 
     const transport = useMemo(() => localStorage.getItem("transport") || "00", []);
     const stepToDocIdMap = useMemo(() => {
         return transport === "01" ? stepToDocIdMapPipe : stepToDocIdMapShip;
     }, [transport]);
 
-    const getFilteredDocumentList = () => {
-        const docIds = stepToDocIdMap[currentStep] || [];
-        return documentList.filter(doc => docIds.includes(doc.id));
-    };
+    const subtitleIndexMap = useMemo(
+        () => getSubtitleIndexMap(documentList, ocrByDocId, transport, currentStep),
+        [ocrByDocId, currentStep, transport]
+    );
+
+    useEffect(() => {
+        if (
+            folders.length > 0 &&
+            (!ocrByDocId || Object.keys(ocrByDocId).length === 0)
+        ) {
+            setFolders(folders);
+            fetchOcrData(folders, auth);
+        }
+    }, [folders, ocrByDocId, fetchOcrData, auth, setFolders]);
 
     useEffect(() => {
         loadMatchStepData(currentStep).then(setStepData);
     }, [currentStep]);
 
     useEffect(() => {
-        if (
-            folders.length > 0 &&
-            (prevFolders.length !== folders.length || !prevFolders.every((f, i) => f === folders[i]))
-        ) {
-            setFolders(folders);
-            fetchOcrData(folders, auth);
-        }
-    }, [folders]);
-
-    useEffect(() => {
         if (ocrByDocId && Object.keys(ocrByDocId).length > 0) {
             batchValidateAll(auth);
         }
-    }, [ocrByDocId, auth]);
+    }, [ocrByDocId, auth, batchValidateAll]);
 
     useEffect(() => {
         if (selectedDocId === null && Object.keys(ocrByDocId).length > 0) {
@@ -109,6 +109,7 @@ const MatchDocument: React.FC = () => {
         }
     }, [ocrByDocId, currentStep]);
 
+    // ... (ส่วน ocrDocument และ functions อื่นเหมือนเดิม)
     let ocrDocument: {
         pages: { [page: number]: any };
         pageCount: number;
@@ -146,6 +147,34 @@ const MatchDocument: React.FC = () => {
             pageFileKeyMap,
         };
     }
+
+    const getFilteredDocumentList = () => {
+        const docIds = stepToDocIdMap[currentStep] || [];
+        let filteredDocs = documentList.filter(doc => docIds.includes(doc.id));
+
+        if (currentStep === 1) {
+            filteredDocs = filteredDocs.map(doc => {
+                if (transport === "01" && doc.id === 28 && Array.isArray(doc.subtitle) && doc.subtitle.length > 0) {
+                    const trueSubtitleIdxList = subtitleIndexMap[28] || [];
+                    const subtitles = doc.subtitle || [];
+                    const filteredSubtitle = trueSubtitleIdxList
+                        .map(realIdx => subtitles[realIdx])
+                        .filter(text => !!text);
+                    return { ...doc, subtitle: filteredSubtitle };
+                }
+                if (transport === "00" && doc.id === 3 && Array.isArray(doc.subtitle) && doc.subtitle.length > 0) {
+                    const trueSubtitleIdxList = subtitleIndexMap[3] || [];
+                    const subtitles = doc.subtitle || [];
+                    const filteredSubtitle = trueSubtitleIdxList
+                        .map(realIdx => subtitles[realIdx])
+                        .filter(text => !!text);
+                    return { ...doc, subtitle: filteredSubtitle };
+                }
+                return doc;
+            });
+        }
+        return filteredDocs;
+    };
 
     const handleBack = () => {
         if (currentStep > 1) {
@@ -200,7 +229,7 @@ const MatchDocument: React.FC = () => {
             />
 
             <div className="d-flex w-100 gap-2 mt-2">
-                <div className="flex-grow-1">
+                <div className="flex-grow-1" style={{ width: "100%" }}>
                     <AuditList
                         selectedId={selectedDocId}
                         setSelectedId={(id) => {
@@ -212,10 +241,11 @@ const MatchDocument: React.FC = () => {
                         selectedDocIndex={selectedSubtitleIdx ?? 0}
                         setSelectedDocIndex={(idx) => setSelectedSubtitleIdx(idx ?? 0)}
                         currentStep={currentStep}
+                        subtitleIndexMap={subtitleIndexMap}
                     />
                 </div>
-                <div className="d-flex flex-column flex-grow-1" style={{ width: "38.5%" }}>
-                    <AuditPagination
+                <div className="d-flex flex-column flex-grow-1" style={{ width: "99%" }}>
+                    <MatchPagination
                         totalPages={ocrDocument?.pageCount ?? 1}
                         currentPage={currentPage}
                         setCurrentPage={setCurrentPage}

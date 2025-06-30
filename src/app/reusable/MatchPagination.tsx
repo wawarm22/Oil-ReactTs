@@ -1,25 +1,62 @@
-// AuditPagination.tsx
-
-import React from "react";
+import { ValidateResultsByDoc } from "../../types/checkList";
+import { OCR_VALIDATE_MAP } from "../../utils/function/ocrValidateMap";
 import MotionCardChecklist from "./MotionCardChecklist";
 
 interface PaginationProps {
     totalPages: number;
     currentPage: number;
     setCurrentPage: (page: number) => void;
+    customHeight?: number;
+    validateResultsByDoc: ValidateResultsByDoc;
+    selectedDocId: number | null;
+    selectedSubtitleIdx: number | null;
 }
 
-const MatchPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, setCurrentPage }) => {
+const MatchPagination: React.FC<PaginationProps> = ({
+    totalPages,
+    currentPage,
+    setCurrentPage,
+    validateResultsByDoc,
+    selectedDocId,
+    selectedSubtitleIdx
+}) => {
+    function isPageFailed(pageNum: number): boolean {
+        if (
+            selectedDocId == null ||
+            selectedSubtitleIdx == null ||
+            !validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[pageNum]
+        ) return false;
+
+        const validateResult = validateResultsByDoc[selectedDocId][selectedSubtitleIdx][pageNum]?.validateResult;
+        const docType = validateResultsByDoc[selectedDocId][selectedSubtitleIdx][pageNum]?.docType;
+
+        if (validateResult === null) return true;
+
+        if (!docType || !OCR_VALIDATE_MAP[docType]) return false;
+        const checkFailed = OCR_VALIDATE_MAP[docType].checkFailed;
+
+        return checkFailed(validateResult);
+    }
+
+    function isPageInitial(pageNum: number): boolean {
+        if (
+            selectedDocId == null ||
+            selectedSubtitleIdx == null ||
+            !validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[pageNum]
+        ) {
+            return true; 
+        }
+        return false;
+    }
+
     const renderPageNumbers = () => {
         const pages: (number | string)[] = [];
-
         if (totalPages <= 7) {
             for (let i = 1; i <= totalPages; i++) {
                 pages.push(i);
             }
         } else {
-            pages.push(1); // Always show page 1
-
+            pages.push(1);
             if (currentPage <= 3) {
                 for (let i = 2; i <= 4; i++) {
                     if (i < totalPages) pages.push(i);
@@ -32,12 +69,12 @@ const MatchPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
                 }
             } else {
                 pages.push("...");
+                pages.push(currentPage - 1);
                 pages.push(currentPage);
                 pages.push(currentPage + 1);
                 pages.push("...");
             }
-
-            pages.push(totalPages); // Always show last page
+            pages.push(totalPages);
         }
 
         return pages.map((page, idx) =>
@@ -45,6 +82,8 @@ const MatchPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
                 <MotionCardChecklist
                     key={`page-${page}`}
                     isSelected={currentPage === page}
+                    isFailed={isPageFailed(page)}
+                    isInitial={isPageInitial(page)}
                     onClick={() => setCurrentPage(page)}
                     width="50px"
                     minHeight="50px"
@@ -68,14 +107,18 @@ const MatchPagination: React.FC<PaginationProps> = ({ totalPages, currentPage, s
 
     return (
         <div
-            className="container-fluid d-flex justify-content-start align-items-center shadow-sm bg-white rounded-2 h-100"
+            className="d-flex align-items-center justify-content-start shadow-sm bg-white rounded-2 w-100"
             style={{
-                width: '100%',
-                fontFamily: "Sarabun"
+                maxWidth: '100%',
+                height: '100%',
+                fontFamily: "Sarabun",
+                overflowX: 'auto',
+                whiteSpace: 'nowrap',
+                paddingLeft: '20px',
             }}
         >
-            <p className="fw-bold m-0 me-2" style={{ fontSize: "20px" }}>หน้า</p>
-            <div className="d-flex" style={{ maxHeight: "55px"}}>
+            <p className="fw-bold m-0 me-2" style={{ fontSize: "20px", minWidth: '44px' }}>หน้า</p>
+            <div className="d-flex flex-row" style={{ gap: '4px' }}>
                 {renderPageNumbers()}
             </div>
         </div>
