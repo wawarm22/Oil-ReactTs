@@ -17,7 +17,7 @@ const fixedLabels: { key: keyof Oil0702ReportRow | string; label: string }[] = [
     { key: "received_returned", label: "รับคืนจากคลังสินค้าทัณฑ์บน" },
     { key: "received_others", label: "อื่นๆ" },
     { key: "total_received", label: "รวมรับสินค้า" },
-    { key: "__section_paid", label: "จำนวนจ่าย" }, 
+    { key: "__section_paid", label: "จำนวนจ่าย" },
     { key: "sold_domestic", label: "จำหน่ายในประเทศ" },
     { key: "sold_export", label: "จำหน่ายต่างประเทศ" },
     { key: "used_factory", label: "ใช้ในโรงงานอุตสาหกรรม" },
@@ -37,6 +37,21 @@ const headFields = [
     { label: "ขนาด", value: "", field: "product_size" },
     { label: "หน่วย", value: "", field: "product_unit" },
 ];
+
+const totalField = [
+    { label: "ผลิตได้", value: "", field: "total_received_produced" },
+    { label: "รับคืนจากคลังสินค้าทัณฑ์บน", value: "", field: "total_received_returned" },
+    { label: "อื่นๆ", value: "", field: "total_received_others" },
+    { label: "รวมรับสินค้า", value: "", field: "total_received_all" },
+    { label: "จำหน่ายในประเทศ", value: "", field: "total_sold_domestic" },
+    { label: "จำหน่ายต่างประเทศ", value: "", field: "total_sold_export" },
+    { label: "ใช้ในโรงงานอุตสาหกรรม", value: "", field: "total_used_factory" },
+    { label: "คลังสินค้าทัณฑ์บน", value: "", field: "total_warehouse_bonded" },
+    { label: "เสียหาย", value: "", field: "total_damaged" },
+    { label: "อื่นๆ", value: "", field: "total_others_dispatched" },
+    { label: "รวมจ่ายสินค้า", value: "", field: "total_dispatched_all" },
+    { label: "ยอดคงเหลือ", value: "", field: "final_balance" },
+]
 
 const ChecklistForm0702: React.FC<Props> = ({ context }) => {
     const ocrData = context?.fields;
@@ -102,6 +117,35 @@ const ChecklistForm0702: React.FC<Props> = ({ context }) => {
                             );
                         })
                     )}
+                </div>
+            )}
+
+            {ocrData.monthly_total && (
+                <div className="mt-3">
+                    <div className="fw-bold mb-2" style={{ fontSize: "18px" }}>
+                        รวมเดือนนี้
+                    </div>
+                    {totalField.map((f,) => {
+                        const value = (ocrData.monthly_total as any)[f.field];
+                        if (value === 0 || value === null || value === undefined) return null;
+                        return (
+                            <div key={f.field} className="mb-2">
+                                <div className="fw-bold">{f.label}</div>
+                                <div
+                                    className="rounded-2 shadow-sm bg-white p-2"
+                                    style={{
+                                        fontSize: "14px",
+                                        borderWidth: "2px",
+                                        borderStyle: "solid",
+                                        minHeight: "40px",
+                                        borderColor: "#22C659",
+                                    }}
+                                >
+                                    {typeof value === "number" ? value.toLocaleString() : value}
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </div>
