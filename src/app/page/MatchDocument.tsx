@@ -109,7 +109,6 @@ const MatchDocument: React.FC = () => {
         }
     }, [ocrByDocId, currentStep]);
 
-    // ... (ส่วน ocrDocument และ functions อื่นเหมือนเดิม)
     let ocrDocument: {
         pages: { [page: number]: any };
         pageCount: number;

@@ -1,5 +1,3 @@
-// useOrcStore.ts
-
 import { create } from 'zustand';
 import { ContextByDocType, OcrByDocIdType, ValidateResultsByDoc } from '../types/checkList';
 import { apiGetAllOcr } from '../utils/api/OcrListApi';
@@ -121,13 +119,10 @@ export const useOcrStore = create<OcrStoreState>((set, get) => ({
             res = null;
           }
 
-          // ----------- Progressive Update Begins Here -------------
-          // 1. เอาค่าเก่าจาก store
           const prevResults = get().validateResultsByDoc;
           const prevStatus = get().validationFailStatus;
           const prevContext = get().contextByDoc;
 
-          // 2. สร้างค่าที่จะอัพเดต
           const newResults = {
             ...prevResults,
             [docId]: {
@@ -150,16 +145,13 @@ export const useOcrStore = create<OcrStoreState>((set, get) => ({
             },
           };
 
-          // ตัดสินใจว่าจะ set failed หรือไม่
           let failed = validateConfig.checkFailed(res);
           const statusKey = `${docId}-${subIdx}`;
-          // ถ้ามี fail อย่างน้อย 1 หน้า set เป็น true ไปเลย
           const newStatus = {
             ...prevStatus,
             [statusKey]: failed || prevStatus[statusKey] || false,
           };
 
-          // 3. อัพเดต store
           set({
             validateResultsByDoc: newResults,
             validationFailStatus: newStatus,

@@ -684,6 +684,70 @@ export type PrepaedTaxForm0129Document = {
     fields: Oil0129Fields;
 };
 
+export type Oil0702ReportRow = {
+    date: string;
+    transaction_type: string;
+    evidence_number: string;
+    received_produced: number;
+    received_returned: number;
+    received_others: number;
+    total_received: number;
+    sold_domestic: number;
+    sold_export: number;
+    used_factory: number;
+    warehouse_bonded: number;
+    damaged: number;
+    others_dispatched: number;
+    total_dispatched: number;
+    remaining_balance: number;
+    remarks: string;
+};
+
+export type Oil0702MonthlyTotal = {
+    total_received_produced: number;
+    total_received_returned: number;
+    total_received_others: number;
+    total_received_all: number;
+    total_sold_domestic: number;
+    total_sold_export: number;
+    total_used_factory: number;
+    total_warehouse_bonded: number;
+    total_damaged: number;
+    total_others_dispatched: number;
+    total_dispatched_all: number;
+    final_balance: number;
+};
+
+export type Oil0702YearToDate = {
+    ytd_received_all: number;
+    ytd_dispatched_all: number;
+    ytd_balance: number;
+};
+
+export type Oil0702Fields = {
+    form_type: string;
+    form_header: string;
+    product_category: string;
+    product_id: number;
+    product_type: string;
+    product_unit: string;
+    product_brand: string;
+    product_size: string;
+    branch: string;
+    balance_carried: number;
+    reports: Oil0702ReportRow[];
+    monthly_total: Oil0702MonthlyTotal;
+    year_to_date: Oil0702YearToDate;
+};
+
+export type PreparedOil0702 = {
+    docType: string;
+    documentGroup: string;
+    transport: string;
+    fields: Oil0702Fields;
+};
+
+
 
 
 

@@ -73,11 +73,11 @@ const buildOil0701Payload = (ocr: any, context: any) => ({
 
 const buildOil0702Payload = (ocr: any, context: any) => ({
     docType: ocr.docType,
-    documentGroup: ocr.documentGroup,
-    company: context.company,
-    factories: context.factories,
-    fields: context.fields,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+    transport: context.transport ?? "",
 });
+
 const buildAttachment0307Payload = (page1: any, context: any) => ({
     docType: page1.docType,
     company: context.company ?? "",
@@ -922,7 +922,7 @@ export const OCR_VALIDATE_MAP: Record<
     "oil-01-29-page-1-1": {
         buildPayload: buildForm0129,
         api: validateForm0129,
-        checkFailed: check0129Failed,       
+        checkFailed: check0129Failed,
         needsContext: true,
         needsAuth: true,
     },
