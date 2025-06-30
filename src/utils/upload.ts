@@ -72,11 +72,8 @@ export const uploadFile = async (
 
         const runningStr = dateTime
         const docSequence = getDocSequenceNumber(docId, subtitleIndex);
-        console.log("uploadDateStr", uploadDateStr);
-        console.log("mainCode", mainCode);
         
         const prefix = mainCode ?? `${uploadDateStr}-${runningStr}`;
-        console.log("prefix", prefix);
         
         const baseNameWithoutDocSeq = `${prefix}-${warehouseCode}-${transportCode}-${periodDateStr}`;
         const baseName = `${baseNameWithoutDocSeq}-${docSequence}`;

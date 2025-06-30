@@ -165,7 +165,8 @@ const ChecklistPanel: React.FC<Props> = ({
                     <ChecklistForm0702
                         data={currentOcrFields as OcrDailyProductionDocument}
                         validateResult={validateResult}
-                    />
+                        context={context}
+                    />                    
                 )}
                 {type === "tax_form_0307" && (
                     <ChecklistTaxForm0307

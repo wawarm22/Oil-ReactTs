@@ -17,6 +17,11 @@ export const SAVE_API_LIST: SaveApiConfig[] = [
         api: ({ data, auth }) => saveData0701(data, auth),
     },
     {
+        docId: 6,
+        subIdx: 0,
+        api: ({ data, auth }) => saveData0701(data, auth),
+    },
+    {
         docId: 19,
         subIdx: 0,
         api: ({ data, auth }) => {
@@ -39,7 +44,7 @@ export const SAVE_API_LIST: SaveApiConfig[] = [
         subIdx: 0,
         api: ({ data, auth }) => {
             const result = Save0503Schema.safeParse(data);
-            console.log("result error 0503", result.error);
+            // console.log("result error 0503", result.error);
             if (result.success) {
                 return saveData0503Page1(data, auth);
             }

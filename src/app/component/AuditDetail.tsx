@@ -7,6 +7,7 @@ import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { AuthSchema } from "../../types/schema/auth";
 import { useOcrStore } from "../../store/useOcrStore";
 import { parseUploadedStatus } from "../../utils/function/parseUploadedStatus";
+import { useOcrSocketRefresh } from "../../hook/useOcrSocketRefresh";
 
 interface AuditDetailProps {
     folders: string[];
@@ -40,6 +41,8 @@ const AuditDetail: React.FC<AuditDetailProps> = ({
     const [selectedDocMeta, setSelectedDocMeta] = useState<{ docId: number, subtitleIdx: number } | null>(null);
     const uploadedStatus = useMemo(() => parseUploadedStatus(folders), [folders]);
 
+    useOcrSocketRefresh();
+    
     useEffect(() => {
         setFolders(folders || []);
         if (folders.length > 0) {
