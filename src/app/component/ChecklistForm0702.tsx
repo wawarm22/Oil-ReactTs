@@ -102,6 +102,7 @@ const ChecklistForm0702: React.FC<Props> = ({ context }) => {
                                     <div
                                         className="rounded-2 shadow-sm bg-white p-2"
                                         style={{
+
                                             fontSize: "14px",
                                             borderWidth: "2px",
                                             borderStyle: "solid",

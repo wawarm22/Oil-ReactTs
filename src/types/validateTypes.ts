@@ -747,6 +747,41 @@ export type PreparedOil0702 = {
     fields: Oil0702Fields;
 };
 
+export type Save0702 = {
+    month: string,
+    from_date: string,
+    to_date: string,
+    periot: string,
+    factory_slug: string,
+    company_id: number,
+    data: PreparedOil0702
+};
+
+
+export type Save0503Page1 = {
+    month: string,
+    from_date: string,
+    to_date: string,
+    periot: string,
+    factory_slug: string,
+    company_id: number,
+    data: Validate0503Page1Payload
+};
+
+export type Save0307 = {
+    month: string,
+    from_date: string,
+    to_date: string,
+    periot: string,
+    factory_slug: string,
+    company_id: number,
+    data: Prepared0307Payload
+};
+
+
+
+
+
 
 
 

@@ -42,13 +42,14 @@ const AuditDetail: React.FC<AuditDetailProps> = ({
     const uploadedStatus = useMemo(() => parseUploadedStatus(folders), [folders]);
 
     useOcrSocketRefresh();
-    
+
     useEffect(() => {
+        useOcrStore.getState().reset();
         setFolders(folders || []);
         if (folders.length > 0) {
             fetchOcrData(folders, auth);
         }
-    }, [folders]);
+    }, [folders]);    
 
     useEffect(() => {
         if (ocrByDocId && Object.keys(ocrByDocId).length > 0) {
