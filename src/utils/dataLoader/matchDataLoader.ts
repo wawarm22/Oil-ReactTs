@@ -1,6 +1,8 @@
 
 import { ProductFormula, RawMaterialPaymentItem } from "../../types/reportTypes";
+import { AuthSchema } from "../../types/schema/auth";
 import { getProductRatiosAndFormular, getRawMaterialPayments } from "../api/apiReport";
+import { ReportParamProps } from "../function/buildParam";
 
 export type MatchStepData =
     | { step: 1; data: ProductFormula[] | null }
@@ -9,17 +11,24 @@ export type MatchStepData =
     | { step: 4; data: any | null }
     | { step: 5; data: any | null };
 
-export const loadMatchStepData = async (step: number): Promise<MatchStepData> => {
+export const loadMatchStepData = async (
+    step: number,
+    params: ReportParamProps,
+    auth: AuthSchema
+): Promise<MatchStepData> => {
     switch (step) {
         case 1: {
-            const res = await getProductRatiosAndFormular();
+            console.log("params", params);
+            
+            const res = await getProductRatiosAndFormular(params, auth);
             return { step, data: res?.data || null };
         }
         case 2: {
-            const res = await getRawMaterialPayments();
+            const res = await getRawMaterialPayments(params, auth);
             return { step, data: res?.data || null };
         }
         case 3: {
+
             return { step, data: null };
         }
         case 4: {

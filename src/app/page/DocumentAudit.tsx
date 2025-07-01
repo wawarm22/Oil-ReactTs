@@ -9,6 +9,7 @@ import { useCompanyStore } from "../../store/companyStore";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { AuthSchema } from "../../types/schema/auth";
 import { useOcrStore } from "../../store/useOcrStore";
+import { toast } from "react-toastify";
 
 type UploadedFilesType = {
     [key: number]: { name: string; data: string; pageCount: number }[];
@@ -25,8 +26,6 @@ const DocumentAudit: React.FC = () => {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const from = searchParams.get("from");
-
-    // ดึง contextByDoc จาก store (จะถูก progressive update ตอน validate)
     const { contextByDoc } = useOcrStore();
 
     useEffect(() => {
@@ -75,7 +74,7 @@ const DocumentAudit: React.FC = () => {
 
     const handleSaveAudit = async () => {
         if (!auth) {
-            alert("กรุณาเข้าสู่ระบบใหม่");
+            toast.warning("กรุณาเข้าสู่ระบบใหม่");
             return;
         }
         setSaving(true);
@@ -123,9 +122,9 @@ const DocumentAudit: React.FC = () => {
 
         setSaving(false);
         if (hasError) {
-            alert("มีบางรายการบันทึกผิดพลาด");
+            toast.error("มีบางรายการบันทึกผิดพลาด");
         } else {
-            alert("บันทึกสำเร็จ!");
+            toast.success("บันทึกสำเร็จ!");
         }
     };
 

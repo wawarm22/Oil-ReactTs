@@ -24,6 +24,7 @@ import { parseUploadedStatus } from "../../utils/function/parseUploadedStatus";
 import { useOcrStore } from "../../store/useOcrStore";
 import MatchPagination from "../reusable/MatchPagination";
 import { getSubtitleIndexMap } from "../../utils/function/getSubtitleIndexMap";
+import { useCompanyStore } from "../../store/companyStore";
 
 const folders = JSON.parse(localStorage.getItem("folders") || "[]") as string[];
 
@@ -61,6 +62,13 @@ const MatchDocument: React.FC = () => {
     const [stepData, setStepData] = useState<MatchStepData | null>(null);
     const [currentStep, setCurrentStep] = useState<number>(1);
     const uploadedStatus = useMemo(() => parseUploadedStatus(folders), [folders]);
+    const { selectedCompany } = useCompanyStore();
+    const monthYear = localStorage.getItem("month") || "";
+    const [monthStr, yearStr] = monthYear.split("-");
+    const month = monthStr ? Number(monthStr) : 0;
+    const year = yearStr ? Number(yearStr) : 0;
+    const factory_slug = localStorage.getItem("warehouse") || "";
+    const company_id = selectedCompany?.id || 0;
 
     const transport = useMemo(() => localStorage.getItem("transport") || "00", []);
     const stepToDocIdMap = useMemo(() => {
@@ -71,6 +79,8 @@ const MatchDocument: React.FC = () => {
         () => getSubtitleIndexMap(documentList, ocrByDocId, transport, currentStep),
         [ocrByDocId, currentStep, transport]
     );
+
+    const params = { factory_slug, company_id, month, year };
 
     useEffect(() => {
         if (
@@ -83,8 +93,10 @@ const MatchDocument: React.FC = () => {
     }, [folders, ocrByDocId, fetchOcrData, auth, setFolders]);
 
     useEffect(() => {
-        loadMatchStepData(currentStep).then(setStepData);
-    }, [currentStep]);
+        if (!auth) return;
+        loadMatchStepData(currentStep, params, auth).then(setStepData);
+        // dependency ที่ถูกต้อง
+    }, [currentStep, auth, params.factory_slug, params.company_id, params.month, params.year]);
 
     useEffect(() => {
         if (ocrByDocId && Object.keys(ocrByDocId).length > 0) {

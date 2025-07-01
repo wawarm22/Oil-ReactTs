@@ -1,10 +1,27 @@
 import axios from "axios";
 import { BASE_URL_AWS } from "./apiConfig";
-import { ProductFormulaResponse } from "../../types/reportTypes";
+import { ProductFormulaResponse, RawMaterialPaymentsResponse } from "../../types/reportTypes";
+import { AuthSchema } from "../../types/schema/auth";
 
-export const getProductRatiosAndFormular = async (): Promise<ProductFormulaResponse  | undefined> => {
+export const getProductRatiosAndFormular = async (
+    params: {
+        factory_slug: string,
+        company_id: number,
+        month: number,
+        year: number,
+    },
+    auth: AuthSchema
+): Promise<ProductFormulaResponse | undefined> => {
     try {
-        const response = await axios.get(`${BASE_URL_AWS}/report/product-ratios-and-formular`);
+        const response = await axios.get(
+            `${BASE_URL_AWS}/report/product-ratios-and-formular`,
+            {
+                params,
+                headers: {
+                    Authorization: `Bearer ${auth.accessToken}`,
+                },
+            }
+        );
         return response.data;
     } catch (error) {
         console.error("An error occurred while fetching OCR prepared data", error);
@@ -12,9 +29,24 @@ export const getProductRatiosAndFormular = async (): Promise<ProductFormulaRespo
     }
 };
 
-export const getRawMaterialPayments = async (): Promise<any | undefined> => {
+export const getRawMaterialPayments = async (
+    params: {
+        factory_slug: string,
+        company_id: number,
+        month: number,
+        year: number,
+    },
+    auth: AuthSchema
+): Promise<RawMaterialPaymentsResponse | undefined> => {
     try {
-        const response = await axios.get(`${BASE_URL_AWS}/report/raw-material-payments`);
+        const response = await axios.get(`${BASE_URL_AWS}/report/raw-material-payments`,
+            {
+                params,
+                headers: {
+                    Authorization: `Bearer ${auth.accessToken}`,
+                },
+            }
+        );
         return response.data;
     } catch (error) {
         console.error("An error occurred while fetching OCR prepared data", error);
