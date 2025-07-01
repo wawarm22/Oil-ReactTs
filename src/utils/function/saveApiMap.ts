@@ -1,4 +1,4 @@
-import { saveData0503Page1, saveData0701 } from "../api/apiSaveData";
+import { saveData0307, saveData0503Page1, saveData0701, saveData0702 } from "../api/apiSaveData";
 import { AuthSchema } from "../../types/schema/auth";
 import { Save0503Schema } from "../../types/schema/save";
 
@@ -17,9 +17,14 @@ export const SAVE_API_LIST: SaveApiConfig[] = [
         api: ({ data, auth }) => saveData0701(data, auth),
     },
     {
-        docId: 6,
+        docId: 7,
         subIdx: 0,
-        api: ({ data, auth }) => saveData0701(data, auth),
+        api: ({ data, auth }) => saveData0702(data, auth),
+    },
+    {
+        docId: 8,
+        subIdx: 0,
+        api: ({ data, auth }) => saveData0307(data, auth),
     },
     {
         docId: 19,
@@ -40,11 +45,23 @@ export const SAVE_API_LIST: SaveApiConfig[] = [
         api: ({ data, auth }) => saveData0701(data, auth),
     },
     {
+        docId: 32,
+        subIdx: 0,
+        api: ({ data, auth }) => saveData0702(data, auth),
+    },
+    {
+        docId: 33,
+        subIdx: 0,
+        api: ({ data, auth }) => saveData0307(data, auth),
+    },
+    {
         docId: 44,
         subIdx: 0,
         api: ({ data, auth }) => {
+            console.log("data 0503 page1", data);
+            
             const result = Save0503Schema.safeParse(data);
-            // console.log("result error 0503", result.error);
+            console.log("result error 0503", result.error);
             if (result.success) {
                 return saveData0503Page1(data, auth);
             }

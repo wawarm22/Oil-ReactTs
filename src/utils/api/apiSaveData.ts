@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BASE_URL_AWS } from "./apiConfig";
-import { Prepared0307Payload, Save0701, Validate0503Page1Payload } from "../../types/validateTypes";
+import { Save0307, Save0503Page1, Save0701, Save0702 } from "../../types/validateTypes";
 import { AuthSchema } from "../../types/schema/auth";
 
 export const saveData0701 = async (saveData: Save0701, auth: AuthSchema) => {
@@ -19,7 +19,23 @@ export const saveData0701 = async (saveData: Save0701, auth: AuthSchema) => {
     }
 };
 
-export const saveData0503Page1 = async (saveData: Validate0503Page1Payload, auth: AuthSchema) => {
+export const saveData0702 = async (saveData: Save0702, auth: AuthSchema) => {
+    try {
+        const response = await axios.post(`${BASE_URL_AWS}/data/ocr/07-02`, saveData, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${auth.accessToken}`
+            },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred during the registration process", error);
+        return undefined;
+    }
+};
+
+export const saveData0503Page1 = async (saveData: Save0503Page1, auth: AuthSchema) => {
     try {
         const response = await axios.post(`${BASE_URL_AWS}/data/ocr/05-03`, saveData, {
             headers: {
@@ -35,7 +51,7 @@ export const saveData0503Page1 = async (saveData: Validate0503Page1Payload, auth
     }
 };
 
-export const saveData0307 = async (saveData: Prepared0307Payload, auth: AuthSchema) => {
+export const saveData0307 = async (saveData: Save0307, auth: AuthSchema) => {
     try {
         const response = await axios.post(`${BASE_URL_AWS}/data/ocr/03-07`, saveData, {
             headers: {
