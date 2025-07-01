@@ -30,7 +30,10 @@ export const SAVE_API_LIST: SaveApiConfig[] = [
         docId: 19,
         subIdx: 0,
         api: ({ data, auth }) => {
-            const result = Save0503Schema.safeParse(data);            
+            if (data.data.docType === 'oil-05-03-page-2' || data.data.docType === 'oil-05-03-page-4') {
+                return Promise.resolve({ skipped: true });
+            }
+            const result = Save0503Schema.safeParse(data);
             if (result.success) {
                 return saveData0503Page1(data, auth);
             }
@@ -58,8 +61,9 @@ export const SAVE_API_LIST: SaveApiConfig[] = [
         docId: 44,
         subIdx: 0,
         api: ({ data, auth }) => {
-            console.log("data 0503 page1", data);
-            
+            if (data.data.docType === 'oil-05-03-page-2' || data.data.docType === 'oil-05-03-page-4') {
+                return Promise.resolve({ skipped: true });
+            }
             const result = Save0503Schema.safeParse(data);
             console.log("result error 0503", result.error);
             if (result.success) {
