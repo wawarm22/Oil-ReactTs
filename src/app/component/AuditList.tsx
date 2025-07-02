@@ -35,7 +35,7 @@ const AuditList: React.FC<AuditListProps> = ({ selectedId, setSelectedId, docume
                                             setSelectedId(doc.id);
                                             setSelectedDocIndex(0);
                                         }}
-                                        margin="mx-2 py-2 px-3 mt-2"
+                                        margin="mx-2 py-2 px-3 mt-2"                                    
                                     >
                                         {doc.title}
                                     </MotionCard>

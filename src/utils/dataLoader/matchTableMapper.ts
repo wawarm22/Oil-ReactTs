@@ -10,8 +10,7 @@ export const mapAllProductFormulas = (formulas: ProductFormula[]): TableData[] =
       name: mat.name,
       quantity: mat.quantity,
       ratio: mat.ratio,
-      productionFormula: `${mat.min_quantity} - ${mat.max_quantity}`,
-      approvalNumber: `${formula.type_label} ${formula.type_index_label}`,
+      productionFormula: `${Number(mat.min_quantity).toFixed(6)} - ${Number(mat.max_quantity).toFixed(6)}`,      approvalNumber: `${formula.type_label} ${formula.type_index_label}`,
       remark: formula.remark
     }))
   }));

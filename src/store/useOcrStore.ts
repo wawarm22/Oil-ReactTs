@@ -16,6 +16,7 @@ interface OcrStoreState {
   fetchOcrData: (folders: string[], auth?: any) => Promise<void>;
   batchValidateAll: (auth?: any) => Promise<void>;
   reset: () => void;
+  isBatchValidated: boolean
 }
 
 export const useOcrStore = create<OcrStoreState>((set, get) => ({
@@ -26,9 +27,10 @@ export const useOcrStore = create<OcrStoreState>((set, get) => ({
   validationFailStatus: {},
   folders: [],
   setFolders: (folders) => set({ folders }),
+  isBatchValidated: false,
 
   fetchOcrData: async (folders) => {
-    set({ loadingOcr: true });
+    set({ loadingOcr: true, isBatchValidated: false  });
     const results: OcrByDocIdType = {};
     for (const folder of folders) {
       try {
@@ -72,6 +74,7 @@ export const useOcrStore = create<OcrStoreState>((set, get) => ({
   },
 
   batchValidateAll: async (auth) => {
+    if (get().isBatchValidated) return;
     const ocrByDocId = get().ocrByDocId;
     if (!ocrByDocId || Object.keys(ocrByDocId).length === 0) return;
 
@@ -160,6 +163,7 @@ export const useOcrStore = create<OcrStoreState>((set, get) => ({
         }
       }
     }
+    set({ isBatchValidated: true });
   },
 
   reset: () => set({
@@ -169,5 +173,6 @@ export const useOcrStore = create<OcrStoreState>((set, get) => ({
     contextByDoc: {},
     validationFailStatus: {},
     folders: [],
+    isBatchValidated: false,
   }),
 }));

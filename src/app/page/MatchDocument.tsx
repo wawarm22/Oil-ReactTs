@@ -54,6 +54,7 @@ const MatchDocument: React.FC = () => {
         fetchOcrData,
         batchValidateAll,
         setFolders,
+        isBatchValidated,
     } = useOcrStore();
 
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
@@ -99,10 +100,10 @@ const MatchDocument: React.FC = () => {
     }, [currentStep, auth, params.factory_slug, params.company_id, params.month, params.year]);
 
     useEffect(() => {
-        if (ocrByDocId && Object.keys(ocrByDocId).length > 0) {
+        if (ocrByDocId && Object.keys(ocrByDocId).length > 0 && !isBatchValidated) {
             batchValidateAll(auth);
         }
-    }, [ocrByDocId, auth, batchValidateAll]);
+    }, [ocrByDocId, auth, batchValidateAll, isBatchValidated]);
 
     useEffect(() => {
         if (selectedDocId === null && Object.keys(ocrByDocId).length > 0) {
