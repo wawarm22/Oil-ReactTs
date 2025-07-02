@@ -1,6 +1,7 @@
 import { ProductFormula, RawMaterialPaymentItem } from "../../types/reportTypes";
 import { TableData } from "../../types/tableTypes";
 import { VolumeCompareData } from "../../types/volumeTableTypes";
+import { formatDate } from "../function/format";
 
 export const mapAllProductFormulas = (formulas: ProductFormula[]): TableData[] => {
   return formulas.map((formula) => ({
@@ -39,7 +40,7 @@ export const mapRawMaterialPayments = (
         mats[name] = found ? found.gained : 0;
       });
       return {
-        date: item.date,
+        date: formatDate(item.date),
         materials: mats,
         totalVolume: item.total_gained,
         productionVolume: item.total_used,

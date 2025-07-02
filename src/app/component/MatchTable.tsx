@@ -28,9 +28,9 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
           </tr>
         </thead>
         <tbody>
-          {data.flatMap((table, tableIdx) =>
-            !table.items || table.items.length === 0
-              ? [
+          {data.flatMap((table, tableIdx) => {
+            if (!table.items || table.items.length === 0) {
+              return [
                 <tr key={`empty-${tableIdx}`}>
                   <td>{tableIdx + 1}</td>
                   <td className="fw-bold">{table.productName}</td>
@@ -38,29 +38,46 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
                     <td key={i}>-</td>
                   ))}
                 </tr>
-              ]
-              : table.items.map((item, itemIdx) => (
-                <tr key={`${tableIdx}-${itemIdx}`}>
-                  {itemIdx === 0 && (
-                    <>
-                      <td rowSpan={table.items.length}>{tableIdx + 1}</td>
-                      <td rowSpan={table.items.length} className="fw-bold">
-                        {table.productName}
-                      </td>
-                    </>
-                  )}
-                  <td className="text-center">{item.type || '-'}</td>
-                  <td className="text-center">{item.name}</td>
-                  <td className="text-end">
-                    {item.quantity?.toLocaleString?.() ?? '-'}
-                  </td>
-                  <td className="text-end">{item.ratio ?? '-'}</td>
-                  <td className="text-end">{item.productionFormula ?? '-'}</td>
-                  <td className="text-center">{item.approvalNumber || '-'}</td>
-                  <td className="text-center">{item.remark || '-'}</td>
-                </tr>
-              ))
-          )}
+              ];
+            }
+
+            const sumQuantity = table.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+            const sumRatio = table.items.reduce((sum, item) => sum + (item.ratio || 0), 0);
+
+            return Array.from({ length: table.items.length + 1 }).map((_, i) => {
+              if (i < table.items.length) {
+                const item = table.items[i];
+                return (
+                  <tr key={`${tableIdx}-${i}`}>
+                    {i === 0 && (
+                      <>
+                        <td rowSpan={table.items.length + 1}>{tableIdx + 1}</td>
+                        <td rowSpan={table.items.length + 1} className="fw-bold">
+                          {table.productName}
+                        </td>
+                      </>
+                    )}
+                    <td className="text-center">{item.type || '-'}</td>
+                    <td className="text-center">{item.name}</td>
+                    <td className="text-end">{item.quantity?.toLocaleString?.() ?? '-'}</td>
+                    <td className="text-end">{item.ratio ?? '-'}</td>
+                    <td className="text-end">{item.productionFormula ?? '-'}</td>
+                    <td className="text-center">{item.approvalNumber || '-'}</td>
+                    <td className="text-center">{item.remark || '-'}</td>
+                  </tr>
+                );
+              } else {
+                return (
+                  <tr key={`sumrow-${tableIdx}`}>
+                    <td colSpan={2} className="bg-light text-center">ปริมาณรวม</td>
+                    <td className="text-end">{sumQuantity ? sumQuantity.toLocaleString() : '-'}</td>
+                    <td className="text-end">{sumRatio ? sumRatio.toFixed(6) : '-'}</td>
+                    <td colSpan={3}></td>                    
+                  </tr>
+                );
+              }
+            });
+          })}
         </tbody>
       </table>
     </div>
