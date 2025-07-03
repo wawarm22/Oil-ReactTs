@@ -5,6 +5,8 @@ interface MatchTableProps {
 }
 
 const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
+  const materials = ["น้ำมันพื้นฐาน", "เอทานอล", "สารเติมแต่ง"];
+
   return (
     <div className="table-responsive shadow-sm rounded py-3 px-5 bg-white mt-3">
       <p className="fw-bold mb-2" style={{ fontSize: '26px', fontFamily: 'IBM Plex Sans Thai' }}>
@@ -41,12 +43,20 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
               ];
             }
 
+            let typeFallbackIdx = 0;
             const sumQuantity = table.items.reduce((sum, item) => sum + (item.quantity || 0), 0);
             const sumRatio = table.items.reduce((sum, item) => sum + (item.ratio || 0), 0);
 
             return Array.from({ length: table.items.length + 1 }).map((_, i) => {
               if (i < table.items.length) {
                 const item = table.items[i];
+                // ตรวจสอบ item.type ว่างหรือไม่
+                let typeToShow = item.type;
+                if (!typeToShow || typeToShow === "-") {
+                  // ถ้ายังเหลือใน array materials ค่อยวน
+                  typeToShow = materials[typeFallbackIdx] ?? "-";
+                  typeFallbackIdx++;
+                }
                 return (
                   <tr key={`${tableIdx}-${i}`}>
                     {i === 0 && (
@@ -57,9 +67,13 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
                         </td>
                       </>
                     )}
-                    <td className="text-center">{item.type || '-'}</td>
+                    <td className="text-center">{typeToShow}</td>
                     <td className="text-center">{item.name}</td>
-                    <td className="text-end">{item.quantity?.toLocaleString?.() ?? '-'}</td>
+                    <td className="text-end">
+                      {typeof item.quantity === "number"
+                        ? item.quantity.toFixed(2)
+                        : "-"}
+                    </td>
                     <td className="text-end">{item.ratio ?? '-'}</td>
                     <td className="text-end">{item.productionFormula ?? '-'}</td>
                     <td className="text-center">{item.approvalNumber || '-'}</td>
@@ -70,9 +84,9 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
                 return (
                   <tr key={`sumrow-${tableIdx}`}>
                     <td colSpan={2} className="text-center">ปริมาณรวม</td>
-                    <td className="text-end">{sumQuantity ? sumQuantity.toLocaleString() : '-'}</td>
+                    <td className="text-end">{sumQuantity ? sumQuantity.toFixed(2) : '-'}</td>
                     <td className="text-end">{sumRatio ? sumRatio.toFixed(6) : '-'}</td>
-                    <td colSpan={3}></td>                    
+                    <td colSpan={3}></td>
                   </tr>
                 );
               }

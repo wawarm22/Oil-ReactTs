@@ -168,7 +168,7 @@ const SearchFileUpload: React.FC = () => {
             const day = dateStr.slice(0, 2);
             const month = dateStr.slice(2, 4);
             const year = "25" + dateStr.slice(4, 6);
-            date = dayjs(`${day}-${month}-${+year - 543}`, "MM-DD-YYYY");
+            date = dayjs(`${month}-${day}-${+year - 543}`, "MM-DD-YYYY");
         } else {
             const unixNanoStr = code.split("-").at(1)!
             const unixNano = parseInt(unixNanoStr ?? "1")
@@ -179,7 +179,35 @@ const SearchFileUpload: React.FC = () => {
             value: code,
             label: date.format("DD MMM BBBB HH:mm")
         }
-    }).reverse();
+    }).sort((a, b) => {
+        let dateA: dayjs.Dayjs = dayjs()
+        let dateB: dayjs.Dayjs = dayjs()
+        if (a.value.includes("000000000000")) {
+            const dateStr = a.value.split("-").at(0)! // format "DDMMBB"
+            const day = dateStr.slice(0, 2);
+            const month = dateStr.slice(2, 4);
+            const year = "25" + dateStr.slice(4, 6);
+            dateA = dayjs(`${month}-${day}-${+year - 543}`, "MM-DD-YYYY");
+        } else {
+            const unixNanoStr = a.value.split("-").at(1)!
+            const unixNano = parseInt(unixNanoStr ?? "1")
+            dateA = dayjs(new Date(unixNano))
+            dateA = dateA.isValid() ? dateA : dayjs(new Date(1));
+        }
+        if (b.value.includes("000000000000")) {
+            const dateStr = b.value.split("-").at(0)! // format "DDMMBB"
+            const day = dateStr.slice(0, 2);
+            const month = dateStr.slice(2, 4);
+            const year = "25" + dateStr.slice(4, 6);
+            dateB = dayjs(`${month}-${day}-${+year - 543}`, "MM-DD-YYYY");
+        } else {
+            const unixNanoStr = b.value.split("-").at(1)!
+            const unixNano = parseInt(unixNanoStr ?? "1")
+            dateB = dayjs(new Date(unixNano))
+            dateB = dateB.isValid() ? dateB : dayjs(new Date(1));
+        }
+        return dateB.unix() - dateA.unix()
+    });
 
     const handleFilterChange = (field: keyof typeof filters, value: any) => {
         const resetMap: { [key in keyof typeof filters]?: (keyof typeof filters)[] } = {
@@ -606,7 +634,6 @@ const SearchFileUpload: React.FC = () => {
             );
 
             console.log("user?.email", user?.email);
-            
 
             const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
                 user?.email === 'ja.test006+or@gmail.com' ||
