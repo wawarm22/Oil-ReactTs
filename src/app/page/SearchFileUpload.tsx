@@ -291,7 +291,7 @@ const SearchFileUpload: React.FC = () => {
             user?.email === 'ja.test006+or@gmail.com' ||
             user?.email === 'ja.test006+bsrc@gmail.com' ||
             user?.email === 'ja.test006+bangchak@gmail.com' ||
-            user?.email === 'Tuenjai89@gmail.com';
+            user?.email === 'tuenjai89@gmail.com';
 
         const companyName = isTestEmail
             ? `${selectedCompany.name}-test`
@@ -402,7 +402,7 @@ const SearchFileUpload: React.FC = () => {
             user?.email === 'ja.test006+or@gmail.com' ||
             user?.email === 'ja.test006+bsrc@gmail.com' ||
             user?.email === 'ja.test006+bangchak@gmail.com' ||
-            user?.email === 'Tuenjai89@gmail.com';
+            user?.email === 'tuenjai89@gmail.com';
 
         const companyName = isTestEmail
             ? `${selectedCompany.name}-test`
@@ -605,11 +605,14 @@ const SearchFileUpload: React.FC = () => {
                 periodDateStr
             );
 
+            console.log("user?.email", user?.email);
+            
+
             const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
                 user?.email === 'ja.test006+or@gmail.com' ||
                 user?.email === 'ja.test006+bsrc@gmail.com' ||
                 user?.email === 'ja.test006+bangchak@gmail.com' ||
-                user?.email === 'Tuenjai89@gmail.com';
+                user?.email === 'tuenjai89@gmail.com';
 
             let companyName = isTestEmail
                 ? `${selectedCompany.name}-test`
