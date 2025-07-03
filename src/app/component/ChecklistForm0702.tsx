@@ -2,6 +2,7 @@ import React from "react";
 import { OcrDailyProductionDocument } from "../../types/ocrFileType";
 import { Oil0702ValidationResult } from "../../types/validateResTypes";
 import { Oil0702ReportRow, PreparedOil0702 } from "../../types/validateTypes";
+import { getBorderColor, getValidatePropsForDailyRow, getValidatePropsForSummary } from "../../utils/function/validate0702";
 
 interface Props {
     data: OcrDailyProductionDocument;
@@ -30,7 +31,7 @@ const fixedLabels: { key: keyof Oil0702ReportRow | string; label: string }[] = [
 ];
 
 const headFields = [
-    { label: "แบบฟอร์ม", value: "ภส.๐๗-๐๒", field: "form_type" },
+    { label: "แบบฟอร์ม", value: "ภส.๐๗-๐๒" },
     { label: "ประเภทสินค้า", value: "", field: "product_category" },
     { label: "ชนิด", value: "", field: "product_type" },
     { label: "ตราหรือเครื่องหมาย/เเบบ/รุ่น/ดีกรี/ความหวาน", value: "", field: "product_brand" },
@@ -53,7 +54,9 @@ const totalField = [
     { label: "ยอดคงเหลือ", value: "", field: "final_balance" },
 ]
 
-const ChecklistForm0702: React.FC<Props> = ({ context }) => {
+const ChecklistForm0702: React.FC<Props> = ({ context, validateResult  }) => {
+    console.log("validateResult", validateResult);
+    
     const ocrData = context?.fields;
     if (!ocrData) {
         return <div>ไม่พบข้อมูล</div>;
@@ -87,8 +90,10 @@ const ChecklistForm0702: React.FC<Props> = ({ context }) => {
 
             {ocrData.reports && ocrData.reports.length > 0 && (
                 <div className="mt-3">
-                    {ocrData.reports.map((row, rowIdx) =>
-                        fixedLabels.map(({ key, label }) => {
+                    {ocrData.reports.map((row, rowIdx) => {
+                        const validateProps = getValidatePropsForDailyRow(rowIdx, validateResult);
+
+                        return fixedLabels.map(({ key, label }) => {
                             if (typeof key === "string" && key.startsWith("__")) {
                                 return (
                                     <div key={label + rowIdx} className="mb-1">
@@ -96,57 +101,70 @@ const ChecklistForm0702: React.FC<Props> = ({ context }) => {
                                     </div>
                                 );
                             }
+                            let validateItem;
+                            if (key === "total_received") validateItem = validateProps.total_received;
+                            else if (key === "remaining_balance") validateItem = validateProps.remaining_balance;
+                            else if (key === "total_dispatched") validateItem = validateProps.total_dispatched;
+
+                            const passed = validateItem?.passed;
+
                             return (
                                 <div key={label + rowIdx} className="mb-2">
                                     <div className="fw-bold">{label}</div>
                                     <div
                                         className="rounded-2 shadow-sm bg-white p-2"
                                         style={{
-
                                             fontSize: "14px",
-                                            borderWidth: "2px",
-                                            borderStyle: "solid",
                                             minHeight: "40px",
-                                            borderColor: "#22C659",
+                                            border: getBorderColor(passed),
                                         }}
                                     >
                                         {typeof row[key as keyof typeof row] === "number"
                                             ? row[key as keyof typeof row]?.toLocaleString()
                                             : row[key as keyof typeof row] || ""}
                                     </div>
+                                    {validateItem?.passed === false && validateItem?.reason && (
+                                        <div className="text-danger small mt-1">{validateItem.reason}</div>
+                                    )}
                                 </div>
                             );
-                        })
-                    )}
+                        });
+                    })}
                 </div>
             )}
 
+            {/* Render summary */}
             {ocrData.monthly_total && (
                 <div className="mt-3">
                     <div className="fw-bold mb-2" style={{ fontSize: "18px" }}>
                         รวมเดือนนี้
                     </div>
-                    {totalField.map((f,) => {
-                        const value = (ocrData.monthly_total as any)[f.field];
-                        if (value === 0 || value === null || value === undefined) return null;
-                        return (
-                            <div key={f.field} className="mb-2">
-                                <div className="fw-bold">{f.label}</div>
-                                <div
-                                    className="rounded-2 shadow-sm bg-white p-2"
-                                    style={{
-                                        fontSize: "14px",
-                                        borderWidth: "2px",
-                                        borderStyle: "solid",
-                                        minHeight: "40px",
-                                        borderColor: "#22C659",
-                                    }}
-                                >
-                                    {typeof value === "number" ? value.toLocaleString() : value}
+                    {(() => {
+                        const summaryValidateProps = getValidatePropsForSummary(validateResult) || {};
+                        return totalField.map((f) => {
+                            const value = (ocrData.monthly_total as any)[f.field];
+                            const validateItem = summaryValidateProps[f.field as keyof typeof summaryValidateProps];
+                            if (value === 0 || value === null || value === undefined) return null;
+                            return (
+                                <div key={f.field} className="mb-2">
+                                    <div className="fw-bold">{f.label}</div>
+                                    <div
+                                        className="rounded-2 shadow-sm bg-white p-2"
+                                        style={{
+                                            fontSize: "14px",
+                                            minHeight: "40px",
+                                            border: getBorderColor(validateItem?.passed),
+                                        }}
+                                    >
+                                        {typeof value === "number" ? value.toLocaleString() : value}
+                                    </div>
+                                    {validateItem?.passed === false && validateItem?.reason && (
+                                        <div className="text-danger small mt-1">{validateItem.reason}</div>
+                                    )}
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        });
+                    })()}
                 </div>
             )}
         </div>
