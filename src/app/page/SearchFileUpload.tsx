@@ -315,15 +315,19 @@ const SearchFileUpload: React.FC = () => {
             return;
         }
 
+        console.log("user", user?.email);
+        
         const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
             user?.email === 'ja.test006+or@gmail.com' ||
             user?.email === 'ja.test006+bsrc@gmail.com' ||
             user?.email === 'ja.test006+bangchak@gmail.com' ||
             user?.email === 'tuenjai89@gmail.com';
 
+        console.log("isTestEmail", isTestEmail);
+
         const companyName = isTestEmail
-            ? `${selectedCompany.name}-test`
-            : selectedCompany.name;
+            ? `${selectedCompany.name}-test/`
+            : `${selectedCompany.name}/`;
 
         const startsWith = companyName ?? "";
 
@@ -434,7 +438,7 @@ const SearchFileUpload: React.FC = () => {
 
         const companyName = isTestEmail
             ? `${selectedCompany.name}-test`
-            : selectedCompany.name;
+            : `${selectedCompany.name}`;
 
         // const companyName = selectedCompany.name;
         const { uploadedResults, baseNameWithoutDocSeq } = await uploadFile(
@@ -633,8 +637,6 @@ const SearchFileUpload: React.FC = () => {
                 periodDateStr
             );
 
-            console.log("user?.email", user?.email);
-
             const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
                 user?.email === 'ja.test006+or@gmail.com' ||
                 user?.email === 'ja.test006+bsrc@gmail.com' ||
@@ -643,7 +645,7 @@ const SearchFileUpload: React.FC = () => {
 
             let companyName = isTestEmail
                 ? `${selectedCompany.name}-test`
-                : selectedCompany.name;
+                : `${selectedCompany.name}`;
 
             const selectedDateCode = dateCodeFilter?.value;
             if (selectedDateCode && selectedDateCode !== "") {
@@ -656,6 +658,8 @@ const SearchFileUpload: React.FC = () => {
 
             const response = await apiSearchFiles(companyName, baseName);
 
+            console.log("response", response);
+            
             const folders = response.files.map((file: any) => {
                 const parts = file.fileName.split('/');
                 parts.pop();
