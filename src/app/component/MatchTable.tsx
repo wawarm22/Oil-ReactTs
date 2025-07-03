@@ -69,7 +69,7 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
               } else {
                 return (
                   <tr key={`sumrow-${tableIdx}`}>
-                    <td colSpan={2} className="bg-light text-center">ปริมาณรวม</td>
+                    <td colSpan={2} className="text-center">ปริมาณรวม</td>
                     <td className="text-end">{sumQuantity ? sumQuantity.toLocaleString() : '-'}</td>
                     <td className="text-end">{sumRatio ? sumRatio.toFixed(6) : '-'}</td>
                     <td colSpan={3}></td>                    

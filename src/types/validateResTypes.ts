@@ -114,19 +114,6 @@ export type Oil0702ValidationCell = {
     reason?: string;
 };
 
-export type Oil0702ValidationRow = {
-    row: number;
-    properties: {
-        [label: string]: Oil0702ValidationCell;
-    };
-};
-
-export type Oil0702ValidationResult = {
-    status: boolean;
-    message: string;
-    data: Oil0702ValidationRow[];
-};
-
 export type ValidateFormularApprovCell = {
     value: string | number;
     expected: string | number | string[];
@@ -640,6 +627,43 @@ export type ValidateResult0129 = {
     operatorName: ValidatedField<string>;
     signatureDate: ValidatedField<string>;
 };
+
+export interface Oil0702ValidationItem {
+  value: number;
+  expected: number;
+  passed: boolean;
+  reason?: string; 
+}
+
+export interface Oil0702RowProperties {
+  // รายวัน (เช่น daily row)
+  total_received_validation?: Oil0702ValidationItem;
+  balance_validation?: Oil0702ValidationItem;
+  total_dispatched_validation?: Oil0702ValidationItem;
+
+  // รายเดือน/summary (monthly_summary)
+  total_received_produced?: Oil0702ValidationItem;
+  total_received_returned?: Oil0702ValidationItem;
+  total_received_others?: Oil0702ValidationItem;
+  total_received_all?: Oil0702ValidationItem;
+  total_sold_domestic?: Oil0702ValidationItem;
+  total_sold_export?: Oil0702ValidationItem;
+  total_used_factory?: Oil0702ValidationItem;
+  total_warehouse_bonded?: Oil0702ValidationItem;
+  total_damaged?: Oil0702ValidationItem;
+  total_others_dispatched?: Oil0702ValidationItem;
+  total_dispatched_all?: Oil0702ValidationItem;
+  final_balance?: Oil0702ValidationItem;
+  [key: string]: Oil0702ValidationItem | undefined;
+}
+
+export interface Oil0702ValidationRow {
+  row: number | string; 
+  date?: string;        
+  properties: Oil0702RowProperties;
+}
+
+export type Oil0702ValidationResult = Oil0702ValidationRow[];
 
 
 

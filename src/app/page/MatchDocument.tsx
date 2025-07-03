@@ -61,6 +61,7 @@ const MatchDocument: React.FC = () => {
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(0);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [stepData, setStepData] = useState<MatchStepData | null>(null);
+    const [stepDataMap, setStepDataMap] = useState<{ [step: number]: MatchStepData }>({});
     const [currentStep, setCurrentStep] = useState<number>(1);
     const uploadedStatus = useMemo(() => parseUploadedStatus(folders), [folders]);
     const { selectedCompany } = useCompanyStore();
@@ -94,10 +95,21 @@ const MatchDocument: React.FC = () => {
     }, [folders, ocrByDocId, fetchOcrData, auth, setFolders]);
 
     useEffect(() => {
+        setStepDataMap({});
+        setStepData(null);
+    }, [params.factory_slug, params.company_id, params.month, params.year]);
+
+    useEffect(() => {
         if (!auth) return;
-        loadMatchStepData(currentStep, params, auth).then(setStepData);
-        // dependency ที่ถูกต้อง
-    }, [currentStep, auth, params.factory_slug, params.company_id, params.month, params.year]);
+        if (stepDataMap[currentStep]) {
+            setStepData(stepDataMap[currentStep]);
+        } else {
+            loadMatchStepData(currentStep, params, auth).then(data => {
+                setStepDataMap(prev => ({ ...prev, [currentStep]: data }));
+                setStepData(data);
+            });
+        }
+    }, [currentStep, auth, params.factory_slug, params.company_id, params.month, params.year, stepDataMap]);
 
     useEffect(() => {
         if (ocrByDocId && Object.keys(ocrByDocId).length > 0 && !isBatchValidated) {

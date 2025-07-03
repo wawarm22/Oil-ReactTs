@@ -1,4 +1,4 @@
-import { FieldValidation, Oil0702ValidationResult, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateField, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateInvoiceThapplineData, ValidateOil0704Result, ValidateReceiptExciseResult, ValidateResult0129, ValidateResult0307, ValidateTaxInvoiceResult, ValidationResult0307 } from "../../types/validateResTypes";
+import { FieldValidation, Oil0702ValidationItem, Oil0702ValidationResult, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateField, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateInvoiceThapplineData, ValidateOil0704Result, ValidateReceiptExciseResult, ValidateResult0129, ValidateResult0307, ValidateTaxInvoiceResult, ValidationResult0307 } from "../../types/validateResTypes";
 import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New, validateReceitpPaymentNew, validateOil0702, validateTaxInvoice, validateReceiptExcise, validateInvoiceThappline, validateForm0129 } from "../api/validateApi";
 
 const cleanValue = (val?: any): string => {
@@ -290,27 +290,29 @@ export const checkOil0701Failed = (
     return false;
 };
 
-const checkOil0702Failed = (
+export const checkOil0702Failed = (
     res: { data?: Oil0702ValidationResult } | Oil0702ValidationResult | any[] | null | undefined
 ): boolean => {
-    let arr: any[] | undefined = undefined;
+    let arr: Oil0702ValidationResult | undefined = undefined;
 
     if (Array.isArray(res)) {
-        arr = res;
+        arr = res as Oil0702ValidationResult;
     } else if (res && Array.isArray((res as any).data)) {
-        arr = (res as any).data;
+        arr = (res as { data: Oil0702ValidationResult }).data;
     }
 
     if (!arr || arr.length === 0) return false;
 
     for (const row of arr) {
-        for (const cellKey in row.properties) {
-            const cell = row.properties[cellKey];
-            if (cell && typeof cell === "object" && cell.passed === false) {
+        const properties = row.properties;
+        for (const cellKey in properties) {
+            const cell = properties[cellKey] as Oil0702ValidationItem | undefined;
+            if (cell && cell.passed === false) {
                 return true;
             }
         }
     }
+
     return false;
 };
 
