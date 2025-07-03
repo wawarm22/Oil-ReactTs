@@ -164,7 +164,11 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "daily_production" && (
                     <ChecklistForm0702
                         data={currentOcrFields as OcrDailyProductionDocument}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />                    
                 )}

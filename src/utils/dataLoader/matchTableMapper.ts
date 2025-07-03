@@ -9,7 +9,7 @@ export const mapAllProductFormulas = (formulas: ProductFormula[]): TableData[] =
     items: formula.materials.map((mat) => ({
       type: "",
       name: mat.name,
-      quantity: mat.quantity,
+      quantity: Number(mat.quantity),
       ratio: mat.ratio,
       productionFormula: `${Number(mat.min_quantity).toFixed(6)} - ${Number(mat.max_quantity).toFixed(6)}`,      approvalNumber: `${formula.type_label} ${formula.type_index_label}`,
       remark: formula.remark

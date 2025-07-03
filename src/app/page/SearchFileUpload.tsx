@@ -603,10 +603,7 @@ const SearchFileUpload: React.FC = () => {
                 filters.warehouse.value,
                 filters.transport.value,
                 periodDateStr
-            );
-
-            console.log("user?.email", user?.email);
-            
+            );            
 
             const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
                 user?.email === 'ja.test006+or@gmail.com' ||
