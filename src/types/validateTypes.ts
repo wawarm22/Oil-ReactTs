@@ -1,5 +1,5 @@
 import { Material, Product } from "../utils/function/checklist/attachment0704";
-import { PreparedData } from "./preparedTypes";
+import { OcrReceiptPaymentPreparedData, PreparedData } from "./preparedTypes";
 
 export type OCRFieldProperty = {
     value: string;
@@ -777,6 +777,17 @@ export type Save0307 = {
     company_id: number,
     data: Prepared0307Payload
 };
+
+export type SaveReceitpPayment = {
+    month: string,
+    from_date: string,
+    to_date: string,
+    periot: string,
+    factory_slug: string,
+    company_id: number,
+    data: OcrReceiptPaymentPreparedData
+};
+
 
 
 

@@ -107,7 +107,7 @@ const ChecklistMatch: React.FC<Props> = ({
 
     return (
         <div className="flex-grow-1 col-12 col-lg-3 px-0 mb-3 mb-lg-0 d-flex flex-column gap-2"
-            style={{ minWidth: 0, width: '25%' }}>            
+            style={{ minWidth: 0, width: '25%' }}>
 
             <div className="shadow-sm bg-white rounded-2 p-3 h-100" style={{ overflowY: "auto" }}>
                 {type === "tax" && (
@@ -152,9 +152,11 @@ const ChecklistMatch: React.FC<Props> = ({
                 {type === "daily_production" && (
                     <ChecklistForm0702
                         data={currentOcrFields as OcrDailyProductionDocument}
-                        validateResult={validateResult}
+                        validateResult={validateResult && typeof validateResult === "object" && "data" in validateResult
+                            ? validateResult.data
+                            : validateResult}
                         context={context}
-                    />  
+                    />
                 )}
                 {type === "tax_form_0307" && (
                     <ChecklistTaxForm0307

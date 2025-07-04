@@ -25,6 +25,7 @@ import { useOcrStore } from "../../store/useOcrStore";
 import MatchPagination from "../reusable/MatchPagination";
 import { getSubtitleIndexMap } from "../../utils/function/getSubtitleIndexMap";
 import { useCompanyStore } from "../../store/companyStore";
+import { getInitialSubtitleIdx } from "../../utils/function/getInitialSubtitleIdx";
 
 const folders = JSON.parse(localStorage.getItem("folders") || "[]") as string[];
 
@@ -197,19 +198,59 @@ const MatchDocument: React.FC = () => {
                 return doc;
             });
         }
+
         return filteredDocs;
     };
+
+    useEffect(() => {
+        const filteredDocs = getFilteredDocumentList();
+        if (
+            filteredDocs.length > 0 &&
+            (selectedDocId === null ||
+                !filteredDocs.some(doc => doc.id === selectedDocId))
+        ) {
+            const firstDoc = filteredDocs[0];
+            const subtitleIdx = getInitialSubtitleIdx(firstDoc.id, currentStep, subtitleIndexMap);
+            setSelectedDocId(firstDoc.id);
+            setSelectedSubtitleIdx(subtitleIdx);
+            setCurrentPage(1);
+        } else if (selectedDocId !== null) {
+            const doc = filteredDocs.find(d => d.id === selectedDocId);
+            if (doc) {
+                let subtitleIdxList: number[] = [];
+                if (subtitleIndexMap && subtitleIndexMap[selectedDocId]) {
+                    subtitleIdxList = subtitleIndexMap[selectedDocId];
+                } else if (doc.subtitle && doc.subtitle.length > 0) {
+                    subtitleIdxList = doc.subtitle.map((_, idx) => idx);
+                }
+                if (
+                    subtitleIdxList.length > 0 &&
+                    (selectedSubtitleIdx === null ||
+                        !subtitleIdxList.includes(selectedSubtitleIdx))
+                ) {
+                    setSelectedSubtitleIdx(subtitleIdxList[0]);
+                    setCurrentPage(1);
+                }
+            }
+        }
+        // eslint-disable-next-line
+    }, [currentStep, ocrByDocId, subtitleIndexMap]);
+
 
     const handleBack = () => {
         if (currentStep > 1) {
             setCurrentStep(prev => prev - 1);
             const previousStep = currentStep - 1;
             const prevDocs = stepToDocIdMap[previousStep] || [];
-
             if (prevDocs.length > 0) {
-                setSelectedDocId(prevDocs[0]);
+                const firstDocId = prevDocs[0];
+                const subtitleIdx = getInitialSubtitleIdx(firstDocId, previousStep, subtitleIndexMap);
+                setSelectedDocId(firstDocId);
+                setSelectedSubtitleIdx(subtitleIdx);
+                setCurrentPage(1);
             } else {
                 setSelectedDocId(null);
+                setSelectedSubtitleIdx(null);
             }
         } else {
             navigate("/audit");
@@ -226,9 +267,14 @@ const MatchDocument: React.FC = () => {
             const nextStep = currentStep + 1;
             const nextDocs = stepToDocIdMap[nextStep] || [];
             if (nextDocs.length > 0) {
-                setSelectedDocId(nextDocs[0]);
+                const firstDocId = nextDocs[0];
+                const subtitleIdx = getInitialSubtitleIdx(firstDocId, nextStep, subtitleIndexMap);
+                setSelectedDocId(firstDocId);
+                setSelectedSubtitleIdx(subtitleIdx);
+                setCurrentPage(1);
             } else {
                 setSelectedDocId(null);
+                setSelectedSubtitleIdx(null);
             }
         }
     };
