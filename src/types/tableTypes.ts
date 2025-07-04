@@ -1,17 +1,24 @@
 export type TableItem = {
-    type?: string; 
+    type?: string;
     name: string;
     quantity: number;
     ratio: number;
     productionFormula: string;
-    approvalNumber?: string; 
+    approvalNumber?: string;
     remark?: string;
 }
 
 export type TableData = {
     productName: string;
-    headers?: string[]; 
+    headers?: string[];
     items: TableItem[];
+}
+
+export type FilterItmes = {
+    id: number;
+    subtitle: string[];
+    title: string;
+    transport: string;
 }
 
 

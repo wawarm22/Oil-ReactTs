@@ -1,4 +1,4 @@
-import { saveData0307, saveData0503Page1, saveData0701, saveData0702 } from "../api/apiSaveData";
+import { saveData0307, saveData0503Page1, saveData0701, saveData0702, saveDataReceitpPayment } from "../api/apiSaveData";
 import { AuthSchema } from "../../types/schema/auth";
 import { Save0503Schema } from "../../types/schema/save";
 
@@ -25,6 +25,16 @@ export const SAVE_API_LIST: SaveApiConfig[] = [
         docId: 8,
         subIdx: 0,
         api: ({ data, auth }) => saveData0307(data, auth),
+    },
+    {
+        docId: 38,
+        subIdx: 0,
+        api: ({ data, auth }) => saveDataReceitpPayment(data, auth),
+    },
+    {
+        docId: 13,
+        subIdx: 0,
+        api: ({ data, auth }) => saveDataReceitpPayment(data, auth),
     },
     {
         docId: 19,
@@ -58,6 +68,11 @@ export const SAVE_API_LIST: SaveApiConfig[] = [
         api: ({ data, auth }) => saveData0307(data, auth),
     },
     {
+        docId: 38,
+        subIdx: 0,
+        api: ({ data, auth }) => saveDataReceitpPayment(data, auth),
+    },
+    {
         docId: 44,
         subIdx: 0,
         api: ({ data, auth }) => {
@@ -72,7 +87,6 @@ export const SAVE_API_LIST: SaveApiConfig[] = [
             throw new Error(`Unknown or unsupported data structure for 0503`);
         },
     },
-
 ];
 
 export const SAVE_API_MAP: Record<
