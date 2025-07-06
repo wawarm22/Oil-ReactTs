@@ -1,4 +1,5 @@
 import { TableData } from "../../types/tableTypes";
+import { readableNumber } from "../../utils/function/format";
 
 interface MatchTableProps {
   data: TableData[];
@@ -22,7 +23,7 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
             <th rowSpan={2}>สินค้าต่อ 1 หน่วย</th>
             <th rowSpan={2} style={{ width: "170px" }}>สูตรการผลิต</th>
             <th rowSpan={2}>เลขที่หนังสืออนุมัติ</th>
-            <th rowSpan={2}>หมายเหตุ</th>
+            {/* <th rowSpan={2}>เลขที่หนังสืออนุมัติ</th> */}
           </tr>
           <tr>
             <th>ประเภทวัตถุดิบ</th>
@@ -36,7 +37,7 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
                 <tr key={`empty-${tableIdx}`}>
                   <td>{tableIdx + 1}</td>
                   <td className="fw-bold">{table.productName}</td>
-                  {Array.from({ length: 7 }).map((_, i) => (
+                  {Array.from({ length: 6 }).map((_, i) => (
                     <td key={i}>-</td>
                   ))}
                 </tr>
@@ -71,22 +72,22 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
                     <td className="text-center">{item.name}</td>
                     <td className="text-end">
                       {typeof item.quantity === "number"
-                        ? item.quantity.toFixed(2)
+                        ? readableNumber(item.quantity)
                         : "-"}
                     </td>
-                    <td className="text-end">{item.ratio ?? '-'}</td>
+                    <td className="text-end">{item.ratio ? readableNumber(item.ratio, 6) : '-'}</td>
                     <td className="text-end">{item.productionFormula ?? '-'}</td>
-                    <td className="text-center">{item.approvalNumber || '-'}</td>
                     <td className="text-center">{item.remark || '-'}</td>
+                    {/* <td className="text-center">{item.approvalNumber || '-'}</td> */}
                   </tr>
                 );
               } else {
                 return (
                   <tr key={`sumrow-${tableIdx}`}>
                     <td colSpan={2} className="text-center">ปริมาณรวม</td>
-                    <td className="text-end">{sumQuantity ? sumQuantity.toFixed(2) : '-'}</td>
-                    <td className="text-end">{sumRatio ? sumRatio.toFixed(6) : '-'}</td>
-                    <td colSpan={3}></td>
+                    <td className="text-end">{sumQuantity ? readableNumber(sumQuantity) : '-'}</td>
+                    <td className="text-end">{sumRatio ? Math.round(sumRatio).toFixed(6) : '-'}</td>
+                    <td colSpan={2}></td>
                   </tr>
                 );
               }

@@ -25,9 +25,9 @@ const VolumeCompareTable: React.FC<VolumeCompareTableProps> = ({ data }) => {
                         {data.materialNames.map((name, idx) => (
                             <th key={idx}>{name}</th>
                         ))}
-                        <th>ปริมาณรวม (ลิตร)</th>
-                        <th>ปริมาณการผลิตและจำหน่าย</th>  
-                        <th>ปริมาณการชำระภาษี</th>
+                        <th style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>ปริมาณรวม (ลิตร)</th>
+                        <th style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>ปริมาณการผลิตและจำหน่าย</th>
+                        <th style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>ปริมาณการชำระภาษี</th>
                     </tr>
 
                 </thead>
@@ -41,9 +41,9 @@ const VolumeCompareTable: React.FC<VolumeCompareTableProps> = ({ data }) => {
                                     {item.materials[name]?.toLocaleString() ?? "-"}
                                 </td>
                             ))}
-                            <td className="text-end">{item.totalVolume.toLocaleString()}</td>
-                            <td className="text-end">{item.productionVolume.toLocaleString()}</td>
-                            <td className="text-end">{item.taxVolume.toLocaleString()}</td>
+                            <td className="text-end" style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>{item.totalVolume.toLocaleString()}</td>
+                            <td className="text-end" style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>{item.productionVolume.toLocaleString()}</td>
+                            <td className="text-end" style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>{item.taxVolume.toLocaleString()}</td>
                             <td>{item.compareWithProduction}</td>
                             <td>{item.compareWithTax}</td>
                         </tr>
