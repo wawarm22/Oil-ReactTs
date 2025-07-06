@@ -35,14 +35,16 @@ export const mapRawMaterialPayments = (
     ],
     items: rawData.map(item => {
       const mats: { [name: string]: number } = {};
+      let totalVolume = 0
       materialNames.forEach(name => {
         const found = item.materials.find(mat => mat.name === name);
-        mats[name] = found ? found.gained : 0;
+        mats[name] = found ? found.used : 0;
+        totalVolume += found ? found.used : 0;
       });
       return {
         date: formatDate(item.date),
         materials: mats,
-        totalVolume: item.total_gained,
+        totalVolume: totalVolume,
         productionVolume: item.total_used,
         taxVolume: item.total_cost,
         compareWithProduction: item.total_remains.toLocaleString(),
