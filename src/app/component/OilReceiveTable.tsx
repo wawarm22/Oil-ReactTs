@@ -12,33 +12,39 @@ const OilReceiveTable: React.FC<Props> = ({ data }) => {
                 ตารางเปรียบเทียบอัตราส่วนกับสูตรการผลิตน้ำมัน
             </p>
             <table className="table table-bordered border-dark text-center align-middle">
-                <thead>
+                <thead className="align-middle">
                     <tr>
-                        <th rowSpan={3}>วันที่รับน้ำมัน</th>
-                        <th colSpan={7}>หลักฐานการซื้อน้ำมัน</th>
-                        <th colSpan={2}>ปริมาณน้ำมันที่ส่งออกลดหย่อนภาษี</th>
-                        <th colSpan={4}>จำหน่ายในประเทศ</th>
-                        <th colSpan={4}>การจัดจำหน่าย (โอนคลัง)</th>
-                        <th rowSpan={3}>อื่น ๆ</th>
-                        <th rowSpan={3}>รวมใช้</th>
+                        <th colSpan={10}>การรับ</th>
+                        <th colSpan={12}>การจำหน่าย</th>
                         <th colSpan={3}>การใช้สิทธิ์</th>
-                        <th rowSpan={3}>หมายเหตุ</th>
+                        <th rowSpan={4}>ปริมาณน้ำมันที่มีสิทธิหักลดหย่อนคงเหลือ</th>
+                        <th rowSpan={4}>หมายเหตุ</th>
                     </tr>
                     <tr>
-                        <th rowSpan={2}>เลขที่ใบกำกับภาษี</th>
+                        <th rowSpan={3}>วันที่รับน้ำมัน</th>
+                        <th colSpan={8}>หลักฐานการซื้อขายน้ำมันจากโรงกลั่น (ใบกำกับภาษี)/หลักฐานการซื้อน้ำมันที่คลังรับจากการโอนสต๊อก</th>
+                        <th rowSpan={3}>ปริมาณน้ำมันที่ส่งออกลดหย่อนภาษี</th>
+                        <th rowSpan={3}>วันที่จำหน่าย</th>
+                        <th colSpan={4}>จำหน่ายในประเทศ</th>
+                        <th colSpan={5}>โอนคลัง</th>
+                        <th rowSpan={3}>อื่น ๆ</th>
+                        <th rowSpan={3}>รวมใช้</th>
+                        <th colSpan={3}>ปริมาณน้ำมันที่มีสิทธิหักลดหย่อนคงเหลือตามใบกำกับภาษีแต่ละฉบับ</th>
+                    </tr>
+                    <tr>
+                        <th rowSpan={2}>เลขที่ใบกำกับภาษีโรงกลั่น</th>
                         <th rowSpan={2}>เลขที่ใบกำกับภาษีการโอน</th>
-                        <th rowSpan={2}>จวป.</th>
+                        <th rowSpan={2}>วดป.</th>
                         <th rowSpan={2}>Vendor Code</th>
-                        <th rowSpan={2}>ชื่อโรงกลั่น</th>
+                        <th rowSpan={2}>ชื่อโรงกลั่น/คลัง</th>
                         <th rowSpan={2}>ปริมาณน้ำมัน (ใบกำกับภาษี)</th>
                         <th rowSpan={2}>ปริมาณน้ำมันที่ตรวจรับจริง</th>
                         <th rowSpan={2}>อัตราภาษี</th>
-                        <th rowSpan={2}>วันที่จำหน่าย</th>
 
-                        <th colSpan={2}>แบบมีเลขที่ใบกำกับภาษี</th>
-                        <th colSpan={2}>แบบไม่มีเลขที่ใบกำกับภาษี</th>
-                        <th colSpan={2}>แบบมีเลขที่ใบกำกับภาษี</th>
-                        <th colSpan={2}>แบบไม่มีเลขที่ใบกำกับภาษี</th>
+                        <th colSpan={2}>แบบผสมสารเพิ่มคุณภาพ</th>
+                        <th colSpan={2}>แบบไม่ผสมสารเพิ่มคุณภาพ</th>
+                        <th colSpan={3}>แบบผสมสารเพิ่มคุณภาพ</th>
+                        <th colSpan={2}>แบบไม่ผสมสารเพิ่มคุณภาพ</th>
                         <th rowSpan={2}>เลขที่ใบกำกับภาษี</th>
                         <th rowSpan={2}>ปริมาณที่ได้รับผ่อนผัน</th>
                         <th rowSpan={2}>ปริมาณที่ขอใช้สิทธิ์หักลดหย่อน</th>
@@ -48,6 +54,7 @@ const OilReceiveTable: React.FC<Props> = ({ data }) => {
                         <th>ปริมาณ</th>
                         <th>เลขที่ใบกำกับ</th>
                         <th>ปริมาณ</th>
+                        <th>คลังปลายทาง</th>
                         <th>เลขที่ใบกำกับ</th>
                         <th>ปริมาณ</th>
                         <th>เลขที่ใบกำกับ</th>
@@ -81,7 +88,9 @@ const OilReceiveTable: React.FC<Props> = ({ data }) => {
                             <td className="text-end">{row.permissionQty?.toLocaleString() || ""}</td>
                             <td className="text-end">{row.usedQty.toLocaleString()}</td>
                             <td className="text-end">{row.usedQtyBalance.toLocaleString()}</td>
-                            {/* <td>{row.remark || ""}</td> */}
+                            <td>{row.remark || ""}</td>
+                            <td></td>
+                            <td></td>
                         </tr>
                     ))}
                 </tbody>

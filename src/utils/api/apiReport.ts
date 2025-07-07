@@ -53,3 +53,29 @@ export const getRawMaterialPayments = async (
         return undefined;
     }
 };
+
+export const getOilUseInProducts = async (
+    params: {
+        factory_slug: string,
+        company_id: number,
+        month: number,
+        year: number,
+        material_id: number
+    },
+    auth: AuthSchema
+): Promise<RawMaterialPaymentsResponse | undefined> => {
+    try {
+        const response = await axios.get(`${BASE_URL_AWS}/report/oil-use-in-products`,
+            {
+                params,
+                headers: {
+                    Authorization: `Bearer ${auth.accessToken}`,
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("An error occurred while fetching OCR prepared data", error);
+        return undefined;
+    }
+};

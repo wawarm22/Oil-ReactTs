@@ -46,6 +46,7 @@ interface Props {
     contextByDoc: ContextByDocType;
     selectedDocMeta?: { docId: number; subtitleIdx: number } | null;
     isUploaded?: boolean;
+    onMaterialIdChange?: (id: number | undefined) => void;
 }
 
 const ChecklistMatch: React.FC<Props> = ({
@@ -57,7 +58,8 @@ const ChecklistMatch: React.FC<Props> = ({
     validateResultsByDoc,
     contextByDoc,
     selectedDocMeta,
-    isUploaded
+    isUploaded,
+    onMaterialIdChange
 }) => {
     const displayTitle = getTitleAndSubtitle(documentList, selectedDocMeta?.docId, selectedDocMeta?.subtitleIdx);
 
@@ -269,6 +271,7 @@ const ChecklistMatch: React.FC<Props> = ({
                         data={currentOcrFields as OcrIncomeNExpenseDocument}
                         validateResult={validateResult.data}
                         context={context}
+                        onMaterialIdChange={onMaterialIdChange}
                     />
                 )}
                 {type === "oil-invoice-pipline" && (

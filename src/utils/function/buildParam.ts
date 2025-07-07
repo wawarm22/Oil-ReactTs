@@ -3,6 +3,7 @@ export type ReportParamProps = {
   month: number;
   year: number;
   company_id: number;
+  material_id?: number;
 };
 
 export const buildReportParam = (

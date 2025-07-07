@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { OcrIncomeNExpenseDocument } from "../../types/ocrFileType";
 import { useCompanyStore } from "../../store/companyStore";
 import { OcrReceiptPaymentPreparedData } from "../../types/preparedTypes";
@@ -10,16 +10,22 @@ interface Props {
     data: OcrIncomeNExpenseDocument;
     validateResult: any;
     context: OcrReceiptPaymentPreparedData | null;
+    onMaterialIdChange?: (id: number | undefined) => void;
 }
 
-const ChecklistIncomeNExpense: React.FC<Props> = ({ validateResult, context }) => {
+const ChecklistIncomeNExpense: React.FC<Props> = ({ validateResult, context, onMaterialIdChange }) => {
     const { selectedCompany } = useCompanyStore();
     console.log("context income", context);
-        
+    
+    useEffect(() => {
+        if (context?.fields?.materialId) {
+            onMaterialIdChange?.(context.fields.materialId);
+        }
+    }, [context, onMaterialIdChange]);
+
     const ocrData = context;
     if (!ocrData) return <div className="text-muted">ไม่พบข้อมูล</div>;
 
-    // เลือก component ตามบริษัท
     if (selectedCompany?.name === "SHELL") {
         return <ShellIncomeNExpense validateResult={validateResult} />;
     }
