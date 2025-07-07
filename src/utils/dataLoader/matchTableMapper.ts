@@ -1,4 +1,5 @@
-import { ProductFormula, RawMaterialPaymentItem } from "../../types/reportTypes";
+import { OilReceiveItem } from "../../types/oilReceiveTypes";
+import { OilUseInProductItem, ProductFormula, RawMaterialPaymentItem } from "../../types/reportTypes";
 import { TableData } from "../../types/tableTypes";
 import { VolumeCompareData } from "../../types/volumeTableTypes";
 import { formatDate, readableNumber } from "../function/format";
@@ -11,7 +12,7 @@ export const mapAllProductFormulas = (formulas: ProductFormula[]): TableData[] =
       name: mat.name,
       quantity: Number(mat.quantity),
       ratio: mat.ratio,
-      productionFormula: `${Number(mat.min_quantity).toFixed(6)} - ${Number(mat.max_quantity).toFixed(6)}`,      approvalNumber: `${formula.type_label} ${formula.type_index_label}`,
+      productionFormula: `${Number(mat.min_quantity).toFixed(6)} - ${Number(mat.max_quantity).toFixed(6)}`, approvalNumber: `${formula.type_label} ${formula.type_index_label}`,
       remark: formula.remark
     }))
   }));
@@ -54,4 +55,41 @@ export const mapRawMaterialPayments = (
     materialNames
   };
 };
+
+export const mapOilUseInProductsToOilReceive = (
+  items: OilUseInProductItem[]
+): OilReceiveItem[] => {
+  return items.map(item => {
+    let receiveDate = "";
+    let sellDate = "";
+
+    if (item.is_reciept_from_other_month || item.is_reciept) {
+      receiveDate = item.date;
+    }
+    if (item.is_consume) {
+      sellDate = item.date;
+    }
+
+    return {
+      receiveDate,
+      receiveDocNo: item.reciept_invoice || "",
+      taxDocNo: item.transfer_invoice || "",
+      jvNo: "",
+      vendorCode: "",
+      vendorName: item.reciept_from_factory?.slug || "",
+      vendorFullName: item.reciept_from_factory?.name || "",
+      quantityBeforeTax: item.reciept_quantity ?? 0,
+      quantityActual: 0,
+      taxRate: "",
+      sellDate,
+      sellDomTaxDocNo: item.consume_invoice || "",
+      sellDomTaxQty: item.consume_quantity ?? 0,
+      transferToFactory: item.transfer_to_factory || "",
+      transferTaxNo: item.transfer_invoice || "",
+      transferTaxQty: item.transfer_quantity ?? 0,
+      remark: "",
+    };
+  });
+};
+
 

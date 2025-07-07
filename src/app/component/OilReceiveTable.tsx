@@ -1,5 +1,7 @@
 import React from "react";
 import { OilReceiveItem } from "../../types/oilReceiveTypes";
+import { readableNumber, safeNumber } from "../../utils/function/format";
+import VendorNamePopover from "../reusable/VendorNamePopover";
 
 interface Props {
     data: OilReceiveItem[];
@@ -28,7 +30,7 @@ const OilReceiveTable: React.FC<Props> = ({ data }) => {
                         <th colSpan={4}>จำหน่ายในประเทศ</th>
                         <th colSpan={5}>โอนคลัง</th>
                         <th rowSpan={3}>อื่น ๆ</th>
-                        <th rowSpan={3}>รวมใช้</th>
+                        <th rowSpan={3}>รวมจ่าย</th>
                         <th colSpan={3}>ปริมาณน้ำมันที่มีสิทธิหักลดหย่อนคงเหลือตามใบกำกับภาษีแต่ละฉบับ</th>
                     </tr>
                     <tr>
@@ -69,28 +71,31 @@ const OilReceiveTable: React.FC<Props> = ({ data }) => {
                             <td>{row.taxDocNo || ""}</td>
                             <td>{row.jvNo || ""}</td>
                             <td>{row.vendorCode || ""}</td>
-                            <td>{row.vendorName || "GC"}</td>
-                            <td className="text-end">{row.quantityBeforeTax.toLocaleString()}</td>
-                            <td className="text-end">{row.quantityActual?.toLocaleString() || ""}</td>
+                            <td>
+                                <VendorNamePopover slug={row.vendorName} name={row.vendorFullName} />
+                            </td>
+                            <td className="text-end">{readableNumber(safeNumber(row.quantityBeforeTax))}</td>
+                            <td></td>
                             <td>{row.taxRate || ""}</td>
+                            <td></td>
                             <td>{row.sellDate || ""}</td>
                             <td>{row.sellDomTaxDocNo || ""}</td>
-                            <td className="text-end">{row.sellDomTaxQty?.toLocaleString() || ""}</td>
-                            <td>{row.sellDomNonTaxDocNo || ""}</td>
-                            <td className="text-end">{row.sellDomNonTaxQty?.toLocaleString() || ""}</td>
-                            <td>{row.sellWhTaxDocNo || ""}</td>
-                            <td className="text-end">{row.sellWhTaxQty?.toLocaleString() || ""}</td>
-                            <td>{row.sellWhNonTaxDocNo || ""}</td>
-                            <td className="text-end">{row.sellWhNonTaxQty?.toLocaleString() || ""}</td>
+                            <td>{readableNumber(safeNumber(row.sellDomTaxQty))}</td>
+                            <td></td>
+                            <td></td>
+                            <td>{row.transferToFactory || ""}</td>
+                            <td>{row.transferTaxNo || ""}</td>
+                            <td>{readableNumber(safeNumber(row.transferTaxQty))}</td>
+                            <td></td>
                             <td>{row.other || ""}</td>
-                            <td className="text-end">{row.totalUsed.toLocaleString()}</td>
+                            <td></td>
                             <td>{row.permissionDocNo || ""}</td>
-                            <td className="text-end">{row.permissionQty?.toLocaleString() || ""}</td>
-                            <td className="text-end">{row.usedQty.toLocaleString()}</td>
-                            <td className="text-end">{row.usedQtyBalance.toLocaleString()}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                             <td>{row.remark || ""}</td>
                             <td></td>
-                            <td></td>
+
                         </tr>
                     ))}
                 </tbody>

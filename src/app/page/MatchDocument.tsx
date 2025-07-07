@@ -13,11 +13,10 @@ import PdfPreviewMatch from "../component/PdfPreviewMatch";
 import ChecklistMatch from "../component/ChecklistMatch";
 import ProductionReport from "../reusable/ProductionReport";
 import OilReceiveTable from "../component/OilReceiveTable";
-import { oilReceiveData } from "../../types/oilReceiveTypes";
 import TaxRefundCalculationTable from "../component/TaxRefundCalculationTable";
 import { taxRefundData } from "../../types/taxRefundTypes";
 import { loadMatchStepData, MatchStepData } from "../../utils/dataLoader/matchDataLoader";
-import { mapAllProductFormulas, mapRawMaterialPayments } from "../../utils/dataLoader/matchTableMapper";
+import { mapAllProductFormulas, mapOilUseInProductsToOilReceive, mapRawMaterialPayments } from "../../utils/dataLoader/matchTableMapper";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { AuthSchema } from "../../types/schema/auth";
 import { parseUploadedStatus } from "../../utils/function/parseUploadedStatus";
@@ -50,7 +49,6 @@ const MatchDocument: React.FC = () => {
     const auth = useAuthUser<AuthSchema>();
     const [searchParams] = useSearchParams();
     const from = searchParams.get('from');
-    console.log("from", from);
 
     const {
         ocrByDocId,
@@ -62,6 +60,7 @@ const MatchDocument: React.FC = () => {
         isBatchValidated,
     } = useOcrStore();
     const [selectedMaterialId, setSelectedMaterialId] = useState<number | undefined>(undefined);
+    const [materialIdByPage, setMaterialIdByPage] = useState<{ [page: number]: number | undefined }>({});
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(0);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -94,7 +93,7 @@ const MatchDocument: React.FC = () => {
         year,
         ...(selectedMaterialId ? { material_id: selectedMaterialId } : {})
     };
-    
+
     useEffect(() => {
         if (
             folders.length > 0 &&
@@ -111,20 +110,49 @@ const MatchDocument: React.FC = () => {
     }, [params.factory_slug, params.company_id, params.month, params.year]);
 
     useEffect(() => {
-        if (!auth) return;
-        if (stepDataMap[currentStep]) {
-            setStepData(stepDataMap[currentStep]);
-        } else {
-            const fullParams = { ...params };
-            if (currentStep === 4 && selectedMaterialId) {
-                fullParams.material_id = selectedMaterialId;
+        if (currentStep === 4) {
+            const pageMaterialId = materialIdByPage[currentPage];
+            if (
+                pageMaterialId !== undefined &&
+                pageMaterialId !== selectedMaterialId
+            ) {
+                setSelectedMaterialId(pageMaterialId);
             }
-            loadMatchStepData(currentStep, params, auth).then(data => {
-                setStepDataMap(prev => ({ ...prev, [currentStep]: data }));
+        }
+    }, [currentStep, currentPage, materialIdByPage]);
+
+    useEffect(() => {
+        if (!auth) return;
+
+        const fullParams = { ...params };
+        if (currentStep === 4 && selectedMaterialId) {
+            fullParams.material_id = selectedMaterialId;
+        }
+
+        if (currentStep === 4) {
+            loadMatchStepData(currentStep, fullParams, auth).then(data => {
                 setStepData(data);
             });
+        } else {
+            if (stepDataMap[currentStep]) {
+                setStepData(stepDataMap[currentStep]);
+            } else {
+                loadMatchStepData(currentStep, fullParams, auth).then(data => {
+                    setStepDataMap(prev => ({ ...prev, [currentStep]: data }));
+                    setStepData(data);
+                });
+            }
         }
-    }, [currentStep, auth, params.factory_slug, params.company_id, params.month, params.year, stepDataMap, selectedMaterialId]);
+    }, [currentStep, auth, params.factory_slug, params.company_id, params.month, params.year, stepDataMap, selectedMaterialId, currentPage,]);
+
+    const handleMaterialIdChange = (materialId?: number) => {
+        // console.log("currentStep", currentStep);
+        // console.log("currentPage", currentPage);
+
+        if (currentStep === 4 && currentPage) {
+            setMaterialIdByPage(prev => ({ ...prev, [currentPage]: materialId }));
+        }
+    };
 
     useEffect(() => {
         if (ocrByDocId && Object.keys(ocrByDocId).length > 0 && !isBatchValidated) {
@@ -372,7 +400,7 @@ const MatchDocument: React.FC = () => {
                             : null
                     }
                     isUploaded={uploadedStatus[selectedDocId ?? 0]?.has(selectedSubtitleIdx ?? 0) ?? false}
-                    onMaterialIdChange={setSelectedMaterialId}
+                    onMaterialIdChange={handleMaterialIdChange}
                 />
             </div>
 
@@ -384,7 +412,9 @@ const MatchDocument: React.FC = () => {
                 <VolumeCompareTable data={mapRawMaterialPayments(stepData.data)} />
             )}
             {currentStep === 3 && <ProductionReport />}
-            {currentStep === 4 && <OilReceiveTable data={oilReceiveData} />}
+            {currentStep === 4 && stepData?.step === 4 && stepData.data && (
+                <OilReceiveTable data={mapOilUseInProductsToOilReceive(stepData.data)} />
+            )}
             {currentStep === 5 && <TaxRefundCalculationTable data={taxRefundData} />}
 
             <AuditButton

@@ -15,10 +15,11 @@ interface Props {
 
 const ChecklistIncomeNExpense: React.FC<Props> = ({ validateResult, context, onMaterialIdChange }) => {
     const { selectedCompany } = useCompanyStore();
-    console.log("context income", context);
-    
+    const lastMaterialId = React.useRef<number | undefined>(undefined);
+
     useEffect(() => {
-        if (context?.fields?.materialId) {
+        if (context?.fields?.materialId !== undefined && context.fields.materialId !== lastMaterialId.current) {
+            lastMaterialId.current = context.fields.materialId;
             onMaterialIdChange?.(context.fields.materialId);
         }
     }, [context, onMaterialIdChange]);
