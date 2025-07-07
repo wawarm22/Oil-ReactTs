@@ -48,10 +48,20 @@ export const formatDate = (iso: string) => {
     .padStart(2, "0")}-${yearBE}`;
 };
 
-export const readableNumber = (value: number, fractions = 2) => {
+export const readableNumber = (value: number, fractions = 0) => {
   return value.toLocaleString("th-TH", {
     style: "decimal",
     minimumFractionDigits: fractions,
     maximumFractionDigits: fractions,
   });
+};
+
+export const safeNumber = (input: any, initial: number = 0) => {
+  try {
+    const num = parseFloat(`${input}`.replace(/,/g, ""));
+
+    return isNaN(num) || num == 0 ? initial : num;
+  } catch {
+    return initial;
+  }
 };

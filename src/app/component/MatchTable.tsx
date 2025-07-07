@@ -72,7 +72,7 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
                     <td className="text-center">{item.name}</td>
                     <td className="text-end">
                       {typeof item.quantity === "number"
-                        ? readableNumber(item.quantity)
+                        ? readableNumber(item.quantity, 2)
                         : "-"}
                     </td>
                     <td className="text-end">{item.ratio ? readableNumber(item.ratio, 6) : '-'}</td>
@@ -85,7 +85,7 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
                 return (
                   <tr key={`sumrow-${tableIdx}`}>
                     <td colSpan={2} className="text-center fw-bold" style={{ backgroundColor: "#E8E8E8" }}>ปริมาณรวม</td>
-                    <td className="text-end">{sumQuantity ? readableNumber(sumQuantity) : '-'}</td>
+                    <td className="text-end">{sumQuantity ? readableNumber(sumQuantity, 2) : '-'}</td>
                     <td className="text-end">{sumRatio ? Math.round(sumRatio).toFixed(6) : '-'}</td>
                     <td colSpan={2}></td>
                   </tr>
