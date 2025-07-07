@@ -47,7 +47,7 @@ export const mapRawMaterialPayments = (
         totalVolume: totalVolume,
         productionVolume: item.total_used,
         taxVolume: item.total_cost,
-        compareWithProduction: item.total_remains.toLocaleString(),
+        compareWithProduction: (totalVolume - item.total_used).toLocaleString(),
         compareWithTax: item.total_diff.toLocaleString(),
       };
     }),
