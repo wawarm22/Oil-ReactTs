@@ -17,9 +17,7 @@ export const loadMatchStepData = async (
     auth: AuthSchema
 ): Promise<MatchStepData> => {
     switch (step) {
-        case 1: {
-            console.log("params", params);
-            
+        case 1: {            
             const res = await getProductRatiosAndFormular(params, auth);
             return { step, data: res?.data || null };
         }

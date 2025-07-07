@@ -161,7 +161,6 @@ const SearchFileUpload: React.FC = () => {
     const dateCodeOptions: OptionType[] = Array.from(
         new Set(parsedFiles.map(f => f.mainCode).filter(Boolean))
     ).map(code => {
-        // console.log(code);
         let date: dayjs.Dayjs = dayjs()
         if (code.includes("000000000000")) {
             const dateStr = code.split("-").at(0)! // format "DDMMBB"
@@ -174,7 +173,6 @@ const SearchFileUpload: React.FC = () => {
             const unixNano = parseInt(unixNanoStr ?? "1")
             date = dayjs(new Date(unixNano))
         }
-        // console.log(date);
         return {
             value: code,
             label: date.format("DD MMM BBBB HH:mm")
@@ -314,16 +312,12 @@ const SearchFileUpload: React.FC = () => {
             toast.warning("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
             return;
         }
-
-        console.log("user", user?.email);
         
         const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
             user?.email === 'ja.test006+or@gmail.com' ||
             user?.email === 'ja.test006+bsrc@gmail.com' ||
             user?.email === 'ja.test006+bangchak@gmail.com' ||
             user?.email === 'tuenjai89@gmail.com';
-
-        console.log("isTestEmail", isTestEmail);
 
         const companyName = isTestEmail
             ? `${selectedCompany.name}-test/`
@@ -578,8 +572,6 @@ const SearchFileUpload: React.FC = () => {
     }).map((item) => {
         const warehouse = filters.warehouse?.value;
         if (warehouse === "BS11" && item.id === 43) {
-            console.log("43");
-
             return { ...item, title: `${item.title} (ถ้ามี)` };
         }
         return item;
@@ -653,11 +645,7 @@ const SearchFileUpload: React.FC = () => {
             const month = formatMonthToBE(filters.month);
             const dateStart = formatDateToThai(filters.dateStart);
             const dateEnd = formatDateToThai(filters.dateEnd);
-
-            const response = await apiSearchFiles(companyName, baseName);
-
-            console.log("response", response);
-            
+            const response = await apiSearchFiles(companyName, baseName);            
             const folders = response.files.map((file: any) => {
                 const parts = file.fileName.split('/');
                 parts.pop();

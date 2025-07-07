@@ -137,8 +137,8 @@ const DocumentAudit: React.FC = () => {
         setDisableNext(someFail);
     };
 
-    const handleNextStep = () => {
-        navigate('/match-document');
+    const handleNextStep = () => {        
+        navigate(`/match-document?from=${from}`);
     };
 
     return (

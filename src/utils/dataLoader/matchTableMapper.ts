@@ -1,7 +1,7 @@
 import { ProductFormula, RawMaterialPaymentItem } from "../../types/reportTypes";
 import { TableData } from "../../types/tableTypes";
 import { VolumeCompareData } from "../../types/volumeTableTypes";
-import { formatDate } from "../function/format";
+import { formatDate, readableNumber } from "../function/format";
 
 export const mapAllProductFormulas = (formulas: ProductFormula[]): TableData[] => {
   return formulas.map((formula) => ({
@@ -47,8 +47,8 @@ export const mapRawMaterialPayments = (
         totalVolume: totalVolume,
         productionVolume: item.total_used,
         taxVolume: item.total_cost,
-        compareWithProduction: (totalVolume - item.total_used).toLocaleString(),
-        compareWithTax: item.total_diff.toLocaleString(),
+        compareWithProduction: readableNumber(totalVolume - item.total_used, 0),
+        compareWithTax: readableNumber(totalVolume - item.total_cost, 0),
       };
     }),
     materialNames
