@@ -8,7 +8,7 @@ export interface OilReceiveItem {
     vendorFullName?: string;
     quantityBeforeTax: number;
     quantityActual?: number;
-    taxRate?: string;
+    taxRate?: number | string;
     sellDate?: string;
     sellDomTaxDocNo?: string;
     sellDomTaxQty?: number;

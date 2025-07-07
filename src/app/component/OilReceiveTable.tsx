@@ -16,51 +16,51 @@ const OilReceiveTable: React.FC<Props> = ({ data }) => {
             <table className="table table-bordered border-dark text-center align-middle" style={{ fontSize: "13.5px"}}>
                 <thead className="align-middle">
                     <tr>
-                        <th colSpan={10}>การรับ</th>
-                        <th colSpan={12}>การจำหน่าย</th>
-                        <th colSpan={3}>การใช้สิทธิ์</th>
-                        <th className="align-bottom" rowSpan={4} style={{ minWidth: "300px" }}>ปริมาณน้ำมันที่มีสิทธิหักลดหย่อนคงเหลือ</th>
-                        <th className="align-bottom" rowSpan={4} style={{ minWidth: "100px" }}>หมายเหตุ</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }} colSpan={10}>การรับ</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }} colSpan={12}>การจำหน่าย</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }} colSpan={3}>การใช้สิทธิ์</th>
+                        <th className="align-bottom" rowSpan={4} style={{ backgroundColor: "#E8E8E8", minWidth: "300px" }}>ปริมาณน้ำมันที่มีสิทธิหักลดหย่อนคงเหลือ</th>
+                        <th className="align-bottom" rowSpan={4} style={{ backgroundColor: "#E8E8E8", minWidth: "100px" }}>หมายเหตุ</th>
                     </tr>
                     <tr>
-                        <th colSpan={10}>หลักฐานการซื้อขายน้ำมันจากโรงกลั่น (ใบกำกับภาษี)/หลักฐานการซื้อน้ำมันที่คลังรับจากการโอนสต๊อก</th>
-                        <th className="align-bottom" rowSpan={3} style={{ minWidth: "90px" }}>วันที่จำหน่าย</th>
-                        <th colSpan={5}>จำหน่ายในประเทศ</th>
-                        <th colSpan={4}>โอนคลัง</th>
-                        <th className="align-bottom" rowSpan={3} style={{ minWidth: "100px" }}>อื่น ๆ</th>
-                        <th className="align-bottom" rowSpan={3} style={{ minWidth: "100px" }}>รวมจ่าย</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }} colSpan={10}>หลักฐานการซื้อขายน้ำมันจากโรงกลั่น (ใบกำกับภาษี)/หลักฐานการซื้อน้ำมันที่คลังรับจากการโอนสต๊อก</th>
+                        <th className="align-bottom" rowSpan={3} style={{ backgroundColor: "#E8E8E8", minWidth: "90px" }}>วันที่จำหน่าย</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }} colSpan={5}>จำหน่ายในประเทศ</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }} colSpan={4}>โอนคลัง</th>
+                        <th className="align-bottom" rowSpan={3} style={{ backgroundColor: "#E8E8E8", minWidth: "100px" }}>อื่น ๆ</th>
+                        <th className="align-bottom" rowSpan={3} style={{ backgroundColor: "#E8E8E8", minWidth: "100px" }}>รวมจ่าย</th>
                         
-                        <th colSpan={3}>ปริมาณน้ำมันที่มีสิทธิหักลดหย่อนคงเหลือตามใบกำกับภาษีแต่ละฉบับ</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }} colSpan={3}>ปริมาณน้ำมันที่มีสิทธิหักลดหย่อนคงเหลือตามใบกำกับภาษีแต่ละฉบับ</th>
                     </tr>
                     <tr>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "94px" }}>วันที่รับน้ำมัน</th>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "190px" }}>เลขที่ใบกำกับภาษีโรงกลั่น</th>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "200px" }}>เลขที่ใบกำกับภาษีการโอน</th>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "120px" }}>วดป.</th>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "130px" }}>Vendor Code</th>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "130px" }}>ชื่อโรงกลั่น/คลัง</th>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "220px" }}>ปริมาณน้ำมัน (ใบกำกับภาษี)</th>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "200px" }}>ปริมาณน้ำมันที่ตรวจรับจริง</th>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "100px" }}>อัตราภาษี</th>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "280px" }}>ปริมาณน้ำมันที่ส่งออกลดหย่อนภาษี</th>
-                        <th colSpan={2}>แบบผสมสารเพิ่มคุณภาพ</th>
-                        <th colSpan={2} style={{ minWidth: "220px" }}>แบบไม่ผสมสารเพิ่มคุณภาพ</th>
-                        <th colSpan={3}>แบบผสมสารเพิ่มคุณภาพ</th>
-                        <th colSpan={2} style={{ minWidth: "220px" }}>แบบไม่ผสมสารเพิ่มคุณภาพ</th>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "140px" }}>เลขที่ใบกำกับภาษี</th>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "170px" }}>ปริมาณที่ได้รับผ่อนผัน</th>
-                        <th className="align-bottom" rowSpan={2} style={{ minWidth: "230px" }}>ปริมาณที่ขอใช้สิทธิ์หักลดหย่อน</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "94px" }}>วันที่รับน้ำมัน</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "190px" }}>เลขที่ใบกำกับภาษีโรงกลั่น</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "200px" }}>เลขที่ใบกำกับภาษีการโอน</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "120px" }}>วดป.</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "130px" }}>Vendor Code</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "130px" }}>ชื่อโรงกลั่น/คลัง</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "220px" }}>ปริมาณน้ำมัน (ใบกำกับภาษี)</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "200px" }}>ปริมาณน้ำมันที่ตรวจรับจริง</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "100px" }}>อัตราภาษี</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "280px" }}>ปริมาณน้ำมันที่ส่งออกลดหย่อนภาษี</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }} colSpan={2}>แบบผสมสารเพิ่มคุณภาพ</th>
+                        <th colSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "220px" }}>แบบไม่ผสมสารเพิ่มคุณภาพ</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }} colSpan={3}>แบบผสมสารเพิ่มคุณภาพ</th>
+                        <th colSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "220px" }}>แบบไม่ผสมสารเพิ่มคุณภาพ</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "140px" }}>เลขที่ใบกำกับภาษี</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "170px" }}>ปริมาณที่ได้รับผ่อนผัน</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "230px" }}>ปริมาณที่ขอใช้สิทธิ์หักลดหย่อน</th>
                     </tr>
                     <tr>
-                        <th style={{ minWidth: "140px" }}>เลขที่ใบกำกับภาษี</th>
-                        <th>ปริมาณ</th>
-                        <th style={{ minWidth: "120px" }}>เลขที่ใบกำกับภาษี</th>
-                        <th>ปริมาณ</th>
-                        <th style={{ minWidth: "120px" }}>คลังปลายทาง</th>
-                        <th style={{ minWidth: "140px" }}>เลขที่ใบกำกับภาษี</th>
-                        <th>ปริมาณ</th>
-                        <th style={{ minWidth: "120px" }}>เลขที่ใบกำกับภาษี</th>
-                        <th>ปริมาณ</th>
+                        <th style={{ backgroundColor: "#E8E8E8", minWidth: "140px" }}>เลขที่ใบกำกับภาษี</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }}>ปริมาณ</th>
+                        <th style={{ backgroundColor: "#E8E8E8", minWidth: "120px" }}>เลขที่ใบกำกับภาษี</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }}>ปริมาณ</th>
+                        <th style={{ backgroundColor: "#E8E8E8", minWidth: "120px" }}>คลังปลายทาง</th>
+                        <th style={{ backgroundColor: "#E8E8E8", minWidth: "140px" }}>เลขที่ใบกำกับภาษี</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }}>ปริมาณ</th>
+                        <th style={{ backgroundColor: "#E8E8E8", minWidth: "120px" }}>เลขที่ใบกำกับภาษี</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }}>ปริมาณ</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -75,8 +75,8 @@ const OilReceiveTable: React.FC<Props> = ({ data }) => {
                                 <VendorNamePopover slug={row.vendorName} name={row.vendorFullName} />
                             </td>
                             <td className="text-end">{readableNumber(safeNumber(row.quantityBeforeTax))}</td>
-                            <td></td>
-                            <td className="text-end">{row.taxRate || ""}</td>
+                            <td className="text-end">{readableNumber(safeNumber(row.quantityActual))}</td>
+                            <td className="text-end">{readableNumber(safeNumber(row.taxRate))}</td>
                             <td></td>
                             <td className="text-start">{row.sellDate || ""}</td>
                             <td className="text-start">{row.sellDomTaxDocNo || ""}</td>
