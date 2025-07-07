@@ -13,21 +13,21 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
       <p className="fw-bold mb-2" style={{ fontSize: '26px', fontFamily: 'IBM Plex Sans Thai' }}>
         ตารางเปรียบเทียบอัตราส่วนกับสูตรการผลิตน้ำมัน
       </p>
-      <table className="table table-bordered border-dark align-middle text-center">
+      <table className="table table-bordered border-dark align-middle text-center" style={{ fontSize: '13.5px' }}>
         <thead className="align-middle">
           <tr >
-            <th rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>ลำดับ</th>
-            <th rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>ชื่อผลิตภัณฑ์</th>
+            <th className= "align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>ลำดับ</th>
+            <th className= "align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>ชื่อผลิตภัณฑ์</th>
             <th colSpan={2} style={{ backgroundColor: "#E8E8E8" }}>รายการวัตถุดิบหรือส่วนประกอบที่ใช้ในการผลิต</th>
-            <th rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>ปริมาณและจำนวน (ลิตร)</th>
-            <th rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>สินค้าต่อ 1 หน่วย</th>
-            <th rowSpan={2} style={{ width: "170px", backgroundColor: "#E8E8E8" }}>สูตรการผลิต</th>
-            <th rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>เลขที่หนังสืออนุมัติ</th>
+            <th className= "align-bottom" rowSpan={2} style={{ minWidth: "160px", backgroundColor: "#E8E8E8" }}>ปริมาณและจำนวน (ลิตร)</th>
+            <th className= "align-bottom" rowSpan={2} style={{ minWidth: "160px", backgroundColor: "#E8E8E8" }}>สินค้าต่อ 1 หน่วย</th>
+            <th className= "align-bottom" rowSpan={2} style={{ minWidth: "160px", backgroundColor: "#E8E8E8" }}>สูตรการผลิต</th>
+            <th className= "align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>เลขที่หนังสืออนุมัติ</th>
             {/* <th rowSpan={2}>เลขที่หนังสืออนุมัติ</th> */}
           </tr>
           <tr>
-            <th style={{ backgroundColor: "#E8E8E8" }}>ประเภทวัตถุดิบ</th>
-            <th style={{ backgroundColor: "#E8E8E8" }}>ชื่อวัตถุดิบ</th>
+            <th style={{ minWidth: "160px", backgroundColor: "#E8E8E8" }}>ประเภทวัตถุดิบ</th>
+            <th style={{ minWidth: "160px", backgroundColor: "#E8E8E8" }}>ชื่อวัตถุดิบ</th>
           </tr>
         </thead>
         <tbody>
@@ -36,7 +36,7 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
               return [
                 <tr key={`empty-${tableIdx}`}>
                   <td>{tableIdx + 1}</td>
-                  <td className="fw-bold">{table.productName}</td>
+                  <td className="fw-bold text-start">{table.productName}</td>
                   {Array.from({ length: 6 }).map((_, i) => (
                     <td key={i}>-</td>
                   ))}
@@ -63,13 +63,13 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
                     {i === 0 && (
                       <>
                         <td rowSpan={table.items.length + 1}>{tableIdx + 1}</td>
-                        <td rowSpan={table.items.length + 1} className="fw-bold">
+                        <td rowSpan={table.items.length + 1} className="fw-bold text-start">
                           {table.productName}
                         </td>
                       </>
                     )}
-                    <td className="text-center">{typeToShow}</td>
-                    <td className="text-center">{item.name}</td>
+                    <td className="text-start">{typeToShow}</td>
+                    <td className="text-start">{item.name}</td>
                     <td className="text-end">
                       {typeof item.quantity === "number"
                         ? readableNumber(item.quantity, 2)
@@ -77,7 +77,7 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
                     </td>
                     <td className="text-end">{item.ratio ? readableNumber(item.ratio, 6) : '-'}</td>
                     <td className="text-end">{item.productionFormula ?? '-'}</td>
-                    <td className="text-center">{item.remark || '-'}</td>
+                    <td className="text-start">{item.remark || '-'}</td>
                     {/* <td className="text-center">{item.approvalNumber || '-'}</td> */}
                   </tr>
                 );

@@ -27,7 +27,7 @@ const VolumeCompareTable: React.FC<VolumeCompareTableProps> = ({ data }) => {
             <p className="fw-bold mb-2" style={{ fontSize: '26px', fontFamily: 'IBM Plex Sans Thai' }}>
                 ตารางเปรียบเทียบปริมาณการจ่ายวัถุดิบเปรียบเทียบกับปริมาณการผลิตและจำหน่าย
             </p>
-            <table className="table table-bordered border-dark align-middle text-center">
+            <table className="table table-bordered border-dark align-middle text-center" style={{ fontSize: '13.5px' }}>
                 <thead className="align-middle">
                     <tr>
                         <th rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>วันที่</th>
@@ -41,9 +41,9 @@ const VolumeCompareTable: React.FC<VolumeCompareTableProps> = ({ data }) => {
                         {data.materialNames.map((name, idx) => (
                             <th key={idx} style={{ backgroundColor: "#E8E8E8" }}>{name}</th>
                         ))}
-                        <th style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>ปริมาณรวม (ลิตร)</th>
-                        <th style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>ปริมาณการผลิตและจำหน่าย</th>
-                        <th style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>ปริมาณการชำระภาษี</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }}>ปริมาณรวม (ลิตร)</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }}>ปริมาณการผลิตและจำหน่าย</th>
+                        <th style={{ backgroundColor: "#E8E8E8" }}>ปริมาณการชำระภาษี</th>
                     </tr>
 
                 </thead>
@@ -53,15 +53,15 @@ const VolumeCompareTable: React.FC<VolumeCompareTableProps> = ({ data }) => {
                         <tr key={idx}>
                             <td>{item.date}</td>
                             {data.materialNames.map((name, matIdx) => (
-                                <td key={matIdx} className="text-end" >
+                                <td key={matIdx} className="text-end" style={{ minWidth: "180px"}}>
                                     {item.materials[name]?.toLocaleString() ?? "-"}
                                 </td>
                             ))}
-                            <td className="text-end" style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>{item.totalVolume.toLocaleString()}</td>
-                            <td className="text-end" style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>{item.productionVolume.toLocaleString()}</td>
-                            <td className="text-end" style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>{item.taxVolume.toLocaleString()}</td>
-                            <td>{item.compareWithProduction}</td>
-                            <td>{item.compareWithTax}</td>
+                            <td className="text-end" style={{ minWidth: "180px", backgroundColor: "rgba(34, 198, 89, 0.1)" }}>{item.totalVolume.toLocaleString()}</td>
+                            <td className="text-end" style={{ minWidth: "180px", backgroundColor: "rgba(34, 198, 89, 0.1)" }}>{item.productionVolume.toLocaleString()}</td>
+                            <td className="text-end" style={{ minWidth: "180px", backgroundColor: "rgba(34, 198, 89, 0.1)" }}>{item.taxVolume.toLocaleString()}</td>
+                            <td className="text-end" style={{ minWidth: "180px" }}>{item.compareWithProduction}</td>
+                            <td className="text-end" style={{ minWidth: "180px" }}>{item.compareWithTax}</td>
                         </tr>
                     ))}
                     <tr>
@@ -80,8 +80,8 @@ const VolumeCompareTable: React.FC<VolumeCompareTableProps> = ({ data }) => {
                         <td className="fw-bold text-end" style={{ backgroundColor: "rgba(34, 198, 89, 0.1)" }}>
                             {readableNumber(totalSums.taxVolume, 0) ?? "-"}
                         </td>
-                        <td className="fw-bold">{readableNumber(totalSums.compareWithProduction, 0) ?? "-"}</td>
-                        <td className="fw-bold">{readableNumber(totalSums.compareWithTax, 0) ?? "-"}</td>
+                        <td className="fw-bold text-end">{readableNumber(totalSums.compareWithProduction, 0) ?? "-"}</td>
+                        <td className="fw-bold text-end">{readableNumber(totalSums.compareWithTax, 0) ?? "-"}</td>
                     </tr>
                 </tbody>
             </table>

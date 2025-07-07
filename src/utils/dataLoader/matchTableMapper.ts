@@ -1,5 +1,6 @@
 import { OilReceiveItem } from "../../types/oilReceiveTypes";
-import { OilUseInProductItem, ProductFormula, RawMaterialPaymentItem } from "../../types/reportTypes";
+import { MaterialUsageData, ProductionData } from "../../types/productionTypes";
+import { MaterialProductDistributionData, OcrForm0704Material, OcrForm0704Product, OilUseInProductItem, ProductFormula, RawMaterialPaymentItem } from "../../types/reportTypes";
 import { TableData } from "../../types/tableTypes";
 import { VolumeCompareData } from "../../types/volumeTableTypes";
 import { formatDate, readableNumber } from "../function/format";
@@ -90,6 +91,82 @@ export const mapOilUseInProductsToOilReceive = (
       remark: "",
     };
   });
+};
+
+export const mapMaterialUsageTable = (
+  data: MaterialProductDistributionData | null
+): MaterialUsageData => {
+  if (!data || !data.ocr_form_07_04_master?.[0]?.ocr_form_07_04_materials) {
+    return {
+      headers: [
+        "รายการ",
+        "ไม่มีข้อมูล",
+      ],
+      items: [],
+    };
+  }
+
+  const mats = data.ocr_form_07_04_master[0].ocr_form_07_04_materials;
+
+  const rows = [
+    { label: "คงเหลือยกมา", field: "open" },
+    { label: "รับเดือนนี้", field: "getted" },
+    { label: "รวม", field: "total" },
+    { label: "ผลิตลินค้าตามพิกัด ฯ", field: "produce" },
+    { label: "ผลิตสินค้าอื่น", field: "produce_other" },
+    { label: "ส่วนขาด/ส่วนเกิน", field: "defected" },
+    { label: "อื่น ๆ (จ่ายโอนคลัง)", field: "etc" },
+    { label: "Loss/Gain", field: "loss_gain" },
+    { label: "คงเหลือยกไป", field: "forward" },
+  ];
+
+  const headers = ["รายการ", ...mats.map((mat) => mat.material_name)];
+
+  const items = rows.map((row) => ({
+    item: row.label,
+    values: mats.map((mat) => (mat[row.field as keyof OcrForm0704Material] as number) ?? 0),
+  }));
+
+  return { headers, items };
+};
+
+export const mapProductionTable = (
+  data: MaterialProductDistributionData | null
+): ProductionData => {
+  if (!data || !data.ocr_form_07_04_master?.[0]?.ocr_form_07_04_products) {
+    return {
+      headers: [
+        "รายการ",
+        "ไม่มีข้อมูล",
+      ],
+      items: [],
+    };
+  }
+
+  const prods = data.ocr_form_07_04_master[0].ocr_form_07_04_products;
+
+  const rows = [
+    { label: "คงเหลือยกมา", field: "open" },
+    { label: "รับจากการผลิต", field: "produced" },
+    { label: "รับคืนคืนจากคลังสินค้าทัณฑ์บน", field: "bonded_return" },
+    { label: "อื่น ๆ", field: "etc_getted" },
+    { label: "รวม", field: "total" },
+    { label: "จำหน่ายในประเทศ", field: "domestic_sales" },
+    { label: "จำหน่ายต่างประเทศ", field: "overseas_sales" },
+    { label: "ใช้ในโรงอุตสาหกรรม", field: "used_in_industrial_plants" },
+    { label: "คลังลินค้าทัณฑ์บน", field: "bonded" }, // **field ที่ถูกต้องใน Product ควรใช้ bonded ไม่ใช่ bonded_return**
+    { label: "เสียหาย", field: "defected" },
+    { label: "คงเหลือยกไป", field: "forward" },
+    { label: "อื่น ๆ", field: "etc_used" },
+  ];
+
+  const headers = ["รายการ", ...prods.map((prod) => prod.product_name)];
+  const items = rows.map((row) => ({
+    item: row.label,
+    values: prods.map((prod) => (prod[row.field as keyof OcrForm0704Product] as number) ?? 0),
+  }));
+
+  return { headers, items };
 };
 
 

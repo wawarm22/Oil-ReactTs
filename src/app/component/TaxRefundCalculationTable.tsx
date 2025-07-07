@@ -37,12 +37,12 @@ const TaxRefundCalculationTable: React.FC<Props> = ({ data }) => {
                         <tr key={index}>
                             <td>{row.date}</td>
                             <td className="text-end">{row.finishedOilVolume.toLocaleString()}</td>
-                            <td>{row.taxRate03_07.toFixed(4)}</td>
+                            <td className="text-end">{row.taxRate03_07.toFixed(4)}</td>
                             <td className="text-end">{row.exciseTax03_07.toLocaleString()}</td>
                             <td className="text-end">{row.surcharge03_07.toLocaleString()}</td>
 
                             <td className="text-end">{row.baseOilVolume.toLocaleString()}</td>
-                            <td>{row.taxRate05_03.toFixed(4)}</td>
+                            <td className="text-end">{row.taxRate05_03.toFixed(4)}</td>
                             <td className="text-end">{row.exciseTax05_03.toLocaleString()}</td>
                             <td className="text-end">{row.surcharge05_03.toLocaleString()}</td>
 
