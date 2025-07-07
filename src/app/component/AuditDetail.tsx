@@ -46,10 +46,21 @@ const AuditDetail: React.FC<AuditDetailProps> = ({
     useEffect(() => {
         useOcrStore.getState().reset();
         setFolders(folders || []);
-        if (folders.length > 0) {
+        if (folders.length > 0 ) {
             fetchOcrData(folders, auth);
         }
-    }, [folders]);    
+    }, [folders]);
+
+    // useEffect(() => {
+    //     if (
+    //         folders.length > 0 &&
+    //         (!ocrByDocId || Object.keys(ocrByDocId).length === 0)
+    //     ) {
+    //         useOcrStore.getState().reset();
+    //         setFolders(folders);
+    //         fetchOcrData(folders, auth);
+    //     }
+    // }, [folders, ocrByDocId, fetchOcrData, auth, setFolders]);
 
     useEffect(() => {
         if (ocrByDocId && Object.keys(ocrByDocId).length > 0) {

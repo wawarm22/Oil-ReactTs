@@ -1,14 +1,14 @@
 
-import { OilUseInProductItem, ProductFormula, RawMaterialPaymentItem } from "../../types/reportTypes";
+import { MaterialProductDistributionData, OilUseInProductItem, ProductFormula, RawMaterialPaymentItem } from "../../types/reportTypes";
 import { AuthSchema } from "../../types/schema/auth";
-import { getOilUseInProducts, getProductRatiosAndFormular, getRawMaterialPayments } from "../api/apiReport";
+import { getMaterialProductDistribution, getOilUseInProducts, getProductRatiosAndFormular, getRawMaterialPayments } from "../api/apiReport";
 import { ReportParamProps } from "../function/buildParam";
 
 export type MatchStepData =
     | { step: 1; data: ProductFormula[] | null }
     | { step: 2; data: RawMaterialPaymentItem[] | null }
-    | { step: 3; data: OilUseInProductItem[] | null }
-    | { step: 4; data: any | null }
+    | { step: 3; data: MaterialProductDistributionData | null }
+    | { step: 4; data: OilUseInProductItem[] | null }
     | { step: 5; data: any | null };
 
 export const loadMatchStepData = async (
@@ -26,7 +26,8 @@ export const loadMatchStepData = async (
             return { step, data: res?.data || null };
         }
         case 3: {
-            return { step, data: null };
+            const res = await getMaterialProductDistribution(params, auth);
+            return { step, data: res?.data || null };
         }
         case 4: {
             if (params.material_id === undefined) {

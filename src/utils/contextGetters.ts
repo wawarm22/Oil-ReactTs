@@ -130,6 +130,7 @@ export const getContextForDocType: Record<
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
             fields: resp.data.fields
         };
     },

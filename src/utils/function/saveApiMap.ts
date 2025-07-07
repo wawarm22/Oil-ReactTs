@@ -1,4 +1,4 @@
-import { saveData0307, saveData0503Page1, saveData0701, saveData0702, saveDataReceitpPayment } from "../api/apiSaveData";
+import { saveData0307, saveData0503Page1, saveData0701, saveData0702, saveData0704, saveDataReceitpPayment } from "../api/apiSaveData";
 import { AuthSchema } from "../../types/schema/auth";
 import { Save0503Schema } from "../../types/schema/save";
 
@@ -25,6 +25,11 @@ export const SAVE_API_LIST: SaveApiConfig[] = [
         docId: 8,
         subIdx: 0,
         api: ({ data, auth }) => saveData0307(data, auth),
+    },
+    {
+        docId: 10,
+        subIdx: 0,
+        api: ({ data, auth }) => saveData0704(data, auth),
     },
     {
         docId: 38,
@@ -66,6 +71,11 @@ export const SAVE_API_LIST: SaveApiConfig[] = [
         docId: 33,
         subIdx: 0,
         api: ({ data, auth }) => saveData0307(data, auth),
+    },
+    {
+        docId: 35,
+        subIdx: 0,
+        api: ({ data, auth }) => saveData0704(data, auth),
     },
     {
         docId: 38,

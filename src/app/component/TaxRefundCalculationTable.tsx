@@ -20,16 +20,16 @@ const TaxRefundCalculationTable: React.FC<Props> = ({ data }) => {
                         <th rowSpan={2}>น้ำมันสำเร็จรูป (ลิตร)</th>
                         <th rowSpan={2}>อัตราภาษี</th>
                         <th rowSpan={2}>ภาษีสรรพสามิต (บาท)</th>
-                        <th rowSpan={2}>ใช้ภาษีเก็บเพิ่มฯ (บาท)</th>
+                        <th rowSpan={2}>ภาษีเก็บเพิ่มขึ้นเพื่อราชการส่วนท้องถิ่น (บาท)</th>
 
                         <th rowSpan={2}>น้ำมันพื้นฐาน (ลิตร)</th>
                         <th rowSpan={2}>อัตราภาษี</th>
                         <th rowSpan={2}>ภาษีสรรพสามิต (บาท)</th>
-                        <th rowSpan={2}>ใช้ภาษีเก็บเพิ่มฯ (บาท)</th>
+                        <th rowSpan={2}>ภาษีเก็บเพิ่มขึ้นเพื่อราชการส่วนท้องถิ่น (บาท)</th>
 
                         <th rowSpan={2}>ส่วนต่างภาษีสรรพสามิต (บาท)</th>
                         <th rowSpan={2}>รายการส่วนท้องถิ่น (บาท)</th>
-                        <th rowSpan={2}>คืนภาษีทั้งสิ้น (บาท)</th>
+                        <th rowSpan={2}>คืนภาษีทั้งสิ้น</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,12 +37,12 @@ const TaxRefundCalculationTable: React.FC<Props> = ({ data }) => {
                         <tr key={index}>
                             <td>{row.date}</td>
                             <td className="text-end">{row.finishedOilVolume.toLocaleString()}</td>
-                            <td>{row.taxRate03_07.toFixed(4)}</td>
+                            <td className="text-end">{row.taxRate03_07.toFixed(4)}</td>
                             <td className="text-end">{row.exciseTax03_07.toLocaleString()}</td>
                             <td className="text-end">{row.surcharge03_07.toLocaleString()}</td>
 
                             <td className="text-end">{row.baseOilVolume.toLocaleString()}</td>
-                            <td>{row.taxRate05_03.toFixed(4)}</td>
+                            <td className="text-end">{row.taxRate05_03.toFixed(4)}</td>
                             <td className="text-end">{row.exciseTax05_03.toLocaleString()}</td>
                             <td className="text-end">{row.surcharge05_03.toLocaleString()}</td>
 

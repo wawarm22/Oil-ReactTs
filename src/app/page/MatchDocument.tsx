@@ -16,7 +16,7 @@ import OilReceiveTable from "../component/OilReceiveTable";
 import TaxRefundCalculationTable from "../component/TaxRefundCalculationTable";
 import { taxRefundData } from "../../types/taxRefundTypes";
 import { loadMatchStepData, MatchStepData } from "../../utils/dataLoader/matchDataLoader";
-import { mapAllProductFormulas, mapOilUseInProductsToOilReceive, mapRawMaterialPayments } from "../../utils/dataLoader/matchTableMapper";
+import { mapAllProductFormulas, mapMaterialUsageTable, mapOilUseInProductsToOilReceive, mapProductionTable, mapRawMaterialPayments } from "../../utils/dataLoader/matchTableMapper";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { AuthSchema } from "../../types/schema/auth";
 import { parseUploadedStatus } from "../../utils/function/parseUploadedStatus";
@@ -146,9 +146,6 @@ const MatchDocument: React.FC = () => {
     }, [currentStep, auth, params.factory_slug, params.company_id, params.month, params.year, stepDataMap, selectedMaterialId, currentPage,]);
 
     const handleMaterialIdChange = (materialId?: number) => {
-        // console.log("currentStep", currentStep);
-        // console.log("currentPage", currentPage);
-
         if (currentStep === 4 && currentPage) {
             setMaterialIdByPage(prev => ({ ...prev, [currentPage]: materialId }));
         }
@@ -411,7 +408,12 @@ const MatchDocument: React.FC = () => {
             {currentStep === 2 && stepData?.step === 2 && stepData.data && (
                 <VolumeCompareTable data={mapRawMaterialPayments(stepData.data)} />
             )}
-            {currentStep === 3 && <ProductionReport />}
+            {currentStep === 3 && stepData?.step === 3 && stepData.data && (
+                <ProductionReport
+                    materialUsageData={mapMaterialUsageTable(stepData.data)}
+                    productionData={mapProductionTable(stepData.data)}
+                />
+            )}
             {currentStep === 4 && stepData?.step === 4 && stepData.data && (
                 <OilReceiveTable data={mapOilUseInProductsToOilReceive(stepData.data)} />
             )}
