@@ -26,6 +26,7 @@ import MatchPagination from "../reusable/MatchPagination";
 import { getSubtitleIndexMap } from "../../utils/function/getSubtitleIndexMap";
 import { useCompanyStore } from "../../store/companyStore";
 import { getInitialSubtitleIdx } from "../../utils/function/getInitialSubtitleIdx";
+import { ReportParamProps } from "../../utils/function/buildParam";
 
 const folders = JSON.parse(localStorage.getItem("folders") || "[]") as string[];
 
@@ -50,7 +51,7 @@ const MatchDocument: React.FC = () => {
     const [searchParams] = useSearchParams();
     const from = searchParams.get('from');
     console.log("from", from);
-    
+
     const {
         ocrByDocId,
         validateResultsByDoc,
@@ -60,7 +61,7 @@ const MatchDocument: React.FC = () => {
         setFolders,
         isBatchValidated,
     } = useOcrStore();
-
+    const [selectedMaterialId, setSelectedMaterialId] = useState<number | undefined>(undefined);
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [selectedSubtitleIdx, setSelectedSubtitleIdx] = useState<number | null>(0);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -86,8 +87,14 @@ const MatchDocument: React.FC = () => {
         [ocrByDocId, currentStep, transport]
     );
 
-    const params = { factory_slug, company_id, month, year };
-
+    const params: ReportParamProps = {
+        factory_slug,
+        company_id,
+        month,
+        year,
+        ...(selectedMaterialId ? { material_id: selectedMaterialId } : {})
+    };
+    
     useEffect(() => {
         if (
             folders.length > 0 &&
@@ -108,12 +115,16 @@ const MatchDocument: React.FC = () => {
         if (stepDataMap[currentStep]) {
             setStepData(stepDataMap[currentStep]);
         } else {
+            const fullParams = { ...params };
+            if (currentStep === 4 && selectedMaterialId) {
+                fullParams.material_id = selectedMaterialId;
+            }
             loadMatchStepData(currentStep, params, auth).then(data => {
                 setStepDataMap(prev => ({ ...prev, [currentStep]: data }));
                 setStepData(data);
             });
         }
-    }, [currentStep, auth, params.factory_slug, params.company_id, params.month, params.year, stepDataMap]);
+    }, [currentStep, auth, params.factory_slug, params.company_id, params.month, params.year, stepDataMap, selectedMaterialId]);
 
     useEffect(() => {
         if (ocrByDocId && Object.keys(ocrByDocId).length > 0 && !isBatchValidated) {
@@ -361,6 +372,7 @@ const MatchDocument: React.FC = () => {
                             : null
                     }
                     isUploaded={uploadedStatus[selectedDocId ?? 0]?.has(selectedSubtitleIdx ?? 0) ?? false}
+                    onMaterialIdChange={setSelectedMaterialId}
                 />
             </div>
 

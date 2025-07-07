@@ -14,20 +14,20 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
         ตารางเปรียบเทียบอัตราส่วนกับสูตรการผลิตน้ำมัน
       </p>
       <table className="table table-bordered border-dark align-middle text-center">
-        <thead>
-          <tr>
-            <th rowSpan={2}>ลำดับ</th>
-            <th rowSpan={2}>ชื่อผลิตภัณฑ์</th>
-            <th colSpan={2}>รายการวัตถุดิบหรือส่วนประกอบที่ใช้ในการผลิต</th>
-            <th rowSpan={2}>ปริมาณและจำนวน (ลิตร)</th>
-            <th rowSpan={2}>สินค้าต่อ 1 หน่วย</th>
-            <th rowSpan={2} style={{ width: "170px" }}>สูตรการผลิต</th>
-            <th rowSpan={2}>เลขที่หนังสืออนุมัติ</th>
+        <thead className="align-middle">
+          <tr >
+            <th rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>ลำดับ</th>
+            <th rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>ชื่อผลิตภัณฑ์</th>
+            <th colSpan={2} style={{ backgroundColor: "#E8E8E8" }}>รายการวัตถุดิบหรือส่วนประกอบที่ใช้ในการผลิต</th>
+            <th rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>ปริมาณและจำนวน (ลิตร)</th>
+            <th rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>สินค้าต่อ 1 หน่วย</th>
+            <th rowSpan={2} style={{ width: "170px", backgroundColor: "#E8E8E8" }}>สูตรการผลิต</th>
+            <th rowSpan={2} style={{ backgroundColor: "#E8E8E8" }}>เลขที่หนังสืออนุมัติ</th>
             {/* <th rowSpan={2}>เลขที่หนังสืออนุมัติ</th> */}
           </tr>
           <tr>
-            <th>ประเภทวัตถุดิบ</th>
-            <th>ชื่อวัตถุดิบ</th>
+            <th style={{ backgroundColor: "#E8E8E8" }}>ประเภทวัตถุดิบ</th>
+            <th style={{ backgroundColor: "#E8E8E8" }}>ชื่อวัตถุดิบ</th>
           </tr>
         </thead>
         <tbody>
@@ -84,7 +84,7 @@ const MatchTable: React.FC<MatchTableProps> = ({ data }) => {
               } else {
                 return (
                   <tr key={`sumrow-${tableIdx}`}>
-                    <td colSpan={2} className="text-center">ปริมาณรวม</td>
+                    <td colSpan={2} className="text-center fw-bold" style={{ backgroundColor: "#E8E8E8" }}>ปริมาณรวม</td>
                     <td className="text-end">{sumQuantity ? readableNumber(sumQuantity) : '-'}</td>
                     <td className="text-end">{sumRatio ? Math.round(sumRatio).toFixed(6) : '-'}</td>
                     <td colSpan={2}></td>
