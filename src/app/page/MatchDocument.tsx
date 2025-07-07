@@ -4,7 +4,7 @@ import { StepStatus } from "../../types/enum/stepStatus";
 import AuditList from "../component/AuditList";
 import { documentList } from "../../types/docList";
 import AuditButton from "../component/AuditButton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import MatchTable from "../component/MatchTable";
 import VolumeCompareTable from "../component/VolumeCompareTable";
 import DocumentCompareProgress from "../reusable/DocumentCompareProgress";
@@ -47,7 +47,10 @@ const stepToDocIdMapPipe: { [key: number]: number[] } = {
 const MatchDocument: React.FC = () => {
     const navigate = useNavigate();
     const auth = useAuthUser<AuthSchema>();
-
+    const [searchParams] = useSearchParams();
+    const from = searchParams.get('from');
+    console.log("from", from);
+    
     const {
         ocrByDocId,
         validateResultsByDoc,
@@ -251,7 +254,11 @@ const MatchDocument: React.FC = () => {
                 setSelectedSubtitleIdx(null);
             }
         } else {
-            navigate("/audit");
+            if (from === "search-file") {
+                navigate('/audit?from=search-file');
+            } else {
+                navigate('/audit');
+            }
         }
     };
 
