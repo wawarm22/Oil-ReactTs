@@ -233,9 +233,7 @@ const MatchDocument: React.FC = () => {
                 }
             }
         }
-        // eslint-disable-next-line
     }, [currentStep, ocrByDocId, subtitleIndexMap]);
-
 
     const handleBack = () => {
         if (currentStep > 1) {

@@ -488,8 +488,6 @@ const SearchFileUpload: React.FC = () => {
             };
         });
 
-        console.log("newParsed", newParsed);
-
         setParsedFiles(prev => [...prev, ...newParsed]);
         setUploadingMap((prev) => ({ ...prev, [key]: false }));
     };
