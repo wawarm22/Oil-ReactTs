@@ -417,7 +417,7 @@ const MatchDocument: React.FC = () => {
             {currentStep === 4 && stepData?.step === 4 && stepData.data && (
                 <OilReceiveTable data={mapOilUseInProductsToOilReceive(stepData.data)} />
             )}
-            {currentStep === 5 && <TaxRefundCalculationTable data={taxRefundData} />}
+            {currentStep === 5 && <TaxRefundCalculationTable data={factory_slug === "K148"? taxRefundData:[]} />}
 
             <AuditButton
                 stepStatus={StepStatus.MATCH}

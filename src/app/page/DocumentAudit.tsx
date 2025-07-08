@@ -22,7 +22,7 @@ const DocumentAudit: React.FC = () => {
     const [_uploadedFiles, setUploadedFiles] = useState<UploadedFilesType>({});
     const [folders, setFolders] = useState<string[]>([]);
     const [saving, setSaving] = useState(false);
-    const [_disableNext, setDisableNext] = useState(true);
+    const [disableNext, setDisableNext] = useState(true);
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const from = searchParams.get("from");
@@ -129,15 +129,19 @@ const DocumentAudit: React.FC = () => {
     };
 
     const handleValidationStatus = (status: Record<string, boolean>) => {
-        if (!status || Object.keys(status).length === 0) {
+        if (Object.keys(status).length < folders.length) {
             setDisableNext(true);
             return;
         }
-        const someFail = Object.values(status).some(Boolean);
-        setDisableNext(someFail);
+        if (Object.values(status).some(Boolean)) {
+            setDisableNext(true);
+            return;
+        }
+        setDisableNext(false);
     };
 
-    const handleNextStep = () => {        
+
+    const handleNextStep = () => {
         navigate(`/match-document?from=${from}`);
     };
 
@@ -158,7 +162,7 @@ const DocumentAudit: React.FC = () => {
                 onBack={handleBack}
                 onSaveAudit={handleSaveAudit}
                 onNextStep={handleNextStep}
-                // disableSave={disableNext}
+                disableSave={disableNext}
                 saving={saving}
             />
         </div>
