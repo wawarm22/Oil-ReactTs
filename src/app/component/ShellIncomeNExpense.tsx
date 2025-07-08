@@ -59,10 +59,10 @@ const shellFieldGroups: Array<
     ];
 
 const getBorderColor = (value: any) => {
-    if (value === undefined || value === null || value === "") return "#CED4DA";
+    if (value === undefined || value === null || value === "") return "#FF0100";
     if (value === false) return "#FF0100";
     if (value === true) return "#22C659";
-    return "#CED4DA";
+    return "#FF0100";
 };
 
 const getDisplayValue = (raw: any): React.ReactNode => {
@@ -97,7 +97,13 @@ const ShellIncomeNExpense: React.FC<{ validateResult: any }> = ({ validateResult
                         {item.fields.map(field => (
                             <div key={field.key} className="mb-2">
                                 <div className="fw-bold">{field.label}</div>
-                                <div className="border rounded-2 shadow-sm bg-white p-2" style={{ minHeight: "42px" }}>
+                                <div
+                                    className="rounded-2 shadow-sm bg-white p-2"
+                                    style={{
+                                        minHeight: "42px",
+                                        border: "1.5px solid #FF0100"
+                                    }}
+                                >
                                     {getDisplayValue(validateResult[field.key])}
                                 </div>
                             </div>
@@ -108,7 +114,9 @@ const ShellIncomeNExpense: React.FC<{ validateResult: any }> = ({ validateResult
             return (
                 <div key={item.key} className="mb-2">
                     <div className="fw-bold">{item.label}</div>
-                    <div className="border rounded-2 shadow-sm bg-white p-2" style={{ minHeight: "42px" }}>
+                    <div
+                        className="rounded-2 shadow-sm bg-white p-2"
+                        style={{ minHeight: "42px", border: "1.5px solid #FF0100" }}>
                         {getDisplayValue(validateResult[item.key])}
                     </div>
                 </div>

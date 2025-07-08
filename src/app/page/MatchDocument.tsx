@@ -67,6 +67,7 @@ const MatchDocument: React.FC = () => {
     const [stepData, setStepData] = useState<MatchStepData | null>(null);
     const [stepDataMap, setStepDataMap] = useState<{ [step: number]: MatchStepData }>({});
     const [currentStep, setCurrentStep] = useState<number>(1);
+    const [isOcrDataLoaded, setIsOcrDataLoaded] = useState(false);
     const uploadedStatus = useMemo(() => parseUploadedStatus(folders), [folders]);
     const { selectedCompany } = useCompanyStore();
     const monthYear = localStorage.getItem("month") || "";
@@ -95,12 +96,16 @@ const MatchDocument: React.FC = () => {
     };
 
     useEffect(() => {
-        if (
-            folders.length > 0 &&
-            (!ocrByDocId || Object.keys(ocrByDocId).length === 0)
-        ) {
-            setFolders(folders);
-            fetchOcrData(folders, auth);
+        if (folders.length > 0) {
+            if (!ocrByDocId || Object.keys(ocrByDocId).length === 0) {
+                setIsOcrDataLoaded(false);
+                setFolders(folders);
+                fetchOcrData(folders, auth).then(() => {
+                    setIsOcrDataLoaded(true);
+                });
+            } else {
+                setIsOcrDataLoaded(true);
+            }
         }
     }, [folders, ocrByDocId, fetchOcrData, auth, setFolders]);
 
@@ -320,6 +325,8 @@ const MatchDocument: React.FC = () => {
         }
     };
 
+    const isReadyForNextStep = isOcrDataLoaded && isBatchValidated;
+
     return (
         <div className="container-fluid mt-3 w-100" style={{ maxWidth: '1800px' }}>
             <p className="fw-bold mb-0" style={{ fontFamily: "IBM Plex Sans Thai", fontSize: "32px" }}>
@@ -417,14 +424,14 @@ const MatchDocument: React.FC = () => {
             {currentStep === 4 && stepData?.step === 4 && stepData.data && (
                 <OilReceiveTable data={mapOilUseInProductsToOilReceive(stepData.data)} />
             )}
-            {currentStep === 5 && <TaxRefundCalculationTable data={factory_slug === "K148"? taxRefundData:[]} />}
+            {currentStep === 5 && <TaxRefundCalculationTable data={factory_slug === "K148" ? taxRefundData : []} />}
 
             <AuditButton
                 stepStatus={StepStatus.MATCH}
                 onBack={handleBack}
                 onSaveAudit={handleSaveAudit}
                 onNextStep={handleNextStep}
-                disableSave={false}
+                disableSave={!isReadyForNextStep}
             />
         </div>
     );
