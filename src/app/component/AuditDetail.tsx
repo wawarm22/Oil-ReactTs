@@ -49,18 +49,7 @@ const AuditDetail: React.FC<AuditDetailProps> = ({
         if (folders.length > 0 ) {
             fetchOcrData(folders, auth);
         }
-    }, [folders]);
-
-    // useEffect(() => {
-    //     if (
-    //         folders.length > 0 &&
-    //         (!ocrByDocId || Object.keys(ocrByDocId).length === 0)
-    //     ) {
-    //         useOcrStore.getState().reset();
-    //         setFolders(folders);
-    //         fetchOcrData(folders, auth);
-    //     }
-    // }, [folders, ocrByDocId, fetchOcrData, auth, setFolders]);
+    }, [folders]);    
 
     useEffect(() => {
         if (ocrByDocId && Object.keys(ocrByDocId).length > 0) {
