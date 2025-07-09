@@ -174,7 +174,8 @@ const buildOutturnPayload = (ocr: any, context?: any) => {
     const name = ocr.detail_table_1?.[27]?.properties?.column_1;
     const nameQuantity = name ? cleanValue(name.value) : "";
 
-    const sumQuantity = (context && context.company === "SHELL") ? quality : valueQuantityNum;
+    const isShell = context?.company?.toUpperCase?.() === "SHELL";
+    const finalQuantity = isShell ? quality : valueQuantityNum;
 
     return {
         docType: ocr.docType,
@@ -185,7 +186,7 @@ const buildOutturnPayload = (ocr: any, context?: any) => {
             date: cleanValue(dateFormatted),
             product,
             quality: nameQuantity || "LITRES @30 deg.C",
-            quantity: sumQuantity,
+            quantity: finalQuantity,
         },
     };
 };
