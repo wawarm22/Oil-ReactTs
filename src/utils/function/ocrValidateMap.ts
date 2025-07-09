@@ -160,6 +160,7 @@ const buildForm0129 = (ocr: any, context: any) => ({
 
 const buildOutturnPayload = (ocr: any, context?: any) => {
     const value = ocr.detail_table_1?.[27]?.properties?.column_2;
+    const quality = ocr.supplier_table?.[2]?.properties?.column_7?.value;
     const rawQuantity = value ? cleanValue(value.value) : "";
     const quantityWithComma = rawQuantity.replace(/\./g, ',');
     const valueQuantityNum = quantityWithComma ? Number(quantityWithComma.replace(/,/g, "")) : 0;
@@ -173,6 +174,8 @@ const buildOutturnPayload = (ocr: any, context?: any) => {
     const name = ocr.detail_table_1?.[27]?.properties?.column_1;
     const nameQuantity = name ? cleanValue(name.value) : "";
 
+    const sumQuantity = (context && context.company === "SHELL") ? quality : valueQuantityNum;
+
     return {
         docType: ocr.docType,
         company: context?.company ?? ocr.company ?? "",
@@ -181,8 +184,8 @@ const buildOutturnPayload = (ocr: any, context?: any) => {
         fields: {
             date: cleanValue(dateFormatted),
             product,
-            quality: nameQuantity || "LITRES @30 deg.C", // fallback
-            quantity: valueQuantityNum,
+            quality: nameQuantity || "LITRES @30 deg.C",
+            quantity: sumQuantity,
         },
     };
 };
