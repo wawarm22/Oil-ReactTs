@@ -103,7 +103,6 @@ const PdfPreview: React.FC<PdfPreviewProps> = ({
         return () => {
             isMounted = false;
         };
-        // eslint-disable-next-line
     }, [ocrByDocId]);
 
     let currentThumbnails: (string | null)[] = [];

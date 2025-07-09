@@ -12,7 +12,7 @@ type SocketContextProps = {
 };
 
 const SOCKET_BASE_URL: string = import.meta.env.VITE_SOCKET_BASE_URL ?? "http://localhost:3000"
-const VITE_SOCKET_PATH: string = import.meta.env.VITE_SOCKET_PATH ?? ""
+const VITE_SOCKET_PATH: string = import.meta.env.VITE_SOCKET_PATH ?? "/socket.io"
 const SOCKET_PREFIX: string = import.meta.env.VITE_SOCKET_PREFIX ?? "ocr-update"
 
 const SocketContext = createContext<SocketContextProps>({
@@ -34,7 +34,8 @@ export const SocketListener = () => {
         const start = async () => {
             _socket = io(SOCKET_BASE_URL, {
                 reconnectionDelayMax: 10000,
-                path: VITE_SOCKET_PATH
+                path: VITE_SOCKET_PATH,
+                transports: ["websocket"]
             });
 
             factories.map((factory) => {
@@ -77,7 +78,7 @@ export const SocketProvider: FC<PropsWithChildren> = ({ children }) => {
     return <SocketContext.Provider value={
         {
             factories, setFactories,
-                callbacks, addCallbacks, removeCallbacks
+            callbacks, addCallbacks, removeCallbacks
         }
-    }> { children } </SocketContext.Provider>
+    }> {children} </SocketContext.Provider>
 }
