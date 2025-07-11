@@ -6,11 +6,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardPie from "../component/DashboardPie";
 import DashboardHorChart from "../component/DashboardHorChart";
 const Home: React.FC = () => {
-    const navigate = useNavigate();
-
-    // const handleSubmitForm = () => {
-    //     navigate("/form-submission");
-    // }
+    const navigate = useNavigate();    
 
     const handleUploadForm = () => {
         navigate("/pre-upload");
