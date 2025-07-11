@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { BsHourglassSplit, BsHourglassBottom } from "react-icons/bs";
-import { motion } from "framer-motion";
+import { motion, Transition, AnimationGeneratorType } from "framer-motion";
 
 const stages = [
     { Icon: BsHourglassBottom, rotate: 0 },
@@ -23,9 +23,9 @@ export default function HourglassStackLoading() {
 
     const { Icon, rotate } = stages[stage];
 
-    let transition: { duration: number; type?: string; ease?: string } = { duration: 0 };
+    let transition: Transition = { duration: 0 };
     if (prevStage.current === 0 && stage === 1) {
-        transition = { type: "tween", ease: "easeInOut", duration: 0.48 };
+        transition = { type: "tween" as AnimationGeneratorType, ease: "easeInOut", duration: 0.48 };
     }
 
     return (
