@@ -92,7 +92,7 @@ const ChecklistPanel: React.FC<Props> = ({
     const validateResult = validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[currentPage]?.validateResult;
     const currentOcrFields = ocrDocument.pages[currentPage];
     const type = detectOcrType(currentOcrFields);
-    console.log("Detected OCR type:", type);
+    // console.log("Detected OCR type:", type);
 
     const prevPageFields = ocrDocument.pages[currentPage - 1];
     let extraOilType: string | undefined;
