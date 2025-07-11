@@ -855,7 +855,7 @@ const SearchFileUpload: React.FC = () => {
                                                     type="button"
                                                     label="อัปโหลดเอกสาร"
                                                     bgColor="#3D4957"
-                                                    color="#FFFFFF"
+                                                    color="#FFFFFF"                                                    
                                                     maxWidth="260px"
                                                     variant="bg-hide"
                                                     onClick={() => document.getElementById(`file-upload-${item.id}`)?.click()}
