@@ -11,7 +11,7 @@ const OilReceiveTable: React.FC<Props> = ({ data }) => {
     return (
         <div className="table-responsive bg-white shadow-sm rounded p-4 mt-3">
             <p className="fw-bold mb-2" style={{ fontSize: '26px', fontFamily: 'IBM Plex Sans Thai' }}>
-                ตารางเปรียบเทียบอัตราส่วนกับสูตรการผลิตน้ำมัน
+                ตารางบัญชีรับ - จ่ายน้ำมันที่นำมาใช้เป็นวัตถุดิบในการผลิต (บัญชีสิทธิ์)
             </p>
             <table className="table table-bordered border-dark text-center align-middle" style={{ fontSize: "13.5px"}}>
                 <thead className="align-middle">
@@ -48,8 +48,8 @@ const OilReceiveTable: React.FC<Props> = ({ data }) => {
                         <th style={{ backgroundColor: "#E8E8E8" }} colSpan={3}>แบบผสมสารเพิ่มคุณภาพ</th>
                         <th colSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "220px" }}>แบบไม่ผสมสารเพิ่มคุณภาพ</th>
                         <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "140px" }}>เลขที่ใบกำกับภาษี</th>
-                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "170px" }}>ปริมาณที่ได้รับผ่อนผัน</th>
-                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "230px" }}>ปริมาณที่ขอใช้สิทธิ์หักลดหย่อน</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "170px" }}>ปริมาณที่ใช้ลดหย่อน</th>
+                        <th className="align-bottom" rowSpan={2} style={{ backgroundColor: "#E8E8E8", minWidth: "230px" }}>ปริมาณคงเหลือ (ใบกำกับ)</th>
                     </tr>
                     <tr>
                         <th style={{ backgroundColor: "#E8E8E8", minWidth: "140px" }}>เลขที่ใบกำกับภาษี</th>

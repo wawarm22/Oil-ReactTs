@@ -70,7 +70,7 @@ export const useOcrStore = create<OcrStoreState>((set, get) => ({
         console.error("OCR fetch failed:", err);
       }
     }
-    console.log("results", results);
+    // console.log("results", results);
     
     set({ ocrByDocId: results, loadingOcr: false });
   },
