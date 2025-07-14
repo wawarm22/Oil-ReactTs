@@ -163,7 +163,7 @@ const SearchFileUpload: React.FC = () => {
     ).map(code => {
         let date: dayjs.Dayjs = dayjs()
         if (code.includes("000000000000")) {
-            const dateStr = code.split("-").at(0)! // format "DDMMBB"
+            const dateStr = code.split("-").at(0)!
             const day = dateStr.slice(0, 2);
             const month = dateStr.slice(2, 4);
             const year = "25" + dateStr.slice(4, 6);
@@ -181,7 +181,7 @@ const SearchFileUpload: React.FC = () => {
         let dateA: dayjs.Dayjs = dayjs()
         let dateB: dayjs.Dayjs = dayjs()
         if (a.value.includes("000000000000")) {
-            const dateStr = a.value.split("-").at(0)! // format "DDMMBB"
+            const dateStr = a.value.split("-").at(0)!
             const day = dateStr.slice(0, 2);
             const month = dateStr.slice(2, 4);
             const year = "25" + dateStr.slice(4, 6);
@@ -193,7 +193,7 @@ const SearchFileUpload: React.FC = () => {
             dateA = dateA.isValid() ? dateA : dayjs(new Date(1));
         }
         if (b.value.includes("000000000000")) {
-            const dateStr = b.value.split("-").at(0)! // format "DDMMBB"
+            const dateStr = b.value.split("-").at(0)!
             const day = dateStr.slice(0, 2);
             const month = dateStr.slice(2, 4);
             const year = "25" + dateStr.slice(4, 6);
@@ -248,8 +248,30 @@ const SearchFileUpload: React.FC = () => {
             return;
         }
 
+        let filteredFiles = storedFiles;
+
+        if (dateCodeFilter && dateCodeFilter.value) {
+            const filteredBlobPaths = parsedFiles
+                .filter(
+                    f =>
+                        f.docId === docId &&
+                        f.subtitleIndex === subtitleIndex &&
+                        f.mainCode === dateCodeFilter.value
+                )
+                .map(f => f.blobPath);
+
+            filteredFiles = storedFiles.filter(file =>
+                filteredBlobPaths.includes(file.blobPath)
+            );
+        }
+
+        if (filteredFiles.length === 0) {
+            toast.warning("ไม่มีไฟล์ในวันที่ที่เลือก");
+            return;
+        }
+
         const mergedPdf = await PDFDocument.create();
-        for (const file of storedFiles) {
+        for (const file of filteredFiles) {
             try {
                 const previewUrl = await apiPreviewPdfAfterConfirm(file.blobPath);
                 const ext = file.name.split('.').pop()?.toLowerCase();
@@ -312,7 +334,7 @@ const SearchFileUpload: React.FC = () => {
             toast.warning("ยังไม่มีข้อมูลบริษัท กรุณารอสักครู่");
             return;
         }
-        
+
         const isTestEmail = user?.email === 'ja.test006+shell@gmail.com' ||
             user?.email === 'ja.test006+or@gmail.com' ||
             user?.email === 'ja.test006+bsrc@gmail.com' ||
@@ -434,7 +456,6 @@ const SearchFileUpload: React.FC = () => {
             ? `${selectedCompany.name}-test`
             : `${selectedCompany.name}`;
 
-        // const companyName = selectedCompany.name;
         const { uploadedResults, baseNameWithoutDocSeq } = await uploadFile(
             files,
             companyName,
@@ -645,7 +666,7 @@ const SearchFileUpload: React.FC = () => {
             const month = formatMonthToBE(filters.month);
             const dateStart = formatDateToThai(filters.dateStart);
             const dateEnd = formatDateToThai(filters.dateEnd);
-            const response = await apiSearchFiles(companyName, baseName);            
+            const response = await apiSearchFiles(companyName, baseName);
             const folders = response.files.map((file: any) => {
                 const parts = file.fileName.split('/');
                 parts.pop();
@@ -855,7 +876,7 @@ const SearchFileUpload: React.FC = () => {
                                                     type="button"
                                                     label="อัปโหลดเอกสาร"
                                                     bgColor="#3D4957"
-                                                    color="#FFFFFF"                                                    
+                                                    color="#FFFFFF"
                                                     maxWidth="260px"
                                                     variant="bg-hide"
                                                     onClick={() => document.getElementById(`file-upload-${item.id}`)?.click()}
