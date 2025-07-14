@@ -798,6 +798,31 @@ export type SaveData0704 = {
     data: Prepared0704
 };
 
+export type OilCompareMaterial = {
+    name: string;
+    quantity: number;
+    perUnit: number;
+    ratio: string;
+};
+
+export type OilCompareField = {
+    company: string;
+    factory: string;
+    date: string;
+    productName: string;
+    materials: OilCompareMaterial[];
+    totalQuantity: number;
+    totalPerUnit: number;
+    totalRatio: string;
+    remark: string;
+};
+
+export type PreparedOilCompare = {
+    docType: string;
+    documentGroup: string;
+    fields: OilCompareField[];
+};
+
 
 
 

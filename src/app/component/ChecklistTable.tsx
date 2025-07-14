@@ -1,111 +1,100 @@
 import React from "react";
 import { OcrDetailTableDocument } from "../../types/ocrFileType";
-import { ValidationStatus } from "../../utils/function/validationMap";
+import { PreparedOilCompare } from "../../types/validateTypes";
+import { OilCompareValidationItem } from "../../types/validateResTypes";
+import { getValidationStatus } from "../../utils/function/getValidateProps";
 
 interface ChecklistTableProps {
     data: OcrDetailTableDocument;
-    validateResult?: {
-        headerValidation?: { company?: ValidationStatus; warehouse?: ValidationStatus; };
-        validationMap?: Record<string, ValidationStatus>;
-    };
+    validateResult: OilCompareValidationItem[];
+    context: PreparedOilCompare;
 }
 
-const COLUMN_LABELS: { [key: string]: string } = {
-    column_1: "ชื่อผลิตภัณฑ์",
-    column_2: "ชื่อผลิตภัณฑ์ (ตามหนังสืออนุมัติ)",
-    column_3: "รายการวัตถุดิบหรือส่วนประกอบที่ใช้ในการผลิต",
-    column_4: "ปริมาณ",
-    column_5: "สินค้าต่อ 1 หน่วย",
-    column_6: "สูตรการผลิต",
-    column_7: "หมายเหตุ",
-};
+const ChecklistTable: React.FC<ChecklistTableProps> = ({ validateResult, context }) => {
+    const ocrData = context?.fields;
+    if (!ocrData?.length) return <div>ไม่พบข้อมูล</div>;
 
-const ChecklistTable: React.FC<ChecklistTableProps> = ({ data, validateResult }) => {
-    const allRows = Array.isArray(data.detail_table) ? data.detail_table : [];
-    const cleanValue = (val?: string | null): string =>
-        !val || val.trim() === "" || val === ":unselected:" ? "-" : val.trim();
-
-    const fields = [
-        { label: "บริษัท", value: data.company },
-        { label: "คลัง", value: data.depot },
-        { label: "วันที่", value: data.date },
+    const headerFields = [
+        { label: "บริษัท", ...validateResult?.[0]?.company },
+        { label: "คลัง", ...validateResult?.[0]?.factory },
+        { label: "วันที่", ...validateResult?.[0]?.date },
     ];
 
-    let startIndex = 1;
-    const checkRow = allRows[1]?.properties;
-    const firstRowHasChue = Object.values(checkRow || {}).some((cell: any) => cell?.value?.includes("ชื่อ"));
-    if (firstRowHasChue) startIndex = 2;
+    const allFieldLists = ocrData.map((field) => {
+        const result: { label: string; value: any; matIdx?: number }[] = [
+            { label: "ชื่อผลิตภัณฑ์", value: field.productName },
+        ];
+        field.materials.forEach((mat, matIdx) => {
+            result.push(
+                { label: "รายการวัตถุดิบหรือส่วนประกอบที่ใช้ในการผลิต", value: mat.name, matIdx },
+                { label: "ปริมาณ", value: mat.quantity, matIdx },
+                { label: "สินค้าต่อ 1 หน่วย", value: mat.perUnit, matIdx },
+                { label: "สูตรการผลิต", value: mat.ratio, matIdx },
+                { label: "หมายเหตุ", value: field.remark },
+            );
+        });
+        result.push(
+            { label: "ปริมาณรวม", value: field.totalQuantity },
+            { label: "สินค้าต่อ 1 หน่วย", value: field.totalPerUnit },
+            { label: "สูตรการผลิต", value: field.totalRatio }
+        );
+        return result;
+    });
 
-    const getBorderColor = (status?: ValidationStatus) =>
-        status === "failed" ? "#FF0100" :
-            status === "warning" ? "#FFCA04" :
-                status === "passed" ? "#22C659" : "#22C659";
+    const getBorderColor = (status?: "passed" | "failed") =>
+        status === "passed" ? "#22C659"
+            : status === "failed" ? "#FF0100"
+                : "#E0E0E0";
 
-    // ใช้ validateResult ที่ส่งมาจาก parent
-    const headerValidation = validateResult?.headerValidation ?? {};
-    const validationMap = validateResult?.validationMap ?? {};
-
-    const headerIndexMap = { "บริษัท": "company", "คลัง": "warehouse" } as const;
     return (
-        <div className="d-flex flex-column gap-1">
-            {fields.map(({ label, value }) => {
-                const headerKey = headerIndexMap[label as keyof typeof headerIndexMap] as keyof typeof headerValidation;
-                const status = headerValidation[headerKey];
-                return (
-                    <div key={label}>
-                        <div className="fw-bold">{label}</div>
-                        <div
-                            className="rounded-2 shadow-sm bg-white p-2"
-                            style={{
-                                fontSize: "14px",
-                                border: `1.5px solid ${getBorderColor(status)}`,
-                            }}
-                        >
-                            {cleanValue(value)}
-                        </div>
+        <div className="d-flex flex-column gap-2">
+            {headerFields.map((f, i) => (
+                <div key={i} className="mb-2">
+                    <b>{f.label}</b>
+                    <div
+                        className="bg-white rounded-2 shadow-sm p-2"
+                        style={{
+                            minHeight: "42px",
+                            border: `2px solid ${f.passed === true ? "#22C659" :
+                                    f.passed === false ? "#FF0100" : "#E0E0E0"
+                                }`
+                        }}
+                    >
+                        {f.value}
                     </div>
-                );
-            })}
-            <hr className="border-top border-2 border-secondary my-2" />
+                </div>
+            ))}
 
-            {allRows.map((row, rowIdx) => {
-                if (rowIdx < startIndex) return null;
-                const props = row.properties ?? {};
-                const visibleColumns = Object.keys(COLUMN_LABELS).filter(
-                    (key) => typeof props[key]?.value === "string" && props[key].value.trim() !== ""
-                );
-
-                return (
-                    <React.Fragment key={rowIdx}>
-                        {visibleColumns.map((colKey) => {
-                            const rawValue = props[colKey]?.value;
-                            const cleanedVal = typeof rawValue === "string" ? rawValue.replace(/^[,<>\/]/, "").trim() : rawValue;
-                            const fieldKey = `${rowIdx - startIndex}-${colKey}`;
-                            const validationStatus = validationMap[fieldKey];
-
-                            return (
-                                <React.Fragment key={colKey}>
-                                    <div className="fw-bold" style={{ fontSize: "14px" }}>
-                                        {COLUMN_LABELS[colKey]}
-                                    </div>
-                                    <div
-                                        className="rounded-2 shadow-sm bg-white mb-1"
-                                        style={{
-                                            fontSize: "14px",
-                                            whiteSpace: "pre-line",
-                                            padding: "10px 10px",
-                                            border: `1.5px solid ${getBorderColor(validationStatus)}`,
-                                        }}
-                                    >
-                                        {cleanedVal}
-                                    </div>
-                                </React.Fragment>
-                            );
-                        })}
-                        {visibleColumns.length > 0 && rowIdx < allRows.length - 1 && <hr className="my-2" />}
-                    </React.Fragment>
-                );
-            })}
+            {allFieldLists.map((fieldList, fieldIdx) => (
+                <div key={fieldIdx} className="mb-3">
+                    {/* {allFieldLists.length > 1 && (
+                        <div className="fw-bold mb-2" style={{ fontSize: 18 }}>
+                            ผลิตภัณฑ์ {fieldIdx + 1}
+                        </div>
+                    )} */}
+                    {fieldList.map((item, idx) => {
+                        const status = getValidationStatus(
+                            validateResult,
+                            fieldIdx,
+                            item,
+                            item.matIdx
+                        );
+                        return (
+                            <div key={idx} className="mb-3">
+                                <b>{item.label}</b>
+                                <div
+                                    className="bg-white rounded-2 shadow-sm p-2"
+                                    style={{
+                                        border: `2px solid ${getBorderColor(status)}`
+                                    }}
+                                >
+                                    {item.value ?? "-"}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            ))}
         </div>
     );
 };

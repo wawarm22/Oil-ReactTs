@@ -3,7 +3,6 @@ import StepProgress from "../reusable/StepProgress";
 import { StepStatus } from "../../types/enum/stepStatus";
 import AuditList from "../component/AuditList";
 import { documentList } from "../../types/docList";
-import AuditButton from "../component/AuditButton";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import MatchTable from "../component/MatchTable";
 import VolumeCompareTable from "../component/VolumeCompareTable";
@@ -26,6 +25,7 @@ import { getSubtitleIndexMap } from "../../utils/function/getSubtitleIndexMap";
 import { useCompanyStore } from "../../store/companyStore";
 import { getInitialSubtitleIdx } from "../../utils/function/getInitialSubtitleIdx";
 import { ReportParamProps } from "../../utils/function/buildParam";
+import MatchTableButton from "../component/MatchTableButton";
 
 const folders = JSON.parse(localStorage.getItem("folders") || "[]") as string[];
 
@@ -308,9 +308,19 @@ const MatchDocument: React.FC = () => {
     };
 
     const handleNextStep = () => {
-        if (currentStep < 5) {
-            setCurrentStep(prev => prev + 1);
-            const nextStep = currentStep + 1;
+        if (currentStep >= 5) {
+            if (from === "search-file") {
+                navigate('/match-list?from=search-file');
+            } else {
+                navigate('/match-list');
+            }            
+            return;
+        }
+        setCurrentStep(prev => prev + 1);
+
+        const nextStep = currentStep + 1;
+
+        if (nextStep <= 4) {
             const nextDocs = stepToDocIdMap[nextStep] || [];
             if (nextDocs.length > 0) {
                 const firstDocId = nextDocs[0];
@@ -426,7 +436,7 @@ const MatchDocument: React.FC = () => {
             )}
             {currentStep === 5 && <TaxRefundCalculationTable data={factory_slug === "K148" ? taxRefundData : []} />}
 
-            <AuditButton
+            <MatchTableButton
                 stepStatus={StepStatus.MATCH}
                 onBack={handleBack}
                 onSaveAudit={handleSaveAudit}

@@ -141,7 +141,12 @@ const DocumentAudit: React.FC = () => {
     };
 
     const handleNextStep = () => {
-        navigate(`/match-document?from=${from}`);
+        if (from) {
+            navigate(`/match-document?from=${from}`);
+        } else {
+            navigate('/match-document');
+        }
+
     };
 
     return (

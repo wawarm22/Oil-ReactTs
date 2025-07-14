@@ -665,5 +665,37 @@ export interface Oil0702ValidationRow {
 
 export type Oil0702ValidationResult = Oil0702ValidationRow[];
 
+export type ValidateFields<T = any> = {
+    value: T;
+    expected: T;
+    passed: boolean;
+    status?: "passed" | "failed" | "warning";
+    toleranceApplied?: string;
+};
+
+export type MaterialValidation = {
+    name: ValidateFields<string>;
+    quantity: ValidateFields<number>;
+    perUnit: ValidateFields<number>;
+    ratio: ValidateFields<string>;
+};
+
+export type OilCompareValidationItem = {
+    company: ValidateFields<string>;
+    factory: ValidateFields<string>;
+    date: ValidateFields<string>;
+    productName: ValidateFields<string>;
+    materials: MaterialValidation[];
+    totalQuantity: ValidateFields<number>;
+    totalPerUnit: ValidateFields<number>;
+    totalRatio: ValidateFields<string>;
+    remark: ValidateFields<string>;
+};
+
+export type ValidateOilCompareResult = {
+    status: boolean;
+    message: string;
+    data: OilCompareValidationItem[];
+};
 
 
