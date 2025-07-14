@@ -1,4 +1,4 @@
-import { FieldValidation, Oil0702ValidationItem, Oil0702ValidationResult, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateField, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateInvoiceThapplineData, ValidateOil0704Result, ValidateReceiptExciseResult, ValidateResult0129, ValidateResult0307, ValidateTaxInvoiceResult, ValidationResult0307 } from "../../types/validateResTypes";
+import { FieldValidation, Oil0702ValidationItem, Oil0702ValidationResult, OilCompareValidationItem, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateField, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateInvoiceThapplineData, ValidateOil0704Result, ValidateReceiptExciseResult, ValidateResult0129, ValidateResult0307, ValidateTaxInvoiceResult, ValidationResult0307 } from "../../types/validateResTypes";
 import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New, validateReceitpPaymentNew, validateOil0702, validateTaxInvoice, validateReceiptExcise, validateInvoiceThappline, validateForm0129 } from "../api/validateApi";
 
 const cleanValue = (val?: any): string => {
@@ -32,37 +32,11 @@ const buildTaxPayload = (ocr: any) => ({
     }
 });
 
-const buildOilComparePayload = (ocr: any, context: any) => {
-    const data: Record<string, { value: string }> = {
-        "บริษัท": { value: ocr.company ?? "" },
-        "คลัง": { value: ocr.depot ?? "" },
-        "วันที่": { value: ocr.date ?? "" }
-    };
-
-    const detail_table: Record<string, { value: string }>[] = Array.isArray(ocr.detail_table)
-        ? ocr.detail_table.map((row: any) => {
-            const props = row.properties || {};
-            const cleanedRow: Record<string, { value: string }> = {};
-            for (let i = 1; i <= 7; i++) {
-                const key = `column_${i}`;
-                const value = props[key]?.value;
-                cleanedRow[key] = { value: typeof value === "string" ? value.trim() : "" };
-            }
-            return cleanedRow;
-        })
-        : [];
-
-    return {
-        docType: ocr.docType,
-        company: context.company ?? "",
-        factories: context.factories ?? "",
-        documentGroup: ocr.documentGroup ?? "",
-        fields: [
-            { data },
-            { detail_table }
-        ]
-    };
-};
+const buildOilComparePayload = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+});
 
 const buildOil0701Payload = (ocr: any, context: any) => ({
     docType: ocr.docType,
@@ -226,20 +200,51 @@ const checkTaxFailed = (res: any) => {
     return false;
 };
 
-const checkOilCompareFailed = (res: any) =>
-    Array.isArray(res?.data) &&
-    res.data.some(
-        (item: any) =>
-            (item.company && item.company.passed === false) ||
-            (item.warehouse && item.warehouse.passed === false) ||
-            (item.validations && Array.isArray(item.validations) && item.validations.some((v: any) => v.passed === false))
-    );
+export const checkOilCompareFailed = (
+    res: { data?: OilCompareValidationItem[] } | OilCompareValidationItem[] | null | undefined
+): boolean => {
+    const data: OilCompareValidationItem[] | undefined =
+        (res && "data" in res ? (res as any).data : res) as OilCompareValidationItem[] | undefined;
 
-// const checkOil0701Failed = (res: any) =>
-//     Array.isArray(res?.data) &&
-//     res.data.some((row: any) =>
-//         Object.values(row?.properties ?? {}).some((cell: any) => cell?.passed === false)
-//     );
+    if (!data || !Array.isArray(data)) return true;
+
+    for (const item of data) {
+        // เช็คฟิลด์ที่เพิ่มเข้ามา
+        if (
+            item.company?.passed === false ||
+            item.factory?.passed === false ||
+            item.date?.passed === false
+        ) {
+            return true;
+        }
+
+        if (item.productName?.passed === false) return true;
+
+        if (Array.isArray(item.materials)) {
+            for (const mat of item.materials) {
+                if (
+                    mat.name?.passed === false ||
+                    mat.quantity?.passed === false ||
+                    mat.perUnit?.passed === false ||
+                    mat.ratio?.passed === false
+                ) {
+                    return true;
+                }
+            }
+        }
+
+        if (
+            item.totalQuantity?.passed === false ||
+            item.totalPerUnit?.passed === false ||
+            item.totalRatio?.passed === false ||
+            item.remark?.passed === false
+        ) {
+            return true;
+        }
+    }
+
+    return false;
+};
 
 export const checkOil0701Failed = (
     res: { data?: Validate0701Result } | Validate0701Result | null | undefined

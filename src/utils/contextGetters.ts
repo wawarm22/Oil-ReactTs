@@ -1,5 +1,5 @@
 import { useCompanyStore } from "../store/companyStore";
-import { getPrepared0129, getPrepared0307, getPrepared0307Attachment, getPrepared0502, getPrepared0503, getPrepared0701, getPrepared0702, getPrepared0704, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedInvoiceThappline, getPreparedReceiptExcise, getPreparedReceitpPaymentNew, getPreparedTaxInvoice } from "./api/validateApi";
+import { getPrepared0129, getPrepared0307, getPrepared0307Attachment, getPrepared0502, getPrepared0503, getPrepared0701, getPrepared0702, getPrepared0704, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedInvoiceThappline, getPreparedOilCompare, getPreparedReceiptExcise, getPreparedReceitpPaymentNew, getPreparedTaxInvoice } from "./api/validateApi";
 
 export type ContextOptions = { auth?: any };
 
@@ -163,14 +163,25 @@ export const getContextForDocType: Record<
             documentGroup: page1.documentGroup ?? "",
         };
     },
-    "oil-compare-1": async (page1) => {
-        const company = useCompanyStore.getState().selectedCompany?.name ?? "";
-        const factories = localStorage.getItem("warehouse") ?? "";
+    // "oil-compare-1": async (page1) => {
+    //     const company = useCompanyStore.getState().selectedCompany?.name ?? "";
+    //     const factories = localStorage.getItem("warehouse") ?? "";
 
+    //     return {
+    //         company,
+    //         factories,
+    //         documentGroup: page1.documentGroup ?? "",
+    //     };
+    // },
+    "oil-compare-1": async (page1, options) => {
+        const auth = options?.auth;
+        if (!page1.id || !auth) return {};
+        const resp = await getPreparedOilCompare(page1.id, auth);
+        if (!resp?.data) return {};
         return {
-            company,
-            factories,
-            documentGroup: page1.documentGroup ?? "",
+            documentGroup: resp.data.documentGroup,
+            fields: resp.data.fields,
+            ocrData: resp.data
         };
     },
     "oil-formular-4": async (page1, options) => {

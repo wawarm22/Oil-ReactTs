@@ -132,7 +132,12 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "table" &&
                     <ChecklistTable
                         data={currentOcrFields as OcrDetailTableDocument}
-                        validateResult={validateResult}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
+                        context={context}
                     />
                 }
                 {type === "grouped_product" && (

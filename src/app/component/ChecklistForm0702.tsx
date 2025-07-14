@@ -2,7 +2,7 @@ import React from "react";
 import { OcrDailyProductionDocument } from "../../types/ocrFileType";
 import { Oil0702ValidationResult } from "../../types/validateResTypes";
 import { Oil0702ReportRow, PreparedOil0702 } from "../../types/validateTypes";
-import { getBorderColor, getValidatePropsForDailyRow, getValidatePropsForSummary } from "../../utils/function/validate0702";
+import { getBorderColor, getValidatePropsForDailyRow, getValidatePropsForSummary } from "../../utils/function/getValidateProps";
 
 interface Props {
     data: OcrDailyProductionDocument;
