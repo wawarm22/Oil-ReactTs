@@ -44,7 +44,7 @@ export const getValidationStatus = (
 
     if (item.label === "ชื่อผลิตภัณฑ์") return vItem.productName.passed ? "passed" : "failed";
     if (item.label === "หมายเหตุ") return vItem.remark?.passed ? "passed" : "failed";
-    if (item.label === "ปริมาณรวม") return vItem.totalQuantity?.passed ? "passed" : "failed";
+    if (item.label === "ปริมาณ") return vItem.totalQuantity?.passed ? "passed" : "failed";
     if (item.label === "สินค้าต่อ 1 หน่วย" && !matIdx) return vItem.totalPerUnit?.passed ? "passed" : "failed";
     if (item.label === "สูตรการผลิต" && !matIdx) return vItem.totalRatio?.passed ? "passed" : "failed";
 

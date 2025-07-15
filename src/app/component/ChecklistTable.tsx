@@ -34,7 +34,8 @@ const ChecklistTable: React.FC<ChecklistTableProps> = ({ validateResult, context
             );
         });
         result.push(
-            { label: "ปริมาณรวม", value: field.totalQuantity },
+            { label: "รายการวัตถุดิบหรือส่วนประกอบที่ใช้ในการผลิต", value: "ปริมาณรวม" },
+            { label: "ปริมาณ", value: field.totalQuantity },
             { label: "สินค้าต่อ 1 หน่วย", value: field.totalPerUnit },
             { label: "สูตรการผลิต", value: field.totalRatio }
         );
@@ -56,7 +57,7 @@ const ChecklistTable: React.FC<ChecklistTableProps> = ({ validateResult, context
                         style={{
                             minHeight: "42px",
                             border: `2px solid ${f.passed === true ? "#22C659" :
-                                    f.passed === false ? "#FF0100" : "#E0E0E0"
+                                f.passed === false ? "#FF0100" : "#E0E0E0"
                                 }`
                         }}
                     >
@@ -73,22 +74,23 @@ const ChecklistTable: React.FC<ChecklistTableProps> = ({ validateResult, context
                         </div>
                     )} */}
                     {fieldList.map((item, idx) => {
-                        const status = getValidationStatus(
-                            validateResult,
-                            fieldIdx,
-                            item,
-                            item.matIdx
-                        );
+                        const forcePassed =
+                            item.label === "รายการวัตถุดิบหรือส่วนประกอบที่ใช้ในการผลิต" && item.value === "ปริมาณรวม";
+
+                        const status = forcePassed
+                            ? "passed"
+                            : getValidationStatus(validateResult, fieldIdx, item, item.matIdx);
                         return (
                             <div key={idx} className="mb-3">
                                 <b>{item.label}</b>
                                 <div
                                     className="bg-white rounded-2 shadow-sm p-2"
                                     style={{
+                                        minHeight: "42px",
                                         border: `2px solid ${getBorderColor(status)}`
                                     }}
                                 >
-                                    {item.value ?? "-"}
+                                    {item.value}
                                 </div>
                             </div>
                         );
