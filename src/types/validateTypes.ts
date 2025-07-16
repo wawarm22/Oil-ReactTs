@@ -365,7 +365,7 @@ export type OcrReceiptExciseResponse = {
     data: OcrReceiptExciseData;
 };
 
-export interface TaxInvoiceItem {
+export type TaxInvoiceItem = {
     itemNo: number;
     description: string;
     quantity: number;
@@ -375,7 +375,7 @@ export interface TaxInvoiceItem {
     note: string;
 }
 
-export interface OcrTaxInvoiceData {
+export type OcrTaxInvoiceData = {
     docType: string;
     documentGroup: string;
     fields: {
@@ -400,7 +400,7 @@ export interface OcrTaxInvoiceData {
     };
 }
 
-export interface InvoiceTaxItem {
+export type InvoiceTaxItem = {
     no: string;
     product_code: string;
     product_name: string;
@@ -412,7 +412,7 @@ export interface InvoiceTaxItem {
     api: string;
 }
 
-export interface InvoiceTaxFields {
+export type InvoiceTaxFields = {
     invoice_no: string;
     purchase_order_no: string;
     delivery_no: string;
@@ -449,7 +449,7 @@ export interface InvoiceTaxFields {
     paper_no: string;
 }
 
-export interface OcrInvoiceTaxData {
+export type OcrInvoiceTaxData = {
     docType: string;
     documentGroup: string;
     fields: InvoiceTaxFields;
@@ -823,6 +823,49 @@ export type PreparedOilCompare = {
     fields: OilCompareField[];
 };
 
+export type Materials = Record<string, number>;
+
+export type Form0701 = {
+  materials: Materials;
+  totalVolume: number;
+}
+export type Form0702 = {
+  producedAndSoldVolume: number;
+}
+export type Form0307 = {
+  taxPaidVolume: number;
+}
+
+export type OilCompareItem = {
+  date: string;
+  form0701: Form0701;
+  form0702: Form0702;
+  form0307: Form0307;
+  difference: number;
+}
+
+export type OilCompareSummary = {
+  totalMaterials: Materials;
+  total0701Volume: number;
+  total0702Volume: number;
+  total0307Volume: number;
+  totalDifference: number;
+}
+
+export type OilCompareFields = {
+  company: string;
+  factory: string;
+  oilOutDate: string;
+  productName: string;
+  items: OilCompareItem[];
+  summary: OilCompareSummary;
+}
+
+export type OilCompare0701020307Result = {
+  docType: string;
+  documentGroup: string;
+  fields: OilCompareFields;
+}
 
 
 

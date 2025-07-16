@@ -523,70 +523,70 @@ export type ValidateOil0704Result = {
 };
 
 export type ValidatedField<T = any> = {
-  value: T;
-  expected: T;
-  passed: boolean;
+    value: T;
+    expected: T;
+    passed: boolean;
 };
 
 export type ValidatedTaxFor = {
-  check: ValidatedField<string>;
-  description: ValidatedField<string>;
+    check: ValidatedField<string>;
+    description: ValidatedField<string>;
 };
 
 export type ValidatedProduct = {
-  index: ValidatedField<number>;
-  product_type: ValidatedField<string>;
-  product_name: ValidatedField<string>;
-  product_id: ValidatedField<number>;
-  quantity: ValidatedField<number>;
-  tax_rate: ValidatedField<number>;
-  excise_tax_baht: ValidatedField<number>;
-  excise_tax_satang: ValidatedField<number>;
-  interior_tax_baht: ValidatedField<number>;
-  interior_tax_satang: ValidatedField<number>;
-  // เพิ่ม field อื่นๆ ถ้ามี
+    index: ValidatedField<number>;
+    product_type: ValidatedField<string>;
+    product_name: ValidatedField<string>;
+    product_id: ValidatedField<number>;
+    quantity: ValidatedField<number>;
+    tax_rate: ValidatedField<number>;
+    excise_tax_baht: ValidatedField<number>;
+    excise_tax_satang: ValidatedField<number>;
+    interior_tax_baht: ValidatedField<number>;
+    interior_tax_satang: ValidatedField<number>;
+    // เพิ่ม field อื่นๆ ถ้ามี
 };
 
 export type ValidatedTaxGroup = {
-  excise: ValidatedField<number>;
-  interior: ValidatedField<number>;
-  description?: ValidatedField<string>;
+    excise: ValidatedField<number>;
+    interior: ValidatedField<number>;
+    description?: ValidatedField<string>;
 };
 
 export type ValidatedTaxes = {
-  base: ValidatedTaxGroup;
-  discount: ValidatedTaxGroup;
-  remains: ValidatedTaxGroup;
-  fine: ValidatedTaxGroup;
-  additional_percentage: ValidatedTaxGroup;
-  total: ValidatedTaxGroup;
-  discount_at: ValidatedTaxGroup;
-  balance: ValidatedTaxGroup;
-  should_paid: ValidatedField<number>;
-  should_paid_txt: ValidatedField<string>;
+    base: ValidatedTaxGroup;
+    discount: ValidatedTaxGroup;
+    remains: ValidatedTaxGroup;
+    fine: ValidatedTaxGroup;
+    additional_percentage: ValidatedTaxGroup;
+    total: ValidatedTaxGroup;
+    discount_at: ValidatedTaxGroup;
+    balance: ValidatedTaxGroup;
+    should_paid: ValidatedField<number>;
+    should_paid_txt: ValidatedField<string>;
 };
 
 export type ValidateResult0307 = {
-  form_name: ValidatedField<string>;
-  ref_no: ValidatedField<string>;
-  request_no: ValidatedField<string>;
-  request_date: ValidatedField<string>;
-  request_officer: ValidatedField<string>;
-  company_name: ValidatedField<string>;
-  factory_name: ValidatedField<string>;
-  excise_no: ValidatedField<string>;
-  address_no: ValidatedField<string>;
-  village_no: ValidatedField<string>;
-  soi: ValidatedField<string>;
-  street: ValidatedField<string>;
-  sub_district: ValidatedField<string>;
-  district: ValidatedField<string>;
-  province: ValidatedField<string>;
-  zipcode: ValidatedField<string>;
-  tel_no: ValidatedField<string>;
-  tax_for: ValidatedTaxFor;
-  products: ValidatedProduct[];
-  taxes: ValidatedTaxes;
+    form_name: ValidatedField<string>;
+    ref_no: ValidatedField<string>;
+    request_no: ValidatedField<string>;
+    request_date: ValidatedField<string>;
+    request_officer: ValidatedField<string>;
+    company_name: ValidatedField<string>;
+    factory_name: ValidatedField<string>;
+    excise_no: ValidatedField<string>;
+    address_no: ValidatedField<string>;
+    village_no: ValidatedField<string>;
+    soi: ValidatedField<string>;
+    street: ValidatedField<string>;
+    sub_district: ValidatedField<string>;
+    district: ValidatedField<string>;
+    province: ValidatedField<string>;
+    zipcode: ValidatedField<string>;
+    tel_no: ValidatedField<string>;
+    tax_for: ValidatedTaxFor;
+    products: ValidatedProduct[];
+    taxes: ValidatedTaxes;
 };
 
 export type ValidatedMaterialPerUnit = {
@@ -628,39 +628,39 @@ export type ValidateResult0129 = {
     signatureDate: ValidatedField<string>;
 };
 
-export interface Oil0702ValidationItem {
-  value: number;
-  expected: number;
-  passed: boolean;
-  reason?: string; 
+export type Oil0702ValidationItem = {
+    value: number;
+    expected: number;
+    passed: boolean;
+    reason?: string;
 }
 
-export interface Oil0702RowProperties {
-  // รายวัน (เช่น daily row)
-  total_received_validation?: Oil0702ValidationItem;
-  balance_validation?: Oil0702ValidationItem;
-  total_dispatched_validation?: Oil0702ValidationItem;
+export type Oil0702RowProperties = {
+    // รายวัน (เช่น daily row)
+    total_received_validation?: Oil0702ValidationItem;
+    balance_validation?: Oil0702ValidationItem;
+    total_dispatched_validation?: Oil0702ValidationItem;
 
-  // รายเดือน/summary (monthly_summary)
-  total_received_produced?: Oil0702ValidationItem;
-  total_received_returned?: Oil0702ValidationItem;
-  total_received_others?: Oil0702ValidationItem;
-  total_received_all?: Oil0702ValidationItem;
-  total_sold_domestic?: Oil0702ValidationItem;
-  total_sold_export?: Oil0702ValidationItem;
-  total_used_factory?: Oil0702ValidationItem;
-  total_warehouse_bonded?: Oil0702ValidationItem;
-  total_damaged?: Oil0702ValidationItem;
-  total_others_dispatched?: Oil0702ValidationItem;
-  total_dispatched_all?: Oil0702ValidationItem;
-  final_balance?: Oil0702ValidationItem;
-  [key: string]: Oil0702ValidationItem | undefined;
+    // รายเดือน/summary (monthly_summary)
+    total_received_produced?: Oil0702ValidationItem;
+    total_received_returned?: Oil0702ValidationItem;
+    total_received_others?: Oil0702ValidationItem;
+    total_received_all?: Oil0702ValidationItem;
+    total_sold_domestic?: Oil0702ValidationItem;
+    total_sold_export?: Oil0702ValidationItem;
+    total_used_factory?: Oil0702ValidationItem;
+    total_warehouse_bonded?: Oil0702ValidationItem;
+    total_damaged?: Oil0702ValidationItem;
+    total_others_dispatched?: Oil0702ValidationItem;
+    total_dispatched_all?: Oil0702ValidationItem;
+    final_balance?: Oil0702ValidationItem;
+    [key: string]: Oil0702ValidationItem | undefined;
 }
 
-export interface Oil0702ValidationRow {
-  row: number | string; 
-  date?: string;        
-  properties: Oil0702RowProperties;
+export type Oil0702ValidationRow = {
+    row: number | string;
+    date?: string;
+    properties: Oil0702RowProperties;
 }
 
 export type Oil0702ValidationResult = Oil0702ValidationRow[];
@@ -697,5 +697,49 @@ export type ValidateOilCompareResult = {
     message: string;
     data: OilCompareValidationItem[];
 };
+
+export type MaterialsValidation = Record<string, FieldValidation<number>>;
+
+export type Form0701Validation = {
+    materials: MaterialsValidation;
+    totalVolume: FieldValidation<number>;
+}
+export type Form0702Validation = {
+    producedAndSoldVolume: FieldValidation<number>;
+}
+export type Form0307Validation = {
+    taxPaidVolume: FieldValidation<number>;
+}
+
+export type OilCompareItemValidation = {
+    date: FieldValidation<string>;
+    form0701: Form0701Validation;
+    form0702: Form0702Validation;
+    form0307: Form0307Validation;
+    difference: FieldValidation<number>;
+}
+
+export type OilCompareSummaryValidation = {
+    totalMaterials: MaterialsValidation;
+    total0701Volume: FieldValidation<number>;
+    total0702Volume: FieldValidation<number>;
+    total0307Volume: FieldValidation<number>;
+    totalDifference: FieldValidation<number>;
+}
+
+export type OilCompareValidationData = {
+    company: FieldValidation<string>;
+    factory: FieldValidation<string>;
+    oilOutDate: FieldValidation<string>;
+    productName: FieldValidation<string>;
+    summary: OilCompareSummaryValidation;
+    items: OilCompareItemValidation[];
+}
+
+export type OilCompareValidationResult = {
+    status: boolean;
+    message: string;
+    data: OilCompareValidationData;
+}
 
 
