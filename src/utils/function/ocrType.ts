@@ -99,11 +99,7 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
 
     if (fields.header?.includes("ตารางเทียบ แบบรายการภาษีสรรพสามิต (ภส.03-07)") || fields.header?.includes("ตารางเปรียบเทียบ แบบรายการภาษีสรรพสามิต (ภส.03-07)")) {
         return "comparison_0503_0307";
-    }
-
-    if (fields.header && fields.header.includes("ตารางเปรียบเทียบการจ่ายวัตถุดิบ (แบบ ภส.07-01) เทียบกับปริมาณการผลิตและจำหน่าย (ภส.07-02)") && fields.header.includes("07-01")) {
-        return "daily_comparison";
-    }
+    }    
 
     if ("receipt_type" in fields && "tax_id" in fields && "company_name" in fields && "duty_payment" in fields) {
         return "customs_receipt";

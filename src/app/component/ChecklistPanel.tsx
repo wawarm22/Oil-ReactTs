@@ -92,7 +92,7 @@ const ChecklistPanel: React.FC<Props> = ({
     const validateResult = validateResultsByDoc[selectedDocId]?.[selectedSubtitleIdx]?.[currentPage]?.validateResult;
     const currentOcrFields = ocrDocument.pages[currentPage];
     const type = detectOcrType(currentOcrFields);
-    // console.log("Detected OCR type:", type);
+    console.log("Detected OCR type:", type);
 
     const prevPageFields = ocrDocument.pages[currentPage - 1];
     let extraOilType: string | undefined;
@@ -175,7 +175,7 @@ const ChecklistPanel: React.FC<Props> = ({
                                 : validateResult
                         }
                         context={context}
-                    />                    
+                    />
                 )}
                 {type === "tax_form_0307" && (
                     <ChecklistTaxForm0307
@@ -234,7 +234,15 @@ const ChecklistPanel: React.FC<Props> = ({
                     <ChecklistCustomsReceipt data={currentOcrFields as OcrCustomsReceiptDocument} />
                 )}
                 {type === "daily_comparison" && (
-                    <ChecklistDailyComparison data={currentOcrFields as OcrDailyComparisonDocument} />
+                    <ChecklistDailyComparison
+                        data={currentOcrFields as OcrDailyComparisonDocument}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
+                        context={context}
+                    />
                 )}
                 {type === "tax_form_0129" && (
                     <ChecklistForm0129
