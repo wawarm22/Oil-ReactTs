@@ -222,7 +222,15 @@ const ChecklistMatch: React.FC<Props> = ({
                     <ChecklistCustomsReceipt data={currentOcrFields as OcrCustomsReceiptDocument} />
                 )}
                 {type === "daily_comparison" && (
-                    <ChecklistDailyComparison data={currentOcrFields as OcrDailyComparisonDocument} />
+                    <ChecklistDailyComparison
+                        data={currentOcrFields as OcrDailyComparisonDocument}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
+                        context={context}
+                    />
                 )}
                 {type === "tax_form_0129" && (
                     <ChecklistForm0129
