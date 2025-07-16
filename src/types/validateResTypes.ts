@@ -698,48 +698,47 @@ export type ValidateOilCompareResult = {
     data: OilCompareValidationItem[];
 };
 
-export type MaterialsValidation = Record<string, FieldValidation<number>>;
+export type MaterialNameValidation = Record<string, FieldValidation<string>>;
 
-export type Form0701Validation = {
-    materials: MaterialsValidation;
-    totalVolume: FieldValidation<number>;
-}
-export type Form0702Validation = {
-    producedAndSoldVolume: FieldValidation<number>;
-}
-export type Form0307Validation = {
-    taxPaidVolume: FieldValidation<number>;
-}
+export type MaterialsValidationArray = Array<Record<string, FieldValidation<number>>>;
 
-export type OilCompareItemValidation = {
+// สำหรับแต่ละรายการ
+export type OilCompareItemValidationV2 = {
     date: FieldValidation<string>;
-    form0701: Form0701Validation;
-    form0702: Form0702Validation;
-    form0307: Form0307Validation;
+    materialName: MaterialNameValidation;
+    materials: MaterialsValidationArray;
+    totalVolume: FieldValidation<number>;
+    producedAndSoldVolume: FieldValidation<number>;
+    taxPaidVolume: FieldValidation<number>;
     difference: FieldValidation<number>;
-}
+};
 
-export type OilCompareSummaryValidation = {
-    totalMaterials: MaterialsValidation;
-    total0701Volume: FieldValidation<number>;
-    total0702Volume: FieldValidation<number>;
-    total0307Volume: FieldValidation<number>;
-    totalDifference: FieldValidation<number>;
-}
+// สำหรับ summary
+export type OilCompareSummaryValidationV2 = {
+    materialName: MaterialNameValidation;
+    materials: MaterialsValidationArray;
+    totalVolume: FieldValidation<number>;
+    producedAndSoldVolume: FieldValidation<number>;
+    taxPaidVolume: FieldValidation<number>;
+    difference: FieldValidation<number>;
+};
 
-export type OilCompareValidationData = {
+// Root ของ data
+export type OilCompareValidationDataV2 = {
     company: FieldValidation<string>;
     factory: FieldValidation<string>;
     oilOutDate: FieldValidation<string>;
     productName: FieldValidation<string>;
-    summary: OilCompareSummaryValidation;
-    items: OilCompareItemValidation[];
-}
+    productId: number;
+    materialName: Record<string, string>;
+    items: OilCompareItemValidationV2[];
+    summary: OilCompareSummaryValidationV2;
+};
 
-export type OilCompareValidationResult = {
+export type OilCompareValidationResultV2 = {
     status: boolean;
     message: string;
-    data: OilCompareValidationData;
-}
+    data: OilCompareValidationDataV2;
+};
 
 

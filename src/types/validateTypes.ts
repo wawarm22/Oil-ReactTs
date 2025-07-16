@@ -823,49 +823,43 @@ export type PreparedOilCompare = {
     fields: OilCompareField[];
 };
 
-export type Materials = Record<string, number>;
+export type MaterialNameMap = Record<string, string>;
+export type MaterialsById = Record<string, number>;
 
-export type Form0701 = {
-  materials: Materials;
-  totalVolume: number;
-}
-export type Form0702 = {
-  producedAndSoldVolume: number;
-}
-export type Form0307 = {
-  taxPaidVolume: number;
-}
-
-export type OilCompareItem = {
+export type OilCompareItemV2 = {
   date: string;
-  form0701: Form0701;
-  form0702: Form0702;
-  form0307: Form0307;
+  materials: MaterialsById;
+  totalVolume: number;
+  producedAndSoldVolume: number;
+  taxPaidVolume: number;
   difference: number;
-}
+};
 
-export type OilCompareSummary = {
-  totalMaterials: Materials;
-  total0701Volume: number;
-  total0702Volume: number;
-  total0307Volume: number;
-  totalDifference: number;
-}
+export type OilCompareSummaryV2 = {
+  materials: MaterialsById;
+  totalVolume: number;
+  producedAndSoldVolume: number;
+  taxPaidVolume: number;
+  difference: number;
+};
 
-export type OilCompareFields = {
+export type OilCompareFieldsV2 = {
   company: string;
   factory: string;
   oilOutDate: string;
   productName: string;
-  items: OilCompareItem[];
-  summary: OilCompareSummary;
-}
+  productId: number;
+  materialName: MaterialNameMap;
+  items: OilCompareItemV2[];
+  summary: OilCompareSummaryV2;
+};
 
-export type OilCompare0701020307Result = {
+export type OilCompare0701020307ResultV2 = {
   docType: string;
   documentGroup: string;
-  fields: OilCompareFields;
-}
+  fields: OilCompareFieldsV2;
+};
+
 
 
 
