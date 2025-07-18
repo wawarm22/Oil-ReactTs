@@ -741,4 +741,46 @@ export type OilCompareValidationResultV2 = {
     data: OilCompareValidationDataV2;
 };
 
+export type ComparisonForm0307Validation = {
+  refined_oil_volume: FieldValidation<number>;
+  tax_rate: FieldValidation<number>;
+  excise_tax_baht: FieldValidation<number>;
+  local_tax_baht: FieldValidation<number>;
+};
+
+export type ComparisonForm0503Validation = {
+  base_oil_volume: FieldValidation<number>;
+  tax_rate: FieldValidation<number>;
+  excise_tax_baht: FieldValidation<number>;
+  local_tax_baht: FieldValidation<number>;
+};
+
+export type ComparisonItemValidation = {
+  date: FieldValidation<string>;
+  form0307: ComparisonForm0307Validation;
+  form0503: ComparisonForm0503Validation;
+};
+
+export type ComparisonSummaryValidation = {
+  form0307: ComparisonForm0307Validation;
+  form0503: ComparisonForm0503Validation;
+};
+
+export type ValidateComparison03070503Result = {
+  company: FieldValidation<string>;
+  factory: FieldValidation<string>;
+  product: FieldValidation<string>;
+  issuedDate: FieldValidation<string>;
+  items: ComparisonItemValidation[];
+  summary: ComparisonSummaryValidation;
+};
+
+// สมมติ API response
+export type ValidateComparison03070503APIResponse = {
+  status: boolean;
+  message: string;
+  data: ValidateComparison03070503Result;
+};
+
+
 

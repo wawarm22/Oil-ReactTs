@@ -860,6 +860,46 @@ export type OilCompare0701020307ResultV2 = {
   fields: OilCompareFieldsV2;
 };
 
+export type CompareItemForm0307 = {
+  refined_oil_volume: number;
+  tax_rate: number;
+  excise_tax_baht: number;
+  local_tax_baht: number;
+};
+
+export type CompareItemForm0503 = {
+  base_oil_volume: number;
+  tax_rate: number;
+  excise_tax_baht: number;
+  local_tax_baht: number;
+};
+
+export type CompareItem = {
+  date: string;
+  form0307: CompareItemForm0307;
+  form0503: CompareItemForm0503;
+};
+
+export type CompareSummary = {
+  form0307: CompareItemForm0307;
+  form0503: CompareItemForm0503;
+};
+
+export type CompareFields03070503 = {
+  company: string;
+  factory: string;
+  product: string;
+  issuedDate: string;
+  items: CompareItem[];
+  summary: CompareSummary;
+};
+
+export type CompareOcrDoc03070503 = {
+  docType: string;
+  documentGroup: string;
+  fields: CompareFields03070503;
+};
+
 
 
 

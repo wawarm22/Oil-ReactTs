@@ -65,3 +65,12 @@ export const safeNumber = (input: any, initial: number = 0) => {
     return initial;
   }
 };
+
+const productNameMap: Record<string, string> = {
+  "1,990;153":"1,990,153"
+};
+
+export const mapNameTrue = (name: string): string => {
+  const trimmed = name.trim();
+  return productNameMap[trimmed] ?? trimmed;
+};

@@ -210,7 +210,15 @@ const ChecklistMatch: React.FC<Props> = ({
                     />
                 )}
                 {type === "comparison_0503_0307" && (
-                    <ChecklistComparison0503And0307 data={currentOcrFields as OcrComparison0503And0307Document} />
+                    <ChecklistComparison0503And0307
+                        data={currentOcrFields as OcrComparison0503And0307Document}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
+                        context={context}
+                    />
                 )}
                 {type === "tax_payment_certificate" && (
                     <ChecklistTaxPaymentCertificate data={currentOcrFields as OcrTaxPaymentCertificateDocument} />

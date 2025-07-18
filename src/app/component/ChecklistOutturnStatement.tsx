@@ -1,6 +1,7 @@
 import React from "react";
 import { OcrOutturnStatementDocument } from "../../types/ocrFileType";
 import { useCompanyStore } from "../../store/companyStore";
+import { mapNameTrue } from "../../utils/function/format";
 
 interface Props {
     data: OcrOutturnStatementDocument;
@@ -96,7 +97,7 @@ const ChecklistOutturnStatement: React.FC<Props> = ({ data, validateResult }) =>
             {renderValidateBox("Date", "date", dateFormatted)}
             {renderValidateBox("PRODUCT", "product_name", data.product)}
             {renderValidateBox("Quantity", "quality", "LITRES @30 deg.C")}
-            {rawQuantity && renderValidateBox("ปริมาณ", "quantity", formatWithComma(rawQuantity))}
+            {rawQuantity && renderValidateBox("ปริมาณ", "quantity", formatWithComma(mapNameTrue(rawQuantity.replace(/[/]/g, ""))))}
         </div>
     );
 };

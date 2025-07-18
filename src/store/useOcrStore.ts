@@ -30,7 +30,7 @@ export const useOcrStore = create<OcrStoreState>((set, get) => ({
   isBatchValidated: false,
 
   fetchOcrData: async (folders) => {
-    set({ loadingOcr: true, isBatchValidated: false  });
+    set({ loadingOcr: true, isBatchValidated: false });
     const results: OcrByDocIdType = {};
     for (const folder of folders) {
       try {
@@ -71,7 +71,7 @@ export const useOcrStore = create<OcrStoreState>((set, get) => ({
       }
     }
     console.log("results", results);
-    
+
     set({ ocrByDocId: results, loadingOcr: false });
   },
 
@@ -118,9 +118,11 @@ export const useOcrStore = create<OcrStoreState>((set, get) => ({
           }
           const payload = await validateConfig.buildPayload(page, context);
           let res;
+
           try {
             res = await validateConfig.api(payload);
           } catch (e) {
+            console.error('error in api call:', e);
             res = null;
           }
 

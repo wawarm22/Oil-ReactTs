@@ -1,5 +1,5 @@
 import { useCompanyStore } from "../store/companyStore";
-import { getPrepared0129, getPrepared0307, getPrepared0307Attachment, getPrepared0502, getPrepared0503, getPrepared0701, getPrepared0702, getPrepared0704, getPreparedCompareison0701020307, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedInvoiceThappline, getPreparedOilCompare, getPreparedReceiptExcise, getPreparedReceitpPaymentNew, getPreparedTaxInvoice } from "./api/validateApi";
+import { getPrepared0129, getPrepared0307, getPrepared0307Attachment, getPrepared0502, getPrepared0503, getPrepared0701, getPrepared0702, getPrepared0704, getPreparedCompareison03070503, getPreparedCompareison0701020307, getPreparedFormularApprov, getPreparedInvoiceTax, getPreparedInvoiceThappline, getPreparedOilCompare, getPreparedReceiptExcise, getPreparedReceitpPaymentNew, getPreparedTaxInvoice } from "./api/validateApi";
 
 export type ContextOptions = { auth?: any };
 
@@ -329,8 +329,21 @@ export const getContextForDocType: Record<
     },
     "oil-compare-07-01-n-07-02-n-03-07": async (page1, options) => {
         const auth = options?.auth;
+        
         if (!page1.id || !auth) return {};
         const resp = await getPreparedCompareison0701020307(page1.id, auth);
+        if (!resp?.data) return {};
+        return {
+            documentGroup: resp.data.documentGroup,
+            docType: resp.data.docType,
+            fields: resp.data.fields
+        };
+    },
+    "oil-compare-05-03-n-03-07-1": async (page1, options) => {
+        const auth = options?.auth;
+        
+        if (!page1.id || !auth) return {};
+        const resp = await getPreparedCompareison03070503(page1.id, auth);
         if (!resp?.data) return {};
         return {
             documentGroup: resp.data.documentGroup,
