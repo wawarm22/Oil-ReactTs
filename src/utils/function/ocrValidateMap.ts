@@ -1,5 +1,6 @@
-import { FieldValidation, Oil0702ValidationItem, Oil0702ValidationResult, OilCompareValidationDataV2, OilCompareValidationItem, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateField, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateInvoiceThapplineData, ValidateOil0704Result, ValidateReceiptExciseResult, ValidateResult0129, ValidateResult0307, ValidateTaxInvoiceResult, ValidationResult0307 } from "../../types/validateResTypes";
-import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New, validateReceitpPaymentNew, validateOil0702, validateTaxInvoice, validateReceiptExcise, validateInvoiceThappline, validateForm0129, validateCompareison0701020307 } from "../api/validateApi";
+import { FieldValidation, Oil0702ValidationItem, Oil0702ValidationResult, OilCompareValidationDataV2, OilCompareValidationItem, ReceiptPaymentTransactionValidation, ReceiptPaymentValidateResult, Validate0502Result, Validate0503Page1Result, Validate0503Page2Result, Validate0701Result, ValidateComparison03070503Result, ValidateField, ValidateFormularApprovData, ValidateInvoiceTaxResult, ValidateInvoiceThapplineData, ValidateOil0704Result, ValidateReceiptExciseResult, ValidateResult0129, ValidateResult0307, ValidateTaxInvoiceResult, ValidationResult0307 } from "../../types/validateResTypes";
+import { validateSubmission, validateOilCompare, validateOil0307, validateAttachment0307, validateOil0704, validateOutturn, validateFormularApprov, validate0503Page2, validate0503Page1, validateForm0502, validateInvoiceTax, validate0701New, validateReceitpPaymentNew, validateOil0702, validateTaxInvoice, validateReceiptExcise, validateInvoiceThappline, validateForm0129, validateCompareison0701020307, validateComparison03070503 } from "../api/validateApi";
+import { mapNameTrue } from "./format";
 
 const cleanValue = (val?: any): string => {
     if (val === null || val === undefined) return "";
@@ -138,12 +139,21 @@ const buildCompareison0701020307 = (ocr: any, context: any) => ({
     fields: context.fields ?? {},
 });
 
+const buildCompareison03070503 = (ocr: any, context: any) => ({
+    docType: ocr.docType,
+    documentGroup: context.documentGroup ?? "",
+    fields: context.fields ?? {},
+});
+
 const buildOutturnPayload = (ocr: any, context?: any) => {
     const value = ocr.detail_table_1?.[27]?.properties?.column_2;
     const quality = ocr.supplier_table?.[2]?.properties?.column_7?.value;
     const rawQuantity = value ? cleanValue(value.value) : "";
     const quantityWithComma = rawQuantity.replace(/\./g, ',');
-    const valueQuantityNum = quantityWithComma ? Number(quantityWithComma.replace(/,/g, "")) : 0;
+    const trueQuantityWithComma = mapNameTrue(quantityWithComma)
+    const valueQuantityNum = trueQuantityWithComma
+        ? Number(trueQuantityWithComma.replace(/[,/]/g, "").trim())
+        : 0;
 
     const dateFormatted = typeof ocr.date === "string"
         ? ocr.date.replace(/[:,;]/g, ".")
@@ -153,7 +163,6 @@ const buildOutturnPayload = (ocr: any, context?: any) => {
 
     const name = ocr.detail_table_1?.[27]?.properties?.column_1;
     const nameQuantity = name ? cleanValue(name.value) : "";
-
     const isShell = context?.company?.toUpperCase?.() === "SHELL";
     const finalQuantity = isShell ? quality : valueQuantityNum;
 
@@ -712,11 +721,16 @@ const checkInvoicePiplineFailed = (
 
 const isFailed = (f: { passed: boolean } | undefined) => f && f.passed === false;
 
-const checkCompareison0701020307Failed = (res: { data?: OilCompareValidationDataV2 } | undefined): boolean => {
+// function isFailed<T>(field: FieldValidation<T> | undefined): boolean {
+//     return !!field && field.passed === false;
+// }
+
+const checkCompareison0701020307Failed = (
+    res: { data?: OilCompareValidationDataV2 } | undefined
+): boolean => {
     if (!res?.data) return false;
     const data = res.data;
 
-    // เช็ค field หลัก
     if (
         isFailed(data.company) ||
         isFailed(data.factory) ||
@@ -724,17 +738,20 @@ const checkCompareison0701020307Failed = (res: { data?: OilCompareValidationData
         isFailed(data.productName)
     ) return true;
 
-    // เช็ค summary.materialName
-    for (const matKey in data.summary.materialName) {
-        if (isFailed(data.summary.materialName[matKey])) return true;
-    }
-    // เช็ค summary.materials (array of object)
-    for (const matObj of data.summary.materials) {
-        for (const matKey in matObj) {
-            if (isFailed(matObj[matKey])) return true;
+    if (data.summary.materialName && typeof data.summary.materialName === 'object') {
+        for (const matKey in data.summary.materialName) {
+            if (isFailed(data.summary.materialName[matKey])) return true;
         }
     }
-    // เช็ค field summary อื่นๆ
+
+    if (Array.isArray(data.summary.materials)) {
+        for (const matObj of data.summary.materials) {
+            for (const matKey in matObj) {
+                if (isFailed(matObj[matKey])) return true;
+            }
+        }
+    }
+
     if (
         isFailed(data.summary.totalVolume) ||
         isFailed(data.summary.producedAndSoldVolume) ||
@@ -742,27 +759,31 @@ const checkCompareison0701020307Failed = (res: { data?: OilCompareValidationData
         isFailed(data.summary.difference)
     ) return true;
 
-    // เช็คแต่ละ item
-    for (const item of data.items) {
-        if (isFailed(item.date)) return true;
+    if (Array.isArray(data.items)) {
+        for (const item of data.items) {
+            if (isFailed(item.date)) return true;
 
-        // materialName ของ item
-        for (const matKey in item.materialName) {
-            if (isFailed(item.materialName[matKey])) return true;
-        }
-        // materials ของ item (array of object)
-        for (const matObj of item.materials) {
-            for (const matKey in matObj) {
-                if (isFailed(matObj[matKey])) return true;
+            if (item.materialName && typeof item.materialName === 'object') {
+                for (const matKey in item.materialName) {
+                    if (isFailed(item.materialName[matKey])) return true;
+                }
             }
-        }
 
-        if (
-            isFailed(item.totalVolume) ||
-            isFailed(item.producedAndSoldVolume) ||
-            isFailed(item.taxPaidVolume) ||
-            isFailed(item.difference)
-        ) return true;
+            if (Array.isArray(item.materials)) {
+                for (const matObj of item.materials) {
+                    for (const matKey in matObj) {
+                        if (isFailed(matObj[matKey])) return true;
+                    }
+                }
+            }
+
+            if (
+                isFailed(item.totalVolume) ||
+                isFailed(item.producedAndSoldVolume) ||
+                isFailed(item.taxPaidVolume) ||
+                isFailed(item.difference)
+            ) return true;
+        }
     }
 
     return false;
@@ -783,6 +804,63 @@ const check0129Failed = (res: { data?: ValidateResult0129 } | undefined): boolea
     };
 
     return hasFailed(res.data);
+};
+
+export const checkCompareison03070503Failed = (
+    res: { data?: ValidateComparison03070503Result }
+): boolean => {
+    if (!res?.data) return false;
+    const data = res.data;
+
+    const isFailed = (field: { passed: boolean } | undefined): boolean => field ? !field.passed : false;
+
+    if (
+        isFailed(data.company) ||
+        isFailed(data.factory) ||
+        isFailed(data.product) ||
+        isFailed(data.issuedDate)
+    ) {
+        return true;
+    }
+
+    for (const item of data.items) {
+        if (isFailed(item.date)) return true;
+
+        if (
+            isFailed(item.form0307.refined_oil_volume) ||
+            isFailed(item.form0307.tax_rate) ||
+            isFailed(item.form0307.excise_tax_baht) ||
+            isFailed(item.form0307.local_tax_baht)
+        ) {
+            return true;
+        }
+
+        if (
+            isFailed(item.form0503.base_oil_volume) ||
+            isFailed(item.form0503.tax_rate) ||
+            isFailed(item.form0503.excise_tax_baht) ||
+            isFailed(item.form0503.local_tax_baht)
+        ) {
+            return true;
+        }
+    }
+
+    const s = data.summary;
+    if (
+        isFailed(s.form0307.refined_oil_volume) ||
+        isFailed(s.form0307.tax_rate) ||
+        isFailed(s.form0307.excise_tax_baht) ||
+        isFailed(s.form0307.local_tax_baht) ||
+
+        isFailed(s.form0503.base_oil_volume) ||
+        isFailed(s.form0503.tax_rate) ||
+        isFailed(s.form0503.excise_tax_baht) ||
+        isFailed(s.form0503.local_tax_baht)
+    ) {
+        return true;
+    }
+
+    return false;
 };
 
 export const OCR_VALIDATE_MAP: Record<
@@ -932,6 +1010,13 @@ export const OCR_VALIDATE_MAP: Record<
         needsContext: true,
         needsAuth: true,
     },
+    "oil-compare-07-01-n-07-02-n-03-07": {
+        buildPayload: buildCompareison0701020307,
+        api: validateCompareison0701020307,
+        checkFailed: checkCompareison0701020307Failed,
+        needsContext: true,
+        needsAuth: true,
+    },
     "oil-05-03-page-1": {
         buildPayload: build0503Page1Payload,
         api: validate0503Page1,
@@ -1002,10 +1087,10 @@ export const OCR_VALIDATE_MAP: Record<
         needsContext: true,
         needsAuth: true,
     },
-    "oil-compare-07-01-n-07-02-n-03-07": {
-        buildPayload: buildCompareison0701020307,
-        api: validateCompareison0701020307,
-        checkFailed: checkCompareison0701020307Failed,
+    "oil-compare-05-03-n-03-07-1": {
+        buildPayload: buildCompareison03070503,
+        api: validateComparison03070503,
+        checkFailed: checkCompareison03070503Failed,
         needsContext: true,
         needsAuth: true,
     },
