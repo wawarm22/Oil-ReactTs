@@ -2,8 +2,8 @@ export const formatNumber = (value: any) =>
   typeof value === "number"
     ? value.toLocaleString()
     : !isNaN(Number(value)) && value !== "" && value !== null
-    ? Number(value).toLocaleString()
-    : value;
+      ? Number(value).toLocaleString()
+      : value;
 
 export const formatNumberOnly = (value: any) =>
   typeof value === "number" ? value.toLocaleString() : value;
@@ -67,10 +67,23 @@ export const safeNumber = (input: any, initial: number = 0) => {
 };
 
 const productNameMap: Record<string, string> = {
-  "1,990;153":"1,990,153"
+  "1,990;153": "1,990,153"
 };
 
 export const mapNameTrue = (name: string): string => {
   const trimmed = name.trim();
   return productNameMap[trimmed] ?? trimmed;
 };
+
+export const cleanAndFormatNumber = (input: string): string => {
+  if (!input) return "";
+  const cleaned = input.replace(/[.,\-\s]/g, "");
+  if (!/^\d+$/.test(cleaned)) return "";
+  const padded = cleaned.padStart(5, "0");
+  const intPart = padded.slice(0, padded.length - 4);
+  const decimalPart = padded.slice(-4);
+  const intNumber = intPart ? parseInt(intPart, 10) : 0;
+
+  return `${intNumber.toLocaleString("en-US")}.${decimalPart}`;
+};
+
