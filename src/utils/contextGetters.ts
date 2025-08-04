@@ -163,6 +163,27 @@ export const getContextForDocType: Record<
             documentGroup: page1.documentGroup ?? "",
         };
     },
+    "first-page-letter-or-1": async (page) => {
+        const factories = localStorage.getItem("warehouse") ?? "";
+        return {
+            factories,
+            documentGroup: page.documentGroup ?? "",
+        }
+    },
+    "oil-tax-request-st-page-1": async (page) => {
+        const factories = localStorage.getItem("warehouse") ?? "";
+        return {
+            factories,
+            documentGroup: page.documentGroup ?? "",
+        }
+    },
+    "oil-tax-request-st-page-2": async (page) => {
+        const factories = localStorage.getItem("warehouse") ?? "";
+        return {
+            factories,
+            documentGroup: page.documentGroup ?? "",
+        }
+    },
     // "oil-compare-1": async (page1) => {
     //     const company = useCompanyStore.getState().selectedCompany?.name ?? "";
     //     const factories = localStorage.getItem("warehouse") ?? "";
@@ -329,7 +350,7 @@ export const getContextForDocType: Record<
     },
     "oil-compare-07-01-n-07-02-n-03-07": async (page1, options) => {
         const auth = options?.auth;
-        
+
         if (!page1.id || !auth) return {};
         const resp = await getPreparedCompareison0701020307(page1.id, auth);
         if (!resp?.data) return {};
@@ -341,7 +362,7 @@ export const getContextForDocType: Record<
     },
     "oil-compare-05-03-n-03-07-1": async (page1, options) => {
         const auth = options?.auth;
-        
+
         if (!page1.id || !auth) return {};
         const resp = await getPreparedCompareison03070503(page1.id, auth);
         if (!resp?.data) return {};

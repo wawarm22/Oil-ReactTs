@@ -19,10 +19,10 @@ export const formatAmount = (val: any) => {
     return num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-const buildTaxPayload = (ocr: any) => ({
+const buildTaxPayload = (ocr: any, context?: any) => ({
     docType: ocr.docType,
     company: ocr.company_name ?? "",
-    factories: ocr.branch_no ?? "",
+    factories: context.factories ?? "",
     documentGroup: ocr.documentGroup ?? "",
     fields: {
         company_name: ocr.company_name ?? "",

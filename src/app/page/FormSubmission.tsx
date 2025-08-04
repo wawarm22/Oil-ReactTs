@@ -27,7 +27,7 @@ const FormSubmission: React.FC = () => {
   return (
     <div className="container-fluid w-100 mt-3" style={{ maxWidth: "1800px" }}>
       <div className="d-flex justify-content-between align-items-end">
-        <p
+        <p        
           className="fw-bold mb-0"
           style={{
             fontFamily: "IBM Plex Sans Thai",
