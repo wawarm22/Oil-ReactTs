@@ -297,6 +297,51 @@ export type OcrOutturnStatementDocument = OcrFieldsBase & {
     trip: string;
 };
 
+export type OcrOutturnReportDocument = OcrFieldsBase & {
+    type: "outturn_report";
+    docType: string;
+    documentGroup: string;
+    id: string;
+    bl_no: string;
+    check_by_signature: string;
+    completeted_LD: string;
+    departed_LD: string;
+    detail_table: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    from: string;
+    header_detail_table: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    mooring_LD: string;
+    pageCount: string;
+    pageNumber: string;
+    product: string;
+    shipment_no: string;
+    start_LD: string;
+    "summary-receiving-table": {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    to: string;
+    "total-loss-gain-table-1": {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    "total-loss-gain-table-2": {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    via_marine: string;
+};
+
 export type OcrDeliveryInvoiceDocument = OcrFieldsBase & {
     type: "delivery_invoice";
     docType: string;
@@ -782,6 +827,7 @@ export type OcrFields =
     | OcrRefineryTaxInvoiceDocument
     | OcrImportEntry0409Document
     | OcrOutturnStatementDocument
+    | OcrOutturnReportDocument
     | OcrDeliveryInvoiceDocument
     | OcrTaxForm0503Document
     | OcrComparison0503And0307Document

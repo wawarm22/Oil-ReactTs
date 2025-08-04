@@ -1,6 +1,6 @@
 import React, { } from "react";
 import AuditPagination from "../reusable/AuditPagination";
-import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument, OcrDeliveryInvoicePipline, OcrTaxForm0129Document } from "../../types/ocrFileType";
+import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument, OcrDeliveryInvoicePipline, OcrTaxForm0129Document, OcrOutturnReportDocument } from "../../types/ocrFileType";
 import { detectOcrType } from "../../utils/function/ocrType";
 import ChecklistTax from "./ChecklistTax";
 import ChecklistTable from "./ChecklistTable";
@@ -31,6 +31,7 @@ import { DocumentItem } from "../../types/docList";
 import { getTitleAndSubtitle } from "../../utils/function/getTitleAndSubtitle";
 import ChecklistForm0129 from "./ChecklistForm0129";
 import HourglassStackLoading from "../reusable/LoadingOCR";
+import ChecklistOutturnReport from "./ChecklistOutturnReport";
 
 interface Props {
     documentList: DocumentItem[];
@@ -197,6 +198,12 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "outturn_statement" && (
                     <ChecklistOutturnStatement
                         data={currentOcrFields as OcrOutturnStatementDocument}
+                        validateResult={validateResult}
+                    />
+                )}
+                {type === "outturn_report" && (
+                    <ChecklistOutturnReport
+                        data={currentOcrFields as OcrOutturnReportDocument}
                         validateResult={validateResult}
                     />
                 )}
