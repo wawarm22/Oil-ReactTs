@@ -246,6 +246,96 @@ export type OcrImportEntry0409Document = OcrFieldsBase & {
     write_time: string;
 };
 
+export type OcrImport0409Document = OcrFieldsBase & {
+    type: "import_0409";
+    bl_no: string;
+    bl_date: string;
+    branch_no: string;
+    cargo_code: string;
+    cargo_country: string;
+    change_rate: string;
+    check_at: string;
+    check_code: string;
+    cif: string;
+    clearance_crad: string;
+    company_address: string;
+    company_fax: string;
+    company_name_en: string;
+    company_name_th: string;
+    company_tel: string;
+    detail_table: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    detail_table_1: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    detail_table_2: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    detail_table_3: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    docType: string;
+    documentGroup: string;
+    form_no_1: string;
+    form_no_2: string;
+    form_type_1: string;
+    form_type_2: string;
+    form_type_3: string;
+    id: string;
+    import_at: string;
+    import_code: string;
+    import_date: string;
+    issue_date: string;
+    legal_signature: string;
+    license: string;
+    observe: string;
+    origin_code: string;
+    origin_country: string;
+    package_id: string;
+    package_no: string;
+    package_type: string;
+    pageCount: string;
+    pageNumber: string;
+    payment_date: string;
+    payment_no: string;
+    printed_time: string;
+    product_date: string;
+    product_no: string;
+    sum_des: string;
+    sum_package_no: string;
+    sum_package_unit: string;
+    sum_package_word: string;
+    sum_table_1: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    sum_table_2: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    tax_id: string;
+    tax_table: {
+        kind: string;
+        properties: Record<string, any>;
+        confidence?: number;
+    }[];
+    total_gw: string;
+    total_inv_qty: string;
+    vehicle: string;
+    voy: string;
+};
+
 export type OcrOutturnStatementDocument = OcrFieldsBase & {
     type: "outturn_statement";
     docType: string;
@@ -826,6 +916,7 @@ export type OcrFields =
     | OcrAttachment0307Document
     | OcrRefineryTaxInvoiceDocument
     | OcrImportEntry0409Document
+    | OcrImport0409Document
     | OcrOutturnStatementDocument
     | OcrOutturnReportDocument
     | OcrDeliveryInvoiceDocument

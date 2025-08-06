@@ -1,6 +1,6 @@
 import React, { } from "react";
 import AuditPagination from "../reusable/AuditPagination";
-import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument, OcrDeliveryInvoicePipline, OcrTaxForm0129Document, OcrOutturnReportDocument } from "../../types/ocrFileType";
+import { OcrFields, OcrTaxDocument, OcrDetailTableDocument, OcrGroupedProductDocument, OcrOilProductDocument, OcrStockOilDocument, OcrDailyProductionDocument, OcrTaxForm0307Document, OcrRefineryTaxInvoiceDocument, OcrImportEntry0409Document, OcrOutturnStatementDocument, OcrDeliveryInvoiceDocument, OcrTaxForm0503Document, OcrComparison0503And0307Document, OcrTaxPaymentCertificateDocument, OcrOilPurchaseSummaryDocument, OcrCustomsReceiptDocument, OcrDailyComparisonDocument, OcrTaxReceiptExciseDocument, OcrAttachment0307Document, OcrAttachment0704Document, OcrTaxForm0502Document, OcrTaxForm0503Page2Document, OcrIncomeNExpenseDocument, OcrDeliveryInvoicePipline, OcrTaxForm0129Document, OcrOutturnReportDocument, OcrImport0409Document } from "../../types/ocrFileType";
 import { detectOcrType } from "../../utils/function/ocrType";
 import ChecklistTax from "./ChecklistTax";
 import ChecklistTable from "./ChecklistTable";
@@ -32,6 +32,7 @@ import { getTitleAndSubtitle } from "../../utils/function/getTitleAndSubtitle";
 import ChecklistForm0129 from "./ChecklistForm0129";
 import HourglassStackLoading from "../reusable/LoadingOCR";
 import ChecklistOutturnReport from "./ChecklistOutturnReport";
+import ChecklistImport0409 from "./ChecklistImport0409 ";
 
 interface Props {
     documentList: DocumentItem[];
@@ -181,19 +182,30 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "tax_form_0307" && (
                     <ChecklistTaxForm0307
                         data={currentOcrFields as OcrTaxForm0307Document}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
                 {type === "refinery_tax_invoice" && (
                     <ChecklistRefineryTaxInvoice
                         data={currentOcrFields as OcrRefineryTaxInvoiceDocument}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
                 {type === "import_entry_0409" && (
                     <ChecklistImportEntry0409 data={currentOcrFields as OcrImportEntry0409Document} />
+                )}
+                {type === "import_0409" && (
+                    <ChecklistImport0409 data={currentOcrFields as OcrImport0409Document} />
                 )}
                 {type === "outturn_statement" && (
                     <ChecklistOutturnStatement
@@ -285,14 +297,22 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "tax_receipt_excise" && (
                     <ChecklistTaxReceiptExcise
                         data={currentOcrFields as OcrTaxReceiptExciseDocument}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
                 {type === "attachment_0307" && (
                     <ChecklistAttachment0307
                         data={currentOcrFields as OcrAttachment0307Document}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context.preparedData}
                     />
                 )}
@@ -321,14 +341,22 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "oil-income-expense" && (
                     <ChecklistIncomeNExpense
                         data={currentOcrFields as OcrIncomeNExpenseDocument}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
                 {type === "oil-invoice-pipline" && (
                     <ChecklistDeliveryInvoicePipline
                         data={currentOcrFields as OcrDeliveryInvoicePipline}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
