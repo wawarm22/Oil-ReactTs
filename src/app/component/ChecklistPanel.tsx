@@ -221,14 +221,22 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "tax_form_0503" && (
                     <ChecklistTaxForm0503
                         data={currentOcrFields as OcrTaxForm0503Document}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
                 {type === "tax_form_0503_page2" && (
                     <ChecklistTaxForm0503Page2
                         data={currentOcrFields as OcrTaxForm0503Page2Document}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
