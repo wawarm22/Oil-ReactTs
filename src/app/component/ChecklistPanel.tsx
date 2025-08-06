@@ -182,14 +182,22 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "tax_form_0307" && (
                     <ChecklistTaxForm0307
                         data={currentOcrFields as OcrTaxForm0307Document}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
                 {type === "refinery_tax_invoice" && (
                     <ChecklistRefineryTaxInvoice
                         data={currentOcrFields as OcrRefineryTaxInvoiceDocument}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
@@ -289,14 +297,22 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "tax_receipt_excise" && (
                     <ChecklistTaxReceiptExcise
                         data={currentOcrFields as OcrTaxReceiptExciseDocument}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
                 {type === "attachment_0307" && (
                     <ChecklistAttachment0307
                         data={currentOcrFields as OcrAttachment0307Document}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context.preparedData}
                     />
                 )}
@@ -325,14 +341,22 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "oil-income-expense" && (
                     <ChecklistIncomeNExpense
                         data={currentOcrFields as OcrIncomeNExpenseDocument}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
                 {type === "oil-invoice-pipline" && (
                     <ChecklistDeliveryInvoicePipline
                         data={currentOcrFields as OcrDeliveryInvoicePipline}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
