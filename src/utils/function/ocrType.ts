@@ -89,7 +89,7 @@ export const detectOcrType = (fields: Record<string, any>): OcrFields["type"] =>
         }
 
         if (docType === "oil-imported-1-page-1") {
-            return "import_entry_0409"
+            return "import_0409"
         }
     }    
 

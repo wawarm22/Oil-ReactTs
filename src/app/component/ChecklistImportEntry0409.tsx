@@ -61,7 +61,7 @@ const ChecklistImportEntry0409: React.FC<Props> = ({ data }) => {
             {data.detail_table.length > 0 && (
                 <>
                     <hr className="border-top border-2 border-secondary m-0" />
-                    {data.detail_table[0].rows.slice(1).map((row, rowIndex, arr) => {
+                    {(data.detail_table?.[0]?.rows?.slice(1) ?? []).map((row, rowIndex, arr) => {
                         const isLastRow = rowIndex === arr.length - 1;
                         return (
                             <div key={`tax-row-${rowIndex}`}>
@@ -97,12 +97,13 @@ const ChecklistImportEntry0409: React.FC<Props> = ({ data }) => {
                 <>
                     <hr className="border-top border-2 border-secondary m-0 mt-2" />
                     {(() => {
-                        const row1 = data.detail_table[2].rows[1] || {};
-                        const row2 = data.detail_table[2].rows[2] || {};
+                        const rows2 = data.detail_table?.[2]?.rows ?? [];
+                        const row1 = rows2[1] || {};
+                        const row2 = rows2[2] || {};
 
                         const labels = [
-                            { label: "ลำดับ", value: cleanValue(data.detail_table[2].rows[0]?.column_1) },
-                            { label: "ประเภทพิกัด", value: cleanValue(data.detail_table[2].rows[0]?.column_2) },
+                            { label: "ลำดับ", value: cleanValue(data.detail_table[2]?.rows[0]?.column_1) },
+                            { label: "ประเภทพิกัด", value: cleanValue(data.detail_table[2]?.rows[0]?.column_2) },
                             { label: "ราคาของ", value: `${cleanValue(row1.column_3)} ${cleanValue(row2.column_3)}` },
                             { label: "อัตราอากรขาเข้า", value: `${cleanValue(row1.column_4)} ${cleanValue(row2.column_4)}` },
                             { label: "ค่าธรรมเนียม", value: `${cleanValue(row1.column_5)} ${cleanValue(row2.column_5)}` },
