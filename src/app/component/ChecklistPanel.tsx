@@ -210,7 +210,11 @@ const ChecklistPanel: React.FC<Props> = ({
                 {type === "delivery_invoice" && (
                     <ChecklistDeliveryInvoice
                         data={currentOcrFields as OcrDeliveryInvoiceDocument}
-                        validateResult={validateResult.data}
+                        validateResult={
+                            validateResult && typeof validateResult === "object" && "data" in validateResult
+                                ? validateResult.data
+                                : validateResult
+                        }
                         context={context}
                     />
                 )}
